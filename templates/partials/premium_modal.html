@@ -1,0 +1,142 @@
+\<!-- Premium Pricing Modal -->
+<div id="premium-modal"
+    class="hidden fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card p-8 max-w-4xl w-full rounded-3xl relative animate-slideIn">
+        <button class="absolute top-4 right-4 text-white/70 hover:text-white text-2xl"
+            onclick="closePremiumModal()">✕</button>
+
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-bold text-white mb-2">✨ FinMate Premium</h2>
+            <p class="text-white/60">Pulunu maksimum səviyyədə idarə et</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            \<!-- Free Plan -->
+            <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Free</h3>
+                    <span class="text-3xl font-bold text-white">0 ₼</span>
+                </div>
+                <p class="text-white/50 text-sm mb-4">Əsas funksiyalar</p>
+                <ul class="space-y-3 text-white/80">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Dashboard və Büdcə İzləmə
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Resept Scan (10/ay)
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Əməliyyat Tarixçəsi
+                    </li>
+                </ul>
+            </div>
+
+            \<!-- Premium Plan -->
+            <div
+                class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-6 border-2 border-purple-400/50 relative overflow-hidden">
+                <div
+                    class="absolute top-2 right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+                    POPULYAR
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-bold text-white">Pro</h3>
+                    <div>
+                        <span
+                            class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">4.99</span>
+                        <span class="text-white/70 text-sm">₼/ay</span>
+                    </div>
+                </div>
+                <p class="text-white/70 text-sm mb-4">Tam funksional paket</p>
+                <ul class="space-y-3 text-white/90">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span class="font-medium">Limitsiz Resept Scan</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span class="font-medium">AI Maliyyə Məsləhətçisi</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span class="font-medium">Excel/PDF Export</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span class="font-medium">Prioritet Dəstək</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span class="font-medium">Reklamsız İstifadə</span>
+                    </li>
+                </ul>
+                <button hx-post="/api/activate-trial" hx-swap="none"
+                    class="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition flex items-center justify-center gap-2">
+                    <span>14 Gün Pulsuz Başla</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center text-white/50 text-sm">
+            💳 Təhlükəsiz ödəniş - 14 gün pulsuz sınaq
+        </div>
+    </div>
+</div>
+
+<script>
+    function closePremiumModal() {
+        document.getElementById('premium-modal').classList.add('hidden');
+    }
+
+    document.body.addEventListener('htmx:afterRequest', function (event) {
+        if (event.detail.elt.getAttribute('hx-post') === '/api/activate-trial') {
+            if (event.detail.successful) {
+                const response = JSON.parse(event.detail.xhr.response);
+                if (response.success) {
+                    closePremiumModal();
+                    // Show success toast (using the one in settings.html if available, or alert)
+                    if (typeof showToast === 'function') {
+                        showToast(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                    // Reload to update UI (unlock features)
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    alert(response.error || 'Xəta baş verdi');
+                }
+            }
+        }
+    });
+</script>

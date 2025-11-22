@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass rounded-3xl p-6 md:p-8">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="text-sm text-slate-300">Timeline</p>
+            <h2 class="text-2xl font-semibold">Əməliyyat Tarixçəsi</h2>
+        </div>
+        <span class="badge badge-outline badge-xs text-white/70">Canlı</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="table text-slate-200">
+            <thead>
+                <tr class="text-slate-400 text-xs uppercase">
+                    <th>Tarix</th>
+                    <th>Mağaza</th>
+                    <th>Kateqoriya</th>
+                    <th>Məbləğ</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if expenses|length == 0 %}
+                <tr>
+                    <td colspan="5" class="text-center text-slate-400">Hələ əməliyyat yoxdur.</td>
+                </tr>
+                {% endif %}
+                {% for expense in expenses %}
+                <tr class="hover:bg-white/5">
+                    <td>{{ expense.date.strftime('%d %b, %H:%M') }}</td>
+                    <td class="font-semibold">{{ expense.merchant }}</td>
+                    <td>
+                        <span class="badge badge-ghost text-white/80 border-white/30">
+                            {{ expense.category_name or 'General' }}
+                        </span>
+                    </td>
+                    <td class="font-semibold text-right">-{{ expense.amount|round(2) }} {{ user.currency or 'AZN' }}</td>
+                    <td>
+                        {% if expense.is_subscription %}
+                            <span class="text-xs text-purple-200">Abunəlik</span>
+                        {% else %}
+                            <span class="text-xs text-emerald-200">✔</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

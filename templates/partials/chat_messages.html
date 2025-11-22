@@ -1,0 +1,62 @@
+{% for message in messages %}
+{% if message.role == 'user' %}
+<!-- User Message -->
+<div class="flex justify-end">
+    <div class="message-bubble bg-gradient-to-br from-purple-500 to-pink-600 text-white p-3 rounded-2xl rounded-tr-sm">
+        {{ message.content }}
+    </div>
+</div>
+{% else %}
+<!-- AI Message -->
+<div class="flex justify-start">
+    <div class="message-bubble glass p-3 rounded-2xl rounded-tl-sm text-white">
+        {{ message.content }}
+        {% if loop.last and audio_response %}
+        <div class="mt-2 flex items-center gap-2">
+            <audio controls autoplay class="w-full" src="data:audio/mp3;base64,{{ audio_response }}"></audio>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- XP Award Notification -->
+{% if xp_result and xp_result.xp_awarded > 0 %}
+<div class="flex justify-center my-2">
+    <div class="glass-card px-4 py-2 rounded-full text-sm text-white/90">
+        +{{ xp_result.xp_awarded }} XP
+        {% if xp_result.level_up %}
+        🎉 <strong>Level Up!</strong> {{ xp_result.new_level }}
+        {% endif %}
+    </div>
+</div>
+
+{% if xp_result.level_up %}
+<script>
+    // Fire confetti on level up!
+    confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd', '#f9bec7']
+    });
+
+    // Second burst for extra effect
+    setTimeout(() => {
+        confetti({
+            particleCount: 100,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+        });
+        confetti({
+            particleCount: 100,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+        });
+    }, 200);
+</script>
+{% endif %}
+{% endif %}

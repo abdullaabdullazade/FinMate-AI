@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="grid md:grid-cols-2 gap-4 md:gap-6">
+    <div class="glass rounded-3xl p-6 md:p-8">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm text-slate-300">Ayliq büdcə</p>
+                <div class="flex items-end gap-2">
+                    <h2 class="text-4xl font-semibold">{{ context.total_spend | round(1) }} {{ context.currency }}</h2>
+                    <span class="text-slate-400 text-sm mb-1">xərclənib</span>
+                </div>
+                <p class="text-emerald-300 mt-2 text-sm">Büdcə limiti: {{ context.budget }} {{ context.currency }}</p>
+            </div>
+            <div class="rounded-2xl p-4 bg-white/5 border border-white/10">
+                <p class="text-xs text-slate-300">Qalıq</p>
+                <p class="text-2xl font-semibold text-emerald-200">{{ (context.budget - context.total_spend)|round(1) }} {{ context.currency }}</p>
+            </div>
+        </div>
+        <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3 rounded-2xl bg-white/5 border border-white/10">
+                <p class="text-xs text-slate-400">Son həftə</p>
+                <p class="text-lg font-semibold">{{ context.last_week_total|round(1) }} {{ context.currency }}</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-white/5 border border-white/10">
+                <p class="text-xs text-slate-400">Abunəliklər</p>
+                <p class="text-lg font-semibold">{{ context.subscriptions|round(1) }} {{ context.currency }}</p>
+            </div>
+            <div class="p-3 rounded-2xl bg-white/5 border border-white/10">
+                <p class="text-xs text-slate-400">Kateqoriyalar</p>
+                <p class="text-lg font-semibold">{{ context.categories|length }}</p>
+            </div>
+            <a href="/chat" class="p-3 rounded-2xl bg-gradient-to-br from-blue-500/80 to-purple-500/60 border border-white/20 hover:scale-[1.01] transition">
+                <p class="text-xs text-white/80">AI CFO</p>
+                <p class="text-lg font-semibold text-white">Məsləhət al →</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="glass rounded-3xl p-6 md:p-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-slate-300">Xərclərin yayılması</p>
+                <h3 class="text-2xl font-semibold">Kateqoriya payı</h3>
+            </div>
+            <span class="text-xs text-slate-400">Canlı</span>
+        </div>
+        <div class="mt-4">
+            <canvas id="categoryChart" height="200"></canvas>
+        </div>
+    </div>
+</section>
+
+<section class="grid lg:grid-cols-3 gap-4 md:gap-6 mt-6">
+    <div class="glass rounded-3xl p-6 md:p-7 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Son əməliyyatlar</h3>
+            <a href="/history" class="text-sm text-blue-300 hover:text-blue-200">Hamısına bax</a>
+        </div>
+        <div class="space-y-3">
+            {% if recents|length == 0 %}
+            <div class="text-center text-slate-400 text-sm py-3 border border-dashed border-white/10 rounded-2xl">Hələ əməliyyat yoxdur.</div>
+            {% endif %}
+            {% for expense in recents %}
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg">💳</div>
+                    <div>
+                        <p class="font-semibold">{{ expense.merchant }}</p>
+                        <p class="text-xs text-slate-400">{{ expense.date.strftime('%d %b, %H:%M') }} • {{ expense.category_name or 'General' }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold {% if expense.amount > 0 %}text-red-200{% endif %}">-{{ expense.amount|round(2) }} {{ context.currency }}</p>
+                    {% if expense.is_subscription %}
+                        <p class="text-xs text-purple-200">Abunəlik</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="glass rounded-3xl p-6 md:p-7 space-y-4">
+        <div>
+            <p class="text-sm text-slate-300">AI CFO insight</p>
+            <h4 class="text-xl font-semibold">Gemini nə deyir?</h4>
+            {% if top_category and top_category['total'] > 0 %}
+                <p class="text-slate-200 text-sm mt-2">Ən çox xərc: {{ top_category['name'] }} ({{ top_category['total']|round(1) }} {{ context.currency }}). Suala görə daha detallı cavab al.</p>
+            {% else %}
+                <p class="text-slate-200 text-sm mt-2">Hələ məlumat yoxdur. Xərc əlavə etmək və ya qaimə skan etmək kifayətdir.</p>
+            {% endif %}
+        </div>
+        <div class="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <p class="text-xs text-slate-300 uppercase tracking-[0.2em] mb-1">CFO Tip</p>
+            <p class="text-sm text-white">Xərclərini izləmək üçün qaimələri daxil et, FinMate onları avtomatik kateqoriyalaşdıracaq.</p>
+        </div>
+        <a href="/chat" class="btn btn-primary w-full text-white shadow-lg shadow-blue-500/40 border-none">🤖 Chatbotu aç</a>
+        <a href="/scan" class="btn btn-outline border-white/20 text-white w-full">📸 Çek skan et</a>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById("categoryChart");
+    if (!ctx) return;
+
+    const labels = {{ chart_labels | safe }};
+    const values = {{ chart_values | safe }};
+    new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ["#60a5fa","#22d3ee","#c084fc","#34d399","#fca5a5","#facc15"],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            plugins: { legend: { display: true, position: "bottom", labels: { color: "#e5e7eb" } } },
+            cutout: "70%"
+        }
+    });
+});
+</script>
+{% endblock %}

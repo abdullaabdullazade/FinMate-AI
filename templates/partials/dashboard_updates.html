@@ -1,0 +1,196 @@
+<!-- Update Dashboard Stats -->
+<div id="dashboard-stats" hx-swap-oob="true" class="glass-card p-6 slide-up desktop-full-width">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white">Bu ay</h2>
+        <span class="text-sm text-white/70">{{ now.strftime('%B %Y') if now else 'Cari ay' }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Total Spending -->
+        <div>
+            <p class="text-sm text-white/70 mb-2">Ümumi xərc</p>
+            <div class="flex items-end gap-2">
+                <span class="text-4xl font-bold text-white">{{ "%.2f"|format(total_spending) }}</span>
+                <span class="text-lg text-white/70 mb-1">AZN</span>
+            </div>
+        </div>
+
+        <!-- Budget -->
+        <div>
+            <p class="text-sm text-white/70 mb-2">Aylıq büdcə</p>
+            <div class="flex items-end gap-2">
+                <span class="text-4xl font-bold text-white">{{ "%.2f"|format(user.monthly_budget) }}</span>
+                <span class="text-lg text-white/70 mb-1">AZN</span>
+            </div>
+        </div>
+
+        <!-- Remaining -->
+        <div>
+            <p class="text-sm text-white/70 mb-2">Qalıq</p>
+            <div class="flex items-end gap-2">
+                <span
+                    class="text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                    {{ "%.2f"|format(user.monthly_budget - total_spending) }}
+                </span>
+                <span class="text-lg text-white/70 mb-1">AZN</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mt-6">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-sm text-white/70">Büdcə istifadəsi</span>
+            <span class="text-sm font-bold text-white">{{ "%.1f"|format(budget_percentage) }}%</span>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-4">
+            <div class="h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                style="width: {{ min(budget_percentage, 100) }}%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Category Breakdown -->
+<div id="category-breakdown" hx-swap-oob="true" class="glass-card p-6 slide-up" style="animation-delay: 0.1s">
+    <h3 class="text-lg font-bold text-white mb-4">Kateqoriyalar üzrə</h3>
+
+    <div class="space-y-3">
+        {% for category, amount in category_data.items() %}
+        {% set category_percent = (amount / total_spending * 100) if total_spending > 0 else 0 %}
+        <div class="group hover:bg-white/5 p-3 rounded-xl transition">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg 
+                        {% if 'Market' in category %}category-market
+                        {% elif 'Restoran' in category %}category-restoran
+                        {% elif 'Kafe' in category %}category-kafe
+                        {% elif 'Nəqliyyat' in category %}category-transport
+                        {% elif 'Mobil' in category or 'İnternet' in category %}category-mobile
+                        {% elif 'Kommunal' in category %}category-kommunal
+                        {% elif 'Geyim' in category or 'Alış-veriş' in category %}category-shopping
+                        {% elif 'Online' in category %}category-online
+                        {% elif 'Əyləncə' in category %}category-entertainment
+                        {% elif 'Aptек' in category or 'İdman' in category %}category-health
+                        {% elif 'Bank' in category or 'E-ödəniş' in category %}category-bank
+                        {% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %}
+                        flex items-center justify-center text-xl">
+                        {% if 'Market' in category %}🛒
+                        {% elif 'Restoran' in category %}🍽️
+                        {% elif 'Kafe' in category %}☕
+                        {% elif 'Nəqliyyat' in category %}🚗
+                        {% elif 'Mobil' in category %}📱
+                        {% elif 'İnternet' in category %}🌐
+                        {% elif 'Kommunal' in category %}⚡
+                        {% elif 'Geyim' in category %}👔
+                        {% elif 'Alış-veriş' in category %}🏬
+                        {% elif 'Online' in category %}📦
+                        {% elif 'Əyləncə' in category %}🎬
+                        {% elif 'Aptек' in category %}💊
+                        {% elif 'İdman' in category %}💪
+                        {% elif 'Bank' in category %}🏦
+                        {% elif 'E-ödəniş' in category %}💳
+                        {% elif 'Dövlət' in category %}🏛️
+                        {% else %}💰{% endif %}
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">{{ category }}</p>
+                        <p class="text-xs text-white/60">{{ category_percent | round(1) }}%</p>
+                    </div>
+                </div>
+                <span class="text-white font-bold">{{ "%.2f"|format(amount) }} ₼</span>
+            </div>
+
+            <!-- Progress bar for each category -->
+            <div class="w-full bg-white/10 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all
+                    {% if 'Market' in category %}bg-green-500
+                    {% elif 'Restoran' in category or 'Kafe' in category %}bg-amber-500
+                    {% elif 'Nəqliyyat' in category %}bg-blue-500
+                    {% elif 'Mobil' in category or 'İnternet' in category %}bg-pink-500
+                    {% elif 'Kommunal' in category %}bg-orange-500
+                    {% else %}bg-purple-500{% endif %}" style="width: {{ category_percent }}%">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Update Recent Transactions -->
+<div id="recent-transactions" hx-swap-oob="true" class="glass-card p-6 slide-up" style="animation-delay: 0.2s">
+    <h3 class="text-lg font-bold text-white mb-4">Son əməliyyatlar</h3>
+    <div class="space-y-3 max-h-[600px] overflow-y-auto">
+        {% for expense in recent_expenses %}
+        {% set txn_id = 'txn-' ~ expense.id %}
+        <div class="py-3 border-b border-white/10 rounded-lg transition">
+            <div class="flex items-center justify-between hover:bg-white/5 px-2 py-2 rounded-lg transition cursor-pointer transaction-header"
+                data-transaction-id="{{ txn_id }}" data-target="items-{{ txn_id }}" aria-expanded="false">
+                <div class="flex items-center gap-3">
+                    <div class="merchant-logo
+                        {% if 'Market' in expense.category or 'Bravo' in expense.merchant or 'Araz' in expense.merchant %}category-market
+                        {% elif 'Restoran' in expense.category or 'KFC' in expense.merchant or 'McDonald' in expense.merchant %}category-restoran
+                        {% elif 'Kafe' in expense.category or 'Coffee' in expense.merchant or 'Starbucks' in expense.merchant %}category-kafe
+                        {% elif 'Nəqliyyat' in expense.category or 'Bolt' in expense.merchant or 'Uber' in expense.merchant %}category-transport
+                        {% elif 'Mobil' in expense.category or 'İnternet' in expense.category %}category-mobile
+                        {% elif 'Kommunal' in expense.category %}category-kommunal
+                        {% elif 'Geyim' in expense.category or 'Alış-veriş' in expense.category %}category-shopping
+                        {% elif 'Online' in expense.category or 'AliExpress' in expense.merchant %}category-online
+                        {% elif 'Əyləncə' in expense.category or 'Netflix' in expense.merchant %}category-entertainment
+                        {% elif 'Aptек' in expense.category or 'İdman' in expense.category %}category-health
+                        {% elif 'Bank' in expense.category or 'E-ödəniş' in expense.category or 'Kapital' in expense.merchant %}category-bank
+                        {% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %}">
+                        {{ expense.notes if expense.notes else '💰' }}
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">{{ expense.merchant }}</p>
+                        <p class="text-xs text-white/60">{{ expense.category }} • {{
+                            expense.date.strftime('%d.%m.%Y, %H:%M') }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-white font-bold">{{ "%.2f"|format(expense.amount) }} ₼</span>
+                    {% if expense.items and expense.items|length > 0 %}
+                    <svg class="w-5 h-5 text-white/50 transition-transform expand-icon" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                        </path>
+                    </svg>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if expense.items and expense.items|length > 0 %}
+            <div class="transaction-items hidden mt-3 pl-[60px]" id="items-{{ txn_id }}" data-parent="{{ txn_id }}">
+                <div class="bg-white/5 rounded-lg p-3 text-xs border border-white/10">
+                    <p class="text-white/50 mb-2 font-medium">Məhsullar ({{ expense.items|length }})</p>
+                    {% set total_items = expense.items|length %}
+                    <ul class="space-y-1.5">
+                        {% for item in expense.items %}
+                        <li class="flex justify-between text-white/70 py-1 border-b border-white/5 last:border-0 {% if loop.index > 5 %}hidden extra-item-{{ txn_id }}{% endif %}">
+                            <span class="flex-1">{{ loop.index }}. {{ item.name }}</span>
+                            <span class="font-medium text-white">{{ "%.2f"|format(item.price) }} ₼</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if total_items > 5 %}
+                    <div class="mt-2 pt-2 border-t border-white/10">
+                        <button type="button"
+                            class="w-full text-center text-white/60 italic hover:text-white hover:bg-white/5 transition py-1.5 px-3 rounded-lg show-more-items"
+                            data-target="{{ txn_id }}" data-count="{{ total_items - 5 }}" data-expanded="false">
+                            <span class="flex items-center justify-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                                +{{ total_items - 5 }} daha çox məhsul
+                            </span>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>

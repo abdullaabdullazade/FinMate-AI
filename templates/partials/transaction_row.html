@@ -1,0 +1,109 @@
+<div id="expense-{{ expense.id }}" class="py-3 border-b border-white/10 rounded-lg transition group">
+    <!-- Transaction Header - Clickable -->
+    <div class="flex items-center justify-between hover:bg-white/5 px-2 py-2 rounded-lg transition cursor-pointer transaction-header"
+        data-transaction-id="txn-{{ expense.id }}" data-target="items-txn-{{ expense.id }}" aria-expanded="false">
+        <div class="flex items-center gap-3 flex-1">
+            <div class="merchant-logo
+                {% if 'Market' in expense.category or 'Bravo' in expense.merchant or 'Araz' in expense.merchant %}category-market
+                {% elif 'Restoran' in expense.category or 'KFC' in expense.merchant or 'McDonald' in expense.merchant %}category-restoran
+                {% elif 'Kafe' in expense.category or 'Coffee' in expense.merchant or 'Starbucks' in expense.merchant %}category-kafe
+                {% elif 'Nəqliyyat' in expense.category or 'Bolt' in expense.merchant or 'Uber' in expense.merchant %}category-transport
+                {% elif 'Mobil' in expense.category or 'İnternet' in expense.category %}category-mobile
+                {% elif 'Kommunal' in expense.category %}category-kommunal
+                {% elif 'Geyim' in expense.category or 'Alış-veriş' in expense.category %}category-shopping
+                {% elif 'Online' in expense.category or 'AliExpress' in expense.merchant %}category-online
+                {% elif 'Əyləncə' in expense.category or 'Netflix' in expense.merchant %}category-entertainment
+                {% elif 'Aptək' in expense.category or 'İdman' in expense.category %}category-health
+                {% elif 'Bank' in expense.category or 'E-ödəniş' in expense.category or 'Kapital' in expense.merchant %}category-bank
+                {% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %}">
+                {{ expense.notes if expense.notes else '💰' }}
+            </div>
+            <div class="flex-1">
+                <p class="text-white font-medium">{{ expense.merchant }}</p>
+                <div class="flex items-center gap-2">
+                    <p class="text-xs text-white/60">{{ expense.category }} • {{
+                        expense.date.strftime('%d.%m.%Y, %H:%M') }}</p>
+                    {% if expense.items and expense.items|length > 0 %}
+                    <span class="text-xs bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded-full">{{
+                        expense.items|length }} məhsul</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-white font-bold">{{ "%.2f"|format(expense.amount) }} ₼</span>
+
+            <!-- Edit Button -->
+            <button
+                onclick="openEditModal({{ expense.id }}, '{{ expense.merchant }}', {{ expense.amount }}, '{{ expense.category }}')"
+                class="transition-opacity text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-500/10"
+                title="Düzəliş et">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                </svg>
+            </button>
+
+            <!-- Delete Icon -->
+            <button onclick="openDeleteModal({{ expense.id }})"
+                class="transition-opacity text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10"
+                title="Sil">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+            </button>
+            {% if expense.items and expense.items|length > 0 %}
+            <svg class="w-5 h-5 text-white/50 transition-transform expand-icon" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                </path>
+            </svg>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Itemized Breakdown - Hidden by default -->
+    {% if expense.items and expense.items|length > 0 %}
+    <div class="transaction-items hidden mt-3 pl-0 md:pl-[60px] transition-all duration-300"
+        id="items-txn-{{ expense.id }}" data-parent="txn-{{ expense.id }}">
+        <div class="bg-white/5 rounded-lg p-3 text-xs border border-white/10 animate-slideDown">
+            <p class="text-white/50 mb-2 font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                    </path>
+                </svg>
+                Məhsullar ({{ expense.items|length }})
+            </p>
+            {% set total_items = expense.items|length %}
+            <ul class="space-y-1.5" id="items-list-txn-{{ expense.id }}">
+                {% for item in expense.items %}
+                <li
+                    class="flex justify-between text-white/70 py-1 border-b border-white/5 last:border-0 {% if loop.index > 5 %}hidden extra-item-txn-{{ expense.id }}{% endif %}">
+                    <span class="flex-1">{{ loop.index }}. {{ item.name }}</span>
+                    <span class="font-medium text-white">{{ "%.2f"|format(item.price) }} ₼</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if total_items > 5 %}
+            <div class="mt-2 pt-2 border-t border-white/10">
+                <button type="button"
+                    class="w-full text-center text-white/60 italic hover:text-white hover:bg-white/5 transition py-1.5 px-3 rounded-lg show-more-items"
+                    data-target="txn-{{ expense.id }}" data-count="{{ total_items - 5 }}" data-expanded="false">
+                    <span class="flex items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                        +{{ total_items - 5 }} daha çox məhsul
+                    </span>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>

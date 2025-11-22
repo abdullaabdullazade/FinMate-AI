@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - FinMate AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Chat Container - Responsive Heights */
+    .chat-container {
+        height: calc(100vh - 250px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+    }
+
+    @media (max-width: 640px) {
+        .chat-container {
+            height: calc(100vh - 320px);
+        }
+    }
+
+    /* Message Bubbles - Better Mobile Sizing */
+    .message-bubble {
+        max-width: 85%;
+        word-wrap: break-word;
+        word-break: break-word;
+        animation: slideIn 0.3s ease-out;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+        .message-bubble {
+            max-width: 90%;
+            font-size: 0.95rem;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+        display: inline-flex;
+        gap: 4px;
+        padding: 12px 16px;
+    }
+
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        animation: bounce 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+        }
+
+        30% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Chat Input Container - Fixed Positioning */
+    .chat-input-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 640px) {
+        .chat-input-container {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Chat Messages Container -->
+<div class="max-w-4xl mx-auto">
+    <div class="glass-card p-6 mb-20 lg:mb-10">
+        <div class="chat-container" id="chatContainer">
+            <div id="messages" class="space-y-6">
+                {% for message in messages %}
+                {% if message.role == 'user' %}
+                <!-- User Message -->
+                <div class="flex justify-end">
+                    <div
+                        class="message-bubble bg-gradient-to-br from-purple-500 to-pink-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-lg">
+                        {{ message.content }}
+                    </div>
+                </div>
+                {% else %}
+                <!-- AI Message -->
+                <div class="flex justify-start">
+                    <div class="message-bubble glass p-4 rounded-2xl rounded-tl-sm text-white shadow-lg">
+                        {{ message.content }}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+\<!-- Chat Input (Fixed at Bottom) -->
+<div class="chat-input-container fixed bottom-20 left-0 right-0 px-4 md:bottom-4 transition-all duration-300 z-50">
+    <div class="max-w-2xl mx-auto">
+        <form hx-post="/api/chat" hx-target="#messages" hx-swap="beforeend" hx-headers='{"X-Client-Appended":"true"}'
+            hx-on::after-request="this.reset(); scrollToBottom();" class="glass-card p-3 flex items-center gap-2"
+            id="chat-form">
+            <input type="text" name="message" placeholder="CFO-dan nə istədiyini yaz..." required
+                class="flex-1 bg-transparent border-none outline-none text-white placeholder-white/50 px-2 text-base"
+                autocomplete="off" />
+            <button type="submit"
+                class="w-12 h-12 flex-shrink-0 rounded-full bg-white flex items-center justify-center hover:scale-110 transition shadow-lg group">
+                <svg class="w-6 h-6 text-purple-600 group-hover:text-purple-700 transition" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function scrollToBottom() {
+        const container = document.getElementById('chatContainer');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Scroll to bottom on page load
+    scrollToBottom();
+
+    // Append user bubble instantly before request
+    document.body.addEventListener('htmx:beforeRequest', function (evt) {
+        if (evt.target.id !== 'chat-form') return;
+        const input = evt.target.querySelector('input[name="message"]');
+        const text = input?.value?.trim();
+        if (!text) return;
+
+        const messages = document.getElementById('messages');
+        const userDiv = document.createElement('div');
+        userDiv.className = 'flex justify-end';
+        userDiv.innerHTML = `
+            <div class="message-bubble bg-gradient-to-br from-purple-500 to-pink-600 text-white p-3 rounded-2xl rounded-tr-sm">
+                ${text.replace(/</g, "&lt;")}
+            </div>
+        `;
+        messages.appendChild(userDiv);
+
+        // Clear input immediately after capturing the message
+        input.value = '';
+
+        // Remove existing typing indicator if any
+        const oldTyping = document.getElementById('typing-indicator');
+        if (oldTyping) oldTyping.remove();
+
+        // Add typing indicator for AI
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'flex justify-start';
+        typingDiv.id = 'typing-indicator';
+        typingDiv.innerHTML = `
+            <div class="glass p-3 rounded-2xl rounded-tl-sm">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `;
+        messages.appendChild(typingDiv);
+        scrollToBottom();
+    });
+
+    // Show typing indicator when sending message
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+        if (evt.target.id !== 'chat-form') return;
+        const typing = document.getElementById('typing-indicator');
+        typing && typing.remove();
+        scrollToBottom();
+    });
+</script>
+{% endblock %}

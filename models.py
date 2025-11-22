@@ -1,0 +1,111 @@
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON, Date
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from datetime import datetime
+
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    monthly_budget = Column(Float, default=1000.0)
+    
+    # Gamification fields
+    xp_points = Column(Integer, default=0)
+    level_title = Column(String, default="Rookie")
+    
+    # User preferences
+    preferred_language = Column(String, default="az")  # az, en, ru
+    voice_enabled = Column(Boolean, default=True)
+    daily_budget_limit = Column(Float, nullable=True)
+    currency = Column(String, default="AZN")  # Display/Base currency
+    personality_mode = Column(String, default="normal")  # normal, mom, strict
+    is_premium = Column(Boolean, default=False)  # Premium subscription status
+    
+    # AI Persona fields (NEW)
+    ai_name = Column(String, default="FinMate")  # Customizable AI name
+    ai_attitude = Column(String, default="Professional")  # Strict, Funny, Sarcastic, Supportive
+    ai_style = Column(String, default="Formal")  # Slang, Shakespearean, Dialect, Short
+    ai_persona_mode = Column(String, default="Auto")  # Auto (behavioral profiling) or Manual
+    
+    # Tracking fields
+    login_streak = Column(Integer, default=0)
+    last_login_date = Column(Date, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    expenses = relationship("Expense", back_populates="user", cascade="all, delete-orphan")
+    chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
+    xp_logs = relationship("XPLog", back_populates="user", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<User(username='{self.username}', budget={self.monthly_budget})>"
+
+
+class Expense(Base):
+    __tablename__ = "expenses"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    merchant = Column(String, nullable=False)
+    category = Column(String, nullable=False)  # Food, Transport, Shopping, Bills, etc.
+    date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    is_subscription = Column(Boolean, default=False)
+    items = Column(JSON, nullable=True)  # For itemized receipts: [{"name": "Burger", "price": 5.99}, ...]
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="expenses")
+    
+    def __repr__(self):
+        return f"<Expense(merchant='{self.merchant}', amount={self.amount}, category='{self.category}')>"
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    role = Column(String, nullable=False)  # 'user' or 'ai'
+    content = Column(Text, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    user = relationship("User", back_populates="chat_messages")
+    
+    def __repr__(self):
+        return f"<ChatMessage(role='{self.role}', content='{self.content[:30]}...')>"
+
+
+class XPLog(Base):
+    __tablename__ = "xp_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    amount = Column(Integer, nullable=False)
+    action_type = Column(String, nullable=False)  # 'manual_expense', 'scan_receipt', 'chat', 'login_streak'
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="xp_logs")
+    
+    def __repr__(self):
+        return f"<XPLog(action='{self.action_type}', amount={self.amount})>"
+
+
+class Wish(Base):
+    __tablename__ = "wishes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    url = Column(String, nullable=True)
+    price = Column(Float, nullable=True)
+    locked_until = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - FinMate AI{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+    .persona-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        border: 3px solid rgba(255, 215, 0, 0.5);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Financial Personality Card - Spotify Wrapped Style -->
+<div id="personality-card" class="persona-card p-8 mb-6 rounded-3xl slide-up text-center relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 left-0 w-full h-full opacity-10">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-40 h-40 bg-yellow-300 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10">
+        <p class="text-white/70 text-sm mb-2">Maliyyə Şəxsiyyətin</p>
+        <div class="text-7xl mb-4">{{ personality.emoji }}</div>
+        <h2 class="text-4xl font-bold text-white mb-3">{{ personality.title }}</h2>
+        <p class="text-white/90 text-lg italic mb-6">"{{ personality.quote }}"</p>
+
+        <div class="flex items-center justify-center gap-4 mb-6">
+            <div class="text-center">
+                <p class="text-3xl font-bold text-white">{{ personality.top_category }}</p>
+                <p class="text-sm text-white/70">Ən çox xərclədiyin</p>
+            </div>
+            <div class="w-px h-12 bg-white/30"></div>
+            <div class="text-center">
+                <p class="text-3xl font-bold text-white">{{ personality.spending_score }}/10</p>
+                <p class="text-sm text-white/70">Xərc reytinqi</p>
+            </div>
+        </div>
+
+        <button onclick="sharePersonality()"
+            class="px-8 py-3 rounded-full bg-white text-purple-600 font-bold hover:scale-105 transition-transform shadow-lg">
+            📤 Story-ə Paylaş
+        </button>
+    </div>
+</div>
+
+<div class="relative overflow-hidden rounded-3xl p-8 mb-6 slide-up" style="animation-delay: 0.05s">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 opacity-90"></div>
+    <div
+        class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-20">
+    </div>
+
+    <!-- Floating Orbs -->
+    <div class="absolute top-4 right-4 w-32 h-32 bg-white/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-4 left-4 w-40 h-40 bg-yellow-300/30 rounded-full blur-3xl"></div>
+
+    <div class="relative z-10">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-5xl shadow-2xl border-2 border-white/30">
+                    {{ level_info.emoji }}
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm mb-1">Səviyyən</p>
+                    <h3 class="text-3xl font-black text-white drop-shadow-lg">{{ level_info.title }}</h3>
+                    <p class="text-white/90 text-sm font-medium">
+                        {% if level_info.title == 'Rookie' %}Level 1 • Yeni başlayan
+                        {% elif level_info.title == 'Saver' %}Level 2 • Qənaətkar
+                        {% elif level_info.title == 'Analyst' %}Level 3 • Analitik
+                        {% elif level_info.title == 'Manager' %}Level 4 • Menecer
+                        {% elif level_info.title == 'CFO' %}Level 5 • Maliyyə direktoru
+                        {% else %}Level 6 • Ustad{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- XP Badge -->
+            <div
+                class="text-center bg-white/20 backdrop-blur-md rounded-2xl px-6 py-4 border-2 border-white/40 shadow-2xl">
+                <p class="text-5xl font-black text-white drop-shadow-md">{{ user.xp_points }}</p>
+                <p class="text-sm text-white/90 font-bold mt-1">XP</p>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-white/90 text-sm font-medium">Növbəti səviyyə:</span>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-400/30 border border-yellow-300/50">
+                        <span class="text-lg">{{ next_level.next_level_emoji }}</span>
+                        <span class="text-white font-bold text-sm">{{ next_level.next_level_title }}</span>
+                    </div>
+                </div>
+                <span class="text-2xl font-black text-white drop-shadow">{{
+                    "%.0f"|format(level_info.progress_percentage) }}%</span>
+            </div>
+
+            <!-- Animated Progress Bar -->
+            <div class="w-full h-4 bg-white/20 rounded-full overflow-hidden border-2 border-white/30">
+                <div class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 shadow-lg"
+                    style="width: {{ level_info.progress_percentage }}%">
+                </div>
+            </div>
+
+            <!-- Next Level Info -->
+            <div class="mt-4 text-center">
+                {% if next_level.xp_needed > 0 %}
+                <p class="text-white/90 font-medium">
+                    🎯 <span class="font-black text-yellow-200">{{ next_level.xp_needed }} XP</span> qalıb!
+                </p>
+                {% else %}
+                <p class="text-yellow-200 font-black flex items-center justify-center gap-2">
+                    <span class="text-2xl">🏆</span> Maksimum səviyyədəsən!
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="glass-card p-4 text-center slide-up" style="animation-delay: 0.1s">
+        <p class="text-3xl font-bold text-white mb-1">{{ total_expenses }}</p>
+        <p class="text-sm text-white/70">Ümumi xərclər</p>
+    </div>
+    <div class="glass-card p-4 text-center slide-up" style="animation-delay: 0.15s">
+        <p class="text-3xl font-bold text-white mb-1">{{ "%.0f"|format(total_spent_all_time) }}</p>
+        <p class="text-sm text-white/70">Xərclənib ({{ user.currency or 'AZN' }})</p>
+    </div>
+</div>
+
+<!-- XP Breakdown & History -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- XP Breakdown Chart -->
+    <div class="glass-card p-6 slide-up" style="animation-delay: 0.1s">
+        <h3 class="text-lg font-bold text-white mb-4">XP bölüşdürməsi</h3>
+        <div class="h-64 flex items-center justify-center">
+            <canvas id="xpChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent XP History -->
+    <div class="glass-card p-6 slide-up" style="animation-delay: 0.15s">
+        <h3 class="text-lg font-bold text-white mb-4">Son aktivlik</h3>
+        <div class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            {% if xp_logs %}
+            {% for log in xp_logs %}
+            <div class="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
+                        {% if log.action_type == 'manual_expense' %}📝
+                        {% elif log.action_type == 'scan_receipt' %}🧾
+                        {% elif log.action_type == 'chat_message' %}💬
+                        {% elif log.action_type == 'login_streak' %}🔥
+                        {% else %}✨{% endif %}
+                    </div>
+                    <div>
+                        <p class="text-white text-sm font-medium">
+                            {% if log.action_type == 'manual_expense' %}Manual xərc
+                            {% elif log.action_type == 'scan_receipt' %}Qəbz skanı
+                            {% elif log.action_type == 'chat_message' %}AI ilə söhbət
+                            {% elif log.action_type == 'login_streak' %}Gündəlik giriş
+                            {% else %}{{ log.action_type }}{% endif %}
+                        </p>
+                        <p class="text-xs text-white/50">{{ log.created_at.strftime('%d %b %H:%M') }}</p>
+                    </div>
+                </div>
+                <span class="text-green-400 font-bold text-sm">+{{ log.amount }} XP</span>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-white/50 text-center py-4">Hələ aktivlik yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Export Button -->
+<div class="mb-6 flex justify-center slide-up" style="animation-delay: 0.2s">
+    <a href="/api/export-pdf"
+        class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 text-white px-8 py-3 rounded-xl transition-all shadow-lg font-bold">
+        📄 Export Monthly Report (PDF)
+    </a>
+    <a href="/heatmap"
+        class="ml-3 inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl transition-all border border-white/20">
+        🗺️ Xəritəm
+    </a>
+</div>
+
+<!-- Budget Settings -->
+<div class="glass-card p-6 mb-6 slide-up" style="animation-delay: 0.2s">
+    <h3 class="text-lg font-bold text-white mb-4">💰 Aylıq Büdcə</h3>
+    <div class="flex items-center justify-between">
+        <span class="text-white">Cari Büdcə</span>
+        <span class="text-2xl font-bold text-white">{{ "%.2f"|format(user.monthly_budget) }} ₼</span>
+    </div>
+</div>
+
+<!-- Subscriptions -->
+<div class="glass-card p-6 mb-6 slide-up" style="animation-delay: 0.25s">
+    <h3 class="text-lg font-bold text-white mb-4">📱 Aktiv Abunəliklər</h3>
+    {% if subscriptions %}
+    <div class="space-y-3">
+        {% for sub in subscriptions %}
+        <div class="flex items-center justify-between py-2 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-xl">
+                    💳
+                </div>
+                <div>
+                    <p class="text-white font-medium">{{ sub.merchant }}</p>
+                    <p class="text-xs text-white/60">{{ sub.category }}</p>
+                </div>
+            </div>
+            <span class="text-white font-bold">{{ "%.2f"|format(sub.amount) }} ₼</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-white/60 text-center py-4">Aktiv abunəlik yoxdur</p>
+    {% endif %}
+</div>
+
+<!-- App Info -->
+<div class="glass-card p-6 slide-up" style="animation-delay: 0.3s">
+    <h3 class="text-lg font-bold text-white mb-4">ℹ️ FinMate AI Haqqında</h3>
+    <p class="text-white/80 text-sm mb-4">
+        Google Gemini AI ilə gücləndirilən şəxsi maliyyə məsləhətçiniz. Maliyyə idarəetməsini sadə, ağıllı və əlçatan
+        edir.
+    </p>
+    <div class="space-y-2 text-sm">
+        <div class="flex justify-between text-white/70">
+            <span>Version</span>
+            <span class="text-white">1.0.0</span>
+        </div>
+        <div class="flex justify-between text-white/70">
+            <span>AI Model</span>
+            <span class="text-white">Gemini 1.5 Flash</span>
+        </div>
+        <div class="flex justify-between text-white/70">
+            <span>Tech Stack</span>
+            <span class="text-white">FastAPI + HTMX</span>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('xpChart').getContext('2d');
+
+        // Parse the breakdown data
+        const xpData = {{ xp_breakdown| tojson | safe
+    }};
+
+    // If no data, show empty state or default
+    if (Object.keys(xpData).length === 0) {
+        // Optional: Handle empty state
+        return;
+    }
+
+    const labels = Object.keys(xpData).map(key => {
+        if (key === 'manual_expense') return 'Xərclər';
+        if (key === 'scan_receipt') return 'Qəbz';
+        if (key === 'chat_message') return 'Söhbət';
+        if (key === 'login_streak') return 'Serial giriş';
+        return key;
+    });
+
+    const data = Object.values(xpData);
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#3B82F6', // Blue
+                    '#10B981', // Green
+                    '#8B5CF6', // Purple
+                    '#F59E0B', // Amber
+                    '#EC4899'  // Pink
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+});
+
+    // Share Personality Card
+    async function sharePersonality() {
+        const card = document.getElementById('personality-card');
+        if (!card) {
+            console.error('Personality card not found');
+            return;
+        }
+
+        // Check if html2canvas is loaded
+        if (typeof html2canvas === 'undefined') {
+            alert('Xəta: html2canvas yüklənməyib. Səhifəni yeniləyin.');
+            return;
+        }
+
+        try {
+            const canvas = await html2canvas(card, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true
+            });
+
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    alert('Xəta: Şəkil yaradıla bilmədi.');
+                    return;
+                }
+
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `finmate-personality-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                // Show notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg';
+                notification.textContent = '✅ Şəxsiyyət kartı yükləndi!';
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                document.body.appendChild(notification);
+
+                setTimeout(() => notification.style.opacity = '1', 10);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }, 'image/png');
+        } catch (error) {
+            console.error('Share failed:', error);
+            alert('Xəta baş verdi: ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

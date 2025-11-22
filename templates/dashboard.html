@@ -1,0 +1,1332 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FinMate AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Premium Dashboard Styles */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 20px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Dream Vault Blur Effect */
+    .dream-image {
+        transition: filter 0.5s ease;
+    }
+
+    /* Eco Score Leaf Icons */
+    .eco-leaf {
+        display: inline-block;
+        font-size: 24px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Persona Card Styles */
+    .persona-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        border: 3px solid rgba(255, 215, 0, 0.5);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Category Icons */
+    .category-market {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .category-restoran {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .category-kafe {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .category-transport {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .category-mobile {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
+
+    .category-kommunal {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+
+    .category-shopping {
+        background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    }
+
+    .category-online {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    }
+
+    .category-entertainment {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .category-health {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    }
+
+    .category-bank {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .merchant-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    /* Smooth animations */
+    .slide-up {
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Chart container */
+    .chart-shell {
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 45%),
+            radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.06), transparent 40%),
+            rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22), 0 8px 20px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Welcome Banner Animations */
+    @keyframes wave {
+
+        0%,
+        100% {
+            transform: rotate(0deg);
+        }
+
+        10%,
+        30% {
+            transform: rotate(14deg);
+        }
+
+        20%,
+        40% {
+            transform: rotate(-8deg);
+        }
+
+        50% {
+            transform: rotate(10deg);
+        }
+
+        60% {
+            transform: rotate(-4deg);
+        }
+
+        70% {
+            transform: rotate(6deg);
+        }
+
+        80% {
+            transform: rotate(-2deg);
+        }
+    }
+
+    .animate-wave {
+        animation: wave 2.5s ease-in-out infinite;
+        transform-origin: 70% 70%;
+        display: inline-block;
+    }
+
+    @keyframes gradient {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .animate-gradient {
+        animation: gradient 3s ease-in-out infinite;
+    }
+
+    /* Transaction Items Animation */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slideDown {
+        animation: slideDown 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid px-4 pb-32">
+
+    <!-- DEBT WARNING - Critical Alert -->
+    {% if budget_percentage >= 100 %}
+    <div class="glass-card p-6 slide-up border-2 border-red-500 bg-red-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-4">
+            <div class="text-5xl">⚠️</div>
+            <div class="flex-1">
+                <h3 class="text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
+                <p class="text-red-100">
+                    Bu ay <strong>{{ "%.2f"|format(total_spending - user.monthly_budget) }} AZN</strong> artıq
+                    xərclədiniz.
+                    Xərclərinizi azaltmağı tövsiyə edirik.
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-red-200 text-sm">Büdcə</p>
+                <p class="text-3xl font-bold text-red-100">{{ "%.0f"|format(budget_percentage) }}%</p>
+            </div>
+        </div>
+    </div>
+    {% elif budget_percentage >= 80 %}
+    <div class="glass-card p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-4">
+            <div class="text-4xl">⚡</div>
+            <div class="flex-1">
+                <h3 class="text-xl font-bold text-yellow-200 mb-1">Diqqət: Büdcə Limitinə Yaxınsınız</h3>
+                <p class="text-yellow-100">
+                    Büdcənizin <strong>{{ "%.0f"|format(budget_percentage) }}%</strong>-ni istifadə etdiniz.
+                    Daha <strong>{{ "%.2f"|format(user.monthly_budget - total_spending) }} AZN</strong> qalıb.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Welcome Banner - Premium Design -->
+    <div class="glass-card p-6 slide-up border-2 border-white/20 relative overflow-hidden"
+        style="grid-column: span 12; animation-delay: 0.02s;">
+        <!-- Animated Background Gradient -->
+        <div
+            class="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 animate-gradient">
+        </div>
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-500/30 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 flex items-center gap-4">
+            <div class="text-6xl animate-wave">👋</div>
+            <div class="flex-1">
+                <h2 class="text-2xl font-bold text-white mb-1">
+                    Salam, {{ user.username.capitalize() }}!
+                </h2>
+                <p class="text-white/80 text-lg">
+                    Maliyyə azadlığına xoş gəldin
+                </p>
+                <p class="text-white/60 text-sm mt-2">
+                    FinMate AI ilə xərclərinizi idarə edin, qənaət edin və arzularınıza çatın.
+                </p>
+            </div>
+            <div class="hidden md:flex items-center gap-3">
+                <a href="/chat"
+                    class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg">
+                    💬 AI Məsləhəti
+                </a>
+                <a href="/scan"
+                    class="px-6 py-3 bg-white/10 rounded-xl text-white font-medium hover:bg-white/20 transition border border-white/20">
+                    📸 Çek Skan
+                </a>
+                <button onclick="openFraudAlert()"
+                    class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg shadow-red-500/50 border-2 border-red-400 animate-pulse">
+                    🚨 Fraud
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- XP Progress - Full Width (MOVED TO TOP) -->
+    {% if level_info %}
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">{{ level_info.emoji }}</span>
+                <div>
+                    <h3 class="text-lg font-bold text-white">{{ level_info.title }}</h3>
+                    <p class="text-sm text-white/60" id="xp-text">{{ user.xp_points }} / {{ level_info.max_xp if
+                        level_info.max_xp != float('inf') else '∞' }} XP</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-white/60">Level {{ level_info.level }}</p>
+                <p class="text-lg font-bold text-white">{{ "%.0f"|format(level_info.progress_percentage) }}%</p>
+            </div>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-3">
+            <div id="xp-progress-bar"
+                class="h-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                style="width: {{ level_info.progress_percentage }}%"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Budget Overview - Full Width -->
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-sm text-white/50">{{ greeting }}, {{ user.username.capitalize() }}</p>
+                <h2 class="text-2xl font-bold text-white">Bu ay</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="speak-btn" type="button"
+                    class="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/80 to-pink-500/80 text-white border border-white/20 hover:brightness-110 shadow-lg shadow-pink-500/30"
+                    onclick="window.speakSummaryEdge && window.speakSummaryEdge()"
+                    aria-label="Dashboard məlumatını səsləndir">
+                    <span class="text-lg">🔊</span>
+                    <span class="font-semibold">Səsləndir</span>
+                </button>
+                <span class="text-sm text-white/70">{{ now.strftime('%B %Y') if now else 'Cari ay' }}</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Total Spending -->
+            <div>
+                <p class="text-sm text-white/70 mb-2">Ümumi xərc</p>
+                <div class="flex items-end gap-2">
+                    <span id="stat-total" class="text-4xl font-bold text-white">{{ "%.2f"|format(total_spending)
+                        }}</span>
+                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div>
+                <p class="text-sm text-white/70 mb-2">Aylıq büdcə</p>
+                <div class="flex items-end gap-2">
+                    <span id="stat-budget" class="text-4xl font-bold text-white">{{ "%.2f"|format(user.monthly_budget)
+                        }}</span>
+                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                </div>
+            </div>
+
+            <!-- Remaining -->
+            <div>
+                <p class="text-sm text-white/70 mb-2">Qalıq</p>
+                <div class="flex items-end gap-2">
+                    <span id="stat-remaining"
+                        class="text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                        {{ "%.2f"|format(user.monthly_budget - total_spending) }}
+                    </span>
+                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                </div>
+            </div>
+
+            <!-- Eco Score -->
+            <div>
+                <p class="text-sm text-white/70 mb-2">Eko İmpakt</p>
+                <div class="flex items-end gap-2">
+                    <span class="eco-leaf">{{ eco_score.icon }}</span>
+                    <span class="text-4xl font-bold text-white">{{ eco_score.value }}</span>
+                    <span class="text-lg text-white/70 mb-1">kg CO₂</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mt-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-white/70">Büdcə istifadəsi</span>
+                <span class="text-sm font-bold text-white">{{ "%.1f"|format(budget_percentage) }}%</span>
+            </div>
+            <div class="w-full bg-white/20 rounded-full h-4">
+                <div class="h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                    style="width: {{ min(budget_percentage, 100) }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Time Machine -->
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.1s;">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                ⏳ Gələcək Proqnozu
+            </h3>
+            <span class="text-sm text-white/60">Maliyyə Zaman Maşını</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8 items-center">
+            <div class="flex-1 w-full">
+                <label for="time-machine-slider" class="block text-sm text-white/70 mb-4 flex justify-between">
+                    <span>Zamanı irəli çək:</span>
+                    <span id="time-machine-label" class="font-bold text-white">İndi</span>
+                </label>
+                <input type="range" id="time-machine-slider" min="0" max="12" value="0" step="1"
+                    class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                <div class="flex justify-between text-xs text-white/40 mt-2">
+                    <span>İndi</span>
+                    <span>6 ay</span>
+                    <span>1 il</span>
+                </div>
+            </div>
+
+            <div class="text-center md:text-right min-w-[200px]">
+                <p class="text-sm text-white/60 mb-1">Təxmini Balans</p>
+                <p id="projected-balance" class="text-4xl font-bold text-white transition-colors duration-300">
+                    {{ "%.2f"|format(user.monthly_budget - total_spending) }} ₼
+                </p>
+                <p class="text-xs text-white/40 mt-1">
+                    Aylıq qənaət: <span id="monthly-savings">{{ "%.2f"|format(user.monthly_budget - total_spending)
+                        }}</span> ₼
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spending Trends Chart - Mobile Friendly -->
+
+
+    <!-- Dream Vault - 8 columns -->
+
+
+    <!-- Eco Impact Score - Better layout -->
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.15s;">
+        <div class="lg:grid lg:grid-cols-3 lg:gap-6">
+            <!-- Eco Score Summary -->
+            <div class="lg:col-span-1 mb-6 lg:mb-0">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    🌍 Eko İmpakt
+                </h3>
+                <div class="text-center p-6 rounded-xl bg-white/5">
+                    <div class="text-6xl mb-3">{{ eco_score.icon }}</div>
+                    <div class="text-4xl font-bold text-white mb-2">{{ eco_score.value }}</div>
+                    <div class="text-sm text-white/70">kg CO₂ bu ay</div>
+                </div>
+            </div>
+
+            <!-- Eco Breakdown -->
+            <div class="lg:col-span-2">
+                <h4 class="text-sm font-bold text-white/70 mb-3 uppercase tracking-wide">Kateqoriya üzrə</h4>
+                <div class="space-y-3">
+                    {% for category, impact in eco_breakdown.items() %}
+                    <div
+                        class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">{{ impact.icon }}</span>
+                            <div>
+                                <p class="text-white font-medium text-sm">{{ category }}</p>
+                                <p class="text-xs text-white/60">{{ impact.level }}</p>
+                            </div>
+                        </div>
+                        <span class="text-white font-bold">{{ impact.co2 }} kg</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4 p-4 rounded-lg bg-green-500/20 border border-green-500/30">
+                    <p class="text-sm text-green-200">
+                        💡 <strong>AI Məsləhət:</strong> {{ eco_tip }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown - Premium Design -->
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">Kateqoriyalar üzrə</h3>
+            <span class="text-sm text-white/60">{{ category_data|length }} kateqoriya</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for category, amount in category_data.items() %}
+            {% set category_percent = (amount / total_spending * 100) if total_spending > 0 else 0 %}
+            <div class="relative overflow-hidden rounded-2xl p-5 hover:scale-105 transition-all duration-300 shadow-lg
+                {% if 'Market' in category %}bg-gradient-to-br from-green-500/20 to-emerald-600/30 border border-green-500/30
+                {% elif 'Restoran' in category %}bg-gradient-to-br from-amber-500/20 to-orange-600/30 border border-amber-500/30
+                {% elif 'Kafe' in category %}bg-gradient-to-br from-purple-500/20 to-violet-600/30 border border-purple-500/30
+                {% elif 'Nəqliyyat' in category %}bg-gradient-to-br from-blue-500/20 to-cyan-600/30 border border-blue-500/30
+                {% elif 'Mobil' in category or 'İnternet' in category %}bg-gradient-to-br from-pink-500/20 to-rose-600/30 border border-pink-500/30
+                {% elif 'Kommunal' in category %}bg-gradient-to-br from-orange-500/20 to-red-600/30 border border-orange-500/30
+                {% elif 'Geyim' in category or 'Alış-veriş' in category %}bg-gradient-to-br from-indigo-500/20 to-purple-600/30 border border-indigo-500/30
+                {% elif 'Online' in category %}bg-gradient-to-br from-cyan-500/20 to-teal-600/30 border border-cyan-500/30
+                {% elif 'Əyləncə' in category %}bg-gradient-to-br from-red-500/20 to-pink-600/30 border border-red-500/30
+                {% elif 'Aptək' in category or 'İdman' in category %}bg-gradient-to-br from-teal-500/20 to-green-600/30 border border-teal-500/30
+                {% elif 'Bank' in category or 'E-ödəniş' in category %}bg-gradient-to-br from-indigo-500/20 to-blue-600/30 border border-indigo-500/30
+                {% else %}bg-gradient-to-br from-gray-500/20 to-slate-600/30 border border-gray-500/30{% endif %}">
+
+                <!-- Icon Badge -->
+                <div class="absolute -top-2 -right-2 w-16 h-16 rounded-full blur-2xl opacity-40
+                    {% if 'Market' in category %}bg-green-500
+                    {% elif 'Restoran' in category %}bg-amber-500
+                    {% elif 'Kafe' in category %}bg-purple-500
+                    {% elif 'Nəqliyyat' in category %}bg-blue-500
+                    {% elif 'Mobil' in category or 'İnternet' in category %}bg-pink-500
+                    {% elif 'Kommunal' in category %}bg-orange-500
+                    {% else %}bg-purple-500{% endif %}"></div>
+
+                <div class="relative z-10">
+                    <!-- Header -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl shadow-xl
+                            {% if 'Market' in category %}bg-gradient-to-br from-green-400 to-emerald-600
+                            {% elif 'Restoran' in category %}bg-gradient-to-br from-amber-400 to-orange-600
+                            {% elif 'Kafe' in category %}bg-gradient-to-br from-purple-400 to-violet-600
+                            {% elif 'Nəqliyyat' in category %}bg-gradient-to-br from-blue-400 to-cyan-600
+                            {% elif  'Mobil' in category or 'İnternet' in category %}bg-gradient-to-br from-pink-400 to-rose-600
+                            {% elif 'Kommunal' in category %}bg-gradient-to-br from-orange-400 to-red-600
+                            {% elif 'Geyim' in category or 'Alış-veriş' in category %}bg-gradient-to-br from-indigo-400 to-purple-600
+                            {% elif 'Online' in category %}bg-gradient-to-br from-cyan-400 to-teal-600
+                            {% elif 'Əyləncə' in category %}bg-gradient-to-br from-red-400 to-pink-600
+                            {% elif 'Aptək' in category or 'İdman' in category %}bg-gradient-to-br from-teal-400 to-green-600
+                            {% elif 'Bank' in category or 'E-ödəniş' in category %}bg-gradient-to-br from-indigo-400 to-blue-600
+                            {% else %}bg-gradient-to-br from-gray-400 to-slate-600{% endif %}">
+                            {% if 'Market' in category %}🛒
+                            {% elif 'Restoran' in category %}🍽️
+                            {% elif 'Kafe' in category %}☕
+                            {% elif 'Nəqliyyat' in category %}🚗
+                            {% elif 'Mobil' in category %}📱
+                            {% elif 'İnternet' in category %}🌐
+                            {% elif 'Kommunal' in category %}⚡
+                            {% elif 'Geyim' in category %}👔
+                            {% elif 'Alış-veriş' in category %}🏬
+                            {% elif 'Online' in category %}📦
+                            {% elif 'Əyləncə' in category %}🎬
+                            {% elif 'Aptək' in category %}💊
+                            {% elif 'İdman' in category %}💪
+                            {% elif 'Bank' in category %}🏦
+                            {% elif 'E-ödəniş' in category %}💳
+                            {% else %}💰{% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white font-bold text-lg">{{ category }}</p>
+                            <p class="text-white/50 text-xs">{{ category_percent | round(1) }}% xərc</p>
+                        </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="flex items-end justify-between mb-3">
+                        <div>
+                            <p class="text-white/60 text-xs mb-1">Ümumi məbləğ</p>
+                            <p class="text-white font-black text-2xl">{{ "%.0f"|format(amount) }} <span
+                                    class="text-lg">₼</span></p>
+                        </div>
+                        <div class="text-right">
+                            <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold
+                                {% if category_percent >= 30 %}bg-red-500/30 text-red-200
+                                {% elif category_percent >= 15 %}bg-yellow-500/30 text-yellow-200
+                                {% else %}bg-green-500/30 text-green-200{% endif %}">
+                                {% if category_percent >= 30 %}🔥 Yüksək
+                                {% elif category_percent >= 15 %}⚡ Orta
+                                {% else %}✅ Az{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000 ease-out shadow-lg
+                            {% if 'Market' in category %}bg-green-500
+                            {% elif 'Restoran' in category or 'Kafe' in category %}bg-amber-500
+                            {% elif 'Nəqliyyat' in category %}bg-blue-500
+                            {% elif 'Mobil' in category or 'İnternet' in category %}bg-pink-500
+                            {% elif 'Kommunal' in category %}bg-orange-500
+                            {% else %}bg-purple-500{% endif %}" style="width: {{ category_percent }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Transactions - Full Width -->
+    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.25s;">
+        <h3 class="text-lg font-bold text-white mb-4">Son əməliyyatlar</h3>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+            {% for expense in recent_expenses %}
+            {% include "partials/transaction_row.html" %}
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Edit Transaction Modal -->
+<div id="edit-modal"
+    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="glass-card p-6 w-full max-w-md transform scale-95 transition-transform duration-300"
+            id="edit-modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Düzəliş et</h3>
+                <button onclick="closeEditModal()" class="text-white/50 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="edit-form" hx-put="" hx-target="" hx-swap="outerHTML" onsubmit="closeEditModal()">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Obyekt / Mağaza</label>
+                        <input type="text" name="merchant" id="edit-merchant" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Məbləğ (AZN)</label>
+                        <input type="number" name="amount" id="edit-amount" step="0.01" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Kateqoriya</label>
+                        <select name="category" id="edit-category" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition">
+                            <option value="Market" class="text-black">Market</option>
+                            <option value="Restoran" class="text-black">Restoran</option>
+                            <option value="Kafe" class="text-black">Kafe</option>
+                            <option value="Nəqliyyat" class="text-black">Nəqliyyat</option>
+                            <option value="Əyləncə" class="text-black">Əyləncə</option>
+                            <option value="Kommunal" class="text-black">Kommunal</option>
+                            <option value="Geyim" class="text-black">Geyim</option>
+                            <option value="Bank" class="text-black">Bank</option>
+                            <option value="Digər" class="text-black">Digər</option>
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition mt-4">
+                        Yadda saxla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Pet Widget (İt) - Emotional based on spending -->
+<div id="financialPet" class="fixed pet-container pointer-events-auto"
+    style="z-index: 120; bottom: 110px; right: 20px; opacity: 0.98;">
+    <div class="glass-card p-4 rounded-2xl shadow-2xl max-w-[220px] border border-white/15 bg-white/10">
+        <!-- Pet Character -->
+        <div class="text-center mb-2">
+            <div id="petEmoji" class="text-6xl pet-bounce">
+                {% set spending_ratio = (total_spending / user.monthly_budget * 100) if user.monthly_budget > 0 else
+                0
+                %}
+                {% if spending_ratio > 90 %}😰
+                {% elif spending_ratio > 70 %}😟
+                {% elif spending_ratio > 50 %}😊
+                {% else %}🤗{% endif %}
+            </div>
+        </div>
+
+        <!-- Speech Bubble -->
+        <div class="speech-bubble relative bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
+            <p id="petMessage" class="text-xs text-white font-medium text-center leading-tight">
+                {% set spending_ratio = (total_spending / user.monthly_budget * 100) if user.monthly_budget > 0 else
+                0
+                %}
+                {% if spending_ratio > 90 %}
+                Çox xərcləyirsən! Diqqətli ol! 😰
+                {% elif spending_ratio > 70 %}
+                Büdcənə yaxınlaşırsan... 😟
+                {% elif spending_ratio > 50 %}
+                Yaxşı gedirsən! Davam et! 😊
+                {% else %}
+                Əla! Çox yaxşı qənaət edirsən! 🤗
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Particles -->
+        <div id="petParticles" class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Pet Container - Mobile Responsive */
+    .pet-container {
+        transition: all 0.3s ease;
+    }
+
+    @media (max-width: 640px) {
+        .pet-container {
+            bottom: 120px;
+            right: 12px;
+            max-width: 180px;
+        }
+
+        #petEmoji {
+            font-size: 3rem !important;
+        }
+
+        .speech-bubble p {
+            font-size: 0.65rem !important;
+        }
+    }
+
+    /* Pet Animations */
+    .pet-bounce {
+        animation: petBounce 2s ease-in-out infinite;
+        display: inline-block;
+    }
+
+    @keyframes petBounce {
+
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-8px) scale(1.05);
+        }
+    }
+
+    .pet-shake {
+        animation: petShake 0.5s ease-in-out;
+    }
+
+    @keyframes petShake {
+
+        0%,
+        100% {
+            transform: translateX(0) rotate(0deg);
+        }
+
+        25% {
+            transform: translateX(-5px) rotate(-5deg);
+        }
+
+        75% {
+            transform: translateX(5px) rotate(5deg);
+        }
+    }
+
+    /* Floating Hearts */
+    .floating-heart {
+        position: absolute;
+        font-size: 24px;
+        animation: floatUp 2s ease-out forwards;
+        pointer-events: none;
+    }
+
+    @keyframes floatUp {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(0.5);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-100px) scale(1.2);
+        }
+    }
+
+    /* Falling Tears */
+    .falling-tear {
+        position: absolute;
+        font-size: 20px;
+        animation: fallDown 1.5s ease-in forwards;
+        pointer-events: none;
+    }
+
+    @keyframes fallDown {
+        0% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(60px) rotate(20deg);
+        }
+    }
+
+    /* Speech Bubble Pulse */
+    .speech-pulse {
+        animation: pulse 0.3s ease-in-out;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }
+</style>
+
+<script>
+    // Time Machine Logic
+    const slider = document.getElementById('time-machine-slider');
+    const label = document.getElementById('time-machine-label');
+    const projectedDisplay = document.getElementById('projected-balance');
+    const savingsElement = document.getElementById('monthly-savings');
+
+    if (slider && savingsElement) {
+        // Get current financial data from DOM
+        const totalSpendingEl = document.getElementById('stat-total');
+        const monthlyBudgetEl = document.getElementById('stat-budget');
+        const remainingEl = document.getElementById('stat-remaining');
+
+        const totalSpending = totalSpendingEl ? parseFloat(totalSpendingEl.innerText) : 0;
+        const monthlyBudget = monthlyBudgetEl ? parseFloat(monthlyBudgetEl.innerText) : 0;
+
+        // Calculate actual monthly savings (Budget - Current Spending)
+        const monthlySavings = monthlyBudget - totalSpending;
+
+        // Get current balance (remaining for this month)
+        const currentBalance = remainingEl ? parseFloat(remainingEl.innerText) : monthlySavings;
+
+        slider.addEventListener('input', (e) => {
+            const months = parseInt(e.target.value);
+
+            // Update label based on months selected
+            if (months === 0) {
+                label.innerText = 'İndi';
+            } else if (months === 1) {
+                label.innerText = '1 ay sonra';
+            } else {
+                label.innerText = `${months} ay sonra`;
+            }
+
+            // Formula: Current Balance + (Monthly Savings * Months)
+            // This assumes we continue saving/spending at the current rate
+            const projectedBalance = currentBalance + (monthlySavings * months);
+
+            // Update display
+            projectedDisplay.innerText = projectedBalance.toFixed(2) + ' ₼';
+
+            // Visual feedback: RED for negative, GREEN for positive
+            if (projectedBalance < 0) {
+                projectedDisplay.classList.remove('text-white', 'text-green-400');
+                projectedDisplay.classList.add('text-red-400');
+            } else {
+                projectedDisplay.classList.remove('text-white', 'text-red-400');
+                projectedDisplay.classList.add('text-green-400');
+            }
+        });
+    }
+
+    // Edit Modal Logic
+    function openEditModal(id, merchant, amount, category) {
+        const modal = document.getElementById('edit-modal');
+        const form = document.getElementById('edit-form');
+
+        document.getElementById('edit-merchant').value = merchant;
+        document.getElementById('edit-amount').value = amount;
+        document.getElementById('edit-category').value = category;
+
+        // Set HTMX attributes
+        form.setAttribute('hx-put', `/api/expenses/${id}`);
+        form.setAttribute('hx-target', `#expense-${id}`);
+        htmx.process(form); // Re-process to pick up new attributes
+
+        modal.classList.remove('hidden');
+        // Small delay for animation
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            document.getElementById('edit-modal-content').classList.remove('scale-95');
+            document.getElementById('edit-modal-content').classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('edit-modal');
+        modal.classList.add('opacity-0');
+        document.getElementById('edit-modal-content').classList.add('scale-95');
+        document.getElementById('edit-modal-content').classList.remove('scale-100');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    // Financial Pet Logic
+    const FinancialPet = {
+        states: {
+            veryHappy: {
+                emoji: '😊',
+                messages: [
+                    'Əla! Çox yaxşı qənaət edirsən! ❤️',
+                    'Afərin! Davam elə! 🌟',
+                    'Sən ən yaxşı dostumsan! 💖'
+                ],
+                animation: 'hearts'
+            },
+            happy: {
+                emoji: '🐶',
+                messages: [
+                    'Yaxşı gedir! Davam et! 👍',
+                    'Məni sevindirirsən! 😊',
+                    'Belə davam et! ✨'
+                ],
+                animation: 'none'
+            },
+            neutral: {
+                emoji: '😐',
+                messages: [
+                    'Diqqətli ol, limit yaxınlaşır...',
+                    'Bir az qənaət etsən yaxşı olar 🤔',
+                    'Büdcəni nəzərdə saxla!'
+                ],
+                animation: 'none'
+            },
+            sad: {
+                emoji: '😢',
+                messages: [
+                    'Çox xərcləyirsən... Kədərlənirəm 😢',
+                    'Zəhmət olmasa qənaət et!',
+                    'Məni düşün, az xərcləyək 💔'
+                ],
+                animation: 'tears'
+            },
+            crying: {
+                emoji: '😭',
+                messages: [
+                    'Zəhmət olmasa qənaət et! 💔',
+                    'Büdcə bitdi! Çox kədərliyəm 😭',
+                    'Məni xilas et, xərcləməyi dayandır! 🆘'
+                ],
+                animation: 'tears'
+            }
+        },
+
+        getCurrentState(budgetPercentage) {
+            if (budgetPercentage < 50) return 'veryHappy';
+            if (budgetPercentage < 80) return 'happy';
+            if (budgetPercentage < 100) return 'neutral';
+            if (budgetPercentage < 120) return 'sad';
+            return 'crying';
+        },
+
+        updatePet(budgetPercentage) {
+            const state = this.getCurrentState(budgetPercentage);
+            const stateData = this.states[state];
+
+            // Update emoji
+            const petEmoji = document.getElementById('petEmoji');
+            if (petEmoji) {
+                petEmoji.textContent = stateData.emoji;
+
+                // Add shake for sad states
+                if (state === 'sad' || state === 'crying') {
+                    petEmoji.classList.add('pet-shake');
+                    setTimeout(() => petEmoji.classList.remove('pet-shake'), 500);
+                }
+            }
+
+            // Update message
+            const message = stateData.messages[Math.floor(Math.random() * stateData.messages.length)];
+            const petMessage = document.getElementById('petMessage');
+            if (petMessage) {
+                petMessage.textContent = message;
+
+                // Pulse animation
+                const bubble = document.querySelector('.speech-bubble');
+                if (bubble) {
+                    bubble.classList.add('speech-pulse');
+                    setTimeout(() => bubble.classList.remove('speech-pulse'), 300);
+                }
+            }
+
+            // Show particles
+            if (stateData.animation === 'hearts') {
+                this.showHearts();
+            } else if (stateData.animation === 'tears') {
+                this.showTears();
+            }
+        },
+
+        showHearts() {
+            const container = document.getElementById('petParticles');
+            if (!container) return;
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.textContent = '❤️';
+                    heart.className = 'floating-heart';
+                    heart.style.left = `${20 + Math.random() * 60}%`;
+                    heart.style.top = '40%';
+                    container.appendChild(heart);
+                    setTimeout(() => heart.remove(), 2000);
+                }, i * 200);
+            }
+        },
+
+        showTears() {
+            const container = document.getElementById('petParticles');
+            if (!container) return;
+
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const tear = document.createElement('div');
+                    tear.textContent = '💧';
+                    tear.className = 'falling-tear';
+                    tear.style.left = `${30 + Math.random() * 40}%`;
+                    tear.style.top = '25%';
+                    container.appendChild(tear);
+                    setTimeout(() => tear.remove(), 1500);
+                }, i * 400);
+            }
+        },
+
+        init() {
+            // Get budget percentage
+            const budgetPercentage = {{ budget_percentage | default(0)
+    }};
+    this.updatePet(budgetPercentage);
+
+    // Update every 30 seconds
+    setInterval(() => {
+        this.updatePet(budgetPercentage);
+    }, 30000);
+        }
+    };
+
+    // Initialize pet
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('financialPet')) {
+            FinancialPet.init();
+            const petEl = document.getElementById('financialPet');
+            petEl.style.display = 'block';
+            petEl.style.opacity = '1';
+        }
+    });
+</script>
+
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js"></script>
+
+<script>
+    // --- 1. DREAM VAULT MƏNTİQİ ---
+    let dreamSaved = {{ dream_saved | default (450) }};
+    let dreamGoal = {{ dream_goal | default (3000) }};
+
+    function addDreamSavings(amount) {
+        dreamSaved += amount;
+        let dreamProgress = (dreamSaved / dreamGoal) * 100;
+
+        const progressBar = document.getElementById('dream-progress');
+        const dreamImage = document.getElementById('dream-image');
+
+        if (progressBar) progressBar.style.width = dreamProgress + '%';
+
+        // Blur effekti
+        const blurAmount = Math.max(0, 20 - (dreamProgress / 100 * 20));
+        if (dreamImage) dreamImage.style.filter = `blur(${blurAmount}px)`;
+
+        // Konfeti
+        if (dreamProgress >= 100 && typeof confetti !== 'undefined') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+
+        showNotification(`+${amount} AZN əlavə edildi! 🎉`);
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg transition-all duration-300 transform translate-y-[-10px] opacity-0';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Animasiya
+        requestAnimationFrame(() => {
+            notification.classList.remove('translate-y-[-10px]', 'opacity-0');
+        });
+
+        setTimeout(() => {
+            notification.classList.add('translate-y-[-10px]', 'opacity-0');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // --- 2. TRANSACTION TOGGLE (AÇILIB-BAĞLANMA) ---
+    // Bunu qlobal funksiya etdik ki, HTML-dən rahat çağırılsın
+    window.toggleTransaction = function (header) {
+        console.log('Click detected on:', header);
+
+        // ID-ni tapırıq
+        const targetId = header.dataset.target || `items-${header.dataset.transactionId}`;
+        const itemsDiv = document.getElementById(targetId);
+        const expandIcon = header.querySelector('.expand-icon');
+
+        if (!itemsDiv) {
+            console.error('Hədəf tapılmadı:', targetId);
+            return;
+        }
+
+        // Digərlərini bağla (Akkordeon effekti)
+        const parentList = header.closest('.space-y-3');
+        if (parentList) {
+            parentList.querySelectorAll('.transaction-items').forEach(el => {
+                if (el.id !== targetId) el.classList.add('hidden');
+            });
+            parentList.querySelectorAll('.transaction-header').forEach(h => {
+                if (h !== header) {
+                    h.setAttribute('aria-expanded', 'false');
+                    const icon = h.querySelector('.expand-icon');
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
+        // Mövcud olanı aç/bağla
+        const isHidden = itemsDiv.classList.toggle('hidden');
+        header.setAttribute('aria-expanded', (!isHidden).toString());
+        if (expandIcon) {
+            expandIcon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+    };
+
+    window.toggleMoreItems = function (btn) {
+        const targetId = btn.dataset.target; // Məsələn: "txn-40"
+        const expanded = btn.dataset.expanded === 'true';
+
+        // DÜZƏLİŞ: replace('txn-', '') hissəsini sildik. 
+        // Çünki HTML-də class belədir: "extra-item-txn-40"
+        const extras = document.querySelectorAll(`.extra-item-${targetId}`);
+
+        if (extras.length === 0) {
+            console.warn("Gizli elementlər tapılmadı:", `.extra-item-${targetId}`);
+            return;
+        }
+
+        extras.forEach(el => {
+            el.classList.toggle('hidden');
+        });
+
+        if (expanded) {
+            // Bağlayanda
+            btn.innerHTML = `
+                <span class="flex items-center justify-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    +${btn.dataset.count} daha çox məhsul
+                </span>`;
+            btn.dataset.expanded = 'false';
+        } else {
+            // Açanda
+            btn.innerHTML = `
+                <span class="flex items-center justify-center gap-1">
+                    <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    Daha az göstər
+                </span>`;
+            btn.dataset.expanded = 'true';
+        }
+    };
+    // --- 3. CHART SETUP ---
+    let categoryChart;
+    // Datanı düzgün formatda alırıq (Səhv olarsa boş obyekt)
+    const initialCategoryData = {{ category_data | tojson | safe if category_data else '{}' }};
+
+    function renderCategoryChart(data) {
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx) return;
+
+        const labels = Object.keys(data || {});
+        const values = Object.values(data || {});
+
+        if (labels.length === 0) return;
+
+        if (categoryChart) categoryChart.destroy();
+
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: [
+                        '#10b981', '#f59e0b', '#8b5cf6', '#3b82f6', '#ec4899',
+                        '#f97316', '#a855f7', '#06b6d4', '#ef4444', '#14b8a6'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- 4. MAIN EXECUTION (DOM READY) ---
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // A. Event Listenerləri Əllə Bağlayırıq (Sığorta)
+        document.querySelectorAll('.transaction-header').forEach(header => {
+            header.addEventListener('click', function (e) {
+                // Delete düyməsinə basanda açılmasın
+                if (e.target.closest('button')) return;
+                window.toggleTransaction(this);
+            });
+        });
+
+        document.querySelectorAll('.show-more-items').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); // Headeri tetikləməsin
+                window.toggleMoreItems(this);
+            });
+        });
+
+        // B. Qrafiki Çək
+        try {
+            renderCategoryChart(initialCategoryData);
+        } catch (e) { console.error("Chart error:", e); }
+
+        // C. Rəqəmləri Uçur (FIXED VERSION)
+        function animateNumber(elementId, finalValue) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            // Kitabxananı hər cür axtarırıq
+            const CountUpCtor = window.CountUp?.CountUp || window.CountUp || window.countUp?.CountUp || window.countUp;
+
+            if (CountUpCtor) {
+                const anim = new CountUpCtor(elementId, finalValue, {
+                    duration: 2.5,
+                    separator: ',',
+                    decimalPlaces: 2
+                });
+                if (!anim.error) anim.start();
+                else el.innerText = finalValue.toFixed(2);
+            } else {
+                // Kitabxana yoxdursa, sadəcə yaz
+                el.innerText = finalValue.toFixed(2);
+                console.warn("CountUp not found, using fallback");
+            }
+        }
+
+        // Rəqəmləri işə salırıq
+        animateNumber('stat-total', {{ total_spending }});
+    animateNumber('stat-budget', {{ user.monthly_budget }});
+    animateNumber('stat-remaining', {{ user.monthly_budget - total_spending }});
+
+    // D. Notification Demo
+    setTimeout(() => {
+        const toastContainer = document.getElementById('toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto backdrop-blur-md bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white px-6 py-4 rounded-xl shadow-2xl flex gap-3 transform transition-all duration-500 translate-x-full';
+            toast.innerHTML = `
+                    <span class="text-2xl">🔔</span>
+                    <div>
+                        <p class="font-bold">Abunəlik Xəbərdarlığı</p>
+                        <p class="text-sm">Netflix sabah yenilənir (12 ₼).</p>
+                    </div>`;
+            toastContainer.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-x-full'));
+            setTimeout(() => toast.remove(), 8000);
+        }
+    }, 5000);
+    });
+
+    // Edge TTS summary for dashboard
+    window.speakSummaryEdge = async function () {
+        const greeting = document.querySelector('h2.text-2xl')?.innerText || '';
+        const total = document.getElementById('stat-total')?.innerText || '';
+        const budget = document.getElementById('stat-budget')?.innerText || '';
+        const remaining = document.getElementById('stat-remaining')?.innerText || '';
+        const ecoVal = document.querySelector('.eco-leaf')?.nextElementSibling?.innerText || '';
+        const speakBtn = document.getElementById('speak-btn');
+
+        const summary = [
+            greeting,
+            total ? `Ümumi xərc ${total} manatdır` : '',
+            budget ? `Aylıq büdcə ${budget} manatdır` : '',
+            remaining ? `Qalıq ${remaining} manatdır` : '',
+            ecoVal ? `Eko iz ${ecoVal} kiloqram CO2` : ''
+        ].filter(Boolean).join('. ');
+
+        if (!summary) return;
+
+        if (speakBtn) {
+            speakBtn.disabled = true;
+            speakBtn.classList.add('opacity-70');
+            speakBtn.querySelector('span.font-semibold').textContent = 'Səsləndirilir...';
+        }
+
+        const fd = new FormData();
+        fd.append('text', summary);
+        fd.append('language', 'az');
+
+        try {
+            const res = await fetch('/api/tts', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data && data.success && data.audio_response) {
+                const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`);
+                audio.play();
+            } else {
+                console.warn('TTS failed', data);
+            }
+        } catch (err) {
+            console.error('TTS error', err);
+        } finally {
+            if (speakBtn) {
+                speakBtn.disabled = false;
+                speakBtn.classList.remove('opacity-70');
+                speakBtn.querySelector('span.font-semibold').textContent = 'Səsləndir';
+            }
+        }
+    };
+</script>
+{% endblock %}

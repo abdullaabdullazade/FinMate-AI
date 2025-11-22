@@ -1,0 +1,15 @@
+        {% if wishes %}
+        {% for wish in wishes %}
+        <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+            <div>
+                <p class="text-white font-medium">{{ wish.title }}</p>
+                <p class="text-xs text-white/50">
+                    {{ wish.url if wish.url else 'Link yoxdur' }} • Kilid açılacaq: {{ wish.locked_until.strftime('%d.%m %H:%M') }}
+                </p>
+            </div>
+            <span class="text-white font-bold">{{ "%.2f"|format(wish.price if wish.price else 0) }} AZN</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-white/60 text-sm">Hələ istək əlavə etməmisən.</p>
+        {% endif %}

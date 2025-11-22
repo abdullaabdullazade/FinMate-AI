@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+jinja2
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+google-generativeai
+python-dotenv
+aiofiles
+edge-tts
+openai
+WeasyPrint
+Pillow
+matplotlib
+pydub

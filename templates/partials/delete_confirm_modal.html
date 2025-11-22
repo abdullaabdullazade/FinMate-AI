@@ -1,0 +1,58 @@
+\<!-- Delete Confirmation Modal -->
+<div id="delete-confirm-modal"
+    class="hidden fixed inset-0 z-[160] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card p-8 max-w-md w-full rounded-3xl relative animate-slideIn">
+        <div class="text-center mb-6">
+            <span class="text-6xl">🗑️</span>
+            <h2 class="text-2xl font-bold text-white mt-4">Əməliyyatı Sil?</h2>
+            <p class="text-white/60 mt-2">Bu əməliyyat silinəcək. Bunu geri qaytarmaq mümkün olmayacaq.</p>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()"
+                class="flex-1 bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-bold transition">
+                Xeyr, Saxla
+            </button>
+            <button id="confirm-delete-btn" onclick="confirmDelete()"
+                class="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white py-3 rounded-xl font-bold shadow-lg transition">
+                Bəli, Sil
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentDeleteId = null;
+
+    function openDeleteModal(expenseId) {
+        currentDeleteId = expenseId;
+        document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        currentDeleteId = null;
+        document.getElementById('delete-confirm-modal').classList.add('hidden');
+    }
+
+    function confirmDelete() {
+        if (!currentDeleteId) return;
+
+        // Use HTMX to delete
+        const element = document.getElementById(`expense-${currentDeleteId}`);
+        if (element) {
+            htmx.ajax('DELETE', `/api/expenses/${currentDeleteId}`, {
+                target: `#expense-${currentDeleteId}`,
+                swap: 'delete',
+                swap: 'outerHTML'
+            }).then(() => {
+                // Fade out animation
+                element.style.transition = 'opacity 0.3s, transform 0.3s';
+                element.style.opacity = '0';
+                element.style.transform = 'translateX(-20px)';
+                setTimeout(() => element.remove(), 300);
+            });
+        }
+
+        closeDeleteModal();
+    }
+</script>
