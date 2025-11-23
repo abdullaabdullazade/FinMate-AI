@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FinMate AI - Your Personal CFO{% endblock %}</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512.png">
@@ -32,27 +32,43 @@
     <!-- CRITICAL: Apply theme before page renders to prevent flash -->
     <script>
         (function () {
+            // Add preload class to disable transitions
+            document.documentElement.classList.add('preload');
+
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            
+
             // Apply premium theme immediately (before page render)
             const savedPremiumTheme = localStorage.getItem('premium-theme');
             const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+
+            // Remove any existing theme classes from html
+            const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
+            document.documentElement.classList.remove(...themes);
+
             if (savedPremiumTheme && validThemes.includes(savedPremiumTheme)) {
-                const body = document.body;
-                const html = document.documentElement;
-                const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
-                themes.forEach(t => {
-                    body.classList.remove(t);
-                    html.classList.remove(t);
-                });
-                body.classList.add('theme-' + savedPremiumTheme);
-                html.classList.add('theme-' + savedPremiumTheme);
+                document.documentElement.classList.add('theme-' + savedPremiumTheme);
             }
+
+            // Remove preload class after a short delay to enable transitions
+            window.addEventListener('load', function () {
+                setTimeout(function () {
+                    document.documentElement.classList.remove('preload');
+                }, 100);
+            });
         })();
     </script>
 
     <style>
+        /* Disable transitions during page load */
+        .preload * {
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -ms-transition: none !important;
+            -o-transition: none !important;
+            transition: none !important;
+        }
+
         /* Professional Color System - Eye-Friendly */
         :root {
             /* Dark Mode - Deep Navy Professional */
@@ -101,7 +117,7 @@
 
         /* Smooth theme background transition */
         body {
-            transition: background 0.8s ease-in-out !important;
+            transition: background 0.8s ease-in-out;
         }
 
         body {
@@ -379,9 +395,13 @@
     <!-- Top Bar -->
     <div class="glass fixed top-0 left-0 right-0 z-40 px-4 py-3">
         <div class="flex items-center justify-between max-w-md mx-auto">
-            <div>
-                <h1 class="text-xl font-bold text-white">💰 FinMate AI</h1>
-                <p class="text-[10px] text-white/70">Your Personal CFO</p>
+            <div class="flex items-center gap-3">
+                <img src="/static/icons/icon-192.png" alt="FinMate Logo"
+                    class="w-10 h-10 rounded-xl shadow-lg shadow-indigo-500/20">
+                <div>
+                    <h1 class="text-xl font-bold text-white">FinMate AI</h1>
+                    <p class="text-[10px] text-white/70">Your Personal CFO</p>
+                </div>
             </div>
             <div class="flex items-center gap-3 relative">
                 <!-- Theme Toggle -->
@@ -698,58 +718,36 @@
         }
 
         // Premium Theme Functions (Global) - Smooth transition without flash
-        window.applyPremiumTheme = function(theme) {
-            const body = document.body;
+        window.applyPremiumTheme = function (theme) {
             const html = document.documentElement;
-            
-            // Remove all theme classes first (without delay to prevent flash)
+
+            // Remove all theme classes first
             const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
-            themes.forEach(t => {
-                body.classList.remove(t);
-                html.classList.remove(t);
-            });
-            
-            // Apply new theme immediately (no delay to prevent flash to default)
-            if (theme === 'gold') {
-                body.classList.add('theme-gold');
-                html.classList.add('theme-gold');
-                localStorage.setItem('premium-theme', 'gold');
-            } else if (theme === 'midnight') {
-                body.classList.add('theme-midnight');
-                html.classList.add('theme-midnight');
-                localStorage.setItem('premium-theme', 'midnight');
-            } else if (theme === 'ocean') {
-                body.classList.add('theme-ocean');
-                html.classList.add('theme-ocean');
-                localStorage.setItem('premium-theme', 'ocean');
-            } else if (theme === 'forest') {
-                body.classList.add('theme-forest');
-                html.classList.add('theme-forest');
-                localStorage.setItem('premium-theme', 'forest');
-            } else if (theme === 'sunset') {
-                body.classList.add('theme-sunset');
-                html.classList.add('theme-sunset');
-                localStorage.setItem('premium-theme', 'sunset');
-            } else if (theme === 'royal') {
-                body.classList.add('theme-royal');
-                html.classList.add('theme-royal');
-                localStorage.setItem('premium-theme', 'royal');
+            html.classList.remove(...themes);
+
+            // Also remove from body for backward compatibility/cleanup
+            document.body.classList.remove(...themes);
+
+            // Apply new theme
+            if (theme && theme !== 'default') {
+                html.classList.add('theme-' + theme);
+                localStorage.setItem('premium-theme', theme);
             } else {
                 localStorage.removeItem('premium-theme');
             }
         };
 
         // Incognito Mode Functions (Global)
-        window.hideAllAmounts = function() {
+        window.hideAllAmounts = function () {
             // Pattern to match amounts (numbers with optional decimals, followed by ₼ or AZN)
             const amountPattern = /(\d+\.?\d*)\s*(₼|AZN|manat)/gi;
-            
+
             // Function to hide amount in an element - ONLY text replacement, no design changes
             function hideAmountInElement(el) {
                 if (el.classList.contains('incognito-hidden') || el.closest('.incognito-ignore')) {
                     return;
                 }
-                
+
                 // Skip premium pricing sections - check parent elements
                 let parent = el.parentElement;
                 let skipPremium = false;
@@ -757,9 +755,9 @@
                     const parentText = parent.textContent || '';
                     const parentClass = parent.className || '';
                     const parentId = parent.id || '';
-                    
+
                     // Skip if in premium/upgrade section
-                    if (parentClass.includes('premium') || parentClass.includes('upgrade') || 
+                    if (parentClass.includes('premium') || parentClass.includes('upgrade') ||
                         parentId.includes('premium') || parentId.includes('upgrade') ||
                         parentText.includes('Premium-a Keç') || parentText.includes('4.99')) {
                         skipPremium = true;
@@ -767,23 +765,23 @@
                     }
                     parent = parent.parentElement;
                 }
-                
+
                 if (skipPremium) {
                     return;
                 }
-                
+
                 // Skip if element has children (to avoid double processing)
                 if (el.children.length > 0 && !el.textContent.match(amountPattern)) {
                     return;
                 }
-                
+
                 const text = el.textContent || el.innerText;
                 if (amountPattern.test(text)) {
                     // Don't hide if it's premium pricing (4.99, etc.)
                     if (text.includes('4.99') || text.includes('Premium')) {
                         return;
                     }
-                    
+
                     const originalText = el.getAttribute('data-original') || text;
                     el.setAttribute('data-original', originalText);
                     // Only replace the number, keep currency symbol
@@ -791,10 +789,10 @@
                     el.classList.add('incognito-hidden');
                 }
             }
-            
+
             // Hide amounts in transaction rows - be more specific
             document.querySelectorAll('[id^="expense-"] span, [id^="expense-"] p, .transaction-row span, .transaction-row p').forEach(hideAmountInElement);
-            
+
             // Hide dashboard stats (ONLY expense-related amounts) - Force hide with comma support
             ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
                 const el = document.getElementById(id);
@@ -810,7 +808,7 @@
                     }
                 }
             });
-            
+
             // Hide Eco Impact value (next sibling after .eco-leaf)
             const ecoLeaf = document.querySelector('.eco-leaf');
             if (ecoLeaf) {
@@ -825,7 +823,7 @@
                     }
                 }
             }
-            
+
             // Also hide the kg CO₂ text if it contains numbers
             const ecoContainer = document.querySelector('.eco-leaf')?.parentElement;
             if (ecoContainer) {
@@ -840,7 +838,7 @@
                     }
                 });
             }
-            
+
             // Hide budget percentage
             const budgetPercent = document.querySelector('.text-sm.font-bold.text-white');
             if (budgetPercent && budgetPercent.textContent.includes('%') && !budgetPercent.classList.contains('incognito-hidden')) {
@@ -852,10 +850,10 @@
                     budgetPercent.classList.add('incognito-hidden');
                 }
             }
-            
+
             // Hide category amounts - only direct text nodes
             document.querySelectorAll('[class*="category"] span, [class*="category"] p').forEach(hideAmountInElement);
-            
+
             // Hide transaction amounts in recent transactions
             document.querySelectorAll('#expense-\\d+ span, #expense-\\d+ p').forEach(el => {
                 const text = el.textContent || el.innerText;
@@ -864,8 +862,8 @@
                 }
             });
         };
-        
-        window.showAllAmounts = function() {
+
+        window.showAllAmounts = function () {
             document.querySelectorAll('.incognito-hidden').forEach(el => {
                 const original = el.getAttribute('data-original');
                 if (original) {
@@ -876,7 +874,7 @@
             });
         };
 
-        window.toggleIncognitoMode = function(enabled) {
+        window.toggleIncognitoMode = function (enabled) {
             if (enabled) {
                 document.body.classList.add('incognito-mode');
                 localStorage.setItem('incognito-mode', 'enabled');
@@ -954,7 +952,7 @@
             }
 
             // Quick Incognito Toggle Function
-            window.toggleIncognitoQuick = function() {
+            window.toggleIncognitoQuick = function () {
                 const isCurrentlyIncognito = document.body.classList.contains('incognito-mode');
                 window.toggleIncognitoMode(!isCurrentlyIncognito);
             };
@@ -978,7 +976,7 @@
                         setTimeout(window.hideAllAmounts, 100);
                     }
                 });
-                
+
                 observer.observe(document.body, {
                     childList: true,
                     subtree: true
