@@ -16,6 +16,106 @@
     @media (max-width: 1024px) {
         .dashboard-grid {
             grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 640px) {
+        .dashboard-grid {
+            gap: 12px;
+            padding: 0 8px;
+        }
+
+        /* Welcome Banner Mobile */
+        .glass-card {
+            padding: 1rem !important;
+        }
+
+        /* Stats Grid Mobile */
+        .grid.grid-cols-1.md\\:grid-cols-4 {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+
+        /* Stat Numbers Mobile */
+        .text-4xl {
+            font-size: 1.75rem !important;
+        }
+
+        .text-lg {
+            font-size: 0.875rem !important;
+        }
+
+        /* Category Cards Mobile */
+        .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3 {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+        }
+
+        /* Transaction Items Mobile */
+        .merchant-logo {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 20px !important;
+        }
+
+        /* Time Machine Mobile */
+        .flex.flex-col.md\\:flex-row {
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+
+        /* Eco Impact Mobile */
+        .lg\\:grid.lg\\:grid-cols-3 {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Text Sizes Mobile */
+        h2.text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        h3.text-xl {
+            font-size: 1.125rem !important;
+        }
+
+        .text-sm {
+            font-size: 0.75rem !important;
+        }
+
+        /* XP Progress Mobile */
+        .text-4xl {
+            font-size: 1.5rem !important;
+        }
+
+        /* Budget Warning Mobile */
+        .text-5xl {
+            font-size: 2.5rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        /* Welcome Banner Mobile */
+        .text-6xl {
+            font-size: 3rem !important;
+        }
+
+        .text-2xl.font-bold {
+            font-size: 1.25rem !important;
+        }
+
+        /* Buttons Mobile */
+        .px-6.py-3 {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Hidden desktop buttons on mobile */
+        .hidden.md\\:flex {
+            display: none !important;
         }
     }
 
@@ -210,36 +310,36 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-grid px-4 pb-32">
+<div class="dashboard-grid px-2 sm:px-4 pb-24 sm:pb-32">
 
     <!-- DEBT WARNING - Critical Alert -->
     {% if budget_percentage >= 100 %}
-    <div class="glass-card p-6 slide-up border-2 border-red-500 bg-red-500/20" style="grid-column: span 12;">
-        <div class="flex items-center gap-4">
-            <div class="text-5xl">⚠️</div>
-            <div class="flex-1">
-                <h3 class="text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
-                <p class="text-red-100">
-                    Bu ay <strong>{{ "%.2f"|format(total_spending - user.monthly_budget) }} AZN</strong> artıq
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-red-500 bg-red-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <div class="text-3xl sm:text-5xl flex-shrink-0">⚠️</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
+                <p class="text-sm sm:text-base text-red-100">
+                    Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - user.monthly_budget) }} AZN</strong> artıq
                     xərclədiniz.
                     Xərclərinizi azaltmağı tövsiyə edirik.
                 </p>
             </div>
-            <div class="text-right">
-                <p class="text-red-200 text-sm">Büdcə</p>
-                <p class="text-3xl font-bold text-red-100">{{ "%.0f"|format(budget_percentage) }}%</p>
+            <div class="text-right flex-shrink-0">
+                <p class="text-red-200 text-xs sm:text-sm">Büdcə</p>
+                <p class="text-xl sm:text-3xl font-bold text-red-100 incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</p>
             </div>
         </div>
     </div>
     {% elif budget_percentage >= 80 %}
-    <div class="glass-card p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
-        <div class="flex items-center gap-4">
-            <div class="text-4xl">⚡</div>
-            <div class="flex-1">
-                <h3 class="text-xl font-bold text-yellow-200 mb-1">Diqqət: Büdcə Limitinə Yaxınsınız</h3>
-                <p class="text-yellow-100">
-                    Büdcənizin <strong>{{ "%.0f"|format(budget_percentage) }}%</strong>-ni istifadə etdiniz.
-                    Daha <strong>{{ "%.2f"|format(user.monthly_budget - total_spending) }} AZN</strong> qalıb.
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <div class="text-3xl sm:text-4xl flex-shrink-0">⚡</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-base sm:text-xl font-bold text-yellow-200 mb-1">Diqqət: Büdcə Limitinə Yaxınsınız</h3>
+                <p class="text-sm sm:text-base text-yellow-100">
+                    Büdcənizin <strong class="incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</strong>-ni istifadə etdiniz.
+                    Daha <strong class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending) }} AZN</strong> qalıb.
                 </p>
             </div>
         </div>
@@ -247,7 +347,7 @@
     {% endif %}
 
     <!-- Welcome Banner - Premium Design -->
-    <div class="glass-card p-6 slide-up border-2 border-white/20 relative overflow-hidden"
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-white/20 relative overflow-hidden"
         style="grid-column: span 12; animation-delay: 0.02s;">
         <!-- Animated Background Gradient -->
         <div
@@ -256,16 +356,16 @@
         <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/30 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-500/30 rounded-full blur-3xl"></div>
 
-        <div class="relative z-10 flex items-center gap-4">
-            <div class="text-6xl animate-wave">👋</div>
-            <div class="flex-1">
-                <h2 class="text-2xl font-bold text-white mb-1">
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div class="text-4xl sm:text-6xl animate-wave">👋</div>
+            <div class="flex-1 min-w-0">
+                <h2 class="text-xl sm:text-2xl font-bold text-white mb-1">
                     Salam, {{ user.username.capitalize() }}!
                 </h2>
-                <p class="text-white/80 text-lg">
+                <p class="text-white/80 text-base sm:text-lg">
                     Maliyyə azadlığına xoş gəldin
                 </p>
-                <p class="text-white/60 text-sm mt-2">
+                <p class="text-white/60 text-xs sm:text-sm mt-2">
                     FinMate AI ilə xərclərinizi idarə edin, qənaət edin və arzularınıza çatın.
                 </p>
             </div>
@@ -288,41 +388,41 @@
 
     <!-- XP Progress - Full Width (MOVED TO TOP) -->
     {% if level_info %}
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
-                <span class="text-4xl">{{ level_info.emoji }}</span>
-                <div>
-                    <h3 class="text-lg font-bold text-white">{{ level_info.title }}</h3>
-                    <p class="text-sm text-white/60" id="xp-text">{{ user.xp_points }} / {{ level_info.max_xp if
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
+        <div class="flex items-center justify-between mb-3 gap-2">
+            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <span class="text-3xl sm:text-4xl flex-shrink-0">{{ level_info.emoji }}</span>
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-base sm:text-lg font-bold text-white truncate">{{ level_info.title }}</h3>
+                    <p class="text-xs sm:text-sm text-white/60 truncate" id="xp-text">{{ user.xp_points }} / {{ level_info.max_xp if
                         level_info.max_xp != float('inf') else '∞' }} XP</p>
                 </div>
             </div>
-            <div class="text-right">
-                <p class="text-sm text-white/60">Level {{ level_info.level }}</p>
-                <p class="text-lg font-bold text-white">{{ "%.0f"|format(level_info.progress_percentage) }}%</p>
+            <div class="text-right flex-shrink-0">
+                <p class="text-xs sm:text-sm text-white/60">Level {{ level_info.level }}</p>
+                <p class="text-base sm:text-lg font-bold text-white">{{ "%.0f"|format(level_info.progress_percentage) }}%</p>
             </div>
         </div>
-        <div class="w-full bg-white/20 rounded-full h-3">
+        <div class="w-full bg-white/20 rounded-full h-2 sm:h-3">
             <div id="xp-progress-bar"
-                class="h-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                class="h-2 sm:h-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
                 style="width: {{ level_info.progress_percentage }}%"></div>
         </div>
     </div>
     {% endif %}
 
     <!-- Budget Overview - Full Width -->
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <p class="text-sm text-white/50">{{ greeting }}, {{ user.username.capitalize() }}</p>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs sm:text-sm text-white/50">{{ greeting }}, {{ user.username.capitalize() }}</p>
+                <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                     Bu ay
                     {% if user.is_premium %}
                     <button id="incognito-toggle-btn" onclick="toggleIncognitoQuick()" 
-                        class="p-1.5 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white"
+                        class="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white flex-shrink-0"
                         title="Xərc məbləğlərini göstər/gizlət">
-                        <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="eye-icon" class="w-4 h-5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -332,7 +432,7 @@
                     {% endif %}
                 </h2>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
                 <button id="speak-btn" type="button"
                     class="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/80 to-pink-500/80 text-white border border-white/20 hover:brightness-110 shadow-lg shadow-pink-500/30"
                     onclick="window.speakSummaryEdge && window.speakSummaryEdge()"
@@ -340,84 +440,84 @@
                     <span class="text-lg">🔊</span>
                     <span class="font-semibold">Səsləndir</span>
                 </button>
-                <span class="text-sm text-white/70">{{ now.strftime('%B %Y') if now else 'Cari ay' }}</span>
+                <span class="text-xs sm:text-sm text-white/70">{{ now.strftime('%B %Y') if now else 'Cari ay' }}</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
             <!-- Total Spending -->
             <div>
-                <p class="text-sm text-white/70 mb-2">Ümumi xərc</p>
-                <div class="flex items-end gap-2">
-                    <span id="stat-total" class="text-4xl font-bold text-white">{{ "%.2f"|format(total_spending)
+                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
+                <div class="flex items-end gap-1 sm:gap-2">
+                    <span id="stat-total" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ "%.2f"|format(total_spending)
                         }}</span>
-                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
                 </div>
             </div>
 
             <!-- Budget -->
             <div>
-                <p class="text-sm text-white/70 mb-2">Aylıq büdcə</p>
-                <div class="flex items-end gap-2">
-                    <span id="stat-budget" class="text-4xl font-bold text-white">{{ "%.2f"|format(user.monthly_budget)
+                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
+                <div class="flex items-end gap-1 sm:gap-2">
+                    <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ "%.2f"|format(user.monthly_budget)
                         }}</span>
-                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
                 </div>
             </div>
 
             <!-- Remaining -->
             <div>
-                <p class="text-sm text-white/70 mb-2">Qalıq</p>
-                <div class="flex items-end gap-2">
+                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
+                <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-remaining"
-                        class="text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                        class="text-2xl sm:text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden">
                         {{ "%.2f"|format(user.monthly_budget - total_spending) }}
                     </span>
-                    <span class="text-lg text-white/70 mb-1">AZN</span>
+                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
                 </div>
             </div>
 
             <!-- Eco Score -->
             <div>
-                <p class="text-sm text-white/70 mb-2">Eko İmpakt</p>
-                <div class="flex items-end gap-2">
-                    <span class="eco-leaf">{{ eco_score.icon }}</span>
-                    <span class="text-4xl font-bold text-white">{{ eco_score.value }}</span>
-                    <span class="text-lg text-white/70 mb-1">kg CO₂</span>
+                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
+                <div class="flex items-end gap-1 sm:gap-2">
+                    <span class="eco-leaf text-lg sm:text-2xl">{{ eco_score.icon }}</span>
+                    <span class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ eco_score.value }}</span>
+                    <span class="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
                 </div>
             </div>
         </div>
 
         <!-- Progress Bar -->
-        <div class="mt-6">
+        <div class="mt-4 sm:mt-6">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-white/70">Büdcə istifadəsi</span>
-                <span class="text-sm font-bold text-white">{{ "%.1f"|format(budget_percentage) }}%</span>
+                <span class="text-xs sm:text-sm text-white/70">Büdcə istifadəsi</span>
+                <span class="text-xs sm:text-sm font-bold text-white incognito-hidden">{{ "%.1f"|format(budget_percentage) }}%</span>
             </div>
-            <div class="w-full bg-white/20 rounded-full h-4">
-                <div class="h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+            <div class="w-full bg-white/20 rounded-full h-3 sm:h-4">
+                <div class="h-3 sm:h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
                     style="width: {{ min(budget_percentage, 100) }}%"></div>
             </div>
         </div>
     </div>
 
     <!-- Financial Time Machine -->
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.1s;">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.1s;">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+            <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                 ⏳ Gələcək Proqnozu
             </h3>
-            <span class="text-sm text-white/60">Maliyyə Zaman Maşını</span>
+            <span class="text-xs sm:text-sm text-white/60">Maliyyə Zaman Maşını</span>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="flex flex-col md:flex-row gap-4 sm:gap-8 items-stretch md:items-center">
             <div class="flex-1 w-full">
-                <label for="time-machine-slider" class="block text-sm text-white/70 mb-4 flex justify-between">
+                <label for="time-machine-slider" class="block text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 flex justify-between">
                     <span>Zamanı irəli çək:</span>
                     <span id="time-machine-label" class="font-bold text-white">İndi</span>
                 </label>
                 <input type="range" id="time-machine-slider" min="0" max="12" value="0" step="1"
-                    class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                    class="w-full h-2 sm:h-3 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500">
                 <div class="flex justify-between text-xs text-white/40 mt-2">
                     <span>İndi</span>
                     <span>6 ay</span>
@@ -425,13 +525,13 @@
                 </div>
             </div>
 
-            <div class="text-center md:text-right min-w-[200px]">
-                <p class="text-sm text-white/60 mb-1">Təxmini Balans</p>
-                <p id="projected-balance" class="text-4xl font-bold text-white transition-colors duration-300">
+            <div class="text-center md:text-right w-full md:w-auto md:min-w-[200px]">
+                <p class="text-xs sm:text-sm text-white/60 mb-1">Təxmini Balans</p>
+                <p id="projected-balance" class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
                     {{ "%.2f"|format(user.monthly_budget - total_spending) }} ₼
                 </p>
                 <p class="text-xs text-white/40 mt-1">
-                    Aylıq qənaət: <span id="monthly-savings">{{ "%.2f"|format(user.monthly_budget - total_spending)
+                    Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending)
                         }}</span> ₼
                 </p>
             </div>
@@ -445,41 +545,41 @@
 
 
     <!-- Eco Impact Score - Better layout -->
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.15s;">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.15s;">
         <div class="lg:grid lg:grid-cols-3 lg:gap-6">
             <!-- Eco Score Summary -->
-            <div class="lg:col-span-1 mb-6 lg:mb-0">
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <div class="lg:col-span-1 mb-4 sm:mb-6 lg:mb-0">
+                <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center gap-2">
                     🌍 Eko İmpakt
                 </h3>
-                <div class="text-center p-6 rounded-xl bg-white/5">
-                    <div class="text-6xl mb-3">{{ eco_score.icon }}</div>
-                    <div class="text-4xl font-bold text-white mb-2">{{ eco_score.value }}</div>
-                    <div class="text-sm text-white/70">kg CO₂ bu ay</div>
+                <div class="text-center p-4 sm:p-6 rounded-xl bg-white/5">
+                    <div class="text-4xl sm:text-6xl mb-2 sm:mb-3">{{ eco_score.icon }}</div>
+                    <div class="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 incognito-hidden">{{ eco_score.value }}</div>
+                    <div class="text-xs sm:text-sm text-white/70">kg CO₂ bu ay</div>
                 </div>
             </div>
 
             <!-- Eco Breakdown -->
             <div class="lg:col-span-2">
-                <h4 class="text-sm font-bold text-white/70 mb-3 uppercase tracking-wide">Kateqoriya üzrə</h4>
-                <div class="space-y-3">
+                <h4 class="text-xs sm:text-sm font-bold text-white/70 mb-3 uppercase tracking-wide">Kateqoriya üzrə</h4>
+                <div class="space-y-2 sm:space-y-3">
                     {% for category, impact in eco_breakdown.items() %}
                     <div
-                        class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">{{ impact.icon }}</span>
-                            <div>
-                                <p class="text-white font-medium text-sm">{{ category }}</p>
+                        class="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                        <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                            <span class="text-xl sm:text-2xl flex-shrink-0">{{ impact.icon }}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-white font-medium text-xs sm:text-sm truncate">{{ category }}</p>
                                 <p class="text-xs text-white/60">{{ impact.level }}</p>
                             </div>
                         </div>
-                        <span class="text-white font-bold">{{ impact.co2 }} kg</span>
+                        <span class="text-white font-bold text-sm sm:text-base flex-shrink-0 ml-2 incognito-hidden">{{ impact.co2 }} kg</span>
                     </div>
                     {% endfor %}
                 </div>
 
-                <div class="mt-4 p-4 rounded-lg bg-green-500/20 border border-green-500/30">
-                    <p class="text-sm text-green-200">
+                <div class="mt-3 sm:mt-4 p-3 sm:p-4 rounded-lg bg-green-500/20 border border-green-500/30">
+                    <p class="text-xs sm:text-sm text-green-200">
                         💡 <strong>AI Məsləhət:</strong> {{ eco_tip }}
                     </p>
                 </div>
@@ -488,16 +588,16 @@
     </div>
 
     <!-- Category Breakdown - Premium Design -->
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.2s;">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold text-white">Kateqoriyalar üzrə</h3>
-            <span class="text-sm text-white/60">{{ category_data|length }} kateqoriya</span>
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 class="text-lg sm:text-xl font-bold text-white">Kateqoriyalar üzrə</h3>
+            <span class="text-xs sm:text-sm text-white/60">{{ category_data|length }} kateqoriya</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {% for category, amount in category_data.items() %}
             {% set category_percent = (amount / total_spending * 100) if total_spending > 0 else 0 %}
-            <div class="relative overflow-hidden rounded-2xl p-5 hover:scale-105 transition-all duration-300 shadow-lg
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-5 hover:scale-105 transition-all duration-300 shadow-lg
                 {% if 'Market' in category %}bg-gradient-to-br from-green-500/20 to-emerald-600/30 border border-green-500/30
                 {% elif 'Restoran' in category %}bg-gradient-to-br from-amber-500/20 to-orange-600/30 border border-amber-500/30
                 {% elif 'Kafe' in category %}bg-gradient-to-br from-purple-500/20 to-violet-600/30 border border-purple-500/30
@@ -523,8 +623,8 @@
 
                 <div class="relative z-10">
                     <!-- Header -->
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl shadow-xl
+                    <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center text-xl sm:text-3xl shadow-xl flex-shrink-0
                             {% if 'Market' in category %}bg-gradient-to-br from-green-400 to-emerald-600
                             {% elif 'Restoran' in category %}bg-gradient-to-br from-amber-400 to-orange-600
                             {% elif 'Kafe' in category %}bg-gradient-to-br from-purple-400 to-violet-600
@@ -554,18 +654,18 @@
                             {% elif 'E-ödəniş' in category %}💳
                             {% else %}💰{% endif %}
                         </div>
-                        <div class="flex-1">
-                            <p class="text-white font-bold text-lg">{{ category }}</p>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white font-bold text-sm sm:text-lg truncate">{{ category }}</p>
                             <p class="text-white/50 text-xs">{{ category_percent | round(1) }}% xərc</p>
                         </div>
                     </div>
 
                     <!-- Amount -->
-                    <div class="flex items-end justify-between mb-3">
-                        <div>
+                    <div class="flex items-end justify-between mb-2 sm:mb-3">
+                        <div class="flex-1 min-w-0">
                             <p class="text-white/60 text-xs mb-1">Ümumi məbləğ</p>
-                            <p class="text-white font-black text-2xl">{{ "%.0f"|format(amount) }} <span
-                                    class="text-lg">₼</span></p>
+                            <p class="text-white font-black text-lg sm:text-2xl incognito-hidden">{{ "%.0f"|format(amount) }} <span
+                                    class="text-sm sm:text-lg">₼</span></p>
                         </div>
                         <div class="text-right">
                             <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold
@@ -597,9 +697,9 @@
     </div>
 
     <!-- Recent Transactions - Full Width -->
-    <div class="glass-card p-6 slide-up" style="grid-column: span 12; animation-delay: 0.25s;">
-        <h3 class="text-lg font-bold text-white mb-4">Son əməliyyatlar</h3>
-        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.25s;">
+        <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Son əməliyyatlar</h3>
+        <div class="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
             {% for expense in recent_expenses %}
             {% include "partials/transaction_row.html" %}
             {% endfor %}
@@ -713,17 +813,22 @@
 
     @media (max-width: 640px) {
         .pet-container {
-            bottom: 120px;
-            right: 12px;
-            max-width: 180px;
+            bottom: 100px;
+            right: 8px;
+            max-width: 150px;
         }
 
         #petEmoji {
-            font-size: 3rem !important;
+            font-size: 2.5rem !important;
         }
 
         .speech-bubble p {
-            font-size: 0.65rem !important;
+            font-size: 0.6rem !important;
+            padding: 0.5rem !important;
+        }
+
+        .pet-container .glass-card {
+            padding: 0.75rem !important;
         }
     }
 
@@ -1248,22 +1353,198 @@
     }, 5000);
     });
 
+    // Extract number from text (handles comma separators like 1,000.00)
+    function extractNumber(text) {
+        if (!text || text.includes('****')) return null;
+        // Remove all non-numeric characters except dots and commas
+        let cleaned = text.replace(/[^\d.,]/g, '').trim();
+        
+        if (!cleaned) return null;
+        
+        // Handle comma as thousand separator (1,000.00 -> 1000.00)
+        if (cleaned.includes('.') && cleaned.includes(',')) {
+            // If comma comes before dot, it's thousand separator (e.g., 1,000.00)
+            const commaIndex = cleaned.indexOf(',');
+            const dotIndex = cleaned.indexOf('.');
+            if (commaIndex < dotIndex) {
+                // Remove comma (thousand separator)
+                cleaned = cleaned.replace(/,/g, '');
+            } else {
+                // Comma is decimal separator (e.g., 1000,00)
+                cleaned = cleaned.replace(/,/g, '.');
+            }
+        } else if (cleaned.includes(',') && !cleaned.includes('.')) {
+            // Only comma - check if it's decimal or thousand separator
+            const parts = cleaned.split(',');
+            if (parts.length === 2 && parts[1].length <= 3 && parts[0].length > 3) {
+                // Likely decimal separator (e.g., 1000,50)
+                cleaned = cleaned.replace(',', '.');
+            } else {
+                // Likely thousand separator (e.g., 1,000)
+                cleaned = cleaned.replace(/,/g, '');
+            }
+        }
+        
+        const num = parseFloat(cleaned);
+        return isNaN(num) ? null : num;
+    }
+
+    // Convert number to Azerbaijani words (for currency - includes "manat")
+    function numberToAzerbaijani(num) {
+        if (isNaN(num) || num === 0) return 'sıfır';
+        if (num < 0) return 'mənfi ' + numberToAzerbaijani(Math.abs(num));
+        
+        const ones = ['', 'bir', 'iki', 'üç', 'dörd', 'beş', 'altı', 'yeddi', 'səkkiz', 'doqquz'];
+        const tens = ['', 'on', 'iyirmi', 'otuz', 'qırx', 'əlli', 'altmış', 'yetmiş', 'səksən', 'doxsan'];
+        
+        // Handle decimal part
+        const parts = num.toString().split('.');
+        const integerPart = Math.floor(num);
+        const decimalPart = parts.length > 1 ? Math.round(parseFloat('0.' + parts[1]) * 100) : 0;
+        
+        function convertInteger(n) {
+            if (n === 0) return '';
+            if (n < 10) return ones[n];
+            if (n < 100) {
+                const tensDigit = Math.floor(n / 10);
+                const onesDigit = n % 10;
+                return tens[tensDigit] + (onesDigit > 0 ? ' ' + ones[onesDigit] : '');
+            }
+            if (n < 1000) {
+                const hundredsDigit = Math.floor(n / 100);
+                const remainder = n % 100;
+                const hundredWord = hundredsDigit === 1 ? 'yüz' : ones[hundredsDigit] + ' yüz';
+                return hundredWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            if (n < 1000000) {
+                const thousands = Math.floor(n / 1000);
+                const remainder = n % 1000;
+                const thousandWord = thousands === 1 ? 'min' : convertInteger(thousands) + ' min';
+                return thousandWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            // For millions and above
+            if (n < 1000000000) {
+                const millions = Math.floor(n / 1000000);
+                const remainder = n % 1000000;
+                const millionWord = millions === 1 ? 'milyon' : convertInteger(millions) + ' milyon';
+                return millionWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            return n.toString();
+        }
+        
+        let result = convertInteger(integerPart).trim();
+        
+        // Add decimal part if exists
+        if (decimalPart > 0) {
+            const decimalWord = convertInteger(decimalPart).trim();
+            result += ' manat ' + decimalWord + ' qəpik';
+        } else {
+            result += ' manat';
+        }
+        
+        return result;
+    }
+
+    // Convert number to Azerbaijani words for non-currency values (like eco score - NO "manat")
+    function numberToAzerbaijaniWords(num) {
+        if (isNaN(num) || num === 0) return 'sıfır';
+        if (num < 0) return 'mənfi ' + numberToAzerbaijaniWords(Math.abs(num));
+        
+        const ones = ['', 'bir', 'iki', 'üç', 'dörd', 'beş', 'altı', 'yeddi', 'səkkiz', 'doqquz'];
+        const tens = ['', 'on', 'iyirmi', 'otuz', 'qırx', 'əlli', 'altmış', 'yetmiş', 'səksən', 'doxsan'];
+        
+        // Handle decimal part
+        const parts = num.toString().split('.');
+        const integerPart = Math.floor(num);
+        const decimalPart = parts.length > 1 ? Math.round(parseFloat('0.' + parts[1]) * 100) : 0;
+        
+        function convertInteger(n) {
+            if (n === 0) return '';
+            if (n < 10) return ones[n];
+            if (n < 100) {
+                const tensDigit = Math.floor(n / 10);
+                const onesDigit = n % 10;
+                return tens[tensDigit] + (onesDigit > 0 ? ' ' + ones[onesDigit] : '');
+            }
+            if (n < 1000) {
+                const hundredsDigit = Math.floor(n / 100);
+                const remainder = n % 100;
+                const hundredWord = hundredsDigit === 1 ? 'yüz' : ones[hundredsDigit] + ' yüz';
+                return hundredWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            if (n < 1000000) {
+                const thousands = Math.floor(n / 1000);
+                const remainder = n % 1000;
+                const thousandWord = thousands === 1 ? 'min' : convertInteger(thousands) + ' min';
+                return thousandWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            if (n < 1000000000) {
+                const millions = Math.floor(n / 1000000);
+                const remainder = n % 1000000;
+                const millionWord = millions === 1 ? 'milyon' : convertInteger(millions) + ' milyon';
+                return millionWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
+            }
+            return n.toString();
+        }
+        
+        let result = convertInteger(integerPart).trim();
+        
+        // Add decimal part if exists (for eco score, just say the number without "manat")
+        if (decimalPart > 0) {
+            const decimalWord = convertInteger(decimalPart).trim();
+            result += ' tam ' + decimalWord;
+        }
+        
+        return result;
+    }
+
     // Edge TTS summary for dashboard
     window.speakSummaryEdge = async function () {
-        const greeting = document.querySelector('h2.text-2xl')?.innerText || '';
-        const total = document.getElementById('stat-total')?.innerText || '';
-        const budget = document.getElementById('stat-budget')?.innerText || '';
-        const remaining = document.getElementById('stat-remaining')?.innerText || '';
-        const ecoVal = document.querySelector('.eco-leaf')?.nextElementSibling?.innerText || '';
+        let greeting = document.querySelector('h2.text-2xl')?.innerText || '';
+        // Remove "Səsli əmr" from greeting if present
+        greeting = greeting.replace(/səsli əmr/gi, '').trim();
+
+        const totalEl = document.getElementById('stat-total');
+        const budgetEl = document.getElementById('stat-budget');
+        const remainingEl = document.getElementById('stat-remaining');
+        const ecoValEl = document.querySelector('.eco-leaf')?.nextElementSibling;
         const speakBtn = document.getElementById('speak-btn');
 
-        const summary = [
-            greeting,
-            total ? `Ümumi xərc ${total} manatdır` : '',
-            budget ? `Aylıq büdcə ${budget} manatdır` : '',
-            remaining ? `Qalıq ${remaining} manatdır` : '',
-            ecoVal ? `Eko iz ${ecoVal} kiloqram CO2` : ''
-        ].filter(Boolean).join('. ');
+        // Get original values (from data-original if incognito mode, otherwise from text)
+        const totalText = totalEl?.getAttribute('data-original') || totalEl?.innerText || '';
+        const budgetText = budgetEl?.getAttribute('data-original') || budgetEl?.innerText || '';
+        const remainingText = remainingEl?.getAttribute('data-original') || remainingEl?.innerText || '';
+        const ecoValText = ecoValEl?.getAttribute('data-original') || ecoValEl?.innerText || '';
+
+        // Convert numbers to words
+        const totalNum = extractNumber(totalText);
+        const budgetNum = extractNumber(budgetText);
+        const remainingNum = extractNumber(remainingText);
+        const ecoValNum = extractNumber(ecoValText);
+
+        // Build summary with Azerbaijani number words
+        const summaryParts = [];
+        if (greeting) summaryParts.push(greeting);
+        
+        if (totalNum !== null) {
+            const totalWords = numberToAzerbaijani(totalNum);
+            summaryParts.push(`Ümumi xərc ${totalWords}dir`);
+        }
+        if (budgetNum !== null) {
+            const budgetWords = numberToAzerbaijani(budgetNum);
+            summaryParts.push(`Aylıq büdcə ${budgetWords}dir`);
+        }
+        if (remainingNum !== null) {
+            const remainingWords = numberToAzerbaijani(remainingNum);
+            summaryParts.push(`Qalıq ${remainingWords}dir`);
+        }
+        if (ecoValNum !== null) {
+            // For eco score, use numberToAzerbaijaniWords (without "manat")
+            const ecoWords = numberToAzerbaijaniWords(ecoValNum);
+            summaryParts.push(`Eko iz ${ecoWords} kiloqram CO2dir`);
+        }
+        
+        const summary = summaryParts.join('. ');
 
         if (!summary) return;
 

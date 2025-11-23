@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}İnternet Bağlantısı Yoxdur - FinMate AI{% endblock %}
+
+{% block extra_head %}
+<style>
+    .offline-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .offline-animation {
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+    }
+
+    .wifi-icon {
+        animation: wifi-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes wifi-pulse {
+        0%, 100% {
+            opacity: 0.3;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="offline-container">
+    <div class="text-center max-w-2xl mx-auto">
+        <!-- Offline Icon -->
+        <div class="mb-8">
+            <div class="inline-block relative">
+                <div class="text-9xl mb-4 offline-animation">
+                    📡
+                </div>
+                <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    <div class="wifi-icon text-6xl opacity-30">📶</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Message -->
+        <div class="glass-card p-6 sm:p-8 rounded-3xl mb-8">
+            <h1 class="text-4xl sm:text-5xl font-black text-white mb-4 drop-shadow-2xl">
+                İnternet Bağlantısı Yoxdur
+            </h1>
+            <h2 class="text-xl sm:text-2xl font-bold text-white/90 mb-4">
+                📶 Şəbəkəyə qoşula bilmirik
+            </h2>
+            <p class="text-white/80 text-base sm:text-lg mb-6">
+                İnternet bağlantınızı yoxlayın və yenidən cəhd edin.
+            </p>
+            <p class="text-white/60 text-sm sm:text-base mb-6">
+                FinMate AI işləmək üçün internet bağlantısına ehtiyac duyur.
+            </p>
+
+            <!-- Status Indicator -->
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span class="text-white/70 text-sm">Offline</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button onclick="window.location.reload()"
+                    class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-bold hover:scale-105 transition shadow-lg w-full sm:w-auto">
+                    🔄 Yenidən Yoxla
+                </button>
+                <a href="/"
+                    class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-medium transition border border-white/20 w-full sm:w-auto text-center">
+                    🏠 Ana Səhifəyə Qayıt
+                </a>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="glass-card p-4 sm:p-6 rounded-2xl">
+            <h3 class="text-lg font-bold text-white mb-4">💡 Məsləhətlər:</h3>
+            <ul class="text-left text-white/80 text-sm sm:text-base space-y-2">
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Wi-Fi və ya mobil məlumatların açıq olduğunu yoxlayın</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Təyyarə rejimini söndürün</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Router-i yenidən başlatmağı sınayın</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Digər saytlara daxil ola bilirsinizsə, problem server tərəfində ola bilər</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-check connection status
+    let checkInterval;
+    
+    function checkConnection() {
+        if (navigator.onLine) {
+            // Connection restored
+            clearInterval(checkInterval);
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg';
+            notification.textContent = '✅ İnternet bağlantısı bərpa olundu!';
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.3s';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.style.opacity = '1', 10);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                    window.location.reload();
+                }, 300);
+            }, 2000);
+        }
+    }
+    
+    // Check every 3 seconds
+    checkInterval = setInterval(checkConnection, 3000);
+    
+    // Also listen to online event
+    window.addEventListener('online', () => {
+        checkConnection();
+    });
+    
+    // Listen to offline event
+    window.addEventListener('offline', () => {
+        // Already on offline page, just update status
+        const statusIndicator = document.querySelector('.w-3.h-3.bg-red-500');
+        if (statusIndicator) {
+            statusIndicator.classList.add('animate-pulse');
+        }
+    });
+</script>
+{% endblock %}
+

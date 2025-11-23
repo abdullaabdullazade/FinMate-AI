@@ -60,6 +60,15 @@ async def custom_404_handler(request: Request, exc):
     }, status_code=404)
 
 
+# Offline page route
+@app.get("/offline", response_class=HTMLResponse)
+async def offline_page(request: Request):
+    """Offline page when internet connection is lost"""
+    return templates.TemplateResponse("offline.html", {
+        "request": request
+    })
+
+
 # ==================== HELPER FUNCTIONS ====================
 
 def get_current_user(db: Session) -> User:

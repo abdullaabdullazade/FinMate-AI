@@ -116,29 +116,29 @@
     </div>
 </div>
 
-<div class="glass-card p-6 mb-6 slide-up">
-    <h2 class="text-2xl font-bold text-white mb-4">📸 Çek Skan et</h2>
-    <p class="text-white/70 mb-6">Çekin şəklini yükləyin, AI avtomatik məlumatları çıxarsın</p>
+<div class="glass-card p-4 sm:p-6 mb-4 sm:mb-6 slide-up">
+    <h2 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">📸 Çek Skan et</h2>
+    <p class="text-white/70 mb-4 sm:mb-6 text-sm sm:text-base">Çekin şəklini yükləyin, AI avtomatik məlumatları çıxarsın</p>
 
     <form id="scanForm" hx-post="/api/scan-receipt" hx-target="#scanResult" hx-encoding="multipart/form-data"
         class="space-y-4">
 
-        <div class="border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:border-white/50 transition cursor-pointer"
+        <div class="border-2 border-dashed border-white/30 rounded-xl p-6 sm:p-8 text-center hover:border-white/50 transition cursor-pointer"
             onclick="document.getElementById('fileInput').click()">
-            <svg class="w-16 h-16 mx-auto text-white/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-white/50 mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
                 </path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <p class="text-white font-medium">Çekin şəklini yükləyin</p>
-            <p class="text-sm text-white/50 mt-2">PNG, JPG (maks 10MB)</p>
+            <p class="text-white font-medium text-sm sm:text-base">Çekin şəklini yükləyin</p>
+            <p class="text-xs sm:text-sm text-white/50 mt-2">PNG, JPG (maks 10MB)</p>
             <input type="file" name="file" id="fileInput" accept="image/*" class="hidden" required
                 onchange="handleFileSelect(this)">
         </div>
 
-        <p class="text-sm text-white/60 text-center upload-filename">Fayl seçilməyib</p>
+        <p class="text-xs sm:text-sm text-white/60 text-center upload-filename">Fayl seçilməyib</p>
     </form>
 </div>
 
@@ -146,9 +146,9 @@
 <div id="scanResult"></div>
 
 <!-- Demo Tips -->
-<div class="glass-card p-6 slide-up" style="animation-delay: 0.1s">
-    <h3 class="text-lg font-bold text-white mb-3">💡 Necə işləyir?</h3>
-    <ul class="space-y-2 text-white/80 text-sm">
+<div class="glass-card p-4 sm:p-6 slide-up" style="animation-delay: 0.1s">
+    <h3 class="text-base sm:text-lg font-bold text-white mb-3">💡 Necə işləyir?</h3>
+    <ul class="space-y-2 text-white/80 text-xs sm:text-sm">
         <li class="flex items-start gap-2">
             <span class="text-green-400 mt-1">✓</span>
             <span>Çekin şəklini çəkin və ya yükləyin</span>
@@ -167,8 +167,8 @@
         </li>
     </ul>
 
-    <div class="mt-4 p-3 bg-blue-500/20 rounded-lg">
-        <p class="text-sm text-white/90">
+    <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-500/20 rounded-lg">
+        <p class="text-xs sm:text-sm text-white/90">
             <strong>💡 Məsləhət:</strong> Daha yaxşı nəticə üçün çekin şəklini aydın çəkin və işıqlandırma yaxşı olsun.
         </p>
     </div>

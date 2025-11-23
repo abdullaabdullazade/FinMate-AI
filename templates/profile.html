@@ -321,12 +321,76 @@
             font-size: 1.5rem !important;
         }
     }
+
+    /* Mobile Optimizations */
+    @media (max-width: 640px) {
+        .persona-card {
+            padding: 1rem !important;
+        }
+        
+        .persona-card .text-7xl {
+            font-size: 3rem !important;
+        }
+        
+        .persona-card .text-4xl {
+            font-size: 1.5rem !important;
+        }
+        
+        .persona-card .text-3xl {
+            font-size: 1.25rem !important;
+        }
+
+        .persona-card .text-lg {
+            font-size: 0.875rem !important;
+        }
+
+        .level-card {
+            padding: 0.75rem !important;
+        }
+
+        .level-card .text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        .level-card .text-3xl {
+            font-size: 1.5rem !important;
+        }
+
+        .level-card .text-4xl {
+            font-size: 2rem !important;
+        }
+
+        .level-card .text-5xl {
+            font-size: 2.5rem !important;
+        }
+
+        .glass-card {
+            padding: 1rem !important;
+        }
+
+        .grid.grid-cols-2 {
+            gap: 0.75rem !important;
+        }
+
+        .grid.grid-cols-1.lg\\:grid-cols-2 {
+            gap: 1rem !important;
+        }
+
+        h3.text-lg {
+            font-size: 1rem !important;
+        }
+
+        .text-3xl {
+            font-size: 1.5rem !important;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="px-2 sm:px-4">
 <!-- Financial Personality Card - Spotify Wrapped Style -->
-<div id="personality-card" class="persona-card p-8 mb-6 rounded-3xl slide-up text-center relative overflow-hidden">
+<div id="personality-card" class="persona-card p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 rounded-2xl sm:rounded-3xl slide-up text-center relative overflow-hidden">
     <!-- Decorative Elements -->
     <div class="absolute top-0 left-0 w-full h-full opacity-10">
         <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
@@ -352,7 +416,7 @@
         </div>
 
         <button onclick="sharePersonality()"
-            class="px-8 py-3 rounded-full bg-white text-purple-600 font-bold hover:scale-105 transition-transform shadow-lg btn-theme">
+            class="px-6 sm:px-8 py-2 sm:py-3 rounded-full bg-white text-purple-600 font-bold hover:scale-105 transition-transform shadow-lg btn-theme text-sm sm:text-base">
             📤 Story-ə Paylaş
         </button>
     </div>
@@ -456,31 +520,31 @@
 </div>
 
 <!-- Stats Grid -->
-<div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="glass-card p-4 text-center slide-up" style="animation-delay: 0.1s">
-        <p class="text-3xl font-bold text-white mb-1">{{ total_expenses }}</p>
-        <p class="text-sm text-white/70">Ümumi xərclər</p>
+<div class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+    <div class="glass-card p-3 sm:p-4 text-center slide-up" style="animation-delay: 0.1s">
+        <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ total_expenses }}</p>
+        <p class="text-xs sm:text-sm text-white/70">Ümumi xərclər</p>
     </div>
-    <div class="glass-card p-4 text-center slide-up" style="animation-delay: 0.15s">
-        <p class="text-3xl font-bold text-white mb-1">{{ "%.0f"|format(total_spent_all_time) }}</p>
-        <p class="text-sm text-white/70">Xərclənib ({{ user.currency or 'AZN' }})</p>
+    <div class="glass-card p-3 sm:p-4 text-center slide-up" style="animation-delay: 0.15s">
+        <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ "%.0f"|format(total_spent_all_time) }}</p>
+        <p class="text-xs sm:text-sm text-white/70">Xərclənib ({{ user.currency or 'AZN' }})</p>
     </div>
 </div>
 
 <!-- XP Breakdown & History -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
     <!-- XP Breakdown Chart -->
-    <div class="glass-card p-6 slide-up" style="animation-delay: 0.1s">
-        <h3 class="text-lg font-bold text-white mb-4">XP bölüşdürməsi</h3>
-        <div class="h-64 flex items-center justify-center">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="animation-delay: 0.1s">
+        <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">XP bölüşdürməsi</h3>
+        <div class="h-48 sm:h-64 flex items-center justify-center">
             <canvas id="xpChart"></canvas>
         </div>
     </div>
 
     <!-- Recent XP History -->
-    <div class="glass-card p-6 slide-up" style="animation-delay: 0.15s">
-        <h3 class="text-lg font-bold text-white mb-4">Son aktivlik</h3>
-        <div class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+    <div class="glass-card p-4 sm:p-6 slide-up" style="animation-delay: 0.15s">
+        <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Son aktivlik</h3>
+        <div class="space-y-2 sm:space-y-3 max-h-48 sm:max-h-64 overflow-y-auto custom-scrollbar pr-2">
             {% if xp_logs %}
             {% for log in xp_logs %}
             <div class="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
@@ -514,29 +578,29 @@
 </div>
 
 <!-- Export Button -->
-<div class="mb-6 flex justify-center slide-up" style="animation-delay: 0.2s">
+<div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-center gap-3 slide-up" style="animation-delay: 0.2s">
     <a href="/api/export-pdf"
-        class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 text-white px-8 py-3 rounded-xl transition-all shadow-lg font-bold btn-theme">
+        class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl transition-all shadow-lg font-bold btn-theme text-sm sm:text-base">
         📄 Export Monthly Report (PDF)
     </a>
     <a href="/heatmap"
-        class="ml-3 inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl transition-all border border-white/20">
+        class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all border border-white/20 text-sm sm:text-base">
         🗺️ Xəritəm
     </a>
 </div>
 
 <!-- Budget Settings -->
-<div class="glass-card p-6 mb-6 slide-up" style="animation-delay: 0.2s">
-    <h3 class="text-lg font-bold text-white mb-4">💰 Aylıq Büdcə</h3>
+<div class="glass-card p-4 sm:p-6 mb-4 sm:mb-6 slide-up" style="animation-delay: 0.2s">
+    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">💰 Aylıq Büdcə</h3>
     <div class="flex items-center justify-between">
-        <span class="text-white">Cari Büdcə</span>
-        <span class="text-2xl font-bold text-white">{{ "%.2f"|format(user.monthly_budget) }} ₼</span>
+        <span class="text-white text-sm sm:text-base">Cari Büdcə</span>
+        <span class="text-xl sm:text-2xl font-bold text-white incognito-hidden">{{ "%.2f"|format(user.monthly_budget) }} ₼</span>
     </div>
 </div>
 
 <!-- Subscriptions -->
-<div class="glass-card p-6 mb-6 slide-up" style="animation-delay: 0.25s">
-    <h3 class="text-lg font-bold text-white mb-4">📱 Aktiv Abunəliklər</h3>
+<div class="glass-card p-4 sm:p-6 mb-4 sm:mb-6 slide-up" style="animation-delay: 0.25s">
+    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">📱 Aktiv Abunəliklər</h3>
     {% if subscriptions %}
     <div class="space-y-3">
         {% for sub in subscriptions %}
@@ -561,13 +625,13 @@
 </div>
 
 <!-- App Info -->
-<div class="glass-card p-6 slide-up" style="animation-delay: 0.3s">
-    <h3 class="text-lg font-bold text-white mb-4">ℹ️ FinMate AI Haqqında</h3>
-    <p class="text-white/80 text-sm mb-4">
+<div class="glass-card p-4 sm:p-6 slide-up" style="animation-delay: 0.3s">
+    <h3 class="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">ℹ️ FinMate AI Haqqında</h3>
+    <p class="text-white/80 text-xs sm:text-sm mb-3 sm:mb-4">
         Google Gemini AI ilə gücləndirilən şəxsi maliyyə məsləhətçiniz. Maliyyə idarəetməsini sadə, ağıllı və əlçatan
         edir.
     </p>
-    <div class="space-y-2 text-sm">
+    <div class="space-y-2 text-xs sm:text-sm">
         <div class="flex justify-between text-white/70">
             <span>Version</span>
             <span class="text-white">1.0.0</span>
@@ -581,6 +645,7 @@
             <span class="text-white">FastAPI + HTMX</span>
         </div>
     </div>
+</div>
 </div>
 </div>
 

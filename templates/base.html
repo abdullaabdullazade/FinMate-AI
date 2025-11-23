@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FinMate AI - Your Personal CFO{% endblock %}</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512.png">
@@ -32,27 +32,43 @@
     <!-- CRITICAL: Apply theme before page renders to prevent flash -->
     <script>
         (function () {
+            // Add preload class to disable transitions
+            document.documentElement.classList.add('preload');
+
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            
+
             // Apply premium theme immediately (before page render)
             const savedPremiumTheme = localStorage.getItem('premium-theme');
             const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+
+            // Remove any existing theme classes from html
+            const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
+            document.documentElement.classList.remove(...themes);
+
             if (savedPremiumTheme && validThemes.includes(savedPremiumTheme)) {
-                const body = document.body;
-                const html = document.documentElement;
-                const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
-                themes.forEach(t => {
-                    body.classList.remove(t);
-                    html.classList.remove(t);
-                });
-                body.classList.add('theme-' + savedPremiumTheme);
-                html.classList.add('theme-' + savedPremiumTheme);
+                document.documentElement.classList.add('theme-' + savedPremiumTheme);
             }
+
+            // Remove preload class after a short delay to enable transitions
+            window.addEventListener('load', function () {
+                setTimeout(function () {
+                    document.documentElement.classList.remove('preload');
+                }, 100);
+            });
         })();
     </script>
 
     <style>
+        /* Disable transitions during page load */
+        .preload * {
+            -webkit-transition: none !important;
+            -moz-transition: none !important;
+            -ms-transition: none !important;
+            -o-transition: none !important;
+            transition: none !important;
+        }
+
         /* Professional Color System - Eye-Friendly */
         :root {
             /* Dark Mode - Deep Navy Professional */
@@ -101,7 +117,7 @@
 
         /* Smooth theme background transition */
         body {
-            transition: background 0.8s ease-in-out !important;
+            transition: background 0.8s ease-in-out;
         }
 
         body {
@@ -175,6 +191,16 @@
             box-shadow: 0 15px 40px rgba(236, 64, 122, 0.6);
         }
 
+        /* Midnight theme - scan button: white border, black center */
+        body.theme-midnight .scan-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 20%, #000000 50%, #000000 80%, #ffffff 100%);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        body.theme-midnight .scan-btn:hover {
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
+        }
+
         /* Animations */
         .slide-up {
             animation: slideUp 0.4s ease-out forwards;
@@ -213,6 +239,11 @@
         /* Active nav item - Theme Aware */
         .nav-item.active {
             color: var(--accent-primary);
+        }
+
+        /* Nav item icon indicator */
+        .nav-item.active .relative span {
+            opacity: 1 !important;
         }
 
         /* Custom scrollbar */
@@ -377,24 +408,26 @@
 
 <body>
     <!-- Top Bar -->
-    <div class="glass fixed top-0 left-0 right-0 z-40 px-4 py-3">
+    <div class="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 py-2 sm:py-3">
         <div class="flex items-center justify-between max-w-md mx-auto">
-            <div>
-                <h1 class="text-xl font-bold text-white">💰 FinMate AI</h1>
-                <p class="text-[10px] text-white/70">Your Personal CFO</p>
+            <div class="min-w-0 flex-1">
+                <h1 class="text-lg sm:text-xl font-bold text-white truncate">💰 FinMate AI</h1>
+                <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
             </div>
-            <div class="flex items-center gap-3 relative">
+            <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                 <!-- Theme Toggle -->
-                <button id="theme-toggle" class="relative text-white/80 hover:text-white transition"
+                <button id="theme-toggle" class="relative text-white/80 hover:text-white transition p-1"
                     title="Tema dəyişdir">
                     <!-- Sun icon (shown in dark mode) -->
-                    <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="sun-icon" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
                         </path>
                     </svg>
                     <!-- Moon icon (shown in light mode, hidden by default) -->
-                    <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="moon-icon" class="w-4 h-4 sm:w-5 sm:h-5 hidden" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
                         </path>
@@ -402,13 +435,13 @@
                 </button>
 
                 <!-- Alerts -->
-                <button id="alert-bell" class="relative text-white/80 hover:text-white transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button id="alert-bell" class="relative text-white/80 hover:text-white transition p-1">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
                         </path>
                     </svg>
-                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
+                    <span id="alert-counter" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
                 </button>
                 <div id="alert-panel"
                     class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
@@ -416,7 +449,7 @@
                     <ul class="divide-y text-sm">
                         <li class="px-4 py-3 flex gap-2 items-start">
                             <span class="text-amber-500">⚠️</span>
-                            <div>Diqqət: Keçən aya görə 15% çox xərcləmisən.</div>
+                            <div class="incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">Diqqət: Keçən aya görə 15% çox xərcləmisən.</div>
                         </li>
                         <li class="px-4 py-3 flex gap-2 items-start">
                             <span class="text-purple-500">🎬</span>
@@ -430,20 +463,26 @@
                 </div>
                 <!-- Level Badge -->
                 {% if user and user.xp_points is defined %}
-                <div class="hidden sm:flex items-center gap-2 glass-card px-2.5 py-1 rounded-full">
-                    <span class="text-base">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title == 'Saver'
+                <div
+                    class="hidden sm:flex items-center gap-1.5 sm:gap-2 glass-card px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+                    <span class="text-sm sm:text-base">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title
+                        == 'Saver'
                         %}💰{% elif user.level_title == 'Analyst' %}📊{% elif user.level_title == 'Manager' %}🎯{%
                         elif
                         user.level_title == 'CFO' %}👑{% else %}⭐{% endif %}</span>
-                    <span class="text-xs font-bold text-white">{{ user.level_title }}</span>
-                    <span class="text-[10px] text-white/60">{{ user.xp_points }} XP</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-white hidden md:inline">{{ user.level_title
+                        }}</span>
+                    <span class="text-[9px] sm:text-[10px] text-white/60">{{ user.xp_points }} XP</span>
                 </div>
                 {% endif %}
-                <div id="user-avatar"
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-400"
-                    style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
-                    {{ user.username[0].upper() if user else 'D' }}
-                </div>
+                <!-- Profile -->
+                <a href="/profile" class="relative flex-shrink-0 group">
+                    <div id="user-avatar"
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110"
+                        style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
+                        {{ user.username[0].upper() if user else 'D' }}
+                    </div>
+                </a>
             </div>
         </div>
     </div>
@@ -457,70 +496,72 @@
 
     <!-- Bottom Navigation (Mobile Only) -->
     <div class="bottom-nav fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div class="max-w-md mx-auto px-4 py-3">
+        <div class="max-w-md mx-auto px-2 sm:px-4 py-2 sm:py-3">
             <div class="flex items-center justify-around relative">
                 <!-- Dashboard -->
                 <a href="/"
-                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/' %}active{% endif %}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                        </path>
-                    </svg>
-                    <span class="text-xs font-medium">Ana səhifə</span>
+                    class="nav-item flex flex-col items-center gap-0.5 sm:gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/' %}active{% endif %} flex-1 min-w-0">
+                    <div class="relative">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                            </path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity"></span>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-medium">Ana səhifə</span>
                 </a>
 
                 <!-- Chat -->
                 <a href="/chat"
-                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/chat' %}active{% endif %}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                        </path>
-                    </svg>
-                    <span class="text-xs font-medium">Chat</span>
+                    class="nav-item flex flex-col items-center gap-0.5 sm:gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/chat' %}active{% endif %} flex-1 min-w-0">
+                    <div class="relative">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                            </path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity"></span>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-medium">Chat</span>
                 </a>
 
-                <!-- Scan Button (Floating) -->
-                <a href="/scan" class="scan-btn w-16 h-16 rounded-full flex items-center justify-center -mt-8 relative">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                        </path>
+                <!-- Scan Button (Center, Floating) -->
+                <a href="/scan"
+                    class="scan-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center -mt-6 sm:-mt-8 relative flex-shrink-0 z-10">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
                     </svg>
-                </a>
-
-                <!-- Profile -->
-                <a href="/profile"
-                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/profile' %}active{% endif %}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <span class="text-xs font-medium">Profil</span>
                 </a>
 
                 <!-- Heatmap/Map (Mobile) -->
                 <a href="/heatmap"
-                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/heatmap' %}active{% endif %}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
-                        </path>
-                    </svg>
-                    <span class="text-xs font-medium">Xəritə</span>
+                    class="nav-item flex flex-col items-center gap-0.5 sm:gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/heatmap' %}active{% endif %} flex-1 min-w-0">
+                    <div class="relative">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
+                            </path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity"></span>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-medium">Xəritə</span>
                 </a>
 
                 <!-- Settings (Mobile) -->
                 <a href="/settings"
-                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/settings' %}active{% endif %}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                        </path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span class="text-xs font-medium">Tənzimləmələr</span>
+                    class="nav-item flex flex-col items-center gap-0.5 sm:gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/settings' %}active{% endif %} flex-1 min-w-0">
+                    <div class="relative">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity"></span>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-medium">Tənzimləmələr</span>
                 </a>
             </div>
         </div>
@@ -603,7 +644,7 @@
     <!-- Visible only on Scan and Chat pages -->
     {% if request.url.path == '/scan' or request.url.path == '/chat' %}
     <button onclick="openVoiceModal()"
-        class="fixed bottom-32 right-4 w-14 h-14 glass bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition z-40 md:bottom-24 md:right-8 mb-16 md:mb-0">
+        class="fixed {% if request.url.path == '/scan' %}bottom-24{% else %}bottom-32{% endif %} right-4 w-14 h-14 glass bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition z-40 md:{% if request.url.path == '/scan' %}bottom-20{% else %}bottom-24{% endif %} md:right-8 mb-16 md:mb-0">
         🎤
     </button>
     {% endif %}
@@ -623,6 +664,34 @@
     <script src="/static/js/split_bill.js"></script>
 
     <script>
+        // Offline detection
+        window.addEventListener('offline', () => {
+            // Redirect to offline page if not already there
+            if (window.location.pathname !== '/offline') {
+                window.location.href = '/offline';
+            }
+        });
+
+        // Online detection - show notification
+        window.addEventListener('online', () => {
+            if (window.location.pathname === '/offline') {
+                // Already handled by offline page
+                return;
+            }
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg';
+            notification.textContent = '✅ İnternet bağlantısı bərpa olundu!';
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.3s';
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.style.opacity = '1', 10);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        });
+
         // Readability Mode Logic
         function toggleReadabilityMode(enabled) {
             console.log('👁️ Readability mode:', enabled);
@@ -706,17 +775,17 @@
         }
 
         // Premium Theme Functions (Global) - Smooth transition without flash
-        window.applyPremiumTheme = function(theme) {
+        window.applyPremiumTheme = function (theme) {
             const body = document.body;
             const html = document.documentElement;
-            
+
             // Remove all theme classes first (without delay to prevent flash)
             const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
             themes.forEach(t => {
                 body.classList.remove(t);
                 html.classList.remove(t);
             });
-            
+
             // Apply new theme immediately (no delay to prevent flash to default)
             if (theme === 'gold') {
                 body.classList.add('theme-gold');
@@ -747,27 +816,25 @@
             }
         };
 
-        // Incognito Mode Functions (Global)
-        window.hideAllAmounts = function() {
-            // Pattern to match amounts (numbers with optional decimals, followed by ₼ or AZN)
-            const amountPattern = /(\d+\.?\d*)\s*(₼|AZN|manat)/gi;
-            
-            // Function to hide amount in an element - ONLY text replacement, no design changes
+        // Incognito Mode Functions (Global) - Fixed version
+        window.hideAllAmounts = function () {
+            console.log('🕵️ Hiding all amounts...');
+
+            // Function to hide amount in an element
             function hideAmountInElement(el) {
-                if (el.classList.contains('incognito-hidden') || el.closest('.incognito-ignore')) {
+                if (!el || el.classList.contains('incognito-hidden') || el.closest('.incognito-ignore')) {
                     return;
                 }
-                
-                // Skip premium pricing sections - check parent elements
+
+                // Skip premium pricing sections
                 let parent = el.parentElement;
                 let skipPremium = false;
                 while (parent && parent !== document.body) {
                     const parentText = parent.textContent || '';
                     const parentClass = parent.className || '';
                     const parentId = parent.id || '';
-                    
-                    // Skip if in premium/upgrade section
-                    if (parentClass.includes('premium') || parentClass.includes('upgrade') || 
+
+                    if (parentClass.includes('premium') || parentClass.includes('upgrade') ||
                         parentId.includes('premium') || parentId.includes('upgrade') ||
                         parentText.includes('Premium-a Keç') || parentText.includes('4.99')) {
                         skipPremium = true;
@@ -775,127 +842,149 @@
                     }
                     parent = parent.parentElement;
                 }
-                
+
                 if (skipPremium) {
                     return;
                 }
-                
-                // Skip if element has children (to avoid double processing)
-                if (el.children.length > 0 && !el.textContent.match(amountPattern)) {
-                    return;
-                }
-                
-                const text = el.textContent || el.innerText;
-                if (amountPattern.test(text)) {
-                    // Don't hide if it's premium pricing (4.99, etc.)
-                    if (text.includes('4.99') || text.includes('Premium')) {
-                        return;
-                    }
-                    
-                    const originalText = el.getAttribute('data-original') || text;
-                    el.setAttribute('data-original', originalText);
-                    // Only replace the number, keep currency symbol
-                    el.textContent = text.replace(amountPattern, '**** $2');
+
+                const text = el.textContent || el.innerText || '';
+                if (!text) return;
+
+                // Match numbers (with or without decimals, with or without currency)
+                const numberPattern = /[\d,]+\.?\d*/g;
+                const hasNumbers = numberPattern.test(text);
+
+                if (hasNumbers && !text.includes('4.99') && !text.includes('Premium')) {
+                    const original = el.getAttribute('data-original') || text;
+                    el.setAttribute('data-original', original);
+                    // Replace all numbers with ****
+                    el.textContent = text.replace(numberPattern, '****');
                     el.classList.add('incognito-hidden');
                 }
             }
-            
-            // Hide amounts in transaction rows - be more specific
-            document.querySelectorAll('[id^="expense-"] span, [id^="expense-"] p, .transaction-row span, .transaction-row p').forEach(hideAmountInElement);
-            
-            // Hide dashboard stats (ONLY expense-related amounts) - Force hide with comma support
+
+            // Hide dashboard stats by ID (FIRST - before processing incognito-hidden class)
             ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el && !el.classList.contains('incognito-hidden')) {
+                if (el) {
                     const text = el.textContent || el.innerText || '';
-                    // Check if contains numbers (with or without commas)
-                    if (text.match(/\d/)) {
+                    if (text && text.match(/[\d,]+\.?\d*/)) {
                         const original = el.getAttribute('data-original') || text;
                         el.setAttribute('data-original', original);
-                        // Replace all numbers (including comma-separated) with ****
                         el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
-                        el.classList.add('incognito-hidden');
+                        el.classList.add('incognito-processed');
                     }
                 }
             });
-            
-            // Hide Eco Impact value (next sibling after .eco-leaf)
+
+            // Hide all elements with incognito-hidden class (they already have the class in HTML)
+            document.querySelectorAll('.incognito-hidden').forEach(el => {
+                if (!el.classList.contains('incognito-processed')) {
+                    const text = el.textContent || el.innerText || '';
+                    if (text && text.match(/[\d,]+\.?\d*/)) {
+                        const original = el.getAttribute('data-original') || text;
+                        el.setAttribute('data-original', original);
+                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
+                        el.classList.add('incognito-processed');
+                    }
+                }
+            });
+
+            // Hide transaction amounts
+            document.querySelectorAll('[id^="expense-"] span, [id^="expense-"] p, .transaction-row span, .transaction-row p').forEach(hideAmountInElement);
+
+            // Hide category amounts
+            document.querySelectorAll('[class*="category"] span, [class*="category"] p').forEach(hideAmountInElement);
+
+            // Hide Eco Impact
             const ecoLeaf = document.querySelector('.eco-leaf');
             if (ecoLeaf) {
                 const ecoImpact = ecoLeaf.nextElementSibling;
-                if (ecoImpact && !ecoImpact.classList.contains('incognito-hidden')) {
-                    const text = ecoImpact.textContent || ecoImpact.innerText;
-                    if (text.match(/\d+\.?\d*/)) {
-                        const original = ecoImpact.getAttribute('data-original') || text;
-                        ecoImpact.setAttribute('data-original', original);
-                        ecoImpact.textContent = '****';
-                        ecoImpact.classList.add('incognito-hidden');
-                    }
+                if (ecoImpact) {
+                    hideAmountInElement(ecoImpact);
                 }
             }
-            
-            // Also hide the kg CO₂ text if it contains numbers
-            const ecoContainer = document.querySelector('.eco-leaf')?.parentElement;
-            if (ecoContainer) {
-                const allText = ecoContainer.querySelectorAll('span, p');
-                allText.forEach(el => {
-                    const text = el.textContent || el.innerText;
-                    if (text.match(/\d+\.?\d*\s*kg/) && !el.classList.contains('incognito-hidden') && !el.classList.contains('eco-leaf')) {
-                        const original = el.getAttribute('data-original') || text;
-                        el.setAttribute('data-original', original);
-                        el.textContent = text.replace(/\d+\.?\d*/, '****');
-                        el.classList.add('incognito-hidden');
-                    }
-                });
-            }
-            
+
             // Hide budget percentage
-            const budgetPercent = document.querySelector('.text-sm.font-bold.text-white');
-            if (budgetPercent && budgetPercent.textContent.includes('%') && !budgetPercent.classList.contains('incognito-hidden')) {
-                const text = budgetPercent.textContent || budgetPercent.innerText;
-                if (text.match(/\d+\.?\d*%/)) {
-                    const original = budgetPercent.getAttribute('data-original') || text;
-                    budgetPercent.setAttribute('data-original', original);
-                    budgetPercent.textContent = text.replace(/\d+\.?\d*%/, '****%');
-                    budgetPercent.classList.add('incognito-hidden');
-                }
-            }
-            
-            // Hide category amounts - only direct text nodes
-            document.querySelectorAll('[class*="category"] span, [class*="category"] p').forEach(hideAmountInElement);
-            
-            // Hide transaction amounts in recent transactions
-            document.querySelectorAll('#expense-\\d+ span, #expense-\\d+ p').forEach(el => {
-                const text = el.textContent || el.innerText;
-                if (text.match(amountPattern) && !el.classList.contains('incognito-hidden')) {
+            document.querySelectorAll('.text-sm.font-bold.text-white, .text-xs.sm\\:text-sm.font-bold.text-white').forEach(el => {
+                const text = el.textContent || '';
+                if (text.includes('%') && text.match(/\d/)) {
                     hideAmountInElement(el);
                 }
             });
+
+            // Hide amounts in alert panel
+            const alertPanel = document.getElementById('alert-panel');
+            if (alertPanel) {
+                alertPanel.querySelectorAll('div, li, span, p').forEach(el => {
+                    // Skip icon spans
+                    if (el.classList.contains('text-amber-500') || el.classList.contains('text-purple-500') || el.classList.contains('text-blue-500')) {
+                        return;
+                    }
+                    const text = el.textContent || el.innerText || '';
+                    if (text && text.match(/[\d,]+\.?\d*/) && !text.includes('Premium') && !text.includes('4.99')) {
+                        const original = el.getAttribute('data-original') || text;
+                        el.setAttribute('data-original', original);
+                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
+                    }
+                });
+            }
+
+            console.log('✅ Amounts hidden');
         };
-        
-        window.showAllAmounts = function() {
+
+        window.showAllAmounts = function () {
+            // Restore dashboard stats by ID first
+            ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const original = el.getAttribute('data-original');
+                    if (original) {
+                        el.textContent = original;
+                        el.removeAttribute('data-original');
+                        el.classList.remove('incognito-processed');
+                    }
+                }
+            });
+
+            // Restore all elements with incognito-hidden class
             document.querySelectorAll('.incognito-hidden').forEach(el => {
                 const original = el.getAttribute('data-original');
                 if (original) {
                     el.textContent = original;
                     el.removeAttribute('data-original');
-                    el.classList.remove('incognito-hidden');
+                    el.classList.remove('incognito-processed');
                 }
             });
         };
 
-        window.toggleIncognitoMode = function(enabled) {
+        window.toggleIncognitoMode = function (enabled) {
+            console.log('🕵️ Incognito mode toggle:', enabled);
+            const alertCounter = document.getElementById('alert-counter');
             if (enabled) {
                 document.body.classList.add('incognito-mode');
                 localStorage.setItem('incognito-mode', 'enabled');
+                // Hide alert counter when incognito mode is on
+                if (alertCounter) {
+                    alertCounter.style.display = 'none';
+                }
+                // Hide amounts immediately and then again after DOM updates
                 if (window.hideAllAmounts) {
                     window.hideAllAmounts();
+                    // Also hide after a delay to catch any dynamically loaded content
+                    setTimeout(() => {
+                        window.hideAllAmounts();
+                    }, 300);
                 }
                 // Update eye icons
                 updateEyeIcons(true);
             } else {
                 document.body.classList.remove('incognito-mode');
                 localStorage.removeItem('incognito-mode');
+                // Show alert counter when incognito mode is off
+                if (alertCounter) {
+                    alertCounter.style.display = 'block';
+                }
                 if (window.showAllAmounts) {
                     window.showAllAmounts();
                 }
@@ -962,21 +1051,33 @@
             }
 
             // Quick Incognito Toggle Function
-            window.toggleIncognitoQuick = function() {
+            window.toggleIncognitoQuick = function () {
                 const isCurrentlyIncognito = document.body.classList.contains('incognito-mode');
                 window.toggleIncognitoMode(!isCurrentlyIncognito);
             };
 
             // Load Incognito Mode
             const isIncognitoEnabled = localStorage.getItem('incognito-mode') === 'enabled';
+            const alertCounter = document.getElementById('alert-counter');
             if (isIncognitoEnabled) {
-                window.toggleIncognitoMode(true);
-                // Re-hide amounts after a short delay to catch dynamically loaded content
-                setTimeout(() => {
-                    if (document.body.classList.contains('incognito-mode') && window.hideAllAmounts) {
+                document.body.classList.add('incognito-mode');
+                // Hide alert counter when incognito mode is on
+                if (alertCounter) {
+                    alertCounter.style.display = 'none';
+                }
+                // Hide amounts immediately and after DOM is ready
+                if (window.hideAllAmounts) {
+                    window.hideAllAmounts();
+                    setTimeout(() => {
                         window.hideAllAmounts();
-                    }
-                }, 500);
+                        updateEyeIcons(true);
+                    }, 500);
+                }
+            } else {
+                // Show alert counter when incognito mode is off
+                if (alertCounter) {
+                    alertCounter.style.display = 'block';
+                }
             }
 
             // Watch for dynamically added content (for HTMX updates)
@@ -986,7 +1087,7 @@
                         setTimeout(window.hideAllAmounts, 100);
                     }
                 });
-                
+
                 observer.observe(document.body, {
                     childList: true,
                     subtree: true
@@ -1003,6 +1104,14 @@
             if (bell && panel) {
                 bell.addEventListener('click', () => {
                     panel.classList.toggle('hidden');
+                    // Apply incognito mode to alert panel when opened
+                    if (!panel.classList.contains('hidden') && document.body.classList.contains('incognito-mode')) {
+                        setTimeout(() => {
+                            if (window.hideAllAmounts) {
+                                window.hideAllAmounts();
+                            }
+                        }, 100);
+                    }
                 });
                 document.addEventListener('click', (e) => {
                     if (!panel.contains(e.target) && !bell.contains(e.target)) {
@@ -1050,5 +1159,7 @@
 
     {% block extra_scripts %}{% endblock %}
 </body>
+
+</html>
 
 </html>
