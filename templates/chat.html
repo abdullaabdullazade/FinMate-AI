@@ -165,7 +165,7 @@
 </div>
 
 <!-- Chat Input (Fixed at Bottom) -->
-<div class="chat-input-container fixed bottom-24 sm:bottom-28 left-0 right-0 px-2 sm:px-4 md:bottom-6 transition-all duration-300 z-50">
+<div class="chat-input-container fixed bottom-20 sm:bottom-24 left-0 right-0 px-2 sm:px-4 md:bottom-4 transition-all duration-300 z-50">
     <div class="max-w-2xl mx-auto">
         <form hx-post="/api/chat" hx-target="#messages" hx-swap="beforeend" hx-headers='{"X-Client-Appended":"true"}'
             hx-on::after-request="this.reset(); scrollToBottom();" class="glass-card p-2 sm:p-3 flex items-center gap-2 sm:gap-3"

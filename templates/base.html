@@ -14,6 +14,17 @@
     <!-- TailwindCSS + DaisyUI -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Fix oklch color error - disable oklch in Tailwind
+        tailwind.config = {
+            corePlugins: {
+                preflight: true,
+            },
+            theme: {
+                extend: {}
+            }
+        };
+    </script>
 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -410,9 +421,12 @@
     <!-- Top Bar -->
     <div class="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 py-2 sm:py-3">
         <div class="flex items-center justify-between max-w-md mx-auto">
-            <div class="min-w-0 flex-1">
-                <h1 class="text-lg sm:text-xl font-bold text-white truncate">💰 FinMate AI</h1>
-                <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
+            <div class="min-w-0 flex-1 flex items-center gap-2">
+                <img src="/static/icons/icon-192.png" alt="FinMate AI" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" onerror="this.style.display='none'">
+                <div class="min-w-0">
+                    <h1 class="text-lg sm:text-xl font-bold text-white truncate">FinMate AI</h1>
+                    <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
+                </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                 <!-- Theme Toggle -->
@@ -644,8 +658,10 @@
     <!-- Visible only on Scan and Chat pages -->
     {% if request.url.path == '/scan' or request.url.path == '/chat' %}
     <button onclick="openVoiceModal()"
-        class="fixed {% if request.url.path == '/scan' %}bottom-24{% else %}bottom-32{% endif %} right-4 w-14 h-14 glass bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition z-40 md:{% if request.url.path == '/scan' %}bottom-20{% else %}bottom-24{% endif %} md:right-8 mb-16 md:mb-0">
-        🎤
+        class="fixed {% if request.url.path == '/scan' %}bottom-24{% else %}bottom-32{% endif %} right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass bg-gradient-to-br from-purple-500 to-pink-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:{% if request.url.path == '/scan' %}bottom-20{% else %}bottom-24{% endif %} md:right-8 mb-16 md:mb-0 group">
+        <svg class="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+        </svg>
     </button>
     {% endif %}
     {% endif %}
@@ -662,500 +678,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="/static/js/qr_pay.js"></script>
     <script src="/static/js/split_bill.js"></script>
-
-    <script>
-        // Offline detection
-        window.addEventListener('offline', () => {
-            // Redirect to offline page if not already there
-            if (window.location.pathname !== '/offline') {
-                window.location.href = '/offline';
-            }
-        });
-
-        // Online detection - show notification
-        window.addEventListener('online', () => {
-            if (window.location.pathname === '/offline') {
-                // Already handled by offline page
-                return;
-            }
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg';
-            notification.textContent = '✅ İnternet bağlantısı bərpa olundu!';
-            notification.style.opacity = '0';
-            notification.style.transition = 'opacity 0.3s';
-            document.body.appendChild(notification);
-
-            setTimeout(() => notification.style.opacity = '1', 10);
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        });
-
-        // Readability Mode Logic
-        function toggleReadabilityMode(enabled) {
-            console.log('👁️ Readability mode:', enabled);
-            if (enabled) {
-                document.body.classList.add('readability-mode');
-                localStorage.setItem('readability-mode', 'enabled');
-            } else {
-                document.body.classList.remove('readability-mode');
-                localStorage.setItem('readability-mode', 'disabled');
-            }
-        }
-
-        // Voice Mode (Text-to-Speech)
-        let speechUtterance = null;
-        function speakSummary() {
-            if (!('speechSynthesis' in window)) return;
-            const parts = [];
-            const greet = document.querySelector('h2.text-2xl');
-            if (greet) parts.push(greet.innerText);
-            const total = document.getElementById('stat-total');
-            if (total) parts.push(`Ümumi xərc ${total.innerText} AZN`);
-            const budget = document.getElementById('stat-budget');
-            if (budget) parts.push(`Aylıq büdcə ${budget.innerText} AZN`);
-            const remaining = document.getElementById('stat-remaining');
-            if (remaining) parts.push(`Qalıq ${remaining.innerText} AZN`);
-            const eco = document.querySelector('.eco-leaf');
-            if (eco) {
-                const ecoValue = eco.nextElementSibling ? eco.nextElementSibling.innerText : '';
-                if (ecoValue) parts.push(`Eko iz ${ecoValue} kiloqram CO2`);
-            }
-            const text = parts.join('. ');
-            if (!text) return;
-            window.speechSynthesis.cancel();
-            speechUtterance = new SpeechSynthesisUtterance(text);
-            speechUtterance.lang = 'az-AZ';
-            speechUtterance.rate = 1.0;
-            window.speechSynthesis.speak(speechUtterance);
-        }
-        window.speakSummary = speakSummary;
-        function toggleVoiceMode(enabled) {
-            console.log('🔊 Voice mode:', enabled);
-            if (enabled) {
-                localStorage.setItem('voice-mode', 'enabled');
-                document.body.addEventListener('mouseover', speakText);
-                document.body.addEventListener('focusin', speakText);
-                console.log('✅ Voice mode enabled!');
-                setTimeout(speakSummary, 500);
-            } else {
-                localStorage.setItem('voice-mode', 'disabled');
-                document.body.removeEventListener('mouseover', speakText);
-                document.body.removeEventListener('focusin', speakText);
-                window.speechSynthesis.cancel();
-                console.log('❌ Voice mode disabled');
-            }
-        }
-
-        function speakText(event) {
-            const target = event.target;
-            // Only speak text from relevant elements
-            if (['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'A', 'BUTTON', 'LABEL', 'LI'].includes(target.tagName)) {
-                const text = target.innerText || target.textContent;
-                if (text && text.trim().length > 0) {
-                    // Cancel previous speech
-                    window.speechSynthesis.cancel();
-
-                    speechUtterance = new SpeechSynthesisUtterance(text);
-                    speechUtterance.lang = 'az-AZ'; // Default to Azerbaijani
-                    speechUtterance.rate = 1.0;
-                    window.speechSynthesis.speak(speechUtterance);
-                }
-            }
-        }
-
-        // Premium Modal Functions
-        function openPremiumModal() {
-            document.getElementById('premium-modal').classList.remove('hidden');
-        }
-
-        function closePremiumModal() {
-            document.getElementById('premium-modal').classList.add('hidden');
-        }
-
-        // Premium Theme Functions (Global) - Smooth transition without flash
-        window.applyPremiumTheme = function (theme) {
-            const body = document.body;
-            const html = document.documentElement;
-
-            // Remove all theme classes first (without delay to prevent flash)
-            const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
-            themes.forEach(t => {
-                body.classList.remove(t);
-                html.classList.remove(t);
-            });
-
-            // Apply new theme immediately (no delay to prevent flash to default)
-            if (theme === 'gold') {
-                body.classList.add('theme-gold');
-                html.classList.add('theme-gold');
-                localStorage.setItem('premium-theme', 'gold');
-            } else if (theme === 'midnight') {
-                body.classList.add('theme-midnight');
-                html.classList.add('theme-midnight');
-                localStorage.setItem('premium-theme', 'midnight');
-            } else if (theme === 'ocean') {
-                body.classList.add('theme-ocean');
-                html.classList.add('theme-ocean');
-                localStorage.setItem('premium-theme', 'ocean');
-            } else if (theme === 'forest') {
-                body.classList.add('theme-forest');
-                html.classList.add('theme-forest');
-                localStorage.setItem('premium-theme', 'forest');
-            } else if (theme === 'sunset') {
-                body.classList.add('theme-sunset');
-                html.classList.add('theme-sunset');
-                localStorage.setItem('premium-theme', 'sunset');
-            } else if (theme === 'royal') {
-                body.classList.add('theme-royal');
-                html.classList.add('theme-royal');
-                localStorage.setItem('premium-theme', 'royal');
-            } else {
-                localStorage.removeItem('premium-theme');
-            }
-        };
-
-        // Incognito Mode Functions (Global) - Fixed version
-        window.hideAllAmounts = function () {
-            console.log('🕵️ Hiding all amounts...');
-
-            // Function to hide amount in an element
-            function hideAmountInElement(el) {
-                if (!el || el.classList.contains('incognito-hidden') || el.closest('.incognito-ignore')) {
-                    return;
-                }
-
-                // Skip premium pricing sections
-                let parent = el.parentElement;
-                let skipPremium = false;
-                while (parent && parent !== document.body) {
-                    const parentText = parent.textContent || '';
-                    const parentClass = parent.className || '';
-                    const parentId = parent.id || '';
-
-                    if (parentClass.includes('premium') || parentClass.includes('upgrade') ||
-                        parentId.includes('premium') || parentId.includes('upgrade') ||
-                        parentText.includes('Premium-a Keç') || parentText.includes('4.99')) {
-                        skipPremium = true;
-                        break;
-                    }
-                    parent = parent.parentElement;
-                }
-
-                if (skipPremium) {
-                    return;
-                }
-
-                const text = el.textContent || el.innerText || '';
-                if (!text) return;
-
-                // Match numbers (with or without decimals, with or without currency)
-                const numberPattern = /[\d,]+\.?\d*/g;
-                const hasNumbers = numberPattern.test(text);
-
-                if (hasNumbers && !text.includes('4.99') && !text.includes('Premium')) {
-                    const original = el.getAttribute('data-original') || text;
-                    el.setAttribute('data-original', original);
-                    // Replace all numbers with ****
-                    el.textContent = text.replace(numberPattern, '****');
-                    el.classList.add('incognito-hidden');
-                }
-            }
-
-            // Hide dashboard stats by ID (FIRST - before processing incognito-hidden class)
-            ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    const text = el.textContent || el.innerText || '';
-                    if (text && text.match(/[\d,]+\.?\d*/)) {
-                        const original = el.getAttribute('data-original') || text;
-                        el.setAttribute('data-original', original);
-                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
-                        el.classList.add('incognito-processed');
-                    }
-                }
-            });
-
-            // Hide all elements with incognito-hidden class (they already have the class in HTML)
-            document.querySelectorAll('.incognito-hidden').forEach(el => {
-                if (!el.classList.contains('incognito-processed')) {
-                    const text = el.textContent || el.innerText || '';
-                    if (text && text.match(/[\d,]+\.?\d*/)) {
-                        const original = el.getAttribute('data-original') || text;
-                        el.setAttribute('data-original', original);
-                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
-                        el.classList.add('incognito-processed');
-                    }
-                }
-            });
-
-            // Hide transaction amounts
-            document.querySelectorAll('[id^="expense-"] span, [id^="expense-"] p, .transaction-row span, .transaction-row p').forEach(hideAmountInElement);
-
-            // Hide category amounts
-            document.querySelectorAll('[class*="category"] span, [class*="category"] p').forEach(hideAmountInElement);
-
-            // Hide Eco Impact
-            const ecoLeaf = document.querySelector('.eco-leaf');
-            if (ecoLeaf) {
-                const ecoImpact = ecoLeaf.nextElementSibling;
-                if (ecoImpact) {
-                    hideAmountInElement(ecoImpact);
-                }
-            }
-
-            // Hide budget percentage
-            document.querySelectorAll('.text-sm.font-bold.text-white, .text-xs.sm\\:text-sm.font-bold.text-white').forEach(el => {
-                const text = el.textContent || '';
-                if (text.includes('%') && text.match(/\d/)) {
-                    hideAmountInElement(el);
-                }
-            });
-
-            // Hide amounts in alert panel
-            const alertPanel = document.getElementById('alert-panel');
-            if (alertPanel) {
-                alertPanel.querySelectorAll('div, li, span, p').forEach(el => {
-                    // Skip icon spans
-                    if (el.classList.contains('text-amber-500') || el.classList.contains('text-purple-500') || el.classList.contains('text-blue-500')) {
-                        return;
-                    }
-                    const text = el.textContent || el.innerText || '';
-                    if (text && text.match(/[\d,]+\.?\d*/) && !text.includes('Premium') && !text.includes('4.99')) {
-                        const original = el.getAttribute('data-original') || text;
-                        el.setAttribute('data-original', original);
-                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
-                    }
-                });
-            }
-
-            console.log('✅ Amounts hidden');
-        };
-
-        window.showAllAmounts = function () {
-            // Restore dashboard stats by ID first
-            ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    const original = el.getAttribute('data-original');
-                    if (original) {
-                        el.textContent = original;
-                        el.removeAttribute('data-original');
-                        el.classList.remove('incognito-processed');
-                    }
-                }
-            });
-
-            // Restore all elements with incognito-hidden class
-            document.querySelectorAll('.incognito-hidden').forEach(el => {
-                const original = el.getAttribute('data-original');
-                if (original) {
-                    el.textContent = original;
-                    el.removeAttribute('data-original');
-                    el.classList.remove('incognito-processed');
-                }
-            });
-        };
-
-        window.toggleIncognitoMode = function (enabled) {
-            console.log('🕵️ Incognito mode toggle:', enabled);
-            const alertCounter = document.getElementById('alert-counter');
-            if (enabled) {
-                document.body.classList.add('incognito-mode');
-                localStorage.setItem('incognito-mode', 'enabled');
-                // Hide alert counter when incognito mode is on
-                if (alertCounter) {
-                    alertCounter.style.display = 'none';
-                }
-                // Hide amounts immediately and then again after DOM updates
-                if (window.hideAllAmounts) {
-                    window.hideAllAmounts();
-                    // Also hide after a delay to catch any dynamically loaded content
-                    setTimeout(() => {
-                        window.hideAllAmounts();
-                    }, 300);
-                }
-                // Update eye icons
-                updateEyeIcons(true);
-            } else {
-                document.body.classList.remove('incognito-mode');
-                localStorage.removeItem('incognito-mode');
-                // Show alert counter when incognito mode is off
-                if (alertCounter) {
-                    alertCounter.style.display = 'block';
-                }
-                if (window.showAllAmounts) {
-                    window.showAllAmounts();
-                }
-                // Update eye icons
-                updateEyeIcons(false);
-            }
-        };
-
-        function updateEyeIcons(isHidden) {
-            const eyeIcons = document.querySelectorAll('#eye-icon, #eye-icon-update');
-            eyeIcons.forEach(icon => {
-                if (isHidden) {
-                    // Change to eye-slash (hidden)
-                    icon.innerHTML = `
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
-                    `;
-                } else {
-                    // Change to eye (visible)
-                    icon.innerHTML = `
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    `;
-                }
-            });
-        }
-
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load Readability Mode preference
-            const isReadabilityEnabled = localStorage.getItem('readability-mode') === 'enabled';
-            if (isReadabilityEnabled) {
-                toggleReadabilityMode(true);
-            }
-
-            const readabilityToggle = document.getElementById('readability-mode-toggle');
-            if (readabilityToggle) {
-                readabilityToggle.checked = isReadabilityEnabled;
-            }
-
-            // Load Voice Mode preference
-            const isVoiceModeEnabled = localStorage.getItem('voice-mode') === 'enabled';
-            if (isVoiceModeEnabled) {
-                toggleVoiceMode(true);
-            }
-
-            const voiceToggle = document.getElementById('voice-mode-toggle');
-            if (voiceToggle) {
-                voiceToggle.checked = isVoiceModeEnabled;
-            }
-
-            // Load Premium Theme immediately (already applied in head, but ensure it's set)
-            const savedTheme = localStorage.getItem('premium-theme');
-            const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
-            if (savedTheme && validThemes.includes(savedTheme)) {
-                // Theme already applied in head script, just ensure it's correct
-                const body = document.body;
-                const html = document.documentElement;
-                if (!body.classList.contains('theme-' + savedTheme)) {
-                    window.applyPremiumTheme(savedTheme);
-                }
-            }
-
-            // Quick Incognito Toggle Function
-            window.toggleIncognitoQuick = function () {
-                const isCurrentlyIncognito = document.body.classList.contains('incognito-mode');
-                window.toggleIncognitoMode(!isCurrentlyIncognito);
-            };
-
-            // Load Incognito Mode
-            const isIncognitoEnabled = localStorage.getItem('incognito-mode') === 'enabled';
-            const alertCounter = document.getElementById('alert-counter');
-            if (isIncognitoEnabled) {
-                document.body.classList.add('incognito-mode');
-                // Hide alert counter when incognito mode is on
-                if (alertCounter) {
-                    alertCounter.style.display = 'none';
-                }
-                // Hide amounts immediately and after DOM is ready
-                if (window.hideAllAmounts) {
-                    window.hideAllAmounts();
-                    setTimeout(() => {
-                        window.hideAllAmounts();
-                        updateEyeIcons(true);
-                    }, 500);
-                }
-            } else {
-                // Show alert counter when incognito mode is off
-                if (alertCounter) {
-                    alertCounter.style.display = 'block';
-                }
-            }
-
-            // Watch for dynamically added content (for HTMX updates)
-            if (isIncognitoEnabled) {
-                const observer = new MutationObserver((mutations) => {
-                    if (document.body.classList.contains('incognito-mode') && window.hideAllAmounts) {
-                        setTimeout(window.hideAllAmounts, 100);
-                    }
-                });
-
-                observer.observe(document.body, {
-                    childList: true,
-                    subtree: true
-                });
-            }
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Alerts toggle
-            const bell = document.getElementById('alert-bell');
-            const panel = document.getElementById('alert-panel');
-            if (bell && panel) {
-                bell.addEventListener('click', () => {
-                    panel.classList.toggle('hidden');
-                    // Apply incognito mode to alert panel when opened
-                    if (!panel.classList.contains('hidden') && document.body.classList.contains('incognito-mode')) {
-                        setTimeout(() => {
-                            if (window.hideAllAmounts) {
-                                window.hideAllAmounts();
-                            }
-                        }, 100);
-                    }
-                });
-                document.addEventListener('click', (e) => {
-                    if (!panel.contains(e.target) && !bell.contains(e.target)) {
-                        panel.classList.add('hidden');
-                    }
-                });
-            }
-        });
-    </script>
-
-    <script>
-        // Theme Toggle Functionality - Prevents Flash
-        const themeToggle = document.getElementById('theme-toggle');
-        const sunIcon = document.getElementById('sun-icon');
-        const moonIcon = document.getElementById('moon-icon');
-        const html = document.documentElement;
-
-        // Theme already applied in head, just update icons
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        updateThemeIcons(currentTheme);
-
-        // Remove no-transition class after page loads
-        window.addEventListener('load', () => {
-            document.body.classList.remove('no-transition');
-        });
-
-        // Toggle theme on button click
-        themeToggle?.addEventListener('click', () => {
-            const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcons(newTheme);
-        });
-
-        function updateThemeIcons(theme) {
-            if (theme === 'dark') {
-                sunIcon?.classList.remove('hidden');
-                moonIcon?.classList.add('hidden');
-            } else {
-                sunIcon?.classList.add('hidden');
-                moonIcon?.classList.remove('hidden');
-            }
-        }
-    </script>
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/incognito.js"></script>
+    <script src="/static/js/alerts.js"></script>
+    <script src="/static/js/offline.js"></script>
+    <script src="/static/js/readability.js"></script>
+    <script src="/static/js/voice-mode.js"></script>
+    <script src="/static/js/premium-modal.js"></script>
 
     {% block extra_scripts %}{% endblock %}
 </body>

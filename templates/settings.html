@@ -7,15 +7,16 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-10 slide-up gap-3">
         <div class="flex-1 min-w-0">
-            <h1 class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
+            <h1
+                class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
                 Tənzimləmələr
             </h1>
             <p class="text-white/60 mt-1 sm:mt-2 text-sm sm:text-lg">Şəxsi seçimlərinizi və büdcənizi idarə edin</p>
         </div>
         <a href="/"
             class="group flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all hover:scale-105 text-sm sm:text-base">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
                 </path>
             </svg>
@@ -159,7 +160,8 @@
                     </div>
 
                     <!-- Voice Toggle -->
-                    <div class="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex items-center justify-between gap-3">
+                    <div
+                        class="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex items-center justify-between gap-3">
                         <div class="flex-1 min-w-0">
                             <label class="block text-xs sm:text-sm font-medium text-white">Səsli Əmrlər</label>
                             <p class="text-xs text-white/50 mt-1">Mikrofon ilə xərc əlavə et</p>
@@ -346,12 +348,14 @@
                 <p class="text-sm text-white/70 mb-4">
                     Premium üzvlərimiz üçün xüsusi temalar mövcuddur. İstədiyiniz temanı seçin.
                 </p>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Gold Theme -->
-                    <button type="button" id="theme-gold-btn" onclick="applyPremiumTheme('gold')"
+                    <button type="button" id="theme-gold-btn" onclick="applyPremiumThemeSettings('gold')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-yellow-500/30 hover:border-yellow-500 transition-all group bg-gradient-to-br from-yellow-600/20 to-amber-700/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">✨</div>
                             <h3 class="text-lg font-bold text-white mb-1">Investor Gold</h3>
@@ -360,9 +364,11 @@
                     </button>
 
                     <!-- Midnight Theme -->
-                    <button type="button" id="theme-midnight-btn" onclick="applyPremiumTheme('midnight')"
+                    <button type="button" id="theme-midnight-btn" onclick="applyPremiumThemeSettings('midnight')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-gray-700/30 hover:border-gray-600 transition-all group bg-gradient-to-br from-gray-900/20 to-black/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-gray-800/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-gray-800/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">🌙</div>
                             <h3 class="text-lg font-bold text-white mb-1">Midnight</h3>
@@ -371,9 +377,11 @@
                     </button>
 
                     <!-- Ocean Theme -->
-                    <button type="button" id="theme-ocean-btn" onclick="applyPremiumTheme('ocean')"
+                    <button type="button" id="theme-ocean-btn" onclick="applyPremiumThemeSettings('ocean')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-cyan-500/30 hover:border-cyan-500 transition-all group bg-gradient-to-br from-cyan-600/20 to-blue-700/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">🌊</div>
                             <h3 class="text-lg font-bold text-white mb-1">Ocean</h3>
@@ -382,9 +390,11 @@
                     </button>
 
                     <!-- Forest Theme -->
-                    <button type="button" id="theme-forest-btn" onclick="applyPremiumTheme('forest')"
+                    <button type="button" id="theme-forest-btn" onclick="applyPremiumThemeSettings('forest')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-green-500/30 hover:border-green-500 transition-all group bg-gradient-to-br from-green-600/20 to-emerald-700/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">🌲</div>
                             <h3 class="text-lg font-bold text-white mb-1">Forest</h3>
@@ -393,9 +403,11 @@
                     </button>
 
                     <!-- Sunset Theme -->
-                    <button type="button" id="theme-sunset-btn" onclick="applyPremiumTheme('sunset')"
+                    <button type="button" id="theme-sunset-btn" onclick="applyPremiumThemeSettings('sunset')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-orange-500/30 hover:border-orange-500 transition-all group bg-gradient-to-br from-orange-600/20 to-red-700/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">🌅</div>
                             <h3 class="text-lg font-bold text-white mb-1">Sunset</h3>
@@ -404,9 +416,11 @@
                     </button>
 
                     <!-- Royal Purple Theme -->
-                    <button type="button" id="theme-royal-btn" onclick="applyPremiumTheme('royal')"
+                    <button type="button" id="theme-royal-btn" onclick="applyPremiumThemeSettings('royal')"
                         class="relative overflow-hidden rounded-xl p-6 border-2 border-purple-500/30 hover:border-purple-500 transition-all group bg-gradient-to-br from-purple-600/20 to-indigo-700/20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
                         <div class="relative z-10 text-center">
                             <div class="text-4xl mb-2">👑</div>
                             <h3 class="text-lg font-bold text-white mb-1">Royal Purple</h3>
@@ -416,7 +430,7 @@
                 </div>
 
                 <!-- Reset to Default -->
-                <button type="button" onclick="applyPremiumTheme('default')"
+                <button type="button" onclick="applyPremiumThemeSettings('default')"
                     class="w-full px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white text-sm font-medium transition border border-white/10">
                     Standart temaya qayıt
                 </button>
@@ -438,17 +452,19 @@
 
             <div class="space-y-4">
                 <p class="text-sm text-white/70 mb-4">
-                    Bank tətbiqlərində olan xüsusiyyət. Bir düyməyə basanda bütün məbləğlər <strong>****</strong> ulduzla gizlənir.
+                    Bank tətbiqlərində olan xüsusiyyət. Bir düyməyə basanda bütün məbləğlər <strong>****</strong>
+                    ulduzla gizlənir.
                 </p>
-                
+
                 <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
                     <div>
                         <label class="block text-sm font-medium text-white">Məxfilik Modu</label>
-                        <p class="text-xs text-white/50 mt-1">Varlı adamların ehtiyacı - pulu çoxdur, gizlətmək istəyir</p>
+                        <p class="text-xs text-white/50 mt-1">Varlı adamların ehtiyacı - pulu çoxdur, gizlətmək istəyir
+                        </p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="incognito-mode-toggle" class="sr-only peer"
-                            onchange="toggleIncognitoMode(this.checked)">
+                            onchange="toggleIncognitoModeSettings(this.checked)">
                         <div
                             class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gray-700 transition-colors">
                         </div>
@@ -560,87 +576,177 @@
 <div id="toast-container" class="fixed top-24 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
 <script>
-    // Budget Slider Logic
-    function updateBudget(val) {
-        document.getElementById('budget-display').textContent = val;
-        const percentage = (val / 5000) * 100;
-        document.getElementById('budget-progress').style.width = percentage + '%';
-        document.getElementById('budget-thumb').style.left = percentage + '%';
-    }
+    // Make all functions global
+    (function () {
+        'use strict';
 
-    // Toast Notification System
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
+        // Budget Slider Logic
+        window.updateBudget = function (val) {
+            const display = document.getElementById('budget-display');
+            const progress = document.getElementById('budget-progress');
+            const thumb = document.getElementById('budget-thumb');
 
-        const styles = type === 'success'
-            ? 'bg-green-500/90 border-green-400/50 shadow-green-500/20'
-            : type === 'error'
-                ? 'bg-red-500/90 border-red-400/50 shadow-red-500/20'
-                : 'bg-blue-500/90 border-blue-400/50 shadow-blue-500/20';
+            if (display) display.textContent = val;
+            if (progress && thumb) {
+                const percentage = (val / 5000) * 100;
+                progress.style.width = percentage + '%';
+                thumb.style.left = percentage + '%';
+            }
+        };
 
-        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        // Toast Notification System
+        window.showToast = function (message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
 
-        toast.className = `pointer-events-auto backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full ${styles}`;
-        toast.innerHTML = `
-            <span class="text-xl">${icon}</span>
-            <span class="font-medium">${message}</span>
-        `;
+            const toast = document.createElement('div');
 
-        container.appendChild(toast);
+            const styles = type === 'success'
+                ? 'bg-green-500/90 border-green-400/50 shadow-green-500/20'
+                : type === 'error'
+                    ? 'bg-red-500/90 border-red-400/50 shadow-red-500/20'
+                    : 'bg-blue-500/90 border-blue-400/50 shadow-blue-500/20';
 
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-x-full');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+
+            toast.className = `pointer-events-auto backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full ${styles}`;
+            toast.innerHTML = `
+                <span class="text-xl">${icon}</span>
+                <span class="font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        };
+
+        // HTMX Response Handling
+        document.body.addEventListener('htmx:afterRequest', function (event) {
+            if (event.detail && event.detail.target && event.detail.target.tagName === 'FORM') {
+                if (event.detail.successful) {
+                    try {
+                        const response = JSON.parse(event.detail.xhr.response);
+                        if (response.success) {
+                            window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı!');
+                        } else {
+                            window.showToast(response.error || 'Xəta baş verdi', 'error');
+                        }
+                    } catch (e) {
+                        window.showToast('Tənzimləmələr yadda saxlanıldı!', 'success');
+                    }
+                } else {
+                    window.showToast('Server xətası baş verdi', 'error');
+                }
+            }
         });
 
-        // Remove after 3 seconds
-        setTimeout(() => {
-            toast.classList.add('translate-x-full', 'opacity-0');
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-    }
-
-    // HTMX Response Handling
-    document.body.addEventListener('htmx:afterRequest', function (event) {
-        if (event.detail.target.tagName === 'FORM') {
-            if (event.detail.successful) {
-                try {
-                    const response = JSON.parse(event.detail.xhr.response);
-                    if (response.success) {
-                        showToast(response.message || 'Tənzimləmələr yadda saxlanıldı!');
-                    } else {
-                        showToast(response.error || 'Xəta baş verdi', 'error');
-                    }
-                } catch (e) {
-                    showToast('Tənzimləmələr yadda saxlanıldı!', 'success');
+        // Reset Demo Data
+        window.resetDemoData = async function () {
+            if (!confirm('Demo məlumatlarını sıfırlamaq istəyirsən? Bütün cari məlumatlar silinəcək.')) return;
+            try {
+                const res = await fetch('/api/reset-demo', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    window.showToast('Demo məlumatları yeniləndi, səhifəni yenilə!');
+                } else {
+                    window.showToast(data.error || 'Sıfırlama alınmadı', 'error');
                 }
-            } else {
-                showToast('Server xətası baş verdi', 'error');
+            } catch (err) {
+                window.showToast('Şəbəkə xətası', 'error');
             }
-        }
-    });
+        };
 
-    async function resetDemoData() {
-        if (!confirm('Demo məlumatlarını sıfırlamaq istəyirsən? Bütün cari məlumatlar silinəcək.')) return;
-        try {
-            const res = await fetch('/api/reset-demo', { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Demo məlumatları yeniləndi, səhifəni yenilə!');
-            } else {
-                showToast(data.error || 'Sıfırlama alınmadı', 'error');
+        // Update Theme Buttons
+        window.updateThemeButtons = function (activeTheme) {
+            const buttons = {
+                'gold': 'theme-gold-btn',
+                'midnight': 'theme-midnight-btn',
+                'ocean': 'theme-ocean-btn',
+                'forest': 'theme-forest-btn',
+                'sunset': 'theme-sunset-btn',
+                'royal': 'theme-royal-btn'
+            };
+
+            const borderClasses = {
+                'gold': 'border-yellow-500 ring-2 ring-yellow-500/50',
+                'midnight': 'border-gray-500 ring-2 ring-gray-500/50',
+                'ocean': 'border-cyan-500 ring-2 ring-cyan-500/50',
+                'forest': 'border-green-500 ring-2 ring-green-500/50',
+                'sunset': 'border-orange-500 ring-2 ring-orange-500/50',
+                'royal': 'border-purple-500 ring-2 ring-purple-500/50'
+            };
+
+            // Remove all active states
+            Object.values(buttons).forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.classList.remove('border-yellow-500', 'ring-2', 'ring-yellow-500/50',
+                        'border-gray-500', 'ring-gray-500/50',
+                        'border-cyan-500', 'ring-cyan-500/50',
+                        'border-green-500', 'ring-green-500/50',
+                        'border-orange-500', 'ring-orange-500/50',
+                        'border-purple-500', 'ring-purple-500/50');
+                }
+            });
+
+            // Add active state to selected theme
+            if (activeTheme !== 'default' && buttons[activeTheme]) {
+                const btn = document.getElementById(buttons[activeTheme]);
+                if (btn && borderClasses[activeTheme]) {
+                    const classes = borderClasses[activeTheme].split(' ');
+                    classes.forEach(cls => btn.classList.add(cls));
+                }
             }
-        } catch (err) {
-            showToast('Şəbəkə xətası', 'error');
-        }
-    }
+        };
 
-    // Premium Theme Switching
-    function applyPremiumTheme(theme) {
-        if (window.applyPremiumTheme) {
-            window.applyPremiumTheme(theme);
-            
+        // Premium Theme Switching (Settings-specific wrapper)
+        window.applyPremiumThemeSettings = function (theme) {
+            console.log('Settings: Applying theme:', theme);
+
+            // Call global function if available
+            if (typeof window.applyPremiumTheme === 'function') {
+                window.applyPremiumTheme(theme);
+            } else {
+                // Fallback: apply theme directly
+                const body = document.body;
+                const html = document.documentElement;
+                const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
+
+                themes.forEach(t => {
+                    body.classList.remove(t);
+                    html.classList.remove(t);
+                });
+
+                const themeMap = {
+                    'gold': 'theme-gold',
+                    'midnight': 'theme-midnight',
+                    'ocean': 'theme-ocean',
+                    'forest': 'theme-forest',
+                    'sunset': 'theme-sunset',
+                    'royal': 'theme-royal'
+                };
+
+                if (theme && theme !== 'default' && themeMap[theme]) {
+                    body.classList.add(themeMap[theme]);
+                    html.classList.add(themeMap[theme]);
+                    localStorage.setItem('premium-theme', theme);
+                } else {
+                    localStorage.removeItem('premium-theme');
+                    // When returning to default, set theme to 'light' for pink color scheme
+                    html.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
             const themeNames = {
                 'gold': '✨ Investor Gold',
                 'midnight': '🌙 Midnight',
@@ -648,99 +754,73 @@
                 'forest': '🌲 Forest',
                 'sunset': '🌅 Sunset',
                 'royal': '👑 Royal Purple',
-                'default': 'Standart'
+                'default': 'Standart (Çəhrayı)'
             };
-            
+
             const themeName = themeNames[theme] || 'Standart';
             if (theme !== 'default') {
-                showToast(`${themeName} temaya keçildi!`, 'success');
+                window.showToast(`${themeName} temaya keçildi!`, 'success');
             } else {
-                showToast('Standart temaya qayıdıldı', 'success');
+                window.showToast('Standart çəhrayı temaya qayıdıldı', 'success');
             }
-        }
-        
-        // Update button states
-        updateThemeButtons(theme);
-    }
-    
-    function updateThemeButtons(activeTheme) {
-        const buttons = {
-            'gold': 'theme-gold-btn',
-            'midnight': 'theme-midnight-btn',
-            'ocean': 'theme-ocean-btn',
-            'forest': 'theme-forest-btn',
-            'sunset': 'theme-sunset-btn',
-            'royal': 'theme-royal-btn'
+
+            // Update button states
+            window.updateThemeButtons(theme);
         };
-        
-        const borderClasses = {
-            'gold': 'border-yellow-500 ring-2 ring-yellow-500/50',
-            'midnight': 'border-gray-500 ring-2 ring-gray-500/50',
-            'ocean': 'border-cyan-500 ring-2 ring-cyan-500/50',
-            'forest': 'border-green-500 ring-2 ring-green-500/50',
-            'sunset': 'border-orange-500 ring-2 ring-orange-500/50',
-            'royal': 'border-purple-500 ring-2 ring-purple-500/50'
-        };
-        
-        // Remove all active states
-        Object.values(buttons).forEach(btnId => {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.classList.remove('border-yellow-500', 'ring-2', 'ring-yellow-500/50',
-                    'border-gray-500', 'ring-gray-500/50',
-                    'border-cyan-500', 'ring-cyan-500/50',
-                    'border-green-500', 'ring-green-500/50',
-                    'border-orange-500', 'ring-orange-500/50',
-                    'border-purple-500', 'ring-purple-500/50');
+
+        // Incognito Mode Toggle (Settings-specific wrapper)
+        window.toggleIncognitoModeSettings = function (enabled) {
+            if (typeof window.toggleIncognitoMode === 'function') {
+                window.toggleIncognitoMode(enabled);
+                if (enabled) {
+                    window.showToast('🕵️‍♂️ Məxfilik modu aktivləşdirildi', 'success');
+                } else {
+                    window.showToast('Məxfilik modu deaktivləşdirildi', 'success');
+                }
+            } else {
+                window.showToast('Məxfilik modu funksiyası yüklənməyib', 'error');
             }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load premium theme
+            const savedTheme = localStorage.getItem('premium-theme');
+            const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+
+            // Wait for theme.js to load
+            setTimeout(() => {
+                if (savedTheme && validThemes.includes(savedTheme)) {
+                    // Apply theme using global function
+                    if (typeof window.applyPremiumTheme === 'function') {
+                        window.applyPremiumTheme(savedTheme);
+                    } else {
+                        window.applyPremiumThemeSettings(savedTheme);
+                    }
+                    window.updateThemeButtons(savedTheme);
+                } else {
+                    window.updateThemeButtons('default');
+                }
+            }, 200);
+
+            // Load incognito mode
+            const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+            const toggle = document.getElementById('incognito-mode-toggle');
+            if (toggle) {
+                toggle.checked = isIncognito;
+                if (isIncognito && typeof window.toggleIncognitoMode === 'function') {
+                    setTimeout(() => {
+                        window.toggleIncognitoMode(true);
+                    }, 300);
+                }
+            }
+
+            // Listen for theme changes
+            window.addEventListener('themeChanged', (event) => {
+                const theme = event.detail.theme;
+                window.updateThemeButtons(theme === 'default' ? 'default' : theme);
+            });
         });
-        
-        // Add active state to selected theme
-        if (activeTheme !== 'default' && buttons[activeTheme]) {
-            const btn = document.getElementById(buttons[activeTheme]);
-            if (btn && borderClasses[activeTheme]) {
-                const classes = borderClasses[activeTheme].split(' ');
-                classes.forEach(cls => btn.classList.add(cls));
-            }
-        }
-    }
-
-    // Incognito Mode (uses global function from base.html)
-    function toggleIncognitoMode(enabled) {
-        if (window.toggleIncognitoMode) {
-            window.toggleIncognitoMode(enabled);
-            if (enabled) {
-                showToast('🕵️‍♂️ Məxfilik modu aktivləşdirildi', 'success');
-            } else {
-                showToast('Məxfilik modu deaktivləşdirildi', 'success');
-            }
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        // Load premium theme
-        const savedTheme = localStorage.getItem('premium-theme');
-        const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
-        if (savedTheme && validThemes.includes(savedTheme)) {
-            applyPremiumTheme(savedTheme);
-        } else {
-            updateThemeButtons('default');
-        }
-        
-        // Load incognito mode - ensure it's properly initialized
-        const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
-        const toggle = document.getElementById('incognito-mode-toggle');
-        if (toggle) {
-            toggle.checked = isIncognito;
-            // Apply incognito mode if enabled
-            if (isIncognito && window.toggleIncognitoMode) {
-                // Small delay to ensure DOM is ready
-                setTimeout(() => {
-                    window.toggleIncognitoMode(true);
-                }, 100);
-            }
-        }
-    });
+    })();
 </script>
 {% endblock %}

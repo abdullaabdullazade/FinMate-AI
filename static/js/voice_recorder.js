@@ -124,24 +124,29 @@ class VoiceRecorder {
         const stopBtn = document.getElementById('stop-btn');
         const spinner = document.getElementById('loading-spinner');
 
-        if (state === 'recording') {
-            statusEl.textContent = 'Dinləyirəm... Danışın 🎙️';
-            recordBtn.classList.add('hidden');
-            recordBtn.classList.add('recording'); // Add recording animation
-            stopBtn.classList.remove('hidden');
-        } else if (state === 'processing') {
-            statusEl.textContent = 'AI Analiz edir... 🧠';
-            stopBtn.classList.add('hidden');
-            spinner.classList.remove('hidden');
-            recordBtn.classList.remove('recording'); // Remove animation
-        } else {
-            // Idle
-            recordBtn.classList.remove('hidden');
-            recordBtn.classList.remove('recording'); // Remove animation
-            stopBtn.classList.add('hidden');
-            spinner.classList.add('hidden');
-            statusEl.textContent = 'Hazıram';
-        }
+        // Use requestAnimationFrame for smooth UI updates
+        requestAnimationFrame(() => {
+            if (state === 'recording') {
+                statusEl.textContent = 'Dinləyirəm... Danışın 🎙️';
+                recordBtn.classList.remove('hidden');
+                recordBtn.classList.add('recording');
+                stopBtn.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            } else if (state === 'processing') {
+                statusEl.textContent = 'AI Analiz edir... 🧠';
+                stopBtn.classList.add('hidden');
+                spinner.classList.remove('hidden');
+                recordBtn.classList.remove('recording');
+                recordBtn.classList.add('hidden');
+            } else {
+                // Idle
+                recordBtn.classList.remove('hidden');
+                recordBtn.classList.remove('recording');
+                stopBtn.classList.add('hidden');
+                spinner.classList.add('hidden');
+                statusEl.textContent = 'Hazıram';
+            }
+        });
     }
 
     showSuccess(result) {
@@ -149,30 +154,39 @@ class VoiceRecorder {
 
         // Uğurlu nəticə kartı
         resultDiv.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-xl p-4 animate-fade-in-up">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-green-600 font-bold text-lg">✅ Əlavə Edildi!</span>
-                    <span class="badge badge-warning gap-1">+${(result.xp_result && result.xp_result.xp_awarded) || result.xp_awarded || 10} XP</span>
-                </div>
-                <p class="text-gray-600 italic">"${result.transcribed_text}"</p>
-                <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
-                    <div class="bg-white p-2 rounded shadow-sm">
-                        <span class="block text-xs text-gray-400">Məbləğ</span>
-                        <span class="font-bold text-gray-800">${result.expense_data.amount} AZN</span>
+            <div class="success-result">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-white font-bold text-base sm:text-lg">Əlavə Edildi!</span>
                     </div>
-                    <div class="bg-white p-2 rounded shadow-sm">
-                        <span class="block text-xs text-gray-400">Kateqoriya</span>
-                        <span class="font-bold text-gray-800">${result.expense_data.category}</span>
+                    <span class="xp-badge">+${(result.xp_result && result.xp_result.xp_awarded) || result.xp_awarded || 10} XP</span>
+                </div>
+                <p class="text-white/90 italic text-sm sm:text-base mb-3">"${result.transcribed_text}"</p>
+                <div class="grid grid-cols-2 gap-2 sm:gap-3 text-sm">
+                    <div class="bg-white/10 backdrop-blur-sm p-2 sm:p-3 rounded-lg border border-white/20">
+                        <span class="block text-xs text-white/70 mb-1">Məbləğ</span>
+                        <span class="font-bold text-white text-base sm:text-lg">${result.expense_data.amount} AZN</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm p-2 sm:p-3 rounded-lg border border-white/20">
+                        <span class="block text-xs text-white/70 mb-1">Kateqoriya</span>
+                        <span class="font-bold text-white text-base sm:text-lg">${result.expense_data.category}</span>
                     </div>
                 </div>
             </div>
         `;
 
-        // Dashboard-u yeniləmək üçün HTMX trigger edirik (Refresh etmədən!)
-        document.body.dispatchEvent(new Event('expensesUpdated'));
+        // Dashboard-u yeniləmək üçün HTMX trigger edirik
+        requestAnimationFrame(() => {
+            document.body.dispatchEvent(new Event('expensesUpdated'));
+        });
 
-        // 10 saniyə sonra modalı bağla (was 3.5s, now 10s)
-        setTimeout(() => this.closeModal(), 10000);
+        // 3 saniyə sonra modalı bağla
+        setTimeout(() => {
+            this.closeModal();
+        }, 3000);
 
         // AI səs cavabını çalırıq (əgər varsa)
         if (result.audio_response) {
@@ -182,17 +196,43 @@ class VoiceRecorder {
     }
 
     showError(msg) {
-        document.getElementById('voice-result').innerHTML = `
-            <div class="bg-red-50 text-red-600 p-3 rounded-xl border border-red-200 text-sm">
-                ❌ ${msg}
+        const resultDiv = document.getElementById('voice-result');
+        resultDiv.innerHTML = `
+            <div class="error-result">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-white text-sm sm:text-base">${msg}</span>
+                </div>
             </div>
         `;
     }
 
     closeModal() {
-        document.getElementById('voice-modal').classList.add('hidden');
-        document.getElementById('voice-result').innerHTML = '';
-        this.updateUI('idle');
+        const modal = document.getElementById('voice-modal');
+        const resultDiv = document.getElementById('voice-result');
+        
+        // Smooth close animation
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.opacity = '';
+                modal.style.transform = '';
+                if (resultDiv) {
+                    resultDiv.innerHTML = '';
+                }
+                this.updateUI('idle');
+                // Clean up stream
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+            }, 200);
+        }
     }
 }
 
@@ -200,7 +240,23 @@ class VoiceRecorder {
 const voiceRecorder = new VoiceRecorder();
 
 // Qlobal funksiyalar (HTML-dən çağırmaq üçün)
-window.openVoiceModal = () => document.getElementById('voice-modal').classList.remove('hidden');
+window.openVoiceModal = () => {
+    const modal = document.getElementById('voice-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Smooth open animation
+        requestAnimationFrame(() => {
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+            requestAnimationFrame(() => {
+                modal.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+                modal.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            });
+        });
+    }
+};
+
 window.closeVoiceModal = () => voiceRecorder.closeModal();
 window.startRecording = () => voiceRecorder.startRecording();
 window.stopRecording = () => voiceRecorder.stopRecording();

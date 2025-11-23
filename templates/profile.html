@@ -3,7 +3,7 @@
 {% block title %}Profile - FinMate AI{% endblock %}
 
 {% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="/static/js/personality-share.js"></script>
 <style>
     .persona-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -35,35 +35,41 @@
         }
     }
 
-    /* Ensure profile page respects premium themes */
+    /* Ensure profile page respects premium themes - Use CSS Variables */
     body.theme-gold .persona-card {
-        background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #ffed4e 100%);
-        border-color: rgba(255, 215, 0, 0.8);
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, #ffed4e 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
     }
 
     body.theme-midnight .persona-card {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #404040 100%);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #404040 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
     body.theme-ocean .persona-card {
-        background: linear-gradient(135deg, #003d5c 0%, #00bfff 50%, #5dade2 100%);
-        border-color: rgba(0, 191, 255, 0.5);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(0, 191, 255, 0.4);
     }
 
     body.theme-forest .persona-card {
-        background: linear-gradient(135deg, #1a3d1a 0%, #4caf50 50%, #81c784 100%);
-        border-color: rgba(76, 175, 80, 0.5);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
     }
 
     body.theme-sunset .persona-card {
-        background: linear-gradient(135deg, #5c2e00 0%, #ff9800 50%, #ffb74d 100%);
-        border-color: rgba(255, 152, 0, 0.5);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4);
     }
 
     body.theme-royal .persona-card {
-        background: linear-gradient(135deg, #2d1a4d 0%, #9c27b0 50%, #ba68c8 100%);
-        border-color: rgba(156, 39, 176, 0.5);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+        border-color: var(--glass-border);
+        box-shadow: 0 10px 30px rgba(156, 39, 176, 0.4);
     }
 
     /* Level Card Default Colors */
@@ -95,46 +101,172 @@
         background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%);
     }
 
-    /* Level Card Theme Overrides */
+    /* Level Card Theme Overrides - Use CSS Variables for Dynamic Theming */
     body.theme-gold .level-card {
-        background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #3d2a00 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #3d2a00 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
     body.theme-midnight .level-card {
-        background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #1a1a1a 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
     body.theme-ocean .level-card {
-        background: linear-gradient(135deg, #001a2e 0%, #003d5c 50%, #005a8a 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #005a8a 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
     body.theme-forest .level-card {
-        background: linear-gradient(135deg, #0d1f0d 0%, #1a3d1a 50%, #2d5a2d 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #2d5a2d 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
     body.theme-sunset .level-card {
-        background: linear-gradient(135deg, #2d1a00 0%, #5c2e00 50%, #8b4513 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #8b4513 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
     body.theme-royal .level-card {
-        background: linear-gradient(135deg, #1a0d2e 0%, #2d1a4d 50%, #4a2c6b 100%) !important;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #4a2c6b 100%) !important;
+        border-color: var(--glass-border) !important;
     }
 
-    /* Progress Bar Theme Colors */
-    body.theme-gold .progress-bar-theme {
-        background: linear-gradient(to right, #ffd700, #ffed4e, #ffd700) !important;
+    /* Progress Bar Theme Colors - Use CSS Variables */
+    body.theme-gold .progress-bar-theme,
+    body.theme-gold .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
     }
 
-    body.theme-midnight .progress-bar-theme {
-        background: linear-gradient(to right, #ffffff, #e0e0e0, #ffffff) !important;
+    body.theme-midnight .progress-bar-theme,
+    body.theme-midnight .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
     }
 
-    body.theme-ocean .progress-bar-theme {
-        background: linear-gradient(to right, #00bfff, #5dade2, #00bfff) !important;
+    body.theme-ocean .progress-bar-theme,
+    body.theme-ocean .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
     }
 
-    body.theme-forest .progress-bar-theme {
-        background: linear-gradient(to right, #4caf50, #81c784, #4caf50) !important;
+    body.theme-forest .progress-bar-theme,
+    body.theme-forest .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+    }
+
+    body.theme-sunset .progress-bar-theme,
+    body.theme-sunset .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+    }
+
+    body.theme-royal .progress-bar-theme,
+    body.theme-royal .bg-gradient-to-r.from-purple-500.to-pink-500 {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+    }
+    
+    /* Export and Subscription Cards Theme Colors */
+    body.theme-gold .glass-card button,
+    body.theme-gold button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-midnight .glass-card button,
+    body.theme-midnight button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-ocean .glass-card button,
+    body.theme-ocean button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-forest .glass-card button,
+    body.theme-forest button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-sunset .glass-card button,
+    body.theme-sunset button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-royal .glass-card button,
+    body.theme-royal button.bg-gradient-to-r {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    /* Subscription Icon Theme Colors */
+    body.theme-gold .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-midnight .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-ocean .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-forest .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-sunset .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-royal .sub-icon-theme {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    /* XP Amount Theme Colors */
+    body.theme-gold .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    body.theme-midnight .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    body.theme-ocean .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    body.theme-forest .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    body.theme-sunset .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    body.theme-royal .xp-amount-theme {
+        color: var(--accent-primary) !important;
+    }
+    
+    /* Export Button Theme */
+    body.theme-gold .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-midnight .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-ocean .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-forest .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-sunset .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    }
+    
+    body.theme-royal .btn-theme {
+        background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
     }
 
     body.theme-sunset .progress-bar-theme {
@@ -723,61 +855,6 @@
     });
 });
 
-    // Share Personality Card
-    async function sharePersonality() {
-        const card = document.getElementById('personality-card');
-        if (!card) {
-            console.error('Personality card not found');
-            return;
-        }
-
-        // Check if html2canvas is loaded
-        if (typeof html2canvas === 'undefined') {
-            alert('Xəta: html2canvas yüklənməyib. Səhifəni yeniləyin.');
-            return;
-        }
-
-        try {
-            const canvas = await html2canvas(card, {
-                backgroundColor: null,
-                scale: 2,
-                logging: false,
-                useCORS: true
-            });
-
-            canvas.toBlob((blob) => {
-                if (!blob) {
-                    alert('Xəta: Şəkil yaradıla bilmədi.');
-                    return;
-                }
-
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `finmate-personality-${Date.now()}.png`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                // Show notification
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-20 right-4 z-50 px-6 py-3 rounded-lg bg-green-500 text-white font-medium shadow-lg';
-                notification.textContent = '✅ Şəxsiyyət kartı yükləndi!';
-                notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.3s';
-                document.body.appendChild(notification);
-
-                setTimeout(() => notification.style.opacity = '1', 10);
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }, 'image/png');
-        } catch (error) {
-            console.error('Share failed:', error);
-            alert('Xəta baş verdi: ' + error.message);
-        }
-    }
+    // sharePersonality function is now in /static/js/personality-share.js
 </script>
 {% endblock %}
