@@ -65,7 +65,20 @@
                     }).then(response => response.text())
                     .then(html => {
                         document.getElementById('voice-confirmation').remove();
+                        // Insert HTML
                         document.body.insertAdjacentHTML('beforeend', html);
+                        // Extract and execute scripts manually (scripts don't auto-execute in insertAdjacentHTML)
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        const scripts = tempDiv.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            document.body.appendChild(newScript);
+                        });
                     }).catch(error => {
                         console.error('Error:', error);
                         alert('Xəta baş verdi');

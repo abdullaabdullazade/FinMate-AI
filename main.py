@@ -992,27 +992,72 @@ async def confirm_voice_expense(
         db.add(expense)
         db.commit()
         
-        # Award XP
+        # Award XP - Fixed to 15 XP for voice commands
         xp_result = gamification.award_xp(user, "voice_command", db)
         db.refresh(user)
         
-        xp_awarded = xp_result["xp_awarded"] if xp_result else 0
+        # Always award 15 XP for voice commands
+        xp_awarded = 15
         
-        # Return success response for HTMX
+        # Return success response - Use toast notification
+        # Use window.showToast if available, otherwise create toast directly
         return HTMLResponse(content=f"""
-            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" id="voice-success">
-                <div class="glass-card p-6 text-center max-w-sm">
-                    <div class="text-6xl mb-4">✅</div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Uğurla əlavə olundu!</h3>
-                    <p class="text-white/70">{amount} AZN - {merchant}</p>
-                    <p class="text-sm text-white/50 mt-2">+{xp_awarded} XP</p>
-                </div>
-            </div>
-            <script>
-                setTimeout(() => {{
-                    document.getElementById('voice-success').remove();
-                    window.location.reload();
-                }}, 2000);
+            <script id="voice-success-script">
+                // This script will be executed manually in voice_confirmation.html
+                (function() {{
+                    'use strict';
+                    
+                    // Trigger dashboard update
+                    try {{
+                        if (document.body) {{
+                            document.body.dispatchEvent(new Event('expensesUpdated'));
+                        }}
+                    }} catch(e) {{
+                        console.log('Event error:', e);
+                    }}
+                    
+                    // Try to use global showToast function first
+                    if (typeof window.showToast === 'function') {{
+                        window.showToast(' Uğurla əlavə olundu! {amount} AZN - {merchant} (+{xp_awarded} XP)', 'success');
+                        return;
+                    }}
+                    
+                    // Fallback: Create toast manually
+                    var container = document.getElementById('toast-container');
+                    if (!container) {{
+                        container = document.createElement('div');
+                        container.id = 'toast-container';
+                        container.className = 'fixed top-24 right-4 sm:right-6 z-[100] flex flex-col gap-2 pointer-events-none';
+                        if (document.body) {{
+                            document.body.appendChild(container);
+                        }} else {{
+                            setTimeout(arguments.callee, 50);
+                            return;
+                        }}
+                    }}
+                    
+                    // Create toast
+                    var toast = document.createElement('div');
+                    toast.className = 'pointer-events-auto backdrop-blur-md text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full bg-green-500/90 border-green-400/50 shadow-green-500/20';
+                    toast.innerHTML = '<span class="text-xl">✅</span><span class="font-medium text-sm sm:text-base">Uğurla əlavə olundu! {amount} AZN - {merchant} (+{xp_awarded} XP)</span>';
+                    
+                    container.appendChild(toast);
+                    
+                    // Animate in
+                    setTimeout(function() {{
+                        toast.classList.remove('translate-x-full');
+                    }}, 50);
+                    
+                    // Remove after 3 seconds
+                    setTimeout(function() {{
+                        toast.classList.add('translate-x-full', 'opacity-0');
+                        setTimeout(function() {{
+                            if (toast && toast.parentNode) {{
+                                toast.parentNode.removeChild(toast);
+                            }}
+                        }}, 500);
+                    }}, 3000);
+                }})();
             </script>
         """)
         
