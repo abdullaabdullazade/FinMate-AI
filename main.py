@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from database import get_db, init_db, seed_demo_data, reset_demo_data
-from models import User, Expense, ChatMessage, XPLog, Wish
+from models import User, Expense, ChatMessage, XPLog, Wish, Dream
 from ai_service import ai_service
 from gamification import gamification
 from forecast_service import forecast_service
@@ -1313,6 +1313,282 @@ async def add_wishlist_item(
     except Exception as e:
         print(f"❌ Wishlist Error: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+# ==================== DREAM VAULT API ENDPOINTS ====================
+
+@app.get("/dream-vault", response_class=HTMLResponse)
+async def dream_vault_page(request: Request, db: Session = Depends(get_db)):
+    """Dream Vault page - visualize and track savings goals"""
+    user = get_current_user(db)
+    
+    # Get all dreams for user
+    dreams = db.query(Dream).filter(
+        Dream.user_id == user.id,
+        Dream.is_completed == False
+    ).order_by(Dream.priority.desc(), Dream.created_at.desc()).all()
+    
+    # Get completed dreams
+    completed_dreams = db.query(Dream).filter(
+        Dream.user_id == user.id,
+        Dream.is_completed == True
+    ).order_by(Dream.updated_at.desc()).limit(5).all()
+    
+    # Calculate total saved across all dreams
+    total_saved = sum(dream.saved_amount for dream in dreams)
+    total_target = sum(dream.target_amount for dream in dreams)
+    
+    return templates.TemplateResponse("dream_vault.html", {
+        "request": request,
+        "user": user,
+        "dreams": dreams,
+        "completed_dreams": completed_dreams,
+        "total_saved": total_saved,
+        "total_target": total_target,
+        "now": datetime.utcnow(),
+        "date_type": date_type,
+        "max": max,
+        "min": min
+    })
+
+
+@app.post("/api/dreams")
+async def create_dream(
+    request: Request,
+    title: str = Form(...),
+    description: Optional[str] = Form(None),
+    target_amount: float = Form(...),
+    image_url: Optional[str] = Form(None),
+    category: Optional[str] = Form(None),
+    target_date: Optional[str] = Form(None),
+    priority: int = Form(1),
+    db: Session = Depends(get_db)
+):
+    """Create a new dream"""
+    user = get_current_user(db)
+    
+    try:
+        # Parse target_date if provided
+        parsed_date = None
+        if target_date:
+            try:
+                parsed_date = datetime.strptime(target_date, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        
+        dream = Dream(
+            user_id=user.id,
+            title=title,
+            description=description,
+            target_amount=target_amount,
+            saved_amount=0.0,
+            image_url=image_url,
+            category=category or "Digər",
+            target_date=parsed_date,
+            priority=min(max(priority, 1), 5)  # Clamp between 1-5
+        )
+        db.add(dream)
+        db.commit()
+        db.refresh(dream)
+        
+        # Award XP for creating a dream
+        gamification.award_xp(user, "create_dream", db)
+        db.refresh(user)
+        
+        # Return the new dream card only (not the whole list)
+        response = templates.TemplateResponse("partials/dream_card.html", {
+            "request": request,
+            "dream": dream,
+            "now": datetime.utcnow(),
+            "date_type": date_type,
+            "max": max,
+            "min": min
+        })
+        # Trigger stats update
+        response.headers["HX-Trigger"] = "dreamUpdated"
+        return response
+    except Exception as e:
+        print(f"❌ Create Dream Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.put("/api/dreams/{dream_id}")
+async def update_dream(
+    request: Request,
+    dream_id: int,
+    title: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    target_amount: Optional[float] = Form(None),
+    image_url: Optional[str] = Form(None),
+    category: Optional[str] = Form(None),
+    target_date: Optional[str] = Form(None),
+    priority: Optional[int] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Update a dream"""
+    user = get_current_user(db)
+    dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
+    
+    if not dream:
+        raise HTTPException(status_code=404, detail="Dream not found")
+    
+    try:
+        if title is not None:
+            dream.title = title
+        if description is not None:
+            dream.description = description
+        if target_amount is not None:
+            dream.target_amount = target_amount
+        if image_url is not None:
+            dream.image_url = image_url
+        if category is not None:
+            dream.category = category
+        if target_date is not None:
+            try:
+                dream.target_date = datetime.strptime(target_date, "%Y-%m-%d").date()
+            except ValueError:
+                pass
+        if priority is not None:
+            dream.priority = min(max(priority, 1), 5)
+        
+        dream.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(dream)
+        
+        # Return updated dream card
+        response = templates.TemplateResponse("partials/dream_card.html", {
+            "request": request,
+            "dream": dream,
+            "now": datetime.utcnow(),
+            "date_type": date_type,
+            "max": max,
+            "min": min
+        })
+        # Trigger stats update
+        response.headers["HX-Trigger"] = "dreamUpdated"
+        return response
+    except Exception as e:
+        print(f"❌ Update Dream Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.post("/api/dreams/{dream_id}/add-savings")
+async def add_dream_savings(
+    request: Request,
+    dream_id: int,
+    amount: float = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Add savings to a dream"""
+    user = get_current_user(db)
+    dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
+    
+    if not dream:
+        raise HTTPException(status_code=404, detail="Dream not found")
+    
+    try:
+        dream.saved_amount += amount
+        
+        # Check if dream is completed
+        if dream.saved_amount >= dream.target_amount:
+            dream.saved_amount = dream.target_amount
+            dream.is_completed = True
+            dream.updated_at = datetime.utcnow()
+            # Award bonus XP for completing a dream
+            gamification.award_xp(user, "complete_dream", db)
+        
+        db.commit()
+        db.refresh(dream)
+        
+        # Return updated dream card
+        response = templates.TemplateResponse("partials/dream_card.html", {
+            "request": request,
+            "dream": dream,
+            "now": datetime.utcnow(),
+            "date_type": date_type,
+            "max": max,
+            "min": min
+        })
+        # Trigger stats update
+        response.headers["HX-Trigger"] = "dreamUpdated"
+        return response
+    except Exception as e:
+        print(f"❌ Add Savings Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.delete("/api/dreams/{dream_id}")
+async def delete_dream(request: Request, dream_id: int, db: Session = Depends(get_db)):
+    """Delete a dream"""
+    user = get_current_user(db)
+    dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
+    
+    if not dream:
+        return JSONResponse({"success": False, "error": "Dream not found"}, status_code=404)
+    
+    try:
+        db.delete(dream)
+        db.commit()
+        # Return empty response and trigger updates
+        return Response(
+            status_code=200,
+            headers={
+                "HX-Trigger": "dreamUpdated",
+                "HX-Reswap": "none"
+            }
+        )
+    except Exception as e:
+        print(f"❌ Delete Dream Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.get("/api/dream-stats")
+async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
+    """Get dynamic dream statistics"""
+    user = get_current_user(db)
+    
+    # Get all active dreams
+    dreams = db.query(Dream).filter(
+        Dream.user_id == user.id,
+        Dream.is_completed == False
+    ).all()
+    
+    # Calculate totals
+    total_saved = sum(dream.saved_amount for dream in dreams)
+    total_target = sum(dream.target_amount for dream in dreams)
+    
+    return templates.TemplateResponse("partials/dream_stats.html", {
+        "request": request,
+        "total_saved": total_saved,
+        "total_target": total_target,
+        "max": max,
+        "min": min
+    })
+
+
+@app.get("/api/dreams/{dream_id}/data")
+async def get_dream_data(dream_id: int, db: Session = Depends(get_db)):
+    """Get dream data for editing"""
+    user = get_current_user(db)
+    dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
+    
+    if not dream:
+        return JSONResponse({"success": False, "error": "Dream not found"}, status_code=404)
+    
+    return JSONResponse({
+        "success": True,
+        "dream": {
+            "id": dream.id,
+            "title": dream.title,
+            "description": dream.description,
+            "target_amount": dream.target_amount,
+            "saved_amount": dream.saved_amount,
+            "image_url": dream.image_url,
+            "category": dream.category,
+            "target_date": dream.target_date.strftime("%Y-%m-%d") if dream.target_date else None,
+            "priority": dream.priority
+        }
+    })
 
 
 @app.get("/api/settings")

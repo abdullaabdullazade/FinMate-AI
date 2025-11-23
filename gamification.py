@@ -25,7 +25,11 @@ class GamificationService:
         "stay_under_budget": 100,
         "daily_login": 20,
         "week_streak": 50,
-        "month_complete": 200
+        "month_complete": 200,
+        "create_dream": 25,
+        "complete_dream": 100,
+        "add_savings": 5,
+        "voice_command": 15
     }
     
     @staticmethod

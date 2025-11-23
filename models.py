@@ -42,6 +42,7 @@ class User(Base):
     expenses = relationship("Expense", back_populates="user", cascade="all, delete-orphan")
     chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
     xp_logs = relationship("XPLog", back_populates="user", cascade="all, delete-orphan")
+    dreams = relationship("Dream", back_populates="user", cascade="all, delete-orphan")
     
     def calculate_current_month_spending(self):
         """Calculate total spending for current month"""
@@ -122,3 +123,27 @@ class Wish(Base):
     price = Column(Float, nullable=True)
     locked_until = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Dream(Base):
+    __tablename__ = "dreams"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    target_amount = Column(Float, nullable=False)
+    saved_amount = Column(Float, default=0.0)
+    image_url = Column(String, nullable=True)  # URL to dream image
+    category = Column(String, nullable=True)  # Travel, Gadget, Car, House, etc.
+    target_date = Column(Date, nullable=True)  # Optional target date
+    priority = Column(Integer, default=1)  # 1-5 priority level
+    is_completed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", back_populates="dreams")
+    
+    def __repr__(self):
+        return f"<Dream(title='{self.title}', saved={self.saved_amount}/{self.target_amount})>"

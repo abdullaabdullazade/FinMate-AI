@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from models import Base, User, Expense, ChatMessage, XPLog
+from models import Base, User, Expense, ChatMessage, XPLog, Dream
 from datetime import datetime, timedelta
 import random
 
