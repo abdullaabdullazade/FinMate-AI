@@ -1133,45 +1133,6 @@
         }
     };
 
-    window.toggleMoreItems = function (btn) {
-        const targetId = btn.dataset.target; // Məsələn: "txn-40"
-        const expanded = btn.dataset.expanded === 'true';
-
-        // DÜZƏLİŞ: replace('txn-', '') hissəsini sildik. 
-        // Çünki HTML-də class belədir: "extra-item-txn-40"
-        const extras = document.querySelectorAll(`.extra-item-${targetId}`);
-
-        if (extras.length === 0) {
-            console.warn("Gizli elementlər tapılmadı:", `.extra-item-${targetId}`);
-            return;
-        }
-
-        extras.forEach(el => {
-            el.classList.toggle('hidden');
-        });
-
-        if (expanded) {
-            // Bağlayanda
-            btn.innerHTML = `
-                <span class="flex items-center justify-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                    +${btn.dataset.count} daha çox məhsul
-                </span>`;
-            btn.dataset.expanded = 'false';
-        } else {
-            // Açanda
-            btn.innerHTML = `
-                <span class="flex items-center justify-center gap-1">
-                    <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                    Daha az göstər
-                </span>`;
-            btn.dataset.expanded = 'true';
-        }
-    };
     // --- 3. CHART SETUP ---
     let categoryChart;
     // Datanı düzgün formatda alırıq (Səhv olarsa boş obyekt)
@@ -1218,13 +1179,6 @@
                 // Delete düyməsinə basanda açılmasın
                 if (e.target.closest('button')) return;
                 window.toggleTransaction(this);
-            });
-        });
-
-        document.querySelectorAll('.show-more-items').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation(); // Headeri tetikləməsin
-                window.toggleMoreItems(this);
             });
         });
 
@@ -1328,5 +1282,24 @@
             }
         }
     };
+
+    // Auto-hide financial pet after 10 seconds
+    window.addEventListener('DOMContentLoaded', () => {
+        const pet = document.getElementById('financialPet');
+        if (pet) {
+            // Show pet initially
+            pet.style.opacity = '0.98';
+            pet.style.transition = 'opacity 1s ease-out';
+
+            // Hide after 10 seconds with fade-out
+            setTimeout(() => {
+                pet.style.opacity = '0';
+                // Completely hide after fade animation
+                setTimeout(() => {
+                    pet.style.display = 'none';
+                }, 1000); // 1s fade duration
+            }, 10000); // 10 seconds display time
+        }
+    });
 </script>
 {% endblock %}

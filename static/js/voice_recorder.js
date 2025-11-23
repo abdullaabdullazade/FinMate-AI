@@ -51,17 +51,15 @@ class VoiceRecorder {
     }
 
     stopRecording() {
-        if (this.mediaRecorder && this.isRecording) {
-            this.mediaRecorder.stop();
-            this.isRecording = false;
-
-            // Mikrofon axınını tam dayandırırıq (işləməyə davam etməsin)
-            if (this.stream) {
-                this.stream.getTracks().forEach(track => track.stop());
-            }
-
-            this.updateUI('processing');
+        if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+            console.warn('MediaRecorder not active');
+            return;
         }
+
+        this.mediaRecorder.stop();
+        this.updateUI('processing');
+
+        // MediaRecorder will fire 'stop' event which triggers sendAudioToServer
     }
 
     async sendAudioToServer(audioBlob) {
@@ -80,20 +78,43 @@ class VoiceRecorder {
                 body: formData
             });
 
-            const result = await response.json();
+            // Check if response is successful
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', response.status, errorText);
+                throw new Error(`Server error: ${response.status}`);
+            }
 
-            this.updateUI('idle');
+            // Check if response is HTML (confirmation template) or JSON (error)
+            const contentType = response.headers.get('content-type');
 
-            if (result.success) {
-                this.showSuccess(result);
+            if (contentType && contentType.includes('text/html')) {
+                // Confirmation template returned - replace modal with confirmation
+                const html = await response.text();
+                const voiceModal = document.getElementById('voice-modal');
+                if (voiceModal) {
+                    voiceModal.remove();
+                }
+                document.body.insertAdjacentHTML('beforeend', html);
+            } else if (contentType && contentType.includes('application/json')) {
+                // JSON response - handle as error or old success
+                const result = await response.json();
+                this.updateUI('idle');
+
+                if (result.success) {
+                    this.showSuccess(result);
+                } else {
+                    this.showError(result.error || "Anlaşılmadı");
+                }
             } else {
-                this.showError(result.error || "Anlaşılmadı");
+                // Unknown response type
+                throw new Error('Gözlənilməz cavab tipi');
             }
 
         } catch (error) {
             console.error('Server xətası:', error);
             this.updateUI('idle');
-            this.showError('Serverlə əlaqə kəsildi.');
+            this.showError('Serverlə əlaqə kəsildi. Yenidən cəhd edin.');
         }
     }
 
@@ -102,24 +123,23 @@ class VoiceRecorder {
         const recordBtn = document.getElementById('record-btn');
         const stopBtn = document.getElementById('stop-btn');
         const spinner = document.getElementById('loading-spinner');
-        const waves = document.getElementById('voice-waves'); // Vizual effekt (əsas dizaynda yoxdur)
 
         if (state === 'recording') {
             statusEl.textContent = 'Dinləyirəm... Danışın 🎙️';
             recordBtn.classList.add('hidden');
+            recordBtn.classList.add('recording'); // Add recording animation
             stopBtn.classList.remove('hidden');
-            waves && waves.classList.remove('hidden');
         } else if (state === 'processing') {
             statusEl.textContent = 'AI Analiz edir... 🧠';
             stopBtn.classList.add('hidden');
             spinner.classList.remove('hidden');
-            waves && waves.classList.add('hidden');
+            recordBtn.classList.remove('recording'); // Remove animation
         } else {
             // Idle
             recordBtn.classList.remove('hidden');
+            recordBtn.classList.remove('recording'); // Remove animation
             stopBtn.classList.add('hidden');
             spinner.classList.add('hidden');
-            waves && waves.classList.add('hidden');
             statusEl.textContent = 'Hazıram';
         }
     }
@@ -149,11 +169,10 @@ class VoiceRecorder {
         `;
 
         // Dashboard-u yeniləmək üçün HTMX trigger edirik (Refresh etmədən!)
-        // Body-də hx-trigger="expensesUpdated" dinləyən bir element olmalıdır
         document.body.dispatchEvent(new Event('expensesUpdated'));
 
-        // 3 saniyə sonra modalı bağla
-        setTimeout(() => this.closeModal(), 3500);
+        // 10 saniyə sonra modalı bağla (was 3.5s, now 10s)
+        setTimeout(() => this.closeModal(), 10000);
 
         // AI səs cavabını çalırıq (əgər varsa)
         if (result.audio_response) {

@@ -174,21 +174,6 @@
                         </label>
                     </div>
 
-                    <!-- Accessibility Toggle -->
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
-                        <div>
-                            <label class="block text-sm font-medium text-white">♿ Oxunaqlı Rejim</label>
-                            <p class="text-xs text-white/50 mt-1">Disleksiya və görmə qüsurları üçün</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="accessibility-mode" class="sr-only peer"
-                                onchange="toggleAccessibility(this.checked)">
-                            <div
-                                class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 transition-colors">
-                            </div>
-                        </label>
-                    </div>
-
                     <!-- Voice Mode Toggle (TTS) -->
                     <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
                         <div>
@@ -200,6 +185,23 @@
                                 onchange="toggleVoiceMode(this.checked)">
                             <div
                                 class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500 transition-colors">
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Readability Mode Toggle (NEW) -->
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                        <div>
+                            <label class="block text-sm font-medium text-white">👁️ Oxunaqlılıq Rejimi</label>
+                            <p class="text-xs text-white/50 mt-1">Gözü zəif görənlər üçün böyük yazı</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="hidden" name="readability_mode" value="false">
+                            <input type="checkbox" id="readability-mode-toggle" name="readability_mode" value="true" {%
+                                if user.readability_mode %}checked{% endif %} class="sr-only peer"
+                                onchange="toggleReadabilityMode(this.checked)">
+                            <div
+                                class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 transition-colors">
                             </div>
                         </label>
                     </div>
@@ -325,7 +327,7 @@
             </div>
         </div>
 
-        \<!-- Premium Upgrade Card -->
+        <!-- Premium Upgrade Card -->
         <div class="relative overflow-hidden rounded-2xl p-6 slide-up group"
             style="animation-delay: 0.25s; cursor: pointer;" onclick="openPremiumModal()">
             <div

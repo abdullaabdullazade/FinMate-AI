@@ -40,15 +40,29 @@ def ensure_schema():
         if col_name not in columns:
             cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
 
-    # User table columns
+    # User table columns (keeps existing data intact)
+    add_column_if_missing("users", "xp_points INTEGER DEFAULT 0")
+    add_column_if_missing("users", "level_title VARCHAR DEFAULT 'Rookie'")
+    add_column_if_missing("users", "preferred_language VARCHAR DEFAULT 'az'")
+    add_column_if_missing("users", "voice_enabled BOOLEAN DEFAULT 1")
+    add_column_if_missing("users", "daily_budget_limit FLOAT")
     add_column_if_missing("users", "currency VARCHAR DEFAULT 'AZN'")
+    add_column_if_missing("users", "personality_mode VARCHAR DEFAULT 'normal'")
     add_column_if_missing("users", "is_premium BOOLEAN DEFAULT 0")
+    add_column_if_missing("users", "readability_mode BOOLEAN DEFAULT 0")
     add_column_if_missing("users", "ai_name VARCHAR DEFAULT 'FinMate'")
     add_column_if_missing("users", "ai_attitude VARCHAR DEFAULT 'Professional'")
     add_column_if_missing("users", "ai_style VARCHAR DEFAULT 'Formal'")
     add_column_if_missing("users", "ai_persona_mode VARCHAR DEFAULT 'Auto'")
     add_column_if_missing("users", "login_streak INTEGER DEFAULT 0")
     add_column_if_missing("users", "last_login_date DATE")
+    add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
+
+    # Expense table safety
+    add_column_if_missing("expenses", "is_subscription BOOLEAN DEFAULT 0")
+    add_column_if_missing("expenses", "items JSON")
+    add_column_if_missing("expenses", "notes TEXT")
+    add_column_if_missing("expenses", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
 
     conn.commit()
     conn.close()

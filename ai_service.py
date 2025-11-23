@@ -21,23 +21,83 @@ class FinMateAI:
     def __init__(self):
         self.model = genai.GenerativeModel('gemini-2.0-flash')
     
-    def determine_persona(self, user, total_spending: float, monthly_budget: float) -> tuple:
+    def determine_persona(self, user) -> tuple:
         """
-        Determine AI persona based on user settings or behavioral profiling
+        Determine AI persona based on user settings
+        Priority: Manual selection > Auto-detection
         
-        Returns: (persona_name, system_prompt_text)
+        Returns: (persona_name, system_prompt)
         """
         ai_name = user.ai_name or "FinMate"
         
-        # If manual mode, use user's custom settings
-        if user.ai_persona_mode == "Manual":
+        # CRITICAL: If user manually selected a mode, ALWAYS use it
+        # Do NOT override with auto-detection
+        if user.ai_persona_mode == "Manual" and user.ai_attitude and user.ai_style:
             return self._build_manual_persona(ai_name, user.ai_attitude, user.ai_style)
         
-        # Auto mode: Behavioral profiling based on budget health
-        remaining = monthly_budget - total_spending
-        remaining_percentage = (remaining / monthly_budget) if monthly_budget > 0 else 0
+        # Only use auto-detection if user hasn't made manual selection
+        if user.ai_persona_mode == "Auto":
+            # Calculate budget remaining
+            remaining = max(0, user.monthly_budget - user.calculate_current_month_spending())
+            remaining_percentage = remaining / user.monthly_budget if user.monthly_budget > 0 else 0
+            
+            # Auto-detect based on budget
+            if remaining_percentage < 0.2:
+                return self._build_auto_persona(ai_name, "strict", remaining_percentage)
+            elif remaining_percentage > 0.5:
+                return self._build_auto_persona(ai_name, "professional", remaining_percentage)
+            else:
+                return self._build_auto_persona(ai_name, "friendly", remaining_percentage)
         
-        if remaining_percentage < 0.2:  # Danger Zone
+        # Fallback: friendly mode
+        return self._build_auto_persona(ai_name, "friendly", 0.5)
+    
+    def _build_manual_persona(self, ai_name: str, attitude: str, style: str) -> tuple:
+        """Build persona from manual user settings"""
+        
+        # Attitude mapping - DAHA SPESIFIK
+        attitude_prompts = {
+            "Professional": f"""Sənin adın {ai_name}-dir. Sən peşəkar maliyyə müşavirisən.
+Rəsmi, bilikli və hörmətli danış. Terminologiya işlət.
+Emojilər: 💼📊📈""",
+            
+            "Strict": f"""Sənin adın {ai_name}-dir. Sən sərt və tələbkardırsan!
+İsrafa qarşı sərt tənqid et. "Bunu almağa dəyməz!", "Çox xərcləyirsən!" kimi ifadələr işlət.
+Emojilər: 😠⚠️❌""",
+            
+            "Funny": f"""Sənin adın {ai_name}-dir. Sən zarafatcıl və gülməlisən!
+Maliyyə məsləhətlərini zarafat və yumor ilə ver. İnsanları güldür.
+"Ay bu nə xərcdi, cibini boşaltdın!" kimi zarafatlar et.
+Emojilər: 😂🤣💸😅""",
+            
+            "Sarcastic": f"""Sənin adın {ai_name}-dir. Sən kinayəli və sarkastiksən.
+İroni ilə danış: "Vay, yenə alış-veriş? Təəccüblü!", "Büdcən o qədər də vacib deyilmiş ha?"
+Emojilər: 😏🙄""",
+            
+            "Supportive": f"""Sənin adın {ai_name}-dir. Sən dəstəkləyici və mehribansən.
+Həmişə təşviq et: "Afərin, yaxşı gedir!", "Narahat olma, düzələcək!"
+Emojilər: 🤗💪✨"""
+        }
+        
+        # Style mapping
+        style_additions = {
+            "Formal": " Ədəbli və rəsmi ifadələr işlət.",
+            "Slang": " Jarqon işlət: 'brat', 'kanka', 'ay dayı', 'nə var nə yox'.",
+            "Shakespearean": " Poeziya və şair dili ilə danış, lirik ifadələr işlət.",
+            "Dialect": " Azərbaycan ləhcəsi: 'bala', 'oğul', 'ay görəsən', 'neyləyək'.",
+            "Short": " Qısa cavablar - MAX 2 cümlə!"
+        }
+        
+        base_prompt = attitude_prompts.get(attitude, attitude_prompts["Professional"])
+        style_addition = style_additions.get(style, "")
+        
+        full_prompt = base_prompt + style_addition + "\n\nBu rola TAM uyğun danış. Roldan çıxma!"
+        
+        return (f"{attitude} - {style}", full_prompt)
+    
+    def _build_auto_persona(self, ai_name: str, persona_type: str, remaining_percentage: float) -> tuple:
+        """Build persona based on auto-detection logic."""
+        if persona_type == "strict":
             return ("Sərt Ana / Boss", f"""Sənin adın {ai_name}-dir.
 Sən istifadəçinin sərt, tələbkar maliyyə nəzarətçisisən - Azərbaycanlı Ana kimi.
 İstifadəçi büdcəsini bitirmək üzrədir! {remaining_percentage *100:.1f}% qalıb!
@@ -189,7 +249,7 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
         
         # Get dynamic persona
         if user:
-            persona_name, base_personality = self.determine_persona(user, total_spending, budget)
+            persona_name, base_personality = self.determine_persona(user)
         else:
             # Fallback if no user object
             base_personality = "Sən FinMate AI, dostcasına maliyyə köməkçisisən."
@@ -235,10 +295,21 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
         Returns:
             Dictionary with merchant, date, items, total
         """
+
+        # If API key missing, avoid remote call and return graceful fallback
+        if not GEMINI_API_KEY:
+            return self._fallback_receipt(
+                image_path,
+                "Gemini API açarı tapılmadı, sadə offline nəticə göstərildi."
+            )
         
-        prompt = """Analyze this receipt image and extract the following information in JSON format:
+        prompt = """Analyze this image. First, determine if this is a valid receipt, bill, or invoice.
+If it is NOT a receipt/bill/invoice, return ONLY: {"is_receipt": false}
+
+If it IS a receipt, extract the following information in JSON format:
 
 {
+    "is_receipt": true,
     "merchant": "name of the store/restaurant",
     "date": "date in YYYY-MM-DD format",
     "currency": "AZN or currency code (USD, EUR, TRY, RUB, GBP)",
@@ -281,14 +352,25 @@ Return ONLY the JSON, no additional text."""
             
         except Exception as e:
             print(f"❌ Receipt Analysis Error: {e}")
-            return {
-                "merchant": "Unknown Merchant",
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "items": [{"name": "Unable to process receipt", "price": 0.00}],
-                "total": 0.00,
-                "suggested_category": "Other",
-                "error": str(e)
-            }
+            return self._fallback_receipt(
+                image_path,
+                f"AI xidməti çatmadı ({str(e)}) - əl ilə təsdiq üçün sadə nəticə."
+            )
+
+    def _fallback_receipt(self, image_path: str, reason: str) -> Dict[str, Any]:
+        """Offline/failed AI fallback so UX doesn't break."""
+        merchant_guess = os.path.splitext(os.path.basename(image_path))[0] or "Unknown Merchant"
+        merchant_guess = merchant_guess.replace("_", " ").replace("-", " ").title()[:30]
+        return {
+            "is_receipt": True,
+            "merchant": merchant_guess or "Qəbz",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "currency": "AZN",
+            "items": [],
+            "total": 0.0,
+            "suggested_category": "Other",
+            "note": reason
+        }
 
 
 # Singleton instance

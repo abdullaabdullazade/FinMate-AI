@@ -1,10 +1,16 @@
 {% if success %}
 <!-- Result Modal Overlay -->
 <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
-    hx-trigger="load" hx-get="/api/dashboard-updates" hx-target="#dashboard-stats" hx-swap="none">
+    hx-trigger="load" hx-get="/api/dashboard-updates" hx-target="#dashboard-stats" hx-swap="none" id="success-modal">
     <script>
         // Trigger dashboard refresh
         document.body.dispatchEvent(new Event('newTransaction'));
+
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+            const modal = document.getElementById('success-modal');
+            if (modal) modal.remove();
+        }, 10000);
     </script>
     <!-- Modal Content -->
     <div class="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto relative slide-up flex flex-col">
@@ -52,7 +58,7 @@
                         class="text-xl text-white/60">AZN</span></p>
                 {% if conversion_note %}
                 <p class="text-xs text-white/50 mt-1">
-                    Orijinal: {{ "%.2f"|format(receipt_data.total_original) }} {{ receipt_data.original_currency }}
+                    Orijinal: {{ "%.2f"|format(receipt_data.get('total_original', receipt_data.total)) }} {{ receipt_data.get('original_currency', receipt_data.currency or 'AZN') }}
                 </p>
                 <p class="text-xs text-green-300 mt-1">{{ conversion_note }}</p>
                 {% endif %}
@@ -94,8 +100,7 @@
         <div class="p-6 pt-0 mt-auto">
             <button
                 class="block w-full mb-3 bg-white/10 hover:bg-white/20 text-white text-center py-3.5 rounded-xl font-bold transition"
-                data-total="{{ receipt_data.total }}"
-                data-items='{{ receipt_data["items"]|tojson|safe }}'
+                data-total="{{ receipt_data.total }}" data-items='{{ receipt_data["items"]|tojson|safe }}'
                 onclick="openSplitBill(this.dataset.total, JSON.parse(this.dataset.items || '[]'))">
                 🤝 Dostlarla böl
             </button>
@@ -142,7 +147,15 @@
 
 {% else %}
 <!-- Error Modal -->
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+    id="error-modal">
+    <script>
+        // Auto-close after 10 seconds
+        setTimeout(() => {
+            const modal = document.getElementById('error-modal');
+            if (modal) modal.remove();
+        }, 10000);
+    </script>
     <div class="glass-card w-full max-w-md p-6 relative slide-up bg-red-500/10 border-red-500/30">
         <button
             onclick="this.closest('.fixed').remove(); document.getElementById('scanModal').classList.remove('active');"
@@ -153,10 +166,21 @@
         <div class="text-center">
             <div
                 class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+                {% if receipt_data.is_not_receipt %}
+                <span class="text-3xl">📄</span>
+                {% else %}
                 <span class="text-3xl">❌</span>
+                {% endif %}
             </div>
-            <h3 class="text-xl font-bold text-white mb-2">Processing Failed</h3>
-            <p class="text-white/70 mb-6">{{ receipt_data.error if receipt_data.error else 'Qəbzi oxumaq alınmadı, yenidən cəhd edin.' }}</p>
+            {% if receipt_data.is_not_receipt %}
+            <h3 class="text-xl font-bold text-white mb-2">Qəbz deyil</h3>
+            <p class="text-white/70 mb-6">Bu şəkil qəbz kimi tanınmadı. Xahiş edirik qəbz şəkli yükləyin və yenidən cəhd
+                edin.</p>
+            {% else %}
+            <h3 class="text-xl font-bold text-white mb-2">Xəta baş verdi</h3>
+            <p class="text-white/70 mb-6">{{ receipt_data.error if receipt_data.error else 'Qəbzi oxumaq alınmadı,
+                yenidən cəhd edin.' }}</p>
+            {% endif %}
 
             <button onclick="this.closest('.fixed').remove()"
                 class="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-medium transition">

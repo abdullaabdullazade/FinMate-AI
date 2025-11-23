@@ -24,6 +24,7 @@ class User(Base):
     currency = Column(String, default="AZN")  # Display/Base currency
     personality_mode = Column(String, default="normal")  # normal, mom, strict
     is_premium = Column(Boolean, default=False)  # Premium subscription status
+    readability_mode = Column(Boolean, default=False)  # Accessibility mode for vision-impaired users
     
     # AI Persona fields (NEW)
     ai_name = Column(String, default="FinMate")  # Customizable AI name
@@ -41,6 +42,18 @@ class User(Base):
     expenses = relationship("Expense", back_populates="user", cascade="all, delete-orphan")
     chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
     xp_logs = relationship("XPLog", back_populates="user", cascade="all, delete-orphan")
+    
+    def calculate_current_month_spending(self):
+        """Calculate total spending for current month"""
+        from datetime import datetime
+        now = datetime.utcnow()
+        month_start = datetime(now.year, now.month, 1)
+        
+        total = 0
+        for expense in self.expenses:
+            if expense.date >= month_start:
+                total += expense.amount
+        return total
     
     def __repr__(self):
         return f"<User(username='{self.username}', budget={self.monthly_budget})>"

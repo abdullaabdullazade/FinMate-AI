@@ -488,11 +488,15 @@ async def send_chat_message(
         user  # Pass user for behavioral profiling
     )
     
+    # Convert simple markdown to HTML in AI response (bold text)
+    import re
+    ai_response_formatted = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', ai_response)
+    
     # Save AI response
     ai_msg = ChatMessage(
         user_id=user.id,
         role="ai",
-        content=ai_response,
+        content=ai_response_formatted,
         timestamp=datetime.utcnow()
     )
     db.add(ai_msg)
@@ -553,6 +557,30 @@ async def scan_receipt(
         
         # Analyze receipt with AI
         receipt_data = ai_service.analyze_receipt(file_path)
+
+        # Normalize payload to avoid JSON serialization issues
+        items = receipt_data.get("items", [])
+        if not isinstance(items, list):
+            try:
+                items = list(items)
+            except Exception:
+                items = []
+        receipt_data["items"] = items
+        receipt_data["merchant"] = receipt_data.get("merchant") or "Unknown Merchant"
+        receipt_data["suggested_category"] = receipt_data.get("suggested_category") or "Other"
+        receipt_data["date"] = receipt_data.get("date") or datetime.now().strftime("%Y-%m-%d")
+    
+        # Check if this is actually a receipt
+        if not receipt_data.get("is_receipt", True):
+            return templates.TemplateResponse("partials/receipt_result.html", {
+                "request": request,
+                "receipt_data": {
+                    "error": "Bu qəbz deyil. Xahiş edirik qəbz şəkli yükləyin.",
+                    "is_not_receipt": True
+                },
+                "success": False
+            })
+        
         original_currency = receipt_data.get("currency", "AZN").upper() if isinstance(receipt_data, dict) else "AZN"
         conversion_note = None
         if original_currency != "AZN" and original_currency in CURRENCY_RATES:
@@ -575,6 +603,10 @@ async def scan_receipt(
                 receipt_data["items"] = items
             except Exception as conv_err:
                 print(f"Currency conversion failed: {conv_err}")
+
+        # Surface non-blocking AI warnings (offline/fallback mode)
+        if not conversion_note and isinstance(receipt_data, dict):
+            conversion_note = receipt_data.get("note")
     
         # Check if error occurred
         if "error" in receipt_data:
@@ -583,42 +615,51 @@ async def scan_receipt(
                 "receipt_data": receipt_data,
                 "success": False
             })
-        
-        # Parse date safely
-        try:
-            date_str = receipt_data.get("date", datetime.now().strftime("%Y-%m-%d"))
-            # Handle potential non-standard date formats or empty strings
-            if not date_str:
-                expense_date = datetime.now()
-            else:
-                expense_date = datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError:
-            # Fallback to current date if parsing fails
-            expense_date = datetime.now()
 
-        # Save to database
-        expense = Expense(
-            user_id=user.id,
-            amount=receipt_data.get("total", 0.0),
-            merchant=receipt_data.get("merchant", "Unknown"),
-            category=receipt_data.get("suggested_category", "Market"),
-            date=expense_date,
-            items=receipt_data.get("items", [])
-        )
-        db.add(expense)
-        db.commit()
-        
-        # Award XP for scanning receipt
-        scan_xp = gamification.award_xp(user, "scan_receipt", db)
-        db.refresh(user)
-        
-        return templates.TemplateResponse("partials/receipt_result.html", {
-            "request": request,
-            "receipt_data": receipt_data,
-            "success": True,
-            "xp_result": scan_xp,
-            "conversion_note": conversion_note
-        })
+        # Auto-save expense (skip manual confirmation)
+        try:
+            raw_date = receipt_data.get("date")
+            try:
+                expense_date = datetime.strptime(raw_date, "%Y-%m-%d") if raw_date else datetime.now()
+            except Exception:
+                expense_date = datetime.now()
+
+            items_list = receipt_data.get("items", [])
+            if not isinstance(items_list, list):
+                items_list = []
+
+            expense = Expense(
+                user_id=user.id,
+                amount=float(receipt_data.get("total", 0.0) or 0.0),
+                merchant=receipt_data.get("merchant") or "Unknown Merchant",
+                category=receipt_data.get("suggested_category") or "Other",
+                date=expense_date,
+                items=items_list
+            )
+            db.add(expense)
+            db.commit()
+
+            scan_xp = gamification.award_xp(user, "scan_receipt", db)
+            db.refresh(user)
+
+            return templates.TemplateResponse("partials/receipt_result.html", {
+                "request": request,
+                "receipt_data": receipt_data,
+                "success": True,
+                "conversion_note": conversion_note,
+                "xp_result": {
+                    "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
+                    "new_total": user.xp_points
+                }
+            })
+        except Exception as save_err:
+            return templates.TemplateResponse("partials/receipt_result.html", {
+                "request": request,
+                "receipt_data": {
+                    "error": f"Yadda saxlama xətası: {save_err}"
+                },
+                "success": False
+            })
         
     except Exception as e:
         return templates.TemplateResponse("partials/receipt_result.html", {
@@ -630,6 +671,79 @@ async def scan_receipt(
                 "total": 0.0,
                 "date": datetime.now().strftime("%Y-%m-%d"),
                 "suggested_category": "Error"
+            },
+            "success": False
+        })
+
+
+@app.post("/api/confirm-receipt")
+async def confirm_receipt(
+    request: Request,
+    total: float = Form(...),
+    merchant: str = Form(...),
+    category: str = Form(...),
+    date: str = Form(...),
+    items: str = Form("[]"),
+    db: Session = Depends(get_db)
+):
+    """Save receipt after user confirmation/correction"""
+    user = get_current_user(db)
+    
+    try:
+        # Parse date safely
+        try:
+            if not date:
+                expense_date = datetime.now()
+            else:
+                expense_date = datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            expense_date = datetime.now()
+        
+        # Parse items JSON
+        import json
+        try:
+            items_list = json.loads(items) if items else []
+        except:
+            items_list = []
+        
+        # Save to database with user-confirmed/corrected amount
+        expense = Expense(
+            user_id=user.id,
+            amount=total,
+            merchant=merchant,
+            category=category,
+            date=expense_date,
+            items=items_list
+        )
+        db.add(expense)
+        db.commit()
+        
+        # Award XP for scanning receipt
+        scan_xp = gamification.award_xp(user, "scan_receipt", db)
+        db.refresh(user)
+        
+        # Return success result with extended timer
+        return templates.TemplateResponse("partials/receipt_result.html", {
+            "request": request,
+            "receipt_data": {
+                "total": total,
+                "merchant": merchant,
+                "suggested_category": category,
+                "date": date,
+                "items": items_list
+            },
+            "success": True,
+            "xp_result": {
+                "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
+                "new_total": user.xp_points
+            }
+        })
+        
+    except Exception as e:
+        return templates.TemplateResponse("partials/receipt_result.html", {
+            "request": request,
+            "receipt_data": {
+                "error": f"Yadda saxlama xətası: {str(e)}"
             },
             "success": False
         })
@@ -827,22 +941,18 @@ async def voice_command_endpoint(
         audio_data = await file.read()
         mime_type = file.content_type
         
-        # Process voice command
-        result = await voice_service.process_voice_command(audio_data, user, db, language, mime_type)
+        # Process voice command (transcribe and parse)
+        result = await voice_service.process_voice_command(audio_data, user, db, language, mime_type, save_to_db=False)
         
         if not result.get("success"):
             return JSONResponse({"success": False, "error": result.get("error")}, status_code=400)
         
-        # Award XP for voice expense
-        xp_result = gamification.award_xp(user, "scan_receipt", db)  # Same XP as receipt scan: 15
-        
-        return JSONResponse({
-            "success": True,
+        # Return confirmation dialog instead of saving immediately
+        # This allows user to review and edit before final save
+        return templates.TemplateResponse("partials/voice_confirmation.html", {
+            "request": request,
             "transcribed_text": result["transcribed_text"],
-            "expense_data": result["expense_data"],
-            "response_text": result["response_text"],
-            "audio_response": result["audio_response"],
-            "xp_result": xp_result
+            "expense_data": result["expense_data"]
         })
         
     except Exception as e:
@@ -850,7 +960,63 @@ async def voice_command_endpoint(
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-
+@app.post("/api/confirm-voice")
+async def confirm_voice_expense(
+    request: Request,
+    amount: float = Form(...),
+    merchant: str = Form(...),
+    category: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Save voice expense after user confirmation"""
+    user = get_current_user(db)
+    
+    try:
+        # Create expense
+        expense = Expense(
+            user_id=user.id,
+            amount=amount,
+            merchant=merchant,
+            category=category,
+            date=datetime.utcnow()
+        )
+        db.add(expense)
+        db.commit()
+        
+        # Award XP
+        xp_result = gamification.award_xp(user, "voice_command", db)
+        db.refresh(user)
+        
+        xp_awarded = xp_result["xp_awarded"] if xp_result else 0
+        
+        # Return success response for HTMX
+        return HTMLResponse(content=f"""
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" id="voice-success">
+                <div class="glass-card p-6 text-center max-w-sm">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Uğurla əlavə olundu!</h3>
+                    <p class="text-white/70">{amount} AZN - {merchant}</p>
+                    <p class="text-sm text-white/50 mt-2">+{xp_awarded} XP</p>
+                </div>
+            </div>
+            <script>
+                setTimeout(() => {{
+                    document.getElementById('voice-success').remove();
+                    window.location.reload();
+                }}, 2000);
+            </script>
+        """)
+        
+    except Exception as e:
+        print(f"❌ Voice confirmation error: {e}")
+        return HTMLResponse(content=f"""
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div class="glass-card p-6 text-center max-w-sm">
+                    <div class="text-6xl mb-4">❌</div>
+                    <h3 class="text-xl font-bold text-white">Xəta baş verdi</h3>
+                </div>
+            </div>
+        """, status_code=500)
 
 
 @app.get("/api/export-xlsx")
@@ -1105,43 +1271,68 @@ async def get_settings(db: Session = Depends(get_db)):
         "daily_budget_limit": user.daily_budget_limit,
         "preferred_language": user.preferred_language,
         "voice_enabled": user.voice_enabled,
+        "readability_mode": user.readability_mode,
         "currency": user.currency,
-        "login_streak": user.login_streak
+        "login_streak": user.login_streak,
+        "ai_name": user.ai_name,
+        "ai_persona_mode": user.ai_persona_mode,
+        "ai_attitude": user.ai_attitude,
+        "ai_style": user.ai_style
     })
 
 
 @app.post("/api/settings")
 async def update_settings(
     request: Request,
-    monthly_budget: Optional[str] = Form(None),
-    daily_budget_limit: Optional[str] = Form(None),
-    preferred_language: Optional[str] = Form(None),
-    voice_enabled: Optional[bool] = Form(None),
-    currency: Optional[str] = Form(None),
-    ai_name: Optional[str] = Form(None),
-    ai_persona_mode: Optional[str] = Form(None),
-    ai_attitude: Optional[str] = Form(None),
-    ai_style: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """Update user settings"""
     user = get_current_user(db)
+
+    def parse_bool(val):
+        if val is None:
+            return None
+        if isinstance(val, list) and val:
+            val = val[-1]
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ["true", "1", "on", "yes", "y", "checked"]
+
     try:
-        if monthly_budget is not None and monthly_budget != "":
+        form = await request.form()
+        def last_value(key):
+            vals = form.getlist(key)
+            return vals[-1] if vals else None
+
+        monthly_budget = last_value("monthly_budget")
+        daily_budget_limit = last_value("daily_budget_limit")
+        preferred_language = last_value("preferred_language")
+        voice_enabled = parse_bool(form.getlist("voice_enabled"))
+        readability_mode = parse_bool(form.getlist("readability_mode"))
+        currency = last_value("currency")
+        ai_name = last_value("ai_name")
+        ai_persona_mode = last_value("ai_persona_mode")
+        ai_attitude = last_value("ai_attitude")
+        ai_style = last_value("ai_style")
+
+        if monthly_budget not in (None, ""):
             user.monthly_budget = float(monthly_budget)
-        if daily_budget_limit is not None and daily_budget_limit != "":
+        if daily_budget_limit not in (None, ""):
             user.daily_budget_limit = float(daily_budget_limit)
         else:
             user.daily_budget_limit = None
+
         if preferred_language is not None:
             user.preferred_language = preferred_language
         if voice_enabled is not None:
             user.voice_enabled = voice_enabled
+        if readability_mode is not None:
+            user.readability_mode = readability_mode
         if currency:
             user.currency = currency.upper()
-        
+
         # AI Persona Settings
-        if ai_name is not None and ai_name.strip():
+        if ai_name and ai_name.strip():
             user.ai_name = ai_name.strip()
         if ai_persona_mode is not None:
             user.ai_persona_mode = ai_persona_mode
@@ -1149,7 +1340,7 @@ async def update_settings(
             user.ai_attitude = ai_attitude
         if ai_style is not None:
             user.ai_style = ai_style
-        
+
         db.commit()
         return JSONResponse({"success": True, "message": "Settings updated successfully"})
     except Exception as e:

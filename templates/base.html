@@ -24,15 +24,66 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
+    <!-- CRITICAL: Apply theme before page renders to prevent flash -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
     <style>
+        /* Professional Color System - Eye-Friendly */
+        :root {
+            /* Dark Mode - Deep Navy Professional */
+            --bg-primary: #0a0e27;
+            --bg-secondary: #141b3d;
+            --glass-bg: rgba(20, 27, 61, 0.7);
+            --glass-border: rgba(100, 116, 207, 0.15);
+            --glass-shadow: rgba(0, 0, 0, 0.6);
+            --text-primary: #e8eaf6;
+            --text-secondary: rgba(232, 234, 246, 0.75);
+            --nav-border: rgba(100, 116, 207, 0.2);
+            --skeleton-bg: rgba(100, 116, 207, 0.08);
+            --accent-primary: #5c6bc0;
+            --accent-secondary: #3f51b5;
+        }
+
+        [data-theme="light"] {
+            /* Light Mode - Rich Purple/Magenta Professional */
+            --bg-primary: #5e35b1;
+            --bg-secondary: #7e57c2;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: rgba(94, 53, 177, 0.35);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --nav-border: rgba(255, 255, 255, 0.3);
+            --skeleton-bg: rgba(255, 255, 255, 0.15);
+            --accent-primary: #ec407a;
+            --accent-secondary: #d81b60;
+        }
+
         * {
             font-family: 'Inter', sans-serif;
         }
 
+        /* Smooth theme transition - but NOT on initial load */
+        body:not(.no-transition),
+        body:not(.no-transition) .glass,
+        body:not(.no-transition) .glass-card,
+        body:not(.no-transition) .bottom-nav {
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             min-height: 100vh;
             padding-bottom: 80px;
+            color: var(--text-primary);
         }
 
         @media (min-width: 1024px) {
@@ -44,58 +95,70 @@
 
         /* Glassmorphism Effect */
         .glass {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--glass-shadow);
+        }
+
+        /* Readability Mode - Controlled font increase */
+        .readability-mode {
+            font-size: 115%;
+            line-height: 1.7;
+            letter-spacing: 0.02em;
+        }
+
+        .readability-mode h1,
+        .readability-mode h2,
+        .readability-mode h3 {
+            letter-spacing: 0.03em;
+            margin-bottom: 0.5em;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
         }
 
         .glass-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+            box-shadow: 0 12px 40px 0 var(--glass-shadow);
         }
 
-        /* Bottom Nav Glassmorphism */
+        /* Bottom Nav */
         .bottom-nav {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 -4px 20px 0 rgba(0, 0, 0, 0.3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid var(--nav-border);
+            box-shadow: 0 -4px 20px 0 rgba(0, 0, 0, 0.25);
         }
 
-        /* Floating Scan Button */
+        /* Floating Scan Button - Theme Aware */
         .scan-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.5);
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            box-shadow: 0 10px 30px rgba(236, 64, 122, 0.45);
             transition: all 0.3s ease;
         }
 
         .scan-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.7);
+            box-shadow: 0 15px 40px rgba(236, 64, 122, 0.6);
         }
 
-        /* Smooth animations */
+        /* Animations */
         .slide-up {
             animation: slideUp 0.4s ease-out forwards;
         }
 
-        /* Skeleton shimmer */
         .skeleton {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 25%, rgba(255, 255, 255, 0.16) 37%, rgba(255, 255, 255, 0.08) 63%);
+            background: var(--skeleton-bg);
             background-size: 400% 100%;
             animation: shimmer 1.4s ease infinite;
         }
@@ -122,9 +185,9 @@
             }
         }
 
-        /* Active nav item */
+        /* Active nav item - Theme Aware */
         .nav-item.active {
-            color: #f5576c;
+            color: var(--accent-primary);
         }
 
         /* Custom scrollbar */
@@ -133,16 +196,59 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--accent-primary);
             border-radius: 4px;
+            opacity: 0.6;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+        }
+
+        /* Markdown content styling */
+        .markdown-content strong {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Light mode text adjustments */
+        [data-theme="light"] .text-white {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="light"] .text-white\/70,
+        [data-theme="light"] .text-white\/60 {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Readability Mode - High Contrast */
+        body.readability-mode {
+            /* Enhance text visibility */
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.95);
+        }
+
+        body.readability-mode .text-white,
+        body.readability-mode .text-white\/70,
+        body.readability-mode .text-white\/60,
+        body.readability-mode .text-white\/50 {
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        body.readability-mode h1,
+        body.readability-mode h2,
+        body.readability-mode h3,
+        body.readability-mode h4 {
+            font-weight: 700 !important;
+        }
+
+        body.readability-mode .glass-card {
+            border-width: 2px;
         }
     </style>
 
@@ -158,21 +264,38 @@
 
 <body>
     <!-- Top Bar -->
-    <div class="glass fixed top-0 left-0 right-0 z-40 px-6 py-4">
+    <div class="glass fixed top-0 left-0 right-0 z-40 px-4 py-3">
         <div class="flex items-center justify-between max-w-md mx-auto">
             <div>
-                <h1 class="text-2xl font-bold text-white">💰 FinMate AI</h1>
-                <p class="text-xs text-white/70">Your Personal CFO</p>
+                <h1 class="text-xl font-bold text-white">💰 FinMate AI</h1>
+                <p class="text-[10px] text-white/70">Your Personal CFO</p>
             </div>
-            <div class="flex items-center gap-4 relative">
+            <div class="flex items-center gap-3 relative">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="relative text-white/80 hover:text-white transition"
+                    title="Tema dəyişdir">
+                    <!-- Sun icon (shown in dark mode) -->
+                    <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    <!-- Moon icon (shown in light mode, hidden by default) -->
+                    <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                        </path>
+                    </svg>
+                </button>
+
                 <!-- Alerts -->
                 <button id="alert-bell" class="relative text-white/80 hover:text-white transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
                         </path>
                     </svg>
-                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-lg"></span>
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
                 </button>
                 <div id="alert-panel"
                     class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
@@ -194,17 +317,18 @@
                 </div>
                 <!-- Level Badge -->
                 {% if user and user.xp_points is defined %}
-                <div class="hidden sm:flex items-center gap-2 glass-card px-3 py-1.5 rounded-full">
-                    <span class="text-lg">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title == 'Saver'
+                <div class="hidden sm:flex items-center gap-2 glass-card px-2.5 py-1 rounded-full">
+                    <span class="text-base">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title == 'Saver'
                         %}💰{% elif user.level_title == 'Analyst' %}📊{% elif user.level_title == 'Manager' %}🎯{%
                         elif
                         user.level_title == 'CFO' %}👑{% else %}⭐{% endif %}</span>
-                    <span class="text-sm font-bold text-white">{{ user.level_title }}</span>
-                    <span class="text-xs text-white/60">{{ user.xp_points }} XP</span>
+                    <span class="text-xs font-bold text-white">{{ user.level_title }}</span>
+                    <span class="text-[10px] text-white/60">{{ user.xp_points }} XP</span>
                 </div>
                 {% endif %}
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-bold">
+                <div id="user-avatar"
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all duration-400"
+                    style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
                     {{ user.username[0].upper() if user else 'D' }}
                 </div>
             </div>
@@ -373,25 +497,15 @@
     <script src="/static/js/split_bill.js"></script>
 
     <script>
-        // Accessibility Mode
-        function toggleAccessibility(enabled) {
-            console.log('♿ Accessibility mode:', enabled);
+        // Readability Mode Logic
+        function toggleReadabilityMode(enabled) {
+            console.log('👁️ Readability mode:', enabled);
             if (enabled) {
-                document.body.style.fontFamily = "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif";
-                document.body.style.fontSize = '1.15em';
-                document.body.style.fontWeight = '600';
-                document.body.style.letterSpacing = '0.5px';
-                document.body.style.lineHeight = '1.6';
-                localStorage.setItem('accessibility-mode', 'enabled');
-                console.log('✅ Accessibility mode enabled!');
+                document.body.classList.add('readability-mode');
+                localStorage.setItem('readability-mode', 'enabled');
             } else {
-                document.body.style.fontFamily = '';
-                document.body.style.fontSize = '';
-                document.body.style.fontWeight = '';
-                document.body.style.letterSpacing = '';
-                document.body.style.lineHeight = '';
-                localStorage.setItem('accessibility-mode', 'disabled');
-                console.log('❌ Accessibility mode disabled');
+                document.body.classList.remove('readability-mode');
+                localStorage.setItem('readability-mode', 'disabled');
             }
         }
 
@@ -467,17 +581,15 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
-            // Load accessibility preference
-            const isAccessibilityEnabled = localStorage.getItem('accessibility-mode') === 'enabled';
-            if (isAccessibilityEnabled) {
-                toggleAccessibility(true);
+            // Load Readability Mode preference
+            const isReadabilityEnabled = localStorage.getItem('readability-mode') === 'enabled';
+            if (isReadabilityEnabled) {
+                toggleReadabilityMode(true);
             }
 
-            // Set checkbox state on settings page
-            const toggle = document.getElementById('accessibility-mode');
-            if (toggle) {
-                toggle.checked = isAccessibilityEnabled;
-                console.log('🔧 Accessibility toggle initialized:', isAccessibilityEnabled);
+            const readabilityToggle = document.getElementById('readability-mode-toggle');
+            if (readabilityToggle) {
+                readabilityToggle.checked = isReadabilityEnabled;
             }
 
             // Load Voice Mode preference
@@ -509,6 +621,41 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        // Theme Toggle Functionality - Prevents Flash
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const html = document.documentElement;
+
+        // Theme already applied in head, just update icons
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        updateThemeIcons(currentTheme);
+
+        // Remove no-transition class after page loads
+        window.addEventListener('load', () => {
+            document.body.classList.remove('no-transition');
+        });
+
+        // Toggle theme on button click
+        themeToggle?.addEventListener('click', () => {
+            const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons(newTheme);
+        });
+
+        function updateThemeIcons(theme) {
+            if (theme === 'dark') {
+                sunIcon?.classList.remove('hidden');
+                moonIcon?.classList.add('hidden');
+            } else {
+                sunIcon?.classList.add('hidden');
+                moonIcon?.classList.remove('hidden');
+            }
+        }
     </script>
 
     {% block extra_scripts %}{% endblock %}

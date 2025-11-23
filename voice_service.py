@@ -230,7 +230,8 @@ Only return JSON, no other text.""",
         user, 
         db_session,
         language: str = "az",
-        mime_type: Optional[str] = None
+        mime_type: Optional[str] = None,
+        save_to_db: bool = True
     ) -> Dict[str, Any]:
         """
         End-to-end voice command processing
@@ -240,6 +241,7 @@ Only return JSON, no other text.""",
             user: User model instance
             db_session: Database session
             language: User's preferred language
+            save_to_db: If False, only transcribe and parse without saving
             
         Returns:
             dict with expense_data, ai_response_audio, success
@@ -279,6 +281,14 @@ Only return JSON, no other text.""",
                 return {
                     "success": False,
                     "error": expense_info.get("error", "Could not parse expense")
+                }
+            
+            # If not saving to DB, return parsed data for confirmation
+            if not save_to_db:
+                return {
+                    "success": True,
+                    "transcribed_text": transcribed_text,
+                    "expense_data": expense_info
                 }
             
             # Step 3: Save expense to database (use local time now)
