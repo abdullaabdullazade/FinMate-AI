@@ -1353,9 +1353,13 @@
     }, 5000);
     });
 
-    // Extract number from text (handles comma separators like 1,000.00)
+    // Extract number from text (handles comma separators and negative numbers like -1,153.16)
     function extractNumber(text) {
         if (!text || text.includes('****')) return null;
+        
+        // Check if number is negative (check before cleaning)
+        const isNegative = text.trim().startsWith('-') || text.includes('−') || text.includes('−');
+        
         // Remove all non-numeric characters except dots and commas
         let cleaned = text.replace(/[^\d.,]/g, '').trim();
         
@@ -1386,7 +1390,10 @@
         }
         
         const num = parseFloat(cleaned);
-        return isNaN(num) ? null : num;
+        if (isNaN(num)) return null;
+        
+        // Return negative number if original text had minus sign
+        return isNegative ? -num : num;
     }
 
     // Convert number to Azerbaijani words (for currency - includes "manat")
@@ -1419,6 +1426,7 @@
             if (n < 1000000) {
                 const thousands = Math.floor(n / 1000);
                 const remainder = n % 1000;
+                // Fix: 1000 should be "min" not "bir min"
                 const thousandWord = thousands === 1 ? 'min' : convertInteger(thousands) + ' min';
                 return thousandWord + (remainder > 0 ? ' ' + convertInteger(remainder) : '');
             }
@@ -1500,80 +1508,88 @@
 
     // Edge TTS summary for dashboard
     window.speakSummaryEdge = async function () {
-        let greeting = document.querySelector('h2.text-2xl')?.innerText || '';
-        // Remove "Səsli əmr" from greeting if present
-        greeting = greeting.replace(/səsli əmr/gi, '').trim();
-
-        const totalEl = document.getElementById('stat-total');
-        const budgetEl = document.getElementById('stat-budget');
-        const remainingEl = document.getElementById('stat-remaining');
-        const ecoValEl = document.querySelector('.eco-leaf')?.nextElementSibling;
         const speakBtn = document.getElementById('speak-btn');
-
-        // Get original values (from data-original if incognito mode, otherwise from text)
-        const totalText = totalEl?.getAttribute('data-original') || totalEl?.innerText || '';
-        const budgetText = budgetEl?.getAttribute('data-original') || budgetEl?.innerText || '';
-        const remainingText = remainingEl?.getAttribute('data-original') || remainingEl?.innerText || '';
-        const ecoValText = ecoValEl?.getAttribute('data-original') || ecoValEl?.innerText || '';
-
-        // Convert numbers to words
-        const totalNum = extractNumber(totalText);
-        const budgetNum = extractNumber(budgetText);
-        const remainingNum = extractNumber(remainingText);
-        const ecoValNum = extractNumber(ecoValText);
-
-        // Build summary with Azerbaijani number words
-        const summaryParts = [];
-        if (greeting) summaryParts.push(greeting);
-        
-        if (totalNum !== null) {
-            const totalWords = numberToAzerbaijani(totalNum);
-            summaryParts.push(`Ümumi xərc ${totalWords}dir`);
-        }
-        if (budgetNum !== null) {
-            const budgetWords = numberToAzerbaijani(budgetNum);
-            summaryParts.push(`Aylıq büdcə ${budgetWords}dir`);
-        }
-        if (remainingNum !== null) {
-            const remainingWords = numberToAzerbaijani(remainingNum);
-            summaryParts.push(`Qalıq ${remainingWords}dir`);
-        }
-        if (ecoValNum !== null) {
-            // For eco score, use numberToAzerbaijaniWords (without "manat")
-            const ecoWords = numberToAzerbaijaniWords(ecoValNum);
-            summaryParts.push(`Eko iz ${ecoWords} kiloqram CO2dir`);
-        }
-        
-        const summary = summaryParts.join('. ');
-
-        if (!summary) return;
-
-        if (speakBtn) {
-            speakBtn.disabled = true;
-            speakBtn.classList.add('opacity-70');
-            speakBtn.querySelector('span.font-semibold').textContent = 'Səsləndirilir...';
-        }
-
-        const fd = new FormData();
-        fd.append('text', summary);
-        fd.append('language', 'az');
+        if (!speakBtn) return;
 
         try {
+            const totalEl = document.getElementById('stat-total');
+            const budgetEl = document.getElementById('stat-budget');
+            const remainingEl = document.getElementById('stat-remaining');
+            
+            // Find eco value - it's the next sibling after .eco-leaf
+            const ecoLeaf = document.querySelector('.eco-leaf');
+            const ecoValEl = ecoLeaf?.nextElementSibling;
+
+            // Get text content - use textContent instead of innerText for better parsing
+            // Also handle incognito mode by checking data-original first
+            const getElementValue = (el) => {
+                if (!el) return '';
+                // Check for incognito mode original value first
+                const original = el.getAttribute('data-original');
+                if (original) return original;
+                // Get text content and clean it - only get direct text, not from child elements
+                const text = el.textContent || el.innerText || '';
+                return text.trim();
+            };
+
+            const totalText = getElementValue(totalEl);
+            const budgetText = getElementValue(budgetEl);
+            const remainingText = getElementValue(remainingEl);
+            const ecoValText = getElementValue(ecoValEl);
+
+            // Extract numbers from text (handles comma separators and negative numbers like -1,153.16)
+            const totalNum = extractNumber(totalText);
+            const budgetNum = extractNumber(budgetText);
+            const remainingNum = extractNumber(remainingText);
+            const ecoValNum = extractNumber(ecoValText);
+
+            // Build summary with real values only (no greeting, no buttons, no extra text)
+            const summaryParts = [];
+            
+            if (totalNum !== null && !isNaN(totalNum) && totalNum !== 0) {
+                summaryParts.push(`Ümumi xərc ${numberToAzerbaijani(totalNum)}dir`);
+            }
+            if (budgetNum !== null && !isNaN(budgetNum) && budgetNum !== 0) {
+                summaryParts.push(`Aylıq büdcə ${numberToAzerbaijani(budgetNum)}dir`);
+            }
+            if (remainingNum !== null && !isNaN(remainingNum)) {
+                // numberToAzerbaijani already handles negative numbers correctly
+                summaryParts.push(`Qalıq ${numberToAzerbaijani(remainingNum)}dir`);
+            }
+            if (ecoValNum !== null && !isNaN(ecoValNum) && ecoValNum !== 0) {
+                summaryParts.push(`Eko iz ${numberToAzerbaijaniWords(ecoValNum)} kiloqram CO2dir`);
+            }
+            
+            const summary = summaryParts.join('. ');
+            if (!summary || summary.trim() === '') return;
+
+            // Update button
+            speakBtn.disabled = true;
+            speakBtn.classList.add('opacity-70');
+            const btnText = speakBtn.querySelector('span.font-semibold');
+            if (btnText) btnText.textContent = 'Səsləndirilir...';
+
+            // Send TTS request
+            const fd = new FormData();
+            fd.append('text', summary);
+            fd.append('language', 'az');
+
             const res = await fetch('/api/tts', { method: 'POST', body: fd });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
             const data = await res.json();
             if (data && data.success && data.audio_response) {
                 const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`);
-                audio.play();
-            } else {
-                console.warn('TTS failed', data);
+                await audio.play();
             }
         } catch (err) {
-            console.error('TTS error', err);
+            // Silent error handling
         } finally {
             if (speakBtn) {
                 speakBtn.disabled = false;
                 speakBtn.classList.remove('opacity-70');
-                speakBtn.querySelector('span.font-semibold').textContent = 'Səsləndir';
+                const btnText = speakBtn.querySelector('span.font-semibold');
+                if (btnText) btnText.textContent = 'Səsləndir';
             }
         }
     };
