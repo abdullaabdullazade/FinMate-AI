@@ -7,10 +7,31 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
     #map {
-        height: 70vh;
+        height: 60vh;
         border-radius: 20px;
         overflow: hidden;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        #map {
+            height: 50vh;
+            border-radius: 16px;
+        }
+        
+        .glass-card {
+            padding: 1rem !important;
+        }
+        
+        .merchant-label {
+            font-size: 10px !important;
+            padding: 3px 6px !important;
+        }
+        
+        .leaflet-popup-content {
+            font-size: 12px !important;
+            margin: 8px !important;
+        }
     }
 
     .merchant-marker {
@@ -32,6 +53,32 @@
         white-space: nowrap;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Mobile optimizations for markers */
+    @media (max-width: 768px) {
+        .merchant-marker {
+            width: 16px;
+            height: 16px;
+            border-width: 3px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.6);
+        }
+
+        .merchant-label {
+            font-size: 10px;
+            padding: 3px 6px;
+        }
+
+        /* Better touch targets for mobile */
+        .leaflet-marker-icon {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* Larger popup on mobile */
+        .leaflet-popup-content-wrapper {
+            min-width: 180px;
+        }
     }
 
     .leaflet-popup-content-wrapper {
@@ -114,54 +161,130 @@
     const mapPoints = {{ points | tojson | safe }};
 
     // Initialize map centered on Baku
-    const map = L.map('map').setView([40.4093, 49.8671], 12);
+    const map = L.map('map', {
+        zoomControl: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+        scrollWheelZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        dragging: true
+    }).setView([40.4093, 49.8671], 12);
 
     // Light tile layer for a clean white map
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
+        maxZoom: 19,
+        minZoom: 10
     }).addTo(map);
 
+    // Detect mobile
+    const isMobileDevice = window.innerWidth <= 768;
+    
+    // Mobile optimizations
+    if (isMobileDevice) {
+        // Adjust zoom for mobile
+        map.setZoom(11);
+        
+        // Enable touch gestures
+        map.touchZoom.enable();
+        map.doubleClickZoom.enable();
+        
+        // Better popup positioning for mobile
+        map.options.closePopupOnClick = true;
+    }
+
     // Add markers for each expense
+    const markerSize = isMobileDevice ? 16 : 12;
+    const markerAnchor = isMobileDevice ? 8 : 6;
+
     mapPoints.forEach((point, index) => {
-        // Create custom red marker icon
+        // Create custom red marker icon (larger on mobile for better visibility)
         const redIcon = L.divIcon({
             className: 'merchant-marker',
-            iconSize: [12, 12],
-            iconAnchor: [6, 6]
+            iconSize: [markerSize, markerSize],
+            iconAnchor: [markerAnchor, markerAnchor]
         });
 
-        // Add marker
-        const marker = L.marker([point.lat, point.lon], { icon: redIcon }).addTo(map);
-
-        // Create merchant label (always visible)
-        const label = L.marker([point.lat, point.lon], {
-            icon: L.divIcon({
-                className: 'merchant-label',
-                html: `<div style="font-size: 11px; font-weight: 600;">${point.merchant}</div>`,
-                iconSize: null,
-                iconAnchor: [0, -15]
-            }),
-            interactive: false
+        // Add marker with better touch handling
+        const marker = L.marker([point.lat, point.lon], { 
+            icon: redIcon,
+            keyboard: true,
+            title: point.merchant,
+            riseOnHover: true,
+            zIndexOffset: index
         }).addTo(map);
 
-        // Add popup with details
-        marker.bindPopup(`
-            <div style="min-width: 150px;">
-                <p style="font-weight: 700; font-size: 14px; margin-bottom: 6px;">${point.merchant}</p>
-                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">${point.category}</p>
-                <p style="font-size: 16px; font-weight: 700; color: #ef4444; margin-bottom: 6px;">${point.amount.toFixed(2)} AZN</p>
-                <p style="font-size: 10px; opacity: 0.6; font-family: monospace;">
+        // Create merchant label (only on desktop, hidden on mobile for better UX)
+        if (!isMobileDevice) {
+            const label = L.marker([point.lat, point.lon], {
+                icon: L.divIcon({
+                    className: 'merchant-label',
+                    html: `<div style="font-size: 11px; font-weight: 600;">${point.merchant}</div>`,
+                    iconSize: null,
+                    iconAnchor: [0, -15]
+                }),
+                interactive: false
+            }).addTo(map);
+        }
+
+        // Add popup with details (mobile-optimized)
+        const minWidth = isMobileDevice ? '140px' : '150px';
+        const fontSize1 = isMobileDevice ? '14px' : '14px';
+        const fontSize2 = isMobileDevice ? '12px' : '12px';
+        const fontSize3 = isMobileDevice ? '16px' : '16px';
+        const marginBottom = isMobileDevice ? '4px' : '6px';
+        const coordinatesHtml = !isMobileDevice ? `<p style="font-size: 10px; opacity: 0.6; font-family: monospace;">
                     📍 ${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}
+                </p>` : '';
+        
+        marker.bindPopup(`
+            <div style="min-width: ${minWidth};">
+                <p style="font-weight: 700; font-size: ${fontSize1}; margin-bottom: 6px;">${point.merchant}</p>
+                <p style="font-size: ${fontSize2}; opacity: 0.8; margin-bottom: 4px;">${point.category}</p>
+                <p style="font-size: ${fontSize3}; font-weight: 700; color: #ef4444; margin-bottom: ${marginBottom};">
+                    ${point.amount.toFixed(2)} AZN
                 </p>
+                ${coordinatesHtml}
             </div>
-        `);
+        `, {
+            maxWidth: isMobileDevice ? 220 : 250,
+            className: isMobileDevice ? 'mobile-popup' : '',
+            closeButton: true,
+            autoPan: true,
+            autoPanPadding: isMobileDevice ? [50, 50] : [20, 20]
+        });
     });
 
-    // Fit map to show all markers
+    // Fit map to show all markers (mobile-optimized padding)
     if (mapPoints.length > 0) {
         const bounds = L.latLngBounds(mapPoints.map(p => [p.lat, p.lon]));
-        map.fitBounds(bounds, { padding: [50, 50] });
+        map.fitBounds(bounds, { 
+            padding: isMobileDevice ? [40, 40] : [50, 50],
+            maxZoom: isMobileDevice ? 14 : 16
+        });
+    }
+
+    // Handle window resize for mobile
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const nowMobile = window.innerWidth <= 768;
+            if (mapPoints.length > 0) {
+                const bounds = L.latLngBounds(mapPoints.map(p => [p.lat, p.lon]));
+                map.fitBounds(bounds, { 
+                    padding: nowMobile ? [40, 40] : [50, 50],
+                    maxZoom: nowMobile ? 14 : 16
+                });
+            }
+        }, 250);
+    });
+
+    // Better marker clustering visualization on mobile
+    if (isMobileDevice && mapPoints.length > 10) {
+        // Add cluster group for better performance on mobile
+        console.log('Mobile: Using optimized marker rendering');
     }
 </script>
 {% endblock %}

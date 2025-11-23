@@ -9,6 +9,137 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         border: 3px solid rgba(255, 215, 0, 0.5);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transition: all 0.6s ease-in-out;
+    }
+
+    /* Level Card Responsive */
+    .level-card {
+        transition: all 0.6s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+        .level-card {
+            padding: 1rem !important;
+        }
+        
+        .persona-card {
+            padding: 1.5rem !important;
+        }
+        
+        .persona-card .text-7xl {
+            font-size: 4rem !important;
+        }
+        
+        .persona-card .text-4xl {
+            font-size: 2rem !important;
+        }
+    }
+
+    /* Ensure profile page respects premium themes */
+    body.theme-gold .persona-card {
+        background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #ffed4e 100%);
+        border-color: rgba(255, 215, 0, 0.8);
+    }
+
+    body.theme-midnight .persona-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #404040 100%);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    body.theme-ocean .persona-card {
+        background: linear-gradient(135deg, #003d5c 0%, #00bfff 50%, #5dade2 100%);
+        border-color: rgba(0, 191, 255, 0.5);
+    }
+
+    body.theme-forest .persona-card {
+        background: linear-gradient(135deg, #1a3d1a 0%, #4caf50 50%, #81c784 100%);
+        border-color: rgba(76, 175, 80, 0.5);
+    }
+
+    body.theme-sunset .persona-card {
+        background: linear-gradient(135deg, #5c2e00 0%, #ff9800 50%, #ffb74d 100%);
+        border-color: rgba(255, 152, 0, 0.5);
+    }
+
+    body.theme-royal .persona-card {
+        background: linear-gradient(135deg, #2d1a4d 0%, #9c27b0 50%, #ba68c8 100%);
+        border-color: rgba(156, 39, 176, 0.5);
+    }
+
+    /* Level Card Default Colors */
+    .level-card {
+        transition: all 0.6s ease-in-out;
+    }
+
+    .level-manager {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    }
+
+    .level-rookie {
+        background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    }
+
+    .level-saver {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    }
+
+    .level-analyst {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+    }
+
+    .level-cfo {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    }
+
+    .level-master {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%);
+    }
+
+    /* Level Card Theme Overrides */
+    body.theme-gold .level-card {
+        background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #3d2a00 100%) !important;
+    }
+
+    body.theme-midnight .level-card {
+        background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%) !important;
+    }
+
+    body.theme-ocean .level-card {
+        background: linear-gradient(135deg, #001a2e 0%, #003d5c 50%, #005a8a 100%) !important;
+    }
+
+    body.theme-forest .level-card {
+        background: linear-gradient(135deg, #0d1f0d 0%, #1a3d1a 50%, #2d5a2d 100%) !important;
+    }
+
+    body.theme-sunset .level-card {
+        background: linear-gradient(135deg, #2d1a00 0%, #5c2e00 50%, #8b4513 100%) !important;
+    }
+
+    body.theme-royal .level-card {
+        background: linear-gradient(135deg, #1a0d2e 0%, #2d1a4d 50%, #4a2c6b 100%) !important;
+    }
+
+    @media (max-width: 768px) {
+        .level-card {
+            padding: 1rem !important;
+        }
+        
+        .persona-card {
+            padding: 1.5rem !important;
+        }
+        
+        .persona-card .text-7xl {
+            font-size: 4rem !important;
+        }
+        
+        .persona-card .text-4xl {
+            font-size: 2rem !important;
+        }
+        
+        .persona-card .text-3xl {
+            font-size: 1.5rem !important;
+        }
     }
 </style>
 {% endblock %}
@@ -47,29 +178,34 @@
     </div>
 </div>
 
-<div class="relative overflow-hidden rounded-3xl p-8 mb-6 slide-up" style="animation-delay: 0.05s">
-    <!-- Animated Background -->
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 opacity-90"></div>
-    <div
-        class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-20">
+<div class="relative overflow-hidden rounded-3xl p-4 md:p-8 mb-6 slide-up level-card 
+    {% if level_info.title == 'Manager' %}level-manager
+    {% elif level_info.title == 'Rookie' %}level-rookie
+    {% elif level_info.title == 'Saver' %}level-saver
+    {% elif level_info.title == 'Analyst' %}level-analyst
+    {% elif level_info.title == 'CFO' %}level-cfo
+    {% else %}level-master{% endif %}" 
+    style="animation-delay: 0.05s;">
+    <!-- Animated Background Pattern -->
+    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-20">
     </div>
 
     <!-- Floating Orbs -->
-    <div class="absolute top-4 right-4 w-32 h-32 bg-white/20 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-4 left-4 w-40 h-40 bg-yellow-300/30 rounded-full blur-3xl"></div>
+    <div class="absolute top-4 right-4 w-24 h-24 md:w-32 md:h-32 bg-white/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-4 left-4 w-32 h-32 md:w-40 md:h-40 bg-white/10 rounded-full blur-3xl"></div>
 
     <div class="relative z-10">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-4">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-4">
+            <div class="flex items-center gap-3 md:gap-4 flex-1">
                 <div
-                    class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-5xl shadow-2xl border-2 border-white/30">
+                    class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl md:text-5xl shadow-2xl border-2 border-white/30 flex-shrink-0">
                     {{ level_info.emoji }}
                 </div>
-                <div>
-                    <p class="text-white/80 text-sm mb-1">Səviyyən</p>
-                    <h3 class="text-3xl font-black text-white drop-shadow-lg">{{ level_info.title }}</h3>
-                    <p class="text-white/90 text-sm font-medium">
+                <div class="min-w-0">
+                    <p class="text-white/80 text-xs md:text-sm mb-1">Səviyyən</p>
+                    <h3 class="text-2xl md:text-3xl font-black text-white drop-shadow-lg truncate">{{ level_info.title }}</h3>
+                    <p class="text-white/90 text-xs md:text-sm font-medium">
                         {% if level_info.title == 'Rookie' %}Level 1 • Yeni başlayan
                         {% elif level_info.title == 'Saver' %}Level 2 • Qənaətkar
                         {% elif level_info.title == 'Analyst' %}Level 3 • Analitik
@@ -82,43 +218,56 @@
 
             <!-- XP Badge -->
             <div
-                class="text-center bg-white/20 backdrop-blur-md rounded-2xl px-6 py-4 border-2 border-white/40 shadow-2xl">
-                <p class="text-5xl font-black text-white drop-shadow-md">{{ user.xp_points }}</p>
-                <p class="text-sm text-white/90 font-bold mt-1">XP</p>
+                class="text-center bg-white/20 backdrop-blur-md rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 border-2 border-white/40 shadow-2xl w-full md:w-auto">
+                <p class="text-4xl md:text-5xl font-black text-white drop-shadow-md">{{ user.xp_points }}</p>
+                <p class="text-xs md:text-sm text-white/90 font-bold mt-1">XP</p>
             </div>
         </div>
 
         <!-- Progress Section -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-            <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-white/90 text-sm font-medium">Növbəti səviyyə:</span>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-4 md:p-5 border border-white/20">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2 md:gap-0">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-white/90 text-xs md:text-sm font-medium">Növbəti səviyyə:</span>
                     <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-400/30 border border-yellow-300/50">
-                        <span class="text-lg">{{ next_level.next_level_emoji }}</span>
-                        <span class="text-white font-bold text-sm">{{ next_level.next_level_title }}</span>
+                        class="inline-flex items-center gap-2 px-2 py-1 md:px-3 md:py-1 rounded-full bg-white/20 border border-white/30">
+                        <span class="text-base md:text-lg">{{ next_level.next_level_emoji }}</span>
+                        <span class="text-white font-bold text-xs md:text-sm">{{ next_level.next_level_title }}</span>
                     </div>
                 </div>
-                <span class="text-2xl font-black text-white drop-shadow">{{
+                <span class="text-xl md:text-2xl font-black text-white drop-shadow">{{
                     "%.0f"|format(level_info.progress_percentage) }}%</span>
             </div>
 
             <!-- Animated Progress Bar -->
-            <div class="w-full h-4 bg-white/20 rounded-full overflow-hidden border-2 border-white/30">
-                <div class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 shadow-lg"
+            <div class="w-full h-3 md:h-4 bg-white/20 rounded-full overflow-hidden border-2 border-white/30">
+                <div class="h-full rounded-full transition-all duration-1000 ease-out 
+                    {% if level_info.title == 'Manager' %}
+                    bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400
+                    {% elif level_info.title == 'Rookie' %}
+                    bg-gradient-to-r from-green-300 via-emerald-400 to-teal-400
+                    {% elif level_info.title == 'Saver' %}
+                    bg-gradient-to-r from-blue-300 via-cyan-400 to-sky-400
+                    {% elif level_info.title == 'Analyst' %}
+                    bg-gradient-to-r from-purple-300 via-violet-400 to-fuchsia-400
+                    {% elif level_info.title == 'CFO' %}
+                    bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400
+                    {% else %}
+                    bg-gradient-to-r from-pink-300 via-rose-400 to-red-400
+                    {% endif %} shadow-lg"
                     style="width: {{ level_info.progress_percentage }}%">
                 </div>
             </div>
 
             <!-- Next Level Info -->
-            <div class="mt-4 text-center">
+            <div class="mt-3 md:mt-4 text-center">
                 {% if next_level.xp_needed > 0 %}
-                <p class="text-white/90 font-medium">
+                <p class="text-white/90 font-medium text-sm md:text-base">
                     🎯 <span class="font-black text-yellow-200">{{ next_level.xp_needed }} XP</span> qalıb!
                 </p>
                 {% else %}
-                <p class="text-yellow-200 font-black flex items-center justify-center gap-2">
-                    <span class="text-2xl">🏆</span> Maksimum səviyyədəsən!
+                <p class="text-yellow-200 font-black flex items-center justify-center gap-2 text-sm md:text-base">
+                    <span class="text-xl md:text-2xl">🏆</span> Maksimum səviyyədəsən!
                 </p>
                 {% endif %}
             </div>

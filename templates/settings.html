@@ -327,6 +327,137 @@
             </div>
         </div>
 
+        <!-- Premium Exclusive Features -->
+        {% if user.is_premium %}
+        <!-- Exclusive Themes Section -->
+        <div id="themes" class="glass-card p-8 slide-up" style="animation-delay: 0.3s">
+            <div class="flex items-center gap-4 mb-6">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-2xl shadow-lg shadow-yellow-500/30">
+                    🎨
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Ekskluziv Temalar</h2>
+                    <p class="text-white/50 text-sm">Premium üzvlərimiz üçün xüsusi temalar</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-sm text-white/70 mb-4">
+                    Premium üzvlərimiz üçün xüsusi temalar mövcuddur. İstədiyiniz temanı seçin.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Gold Theme -->
+                    <button type="button" id="theme-gold-btn" onclick="applyPremiumTheme('gold')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-yellow-500/30 hover:border-yellow-500 transition-all group bg-gradient-to-br from-yellow-600/20 to-amber-700/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">✨</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Investor Gold</h3>
+                            <p class="text-xs text-white/60">Qızıl tema</p>
+                        </div>
+                    </button>
+
+                    <!-- Midnight Theme -->
+                    <button type="button" id="theme-midnight-btn" onclick="applyPremiumTheme('midnight')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-gray-700/30 hover:border-gray-600 transition-all group bg-gradient-to-br from-gray-900/20 to-black/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-800/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">🌙</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Midnight</h3>
+                            <p class="text-xs text-white/60">Tam qara tema</p>
+                        </div>
+                    </button>
+
+                    <!-- Ocean Theme -->
+                    <button type="button" id="theme-ocean-btn" onclick="applyPremiumTheme('ocean')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-cyan-500/30 hover:border-cyan-500 transition-all group bg-gradient-to-br from-cyan-600/20 to-blue-700/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">🌊</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Ocean</h3>
+                            <p class="text-xs text-white/60">Okean mavisi</p>
+                        </div>
+                    </button>
+
+                    <!-- Forest Theme -->
+                    <button type="button" id="theme-forest-btn" onclick="applyPremiumTheme('forest')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-green-500/30 hover:border-green-500 transition-all group bg-gradient-to-br from-green-600/20 to-emerald-700/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">🌲</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Forest</h3>
+                            <p class="text-xs text-white/60">Meşə yaşılı</p>
+                        </div>
+                    </button>
+
+                    <!-- Sunset Theme -->
+                    <button type="button" id="theme-sunset-btn" onclick="applyPremiumTheme('sunset')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-orange-500/30 hover:border-orange-500 transition-all group bg-gradient-to-br from-orange-600/20 to-red-700/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">🌅</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Sunset</h3>
+                            <p class="text-xs text-white/60">Gün batımı</p>
+                        </div>
+                    </button>
+
+                    <!-- Royal Purple Theme -->
+                    <button type="button" id="theme-royal-btn" onclick="applyPremiumTheme('royal')"
+                        class="relative overflow-hidden rounded-xl p-6 border-2 border-purple-500/30 hover:border-purple-500 transition-all group bg-gradient-to-br from-purple-600/20 to-indigo-700/20">
+                        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="text-4xl mb-2">👑</div>
+                            <h3 class="text-lg font-bold text-white mb-1">Royal Purple</h3>
+                            <p class="text-xs text-white/60">Kral bənövşəyi</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Reset to Default -->
+                <button type="button" onclick="applyPremiumTheme('default')"
+                    class="w-full px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white text-sm font-medium transition border border-white/10">
+                    Standart temaya qayıt
+                </button>
+            </div>
+        </div>
+
+        <!-- Incognito Mode Section -->
+        <div class="glass-card p-8 slide-up" style="animation-delay: 0.35s">
+            <div class="flex items-center gap-4 mb-6">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-400 to-slate-600 flex items-center justify-center text-2xl shadow-lg shadow-gray-500/30">
+                    🕵️‍♂️
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Məxfilik Modu</h2>
+                    <p class="text-white/50 text-sm">Bütün məbləğləri gizlətin</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-sm text-white/70 mb-4">
+                    Bank tətbiqlərində olan xüsusiyyət. Bir düyməyə basanda bütün məbləğlər <strong>****</strong> ulduzla gizlənir.
+                </p>
+                
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                    <div>
+                        <label class="block text-sm font-medium text-white">Məxfilik Modu</label>
+                        <p class="text-xs text-white/50 mt-1">Varlı adamların ehtiyacı - pulu çoxdur, gizlətmək istəyir</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="incognito-mode-toggle" class="sr-only peer"
+                            onchange="toggleIncognitoMode(this.checked)">
+                        <div
+                            class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gray-700 transition-colors">
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Premium Upgrade Card -->
         <div class="relative overflow-hidden rounded-2xl p-6 slide-up group"
             style="animation-delay: 0.25s; cursor: pointer;" onclick="openPremiumModal()">
@@ -504,5 +635,108 @@
             showToast('Şəbəkə xətası', 'error');
         }
     }
+
+    // Premium Theme Switching
+    function applyPremiumTheme(theme) {
+        if (window.applyPremiumTheme) {
+            window.applyPremiumTheme(theme);
+            
+            const themeNames = {
+                'gold': '✨ Investor Gold',
+                'midnight': '🌙 Midnight',
+                'ocean': '🌊 Ocean',
+                'forest': '🌲 Forest',
+                'sunset': '🌅 Sunset',
+                'royal': '👑 Royal Purple',
+                'default': 'Standart'
+            };
+            
+            const themeName = themeNames[theme] || 'Standart';
+            if (theme !== 'default') {
+                showToast(`${themeName} temaya keçildi!`, 'success');
+            } else {
+                showToast('Standart temaya qayıdıldı', 'success');
+            }
+        }
+        
+        // Update button states
+        updateThemeButtons(theme);
+    }
+    
+    function updateThemeButtons(activeTheme) {
+        const buttons = {
+            'gold': 'theme-gold-btn',
+            'midnight': 'theme-midnight-btn',
+            'ocean': 'theme-ocean-btn',
+            'forest': 'theme-forest-btn',
+            'sunset': 'theme-sunset-btn',
+            'royal': 'theme-royal-btn'
+        };
+        
+        const borderClasses = {
+            'gold': 'border-yellow-500 ring-2 ring-yellow-500/50',
+            'midnight': 'border-gray-500 ring-2 ring-gray-500/50',
+            'ocean': 'border-cyan-500 ring-2 ring-cyan-500/50',
+            'forest': 'border-green-500 ring-2 ring-green-500/50',
+            'sunset': 'border-orange-500 ring-2 ring-orange-500/50',
+            'royal': 'border-purple-500 ring-2 ring-purple-500/50'
+        };
+        
+        // Remove all active states
+        Object.values(buttons).forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.classList.remove('border-yellow-500', 'ring-2', 'ring-yellow-500/50',
+                    'border-gray-500', 'ring-gray-500/50',
+                    'border-cyan-500', 'ring-cyan-500/50',
+                    'border-green-500', 'ring-green-500/50',
+                    'border-orange-500', 'ring-orange-500/50',
+                    'border-purple-500', 'ring-purple-500/50');
+            }
+        });
+        
+        // Add active state to selected theme
+        if (activeTheme !== 'default' && buttons[activeTheme]) {
+            const btn = document.getElementById(buttons[activeTheme]);
+            if (btn && borderClasses[activeTheme]) {
+                const classes = borderClasses[activeTheme].split(' ');
+                classes.forEach(cls => btn.classList.add(cls));
+            }
+        }
+    }
+
+    // Incognito Mode (uses global function from base.html)
+    function toggleIncognitoMode(enabled) {
+        if (window.toggleIncognitoMode) {
+            window.toggleIncognitoMode(enabled);
+            if (enabled) {
+                showToast('🕵️‍♂️ Məxfilik modu aktivləşdirildi', 'success');
+            } else {
+                showToast('Məxfilik modu deaktivləşdirildi', 'success');
+            }
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load premium theme
+        const savedTheme = localStorage.getItem('premium-theme');
+        const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+        if (savedTheme && validThemes.includes(savedTheme)) {
+            applyPremiumTheme(savedTheme);
+        } else {
+            updateThemeButtons('default');
+        }
+        
+        // Load incognito mode
+        const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+        const toggle = document.getElementById('incognito-mode-toggle');
+        if (toggle) {
+            toggle.checked = isIncognito;
+            if (isIncognito) {
+                toggleIncognitoMode(true);
+            }
+        }
+    });
 </script>
 {% endblock %}

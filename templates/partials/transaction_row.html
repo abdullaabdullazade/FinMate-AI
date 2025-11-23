@@ -80,8 +80,7 @@
             </p>
             <ul class="space-y-1.5" id="items-list-txn-{{ expense.id }}">
                 {% for item in expense.items %}
-                <li
-                    class="flex justify-between text-white/70 py-1 border-b border-white/5 last:border-0">
+                <li class="flex justify-between text-white/70 py-1 border-b border-white/5 last:border-0">
                     <span class="flex-1">{{ loop.index }}. {{ item.name }}</span>
                     <span class="font-medium text-white">{{ "%.2f"|format(item.price) }} ₼</span>
                 </li>

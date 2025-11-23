@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FinMate AI - Your Personal CFO{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512.png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
     <!-- TailwindCSS + DaisyUI -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
@@ -29,6 +34,21 @@
         (function () {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Apply premium theme immediately (before page render)
+            const savedPremiumTheme = localStorage.getItem('premium-theme');
+            const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+            if (savedPremiumTheme && validThemes.includes(savedPremiumTheme)) {
+                const body = document.body;
+                const html = document.documentElement;
+                const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
+                themes.forEach(t => {
+                    body.classList.remove(t);
+                    html.classList.remove(t);
+                });
+                body.classList.add('theme-' + savedPremiumTheme);
+                html.classList.add('theme-' + savedPremiumTheme);
+            }
         })();
     </script>
 
@@ -73,10 +93,15 @@
         body:not(.no-transition) .glass,
         body:not(.no-transition) .glass-card,
         body:not(.no-transition) .bottom-nav {
-            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Smooth theme background transition */
+        body {
+            transition: background 0.8s ease-in-out !important;
         }
 
         body {
@@ -250,6 +275,94 @@
         body.readability-mode .glass-card {
             border-width: 2px;
         }
+
+        /* Premium Themes */
+        body.theme-gold,
+        html.theme-gold {
+            --bg-primary: #1a0d00;
+            --bg-secondary: #2d1a00;
+            --glass-bg: rgba(45, 26, 0, 0.8);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --accent-primary: #ffd700;
+            --accent-secondary: #ffed4e;
+        }
+
+        body.theme-gold {
+            background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #3d2a00 100%);
+        }
+
+        body.theme-midnight,
+        html.theme-midnight {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --glass-bg: rgba(10, 10, 10, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #ffffff;
+            --accent-secondary: #e0e0e0;
+        }
+
+        body.theme-midnight {
+            background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%);
+        }
+
+        body.theme-ocean,
+        html.theme-ocean {
+            --bg-primary: #001a2e;
+            --bg-secondary: #003d5c;
+            --glass-bg: rgba(0, 61, 92, 0.8);
+            --glass-border: rgba(0, 191, 255, 0.3);
+            --accent-primary: #00bfff;
+            --accent-secondary: #5dade2;
+        }
+
+        body.theme-ocean {
+            background: linear-gradient(135deg, #001a2e 0%, #003d5c 50%, #005a8a 100%);
+        }
+
+        body.theme-forest,
+        html.theme-forest {
+            --bg-primary: #0d1f0d;
+            --bg-secondary: #1a3d1a;
+            --glass-bg: rgba(26, 61, 26, 0.8);
+            --glass-border: rgba(76, 175, 80, 0.3);
+            --accent-primary: #4caf50;
+            --accent-secondary: #81c784;
+        }
+
+        body.theme-forest {
+            background: linear-gradient(135deg, #0d1f0d 0%, #1a3d1a 50%, #2d5a2d 100%);
+        }
+
+        body.theme-sunset,
+        html.theme-sunset {
+            --bg-primary: #2d1a00;
+            --bg-secondary: #5c2e00;
+            --glass-bg: rgba(92, 46, 0, 0.8);
+            --glass-border: rgba(255, 152, 0, 0.3);
+            --accent-primary: #ff9800;
+            --accent-secondary: #ffb74d;
+        }
+
+        body.theme-sunset {
+            background: linear-gradient(135deg, #2d1a00 0%, #5c2e00 50%, #8b4513 100%);
+        }
+
+        body.theme-royal,
+        html.theme-royal {
+            --bg-primary: #1a0d2e;
+            --bg-secondary: #2d1a4d;
+            --glass-bg: rgba(45, 26, 77, 0.8);
+            --glass-border: rgba(156, 39, 176, 0.3);
+            --accent-primary: #9c27b0;
+            --accent-secondary: #ba68c8;
+        }
+
+        body.theme-royal {
+            background: linear-gradient(135deg, #1a0d2e 0%, #2d1a4d 50%, #4a2c6b 100%);
+        }
+
+        /* Incognito Mode - Only hide amounts, no design changes */
+        /* Amounts are hidden via JavaScript text replacement only */
     </style>
 
     <!-- Canvas Confetti for Gamification -->
@@ -386,7 +499,7 @@
                     <span class="text-xs font-medium">Profil</span>
                 </a>
 
-                <!-- Map/Heatmap -->
+                <!-- Heatmap/Map (Mobile) -->
                 <a href="/heatmap"
                     class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/heatmap' %}active{% endif %}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,6 +508,19 @@
                         </path>
                     </svg>
                     <span class="text-xs font-medium">Xəritə</span>
+                </a>
+
+                <!-- Settings (Mobile) -->
+                <a href="/settings"
+                    class="nav-item flex flex-col items-center gap-1 text-white/70 hover:text-white transition {% if request.url.path == '/settings' %}active{% endif %}">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="text-xs font-medium">Tənzimləmələr</span>
                 </a>
             </div>
         </div>
@@ -579,6 +705,226 @@
             document.getElementById('premium-modal').classList.add('hidden');
         }
 
+        // Premium Theme Functions (Global) - Smooth transition without flash
+        window.applyPremiumTheme = function(theme) {
+            const body = document.body;
+            const html = document.documentElement;
+            
+            // Remove all theme classes first (without delay to prevent flash)
+            const themes = ['theme-gold', 'theme-midnight', 'theme-ocean', 'theme-forest', 'theme-sunset', 'theme-royal'];
+            themes.forEach(t => {
+                body.classList.remove(t);
+                html.classList.remove(t);
+            });
+            
+            // Apply new theme immediately (no delay to prevent flash to default)
+            if (theme === 'gold') {
+                body.classList.add('theme-gold');
+                html.classList.add('theme-gold');
+                localStorage.setItem('premium-theme', 'gold');
+            } else if (theme === 'midnight') {
+                body.classList.add('theme-midnight');
+                html.classList.add('theme-midnight');
+                localStorage.setItem('premium-theme', 'midnight');
+            } else if (theme === 'ocean') {
+                body.classList.add('theme-ocean');
+                html.classList.add('theme-ocean');
+                localStorage.setItem('premium-theme', 'ocean');
+            } else if (theme === 'forest') {
+                body.classList.add('theme-forest');
+                html.classList.add('theme-forest');
+                localStorage.setItem('premium-theme', 'forest');
+            } else if (theme === 'sunset') {
+                body.classList.add('theme-sunset');
+                html.classList.add('theme-sunset');
+                localStorage.setItem('premium-theme', 'sunset');
+            } else if (theme === 'royal') {
+                body.classList.add('theme-royal');
+                html.classList.add('theme-royal');
+                localStorage.setItem('premium-theme', 'royal');
+            } else {
+                localStorage.removeItem('premium-theme');
+            }
+        };
+
+        // Incognito Mode Functions (Global)
+        window.hideAllAmounts = function() {
+            // Pattern to match amounts (numbers with optional decimals, followed by ₼ or AZN)
+            const amountPattern = /(\d+\.?\d*)\s*(₼|AZN|manat)/gi;
+            
+            // Function to hide amount in an element - ONLY text replacement, no design changes
+            function hideAmountInElement(el) {
+                if (el.classList.contains('incognito-hidden') || el.closest('.incognito-ignore')) {
+                    return;
+                }
+                
+                // Skip premium pricing sections - check parent elements
+                let parent = el.parentElement;
+                let skipPremium = false;
+                while (parent && parent !== document.body) {
+                    const parentText = parent.textContent || '';
+                    const parentClass = parent.className || '';
+                    const parentId = parent.id || '';
+                    
+                    // Skip if in premium/upgrade section
+                    if (parentClass.includes('premium') || parentClass.includes('upgrade') || 
+                        parentId.includes('premium') || parentId.includes('upgrade') ||
+                        parentText.includes('Premium-a Keç') || parentText.includes('4.99')) {
+                        skipPremium = true;
+                        break;
+                    }
+                    parent = parent.parentElement;
+                }
+                
+                if (skipPremium) {
+                    return;
+                }
+                
+                // Skip if element has children (to avoid double processing)
+                if (el.children.length > 0 && !el.textContent.match(amountPattern)) {
+                    return;
+                }
+                
+                const text = el.textContent || el.innerText;
+                if (amountPattern.test(text)) {
+                    // Don't hide if it's premium pricing (4.99, etc.)
+                    if (text.includes('4.99') || text.includes('Premium')) {
+                        return;
+                    }
+                    
+                    const originalText = el.getAttribute('data-original') || text;
+                    el.setAttribute('data-original', originalText);
+                    // Only replace the number, keep currency symbol
+                    el.textContent = text.replace(amountPattern, '**** $2');
+                    el.classList.add('incognito-hidden');
+                }
+            }
+            
+            // Hide amounts in transaction rows - be more specific
+            document.querySelectorAll('[id^="expense-"] span, [id^="expense-"] p, .transaction-row span, .transaction-row p').forEach(hideAmountInElement);
+            
+            // Hide dashboard stats (ONLY expense-related amounts) - Force hide with comma support
+            ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.classList.contains('incognito-hidden')) {
+                    const text = el.textContent || el.innerText || '';
+                    // Check if contains numbers (with or without commas)
+                    if (text.match(/\d/)) {
+                        const original = el.getAttribute('data-original') || text;
+                        el.setAttribute('data-original', original);
+                        // Replace all numbers (including comma-separated) with ****
+                        el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
+                        el.classList.add('incognito-hidden');
+                    }
+                }
+            });
+            
+            // Hide Eco Impact value (next sibling after .eco-leaf)
+            const ecoLeaf = document.querySelector('.eco-leaf');
+            if (ecoLeaf) {
+                const ecoImpact = ecoLeaf.nextElementSibling;
+                if (ecoImpact && !ecoImpact.classList.contains('incognito-hidden')) {
+                    const text = ecoImpact.textContent || ecoImpact.innerText;
+                    if (text.match(/\d+\.?\d*/)) {
+                        const original = ecoImpact.getAttribute('data-original') || text;
+                        ecoImpact.setAttribute('data-original', original);
+                        ecoImpact.textContent = '****';
+                        ecoImpact.classList.add('incognito-hidden');
+                    }
+                }
+            }
+            
+            // Also hide the kg CO₂ text if it contains numbers
+            const ecoContainer = document.querySelector('.eco-leaf')?.parentElement;
+            if (ecoContainer) {
+                const allText = ecoContainer.querySelectorAll('span, p');
+                allText.forEach(el => {
+                    const text = el.textContent || el.innerText;
+                    if (text.match(/\d+\.?\d*\s*kg/) && !el.classList.contains('incognito-hidden') && !el.classList.contains('eco-leaf')) {
+                        const original = el.getAttribute('data-original') || text;
+                        el.setAttribute('data-original', original);
+                        el.textContent = text.replace(/\d+\.?\d*/, '****');
+                        el.classList.add('incognito-hidden');
+                    }
+                });
+            }
+            
+            // Hide budget percentage
+            const budgetPercent = document.querySelector('.text-sm.font-bold.text-white');
+            if (budgetPercent && budgetPercent.textContent.includes('%') && !budgetPercent.classList.contains('incognito-hidden')) {
+                const text = budgetPercent.textContent || budgetPercent.innerText;
+                if (text.match(/\d+\.?\d*%/)) {
+                    const original = budgetPercent.getAttribute('data-original') || text;
+                    budgetPercent.setAttribute('data-original', original);
+                    budgetPercent.textContent = text.replace(/\d+\.?\d*%/, '****%');
+                    budgetPercent.classList.add('incognito-hidden');
+                }
+            }
+            
+            // Hide category amounts - only direct text nodes
+            document.querySelectorAll('[class*="category"] span, [class*="category"] p').forEach(hideAmountInElement);
+            
+            // Hide transaction amounts in recent transactions
+            document.querySelectorAll('#expense-\\d+ span, #expense-\\d+ p').forEach(el => {
+                const text = el.textContent || el.innerText;
+                if (text.match(amountPattern) && !el.classList.contains('incognito-hidden')) {
+                    hideAmountInElement(el);
+                }
+            });
+        };
+        
+        window.showAllAmounts = function() {
+            document.querySelectorAll('.incognito-hidden').forEach(el => {
+                const original = el.getAttribute('data-original');
+                if (original) {
+                    el.textContent = original;
+                    el.removeAttribute('data-original');
+                    el.classList.remove('incognito-hidden');
+                }
+            });
+        };
+
+        window.toggleIncognitoMode = function(enabled) {
+            if (enabled) {
+                document.body.classList.add('incognito-mode');
+                localStorage.setItem('incognito-mode', 'enabled');
+                if (window.hideAllAmounts) {
+                    window.hideAllAmounts();
+                }
+                // Update eye icons
+                updateEyeIcons(true);
+            } else {
+                document.body.classList.remove('incognito-mode');
+                localStorage.removeItem('incognito-mode');
+                if (window.showAllAmounts) {
+                    window.showAllAmounts();
+                }
+                // Update eye icons
+                updateEyeIcons(false);
+            }
+        };
+
+        function updateEyeIcons(isHidden) {
+            const eyeIcons = document.querySelectorAll('#eye-icon, #eye-icon-update');
+            eyeIcons.forEach(icon => {
+                if (isHidden) {
+                    // Change to eye-slash (hidden)
+                    icon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                    `;
+                } else {
+                    // Change to eye (visible)
+                    icon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    `;
+                }
+            });
+        }
+
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             // Load Readability Mode preference
@@ -601,6 +947,50 @@
             const voiceToggle = document.getElementById('voice-mode-toggle');
             if (voiceToggle) {
                 voiceToggle.checked = isVoiceModeEnabled;
+            }
+
+            // Load Premium Theme immediately (already applied in head, but ensure it's set)
+            const savedTheme = localStorage.getItem('premium-theme');
+            const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal'];
+            if (savedTheme && validThemes.includes(savedTheme)) {
+                // Theme already applied in head script, just ensure it's correct
+                const body = document.body;
+                const html = document.documentElement;
+                if (!body.classList.contains('theme-' + savedTheme)) {
+                    window.applyPremiumTheme(savedTheme);
+                }
+            }
+
+            // Quick Incognito Toggle Function
+            window.toggleIncognitoQuick = function() {
+                const isCurrentlyIncognito = document.body.classList.contains('incognito-mode');
+                window.toggleIncognitoMode(!isCurrentlyIncognito);
+            };
+
+            // Load Incognito Mode
+            const isIncognitoEnabled = localStorage.getItem('incognito-mode') === 'enabled';
+            if (isIncognitoEnabled) {
+                window.toggleIncognitoMode(true);
+                // Re-hide amounts after a short delay to catch dynamically loaded content
+                setTimeout(() => {
+                    if (document.body.classList.contains('incognito-mode') && window.hideAllAmounts) {
+                        window.hideAllAmounts();
+                    }
+                }, 500);
+            }
+
+            // Watch for dynamically added content (for HTMX updates)
+            if (isIncognitoEnabled) {
+                const observer = new MutationObserver((mutations) => {
+                    if (document.body.classList.contains('incognito-mode') && window.hideAllAmounts) {
+                        setTimeout(window.hideAllAmounts, 100);
+                    }
+                });
+                
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
             }
         });
     </script>
