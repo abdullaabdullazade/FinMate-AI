@@ -254,6 +254,46 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
             # Fallback if no user object
             base_personality = "Sən FinMate AI, dostcasına maliyyə köməkçisisən."
         
+        # Import local gems for suggestions
+        try:
+            from local_gems import find_local_gems, format_gem_suggestion
+            
+            # Check if user is complaining about expensive places or asking for alternatives
+            user_message_lower = user_message.lower()
+            expensive_keywords = ["bahadır", "bahalı", "çox pul", "ucuz", "alternativ", "daha ucuz", "qənaət", "starbucks", "kino", "mcdonald"]
+            is_expense_related = any(keyword in user_message_lower for keyword in expensive_keywords)
+            
+            # Try to extract merchant name from message or recent expenses
+            gem_suggestion = ""
+            if is_expense_related:
+                # First, try to extract merchant from user message
+                merchant_from_message = None
+                for key in ["starbucks", "mcdonald", "kfc", "kino", "cinema", "papa john", "entree", "coffeeshop"]:
+                    if key in user_message_lower:
+                        merchant_from_message = key.title()
+                        break
+                
+                # Try to find merchant in recent expenses
+                recent_expenses = db_context.get("recent_expenses", [])
+                merchant = merchant_from_message
+                amount = 0
+                category = ""
+                
+                if recent_expenses and isinstance(recent_expenses, list) and len(recent_expenses) > 0:
+                    latest_expense = recent_expenses[0]
+                    if isinstance(latest_expense, dict):
+                        if not merchant:
+                            merchant = latest_expense.get("merchant", "")
+                        amount = latest_expense.get("amount", 0)
+                        category = latest_expense.get("category", "")
+                
+                if merchant:
+                    alternatives = find_local_gems(merchant, amount, category)
+                    if alternatives:
+                        gem_suggestion = format_gem_suggestion(merchant, amount, alternatives)
+        except ImportError:
+            gem_suggestion = ""
+        
         # System prompt
         system_prompt = f"""{base_personality}
 
@@ -274,13 +314,28 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
 - Respond in the user's preferred language: {language}
 - {language_instruction}
 
+**IMPORTANT - Local Gem Discovery:**
+- If user mentions expensive places (Starbucks, Kino, McDonald's, etc.) or asks for cheaper alternatives, ALWAYS suggest local cheaper alternatives
+- Use the local gems database to provide specific recommendations with prices and savings
+- Format: "📍 [Name] - [Price] AZN ([Savings] AZN qənaət)"
+- If user complains about prices, proactively suggest alternatives even if not explicitly asked
+- ALWAYS include the gem suggestions below in your response if they are provided
+
+{gem_suggestion if gem_suggestion else ""}
+
 **User Question:** {user_message}
 
 **Your Response:**"""
 
         try:
             response = self.model.generate_content(system_prompt)
-            return response.text.strip()
+            response_text = response.text.strip()
+            
+            # If we have gem suggestions but AI didn't include them, append them
+            if gem_suggestion and gem_suggestion not in response_text:
+                response_text += "\n\n" + gem_suggestion
+            
+            return response_text
         except Exception as e:
             print(f"❌ Gemini API Error: {e}")
             return f"AI-də problem var 🤔 Gemini API açarını yoxla. Xəta: {str(e)}"

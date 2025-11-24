@@ -320,26 +320,31 @@
             <div class="flex-1 min-w-0">
                 <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
                 <p class="text-sm sm:text-base text-red-100">
-                    Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - user.monthly_budget) }} AZN</strong> artıq
+                    Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - user.monthly_budget) }}
+                        AZN</strong> artıq
                     xərclədiniz.
                     Xərclərinizi azaltmağı tövsiyə edirik.
                 </p>
             </div>
             <div class="text-right flex-shrink-0">
                 <p class="text-red-200 text-xs sm:text-sm">Büdcə</p>
-                <p class="text-xl sm:text-3xl font-bold text-red-100 incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</p>
+                <p class="text-xl sm:text-3xl font-bold text-red-100 incognito-hidden">{{
+                    "%.0f"|format(budget_percentage) }}%</p>
             </div>
         </div>
     </div>
     {% elif budget_percentage >= 80 %}
-    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20"
+        style="grid-column: span 12;">
         <div class="flex items-center gap-3 sm:gap-4">
             <div class="text-3xl sm:text-4xl flex-shrink-0">⚡</div>
             <div class="flex-1 min-w-0">
                 <h3 class="text-base sm:text-xl font-bold text-yellow-200 mb-1">Diqqət: Büdcə Limitinə Yaxınsınız</h3>
                 <p class="text-sm sm:text-base text-yellow-100">
-                    Büdcənizin <strong class="incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</strong>-ni istifadə etdiniz.
-                    Daha <strong class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending) }} AZN</strong> qalıb.
+                    Büdcənizin <strong class="incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</strong>-ni
+                    istifadə etdiniz.
+                    Daha <strong class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending) }}
+                        AZN</strong> qalıb.
                 </p>
             </div>
         </div>
@@ -394,13 +399,15 @@
                 <span class="text-3xl sm:text-4xl flex-shrink-0">{{ level_info.emoji }}</span>
                 <div class="min-w-0 flex-1">
                     <h3 class="text-base sm:text-lg font-bold text-white truncate">{{ level_info.title }}</h3>
-                    <p class="text-xs sm:text-sm text-white/60 truncate" id="xp-text">{{ user.xp_points }} / {{ level_info.max_xp if
+                    <p class="text-xs sm:text-sm text-white/60 truncate" id="xp-text">{{ user.xp_points }} / {{
+                        level_info.max_xp if
                         level_info.max_xp != float('inf') else '∞' }} XP</p>
                 </div>
             </div>
             <div class="text-right flex-shrink-0">
                 <p class="text-xs sm:text-sm text-white/60">Level {{ level_info.level }}</p>
-                <p class="text-base sm:text-lg font-bold text-white">{{ "%.0f"|format(level_info.progress_percentage) }}%</p>
+                <p class="text-base sm:text-lg font-bold text-white">{{ "%.0f"|format(level_info.progress_percentage)
+                    }}%</p>
             </div>
         </div>
         <div class="w-full bg-white/20 rounded-full h-2 sm:h-3">
@@ -418,18 +425,19 @@
                 <p class="text-xs sm:text-sm text-white/50">{{ greeting }}, {{ user.username.capitalize() }}</p>
                 <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                     Bu ay
-                    {% if user.is_premium %}
-                    <button id="incognito-toggle-btn" onclick="toggleIncognitoQuick()" 
-                        class="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white flex-shrink-0"
-                        title="Xərc məbləğlərini göstər/gizlət">
-                        <svg id="eye-icon" class="w-4 h-5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <button id="incognito-toggle-btn"
+                        onclick="if(typeof toggleIncognitoQuick === 'function') { toggleIncognitoQuick(); } else { console.error('toggleIncognitoQuick not found'); }"
+                        class="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 text-white/70 hover:text-white flex-shrink-0 cursor-pointer"
+                        style="transition: all 0.2s ease;" title="Xərc məbləğlərini göstər/gizlət">
+                        <svg id="eye-icon" class="w-4 h-5 sm:w-5 sm:h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
                         </svg>
                     </button>
-                    {% endif %}
                 </h2>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
@@ -449,7 +457,9 @@
             <div>
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
                 <div class="flex items-end gap-1 sm:gap-2">
-                    <span id="stat-total" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ "%.2f"|format(total_spending)
+                    <span id="stat-total" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
+                        data-value="{{ total_spending }}" data-initial="{{ " %.2f"|format(total_spending) }}">{{
+                        "%.2f"|format(total_spending)
                         }}</span>
                     <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
                 </div>
@@ -459,7 +469,9 @@
             <div>
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
                 <div class="flex items-end gap-1 sm:gap-2">
-                    <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ "%.2f"|format(user.monthly_budget)
+                    <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
+                        data-value="{{ user.monthly_budget }}" data-initial="{{ " %.2f"|format(user.monthly_budget)
+                        }}">{{ "%.2f"|format(user.monthly_budget)
                         }}</span>
                     <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
                 </div>
@@ -470,7 +482,9 @@
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-remaining"
-                        class="text-2xl sm:text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden">
+                        class="text-2xl sm:text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
+                        data-value="{{ user.monthly_budget - total_spending }}" data-initial="{{ "
+                        %.2f"|format(user.monthly_budget - total_spending) }}">
                         {{ "%.2f"|format(user.monthly_budget - total_spending) }}
                     </span>
                     <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
@@ -482,7 +496,8 @@
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span class="eco-leaf text-lg sm:text-2xl">{{ eco_score.icon }}</span>
-                    <span class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ eco_score.value }}</span>
+                    <span class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ eco_score.value
+                        }}</span>
                     <span class="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
                 </div>
             </div>
@@ -492,7 +507,8 @@
         <div class="mt-4 sm:mt-6">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-xs sm:text-sm text-white/70">Büdcə istifadəsi</span>
-                <span class="text-xs sm:text-sm font-bold text-white incognito-hidden">{{ "%.1f"|format(budget_percentage) }}%</span>
+                <span class="text-xs sm:text-sm font-bold text-white incognito-hidden">{{
+                    "%.1f"|format(budget_percentage) }}%</span>
             </div>
             <div class="w-full bg-white/20 rounded-full h-3 sm:h-4">
                 <div class="h-3 sm:h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
@@ -512,7 +528,8 @@
 
         <div class="flex flex-col md:flex-row gap-4 sm:gap-8 items-stretch md:items-center">
             <div class="flex-1 w-full">
-                <label for="time-machine-slider" class="block text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 flex justify-between">
+                <label for="time-machine-slider"
+                    class="block text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 flex justify-between">
                     <span>Zamanı irəli çək:</span>
                     <span id="time-machine-label" class="font-bold text-white">İndi</span>
                 </label>
@@ -527,11 +544,13 @@
 
             <div class="text-center md:text-right w-full md:w-auto md:min-w-[200px]">
                 <p class="text-xs sm:text-sm text-white/60 mb-1">Təxmini Balans</p>
-                <p id="projected-balance" class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
+                <p id="projected-balance"
+                    class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
                     {{ "%.2f"|format(user.monthly_budget - total_spending) }} ₼
                 </p>
                 <p class="text-xs text-white/40 mt-1">
-                    Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending)
+                    Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{
+                        "%.2f"|format(user.monthly_budget - total_spending)
                         }}</span> ₼
                 </p>
             </div>
@@ -554,7 +573,8 @@
                 </h3>
                 <div class="text-center p-4 sm:p-6 rounded-xl bg-white/5">
                     <div class="text-4xl sm:text-6xl mb-2 sm:mb-3">{{ eco_score.icon }}</div>
-                    <div class="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 incognito-hidden">{{ eco_score.value }}</div>
+                    <div class="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 incognito-hidden">{{
+                        eco_score.value }}</div>
                     <div class="text-xs sm:text-sm text-white/70">kg CO₂ bu ay</div>
                 </div>
             </div>
@@ -573,7 +593,8 @@
                                 <p class="text-xs text-white/60">{{ impact.level }}</p>
                             </div>
                         </div>
-                        <span class="text-white font-bold text-sm sm:text-base flex-shrink-0 ml-2 incognito-hidden">{{ impact.co2 }} kg</span>
+                        <span class="text-white font-bold text-sm sm:text-base flex-shrink-0 ml-2 incognito-hidden">{{
+                            impact.co2 }} kg</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -664,8 +685,8 @@
                     <div class="flex items-end justify-between mb-2 sm:mb-3">
                         <div class="flex-1 min-w-0">
                             <p class="text-white/60 text-xs mb-1">Ümumi məbləğ</p>
-                            <p class="text-white font-black text-lg sm:text-2xl incognito-hidden">{{ "%.0f"|format(amount) }} <span
-                                    class="text-sm sm:text-lg">₼</span></p>
+                            <p class="text-white font-black text-lg sm:text-2xl incognito-hidden">{{
+                                "%.0f"|format(amount) }} <span class="text-sm sm:text-lg">₼</span></p>
                         </div>
                         <div class="text-right">
                             <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold
@@ -695,6 +716,75 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- Local Gems Discovery - Ucuz Alternativlər -->
+    {% if local_gems %}
+    <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.2s;">
+        <div class="flex items-center gap-3 mb-4">
+            <div
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-yellow-400/30 to-orange-500/30 flex items-center justify-center flex-shrink-0">
+                <span class="text-2xl sm:text-3xl">💎</span>
+            </div>
+            <div>
+                <h3 class="text-base sm:text-lg font-bold text-white">Ucuz Alternativlər</h3>
+                <p class="text-xs sm:text-sm text-white/60">Pul qənaət etmək üçün məsləhətlər</p>
+            </div>
+        </div>
+
+        <div class="space-y-3 sm:space-y-4">
+            {% for gem in local_gems %}
+            <div class="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 hover:bg-white/10 transition-all">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg sm:text-xl">📍</span>
+                            <h4 class="text-sm sm:text-base font-bold text-white truncate">{{ gem.merchant }}</h4>
+                            <span class="text-xs sm:text-sm text-white/70">• {{ "%.2f"|format(gem.amount) }} AZN</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-white/60">{{ gem.category }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-2 sm:mt-3 space-y-2">
+                    {% for alt in gem.alternatives %}
+                    <div class="flex items-start gap-2 bg-white/5 rounded-lg p-2 sm:p-2.5">
+                        <span class="text-base sm:text-lg flex-shrink-0">{% if alt.get('is_tip') %}💡{% else %}✨{% endif
+                            %}</span>
+                        <div class="flex-1 min-w-0">
+                            {% if alt.get('price') and alt.get('savings') %}
+                            <p class="text-xs sm:text-sm font-medium text-white">
+                                <strong>{{ alt.name }}</strong> - {{ "%.2f"|format(alt.price) }} AZN
+                            </p>
+                            <p class="text-xs text-green-400 mt-0.5">
+                                💰 {{ "%.2f"|format(alt.savings) }} AZN qənaət ({{ "%.0f"|format((alt.savings /
+                                gem.amount * 100) if gem.amount > 0 else 0) }}%)
+                            </p>
+                            {% elif alt.get('special_offer') %}
+                            <p class="text-xs sm:text-sm font-medium text-white">
+                                <strong>{{ alt.name }}</strong> - {{ alt.special_offer }}
+                            </p>
+                            <p class="text-xs text-yellow-400 mt-0.5">{{ alt.description }}</p>
+                            {% else %}
+                            <p class="text-xs sm:text-sm font-medium text-white">
+                                <strong>{{ alt.name }}</strong>
+                            </p>
+                            <p class="text-xs text-white/70 mt-0.5">{{ alt.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <p class="text-xs sm:text-sm text-white/60 text-center">
+                💡 İpucu: Chat-də "Starbucks bahadır" yazsan, daha çox alternativ görəcəksən!
+            </p>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Recent Transactions - Full Width -->
     <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.25s;">
@@ -1311,6 +1401,13 @@
             const el = document.getElementById(elementId);
             if (!el) return;
 
+            // Check incognito mode - if enabled, don't animate
+            const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+            if (isIncognito) {
+                el.textContent = '****';
+                return;
+            }
+
             // Kitabxananı hər cür axtarırıq
             const CountUpCtor = window.CountUp?.CountUp || window.CountUp || window.countUp?.CountUp || window.countUp;
 
@@ -1321,18 +1418,127 @@
                     decimalPlaces: 2
                 });
                 if (!anim.error) anim.start();
-                else el.innerText = finalValue.toFixed(2);
+                else {
+                    el.innerText = finalValue.toFixed(2);
+                    // Update data-initial after animation
+                    el.setAttribute('data-initial', finalValue.toFixed(2) + ' AZN');
+                }
             } else {
                 // Kitabxana yoxdursa, sadəcə yaz
                 el.innerText = finalValue.toFixed(2);
+                el.setAttribute('data-initial', finalValue.toFixed(2) + ' AZN');
                 console.warn("CountUp not found, using fallback");
             }
         }
 
-        // Rəqəmləri işə salırıq
-        animateNumber('stat-total', {{ total_spending }});
-    animateNumber('stat-budget', {{ user.monthly_budget }});
+        // Rəqəmləri işə salırıq - incognito mode yoxla
+        function startDashboardCounters() {
+            const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+            if (!isIncognito) {
+                // First restore values from data attributes immediately
+                const totalEl = document.getElementById('stat-total');
+                const budgetEl = document.getElementById('stat-budget');
+                const remainingEl = document.getElementById('stat-remaining');
+
+                // Restore from data attributes if available
+                if (totalEl) {
+                    const dataInitial = totalEl.getAttribute('data-initial');
+                    const dataValue = totalEl.getAttribute('data-value');
+                    if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
+                        // Remove "AZN" if present (since it's in separate span)
+                        totalEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                    } else if (dataValue) {
+                        const value = parseFloat(dataValue);
+                        if (!isNaN(value)) {
+                            totalEl.textContent = value.toFixed(2);
+                            totalEl.setAttribute('data-initial', value.toFixed(2));
+                        }
+                    }
+                    totalEl.removeAttribute('data-original');
+                    totalEl.classList.remove('incognito-processed', 'incognito-hidden');
+                    void totalEl.offsetHeight; // Force reflow
+                }
+                if (budgetEl) {
+                    const dataInitial = budgetEl.getAttribute('data-initial');
+                    const dataValue = budgetEl.getAttribute('data-value');
+                    if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
+                        budgetEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                    } else if (dataValue) {
+                        const value = parseFloat(dataValue);
+                        if (!isNaN(value)) {
+                            budgetEl.textContent = value.toFixed(2);
+                            budgetEl.setAttribute('data-initial', value.toFixed(2));
+                        }
+                    }
+                    budgetEl.removeAttribute('data-original');
+                    budgetEl.classList.remove('incognito-processed', 'incognito-hidden');
+                    void budgetEl.offsetHeight; // Force reflow
+                }
+                if (remainingEl) {
+                    const dataInitial = remainingEl.getAttribute('data-initial');
+                    const dataValue = remainingEl.getAttribute('data-value');
+                    if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
+                        remainingEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                    } else if (dataValue) {
+                        const value = parseFloat(dataValue);
+                        if (!isNaN(value)) {
+                            remainingEl.textContent = value.toFixed(2);
+                            remainingEl.setAttribute('data-initial', value.toFixed(2));
+                        }
+                    }
+                    remainingEl.removeAttribute('data-original');
+                    remainingEl.classList.remove('incognito-processed', 'incognito-hidden');
+                    void remainingEl.offsetHeight; // Force reflow
+                }
+
+                // Then animate after a short delay
+                setTimeout(() => {
+                    animateNumber('stat-total', {{ total_spending }});
+                animateNumber('stat-budget', {{ user.monthly_budget }});
     animateNumber('stat-remaining', {{ user.monthly_budget - total_spending }});
+                }, 300);
+            } else {
+        // Incognito mode-da sadəcə dəyərləri yaz, animasiya yox
+        const totalEl = document.getElementById('stat-total');
+        const budgetEl = document.getElementById('stat-budget');
+        const remainingEl = document.getElementById('stat-remaining');
+        if (totalEl) {
+            // Save current value before hiding
+            const currentText = totalEl.textContent;
+            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+                totalEl.setAttribute('data-initial', currentText);
+            }
+            totalEl.textContent = '****';
+        }
+        if (budgetEl) {
+            const currentText = budgetEl.textContent;
+            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+                budgetEl.setAttribute('data-initial', currentText);
+            }
+            budgetEl.textContent = '****';
+        }
+        if (remainingEl) {
+            const currentText = remainingEl.textContent;
+            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+                remainingEl.setAttribute('data-initial', currentText);
+            }
+            remainingEl.textContent = '****';
+        }
+    }
+        }
+
+    // Start counters on load
+    startDashboardCounters();
+
+    // Restart counters when incognito mode is disabled
+    window.restartDashboardCounters = function () {
+        startDashboardCounters();
+    };
+
+    // Listen for incognito disabled event
+    document.body.addEventListener('incognitoDisabled', function () {
+        startDashboardCounters();
+    });
 
     // D. Notification Demo
     setTimeout(() => {
@@ -1356,15 +1562,15 @@
     // Extract number from text (handles comma separators and negative numbers like -1,153.16)
     function extractNumber(text) {
         if (!text || text.includes('****')) return null;
-        
+
         // Check if number is negative (check before cleaning)
         const isNegative = text.trim().startsWith('-') || text.includes('−') || text.includes('−');
-        
+
         // Remove all non-numeric characters except dots and commas
         let cleaned = text.replace(/[^\d.,]/g, '').trim();
-        
+
         if (!cleaned) return null;
-        
+
         // Handle comma as thousand separator (1,000.00 -> 1000.00)
         if (cleaned.includes('.') && cleaned.includes(',')) {
             // If comma comes before dot, it's thousand separator (e.g., 1,000.00)
@@ -1388,10 +1594,10 @@
                 cleaned = cleaned.replace(/,/g, '');
             }
         }
-        
+
         const num = parseFloat(cleaned);
         if (isNaN(num)) return null;
-        
+
         // Return negative number if original text had minus sign
         return isNegative ? -num : num;
     }
@@ -1400,15 +1606,15 @@
     function numberToAzerbaijani(num) {
         if (isNaN(num) || num === 0) return 'sıfır';
         if (num < 0) return 'mənfi ' + numberToAzerbaijani(Math.abs(num));
-        
+
         const ones = ['', 'bir', 'iki', 'üç', 'dörd', 'beş', 'altı', 'yeddi', 'səkkiz', 'doqquz'];
         const tens = ['', 'on', 'iyirmi', 'otuz', 'qırx', 'əlli', 'altmış', 'yetmiş', 'səksən', 'doxsan'];
-        
+
         // Handle decimal part
         const parts = num.toString().split('.');
         const integerPart = Math.floor(num);
         const decimalPart = parts.length > 1 ? Math.round(parseFloat('0.' + parts[1]) * 100) : 0;
-        
+
         function convertInteger(n) {
             if (n === 0) return '';
             if (n < 10) return ones[n];
@@ -1439,9 +1645,9 @@
             }
             return n.toString();
         }
-        
+
         let result = convertInteger(integerPart).trim();
-        
+
         // Add decimal part if exists
         if (decimalPart > 0) {
             const decimalWord = convertInteger(decimalPart).trim();
@@ -1449,7 +1655,7 @@
         } else {
             result += ' manat';
         }
-        
+
         return result;
     }
 
@@ -1457,15 +1663,15 @@
     function numberToAzerbaijaniWords(num) {
         if (isNaN(num) || num === 0) return 'sıfır';
         if (num < 0) return 'mənfi ' + numberToAzerbaijaniWords(Math.abs(num));
-        
+
         const ones = ['', 'bir', 'iki', 'üç', 'dörd', 'beş', 'altı', 'yeddi', 'səkkiz', 'doqquz'];
         const tens = ['', 'on', 'iyirmi', 'otuz', 'qırx', 'əlli', 'altmış', 'yetmiş', 'səksən', 'doxsan'];
-        
+
         // Handle decimal part
         const parts = num.toString().split('.');
         const integerPart = Math.floor(num);
         const decimalPart = parts.length > 1 ? Math.round(parseFloat('0.' + parts[1]) * 100) : 0;
-        
+
         function convertInteger(n) {
             if (n === 0) return '';
             if (n < 10) return ones[n];
@@ -1494,15 +1700,15 @@
             }
             return n.toString();
         }
-        
+
         let result = convertInteger(integerPart).trim();
-        
+
         // Add decimal part if exists (for eco score, just say the number without "manat")
         if (decimalPart > 0) {
             const decimalWord = convertInteger(decimalPart).trim();
             result += ' tam ' + decimalWord;
         }
-        
+
         return result;
     }
 
@@ -1515,7 +1721,7 @@
             const totalEl = document.getElementById('stat-total');
             const budgetEl = document.getElementById('stat-budget');
             const remainingEl = document.getElementById('stat-remaining');
-            
+
             // Find eco value - it's the next sibling after .eco-leaf
             const ecoLeaf = document.querySelector('.eco-leaf');
             const ecoValEl = ecoLeaf?.nextElementSibling;
@@ -1545,7 +1751,7 @@
 
             // Build summary with real values only (no greeting, no buttons, no extra text)
             const summaryParts = [];
-            
+
             if (totalNum !== null && !isNaN(totalNum) && totalNum !== 0) {
                 summaryParts.push(`Ümumi xərc ${numberToAzerbaijani(totalNum)}dir`);
             }
@@ -1559,7 +1765,7 @@
             if (ecoValNum !== null && !isNaN(ecoValNum) && ecoValNum !== 0) {
                 summaryParts.push(`Eko iz ${numberToAzerbaijaniWords(ecoValNum)} kiloqram CO2dir`);
             }
-            
+
             const summary = summaryParts.join('. ');
             if (!summary || summary.trim() === '') return;
 

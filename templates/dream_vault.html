@@ -553,6 +553,18 @@
         const el = document.getElementById(elementId);
         if (!el) return;
         
+        // Check incognito mode first - if enabled, don't animate
+        const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+        if (isIncognito) {
+            // In incognito mode, just set to hidden value
+            if (elementId.includes('progress')) {
+                el.textContent = '****%';
+            } else {
+                el.textContent = '**** AZN';
+            }
+            return;
+        }
+        
         // Check if element is visible
         const rect = el.getBoundingClientRect();
         const isVisible = rect.top < window.innerHeight && rect.bottom > 0 && 
@@ -641,6 +653,27 @@
                 initStatsObserver();
             }, 100);
         }
+    });
+    
+    // Restart counters when incognito mode is disabled
+    window.restartDreamVaultCounters = function() {
+        const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+        if (!isIncognito) {
+            // Reset animation flag and restart observer
+            hasAnimated = false;
+            if (statsObserver) {
+                statsObserver.disconnect();
+                statsObserver = null;
+            }
+            setTimeout(() => {
+                initStatsObserver();
+            }, 100);
+        }
+    };
+    
+    // Listen for incognito disabled event
+    document.body.addEventListener('incognitoDisabled', function() {
+        window.restartDreamVaultCounters();
     });
 
     function handleDreamError(event) {

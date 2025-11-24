@@ -414,6 +414,37 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     dream_progress = (dream_saved / dream_goal) * 100
     dream_blur = max(0, 20 - (dream_progress / 100 * 20))  # 20px at 0%, 0px at 100%
 
+    # ===== NEW: LOCAL GEMS - Find expensive expenses and suggest alternatives =====
+    from local_gems import find_local_gems, format_gem_suggestion
+    local_gems_suggestions = []
+    
+    # Find expensive expenses (above average or specific expensive merchants)
+    expensive_merchants = ["Starbucks", "McDonald's", "KFC", "Papa John's", "Kino", "Cinema"]
+    for expense in recent_expenses[:5]:  # Check last 5 expenses
+        merchant = expense.merchant
+        amount = expense.amount
+        
+        # Check if it's an expensive merchant or above average amount
+        is_expensive = any(exp_merchant.lower() in merchant.lower() for exp_merchant in expensive_merchants)
+        avg_amount = total_spending / len(expenses) if expenses else 0
+        is_above_avg = amount > avg_amount * 1.5 if avg_amount > 0 else False
+        
+        if is_expensive or is_above_avg:
+            alternatives = find_local_gems(merchant, amount, expense.category)
+            if alternatives:
+                gem_text = format_gem_suggestion(merchant, amount, alternatives)
+                if gem_text:
+                    local_gems_suggestions.append({
+                        "merchant": merchant,
+                        "amount": amount,
+                        "category": expense.category,
+                        "suggestions": gem_text,
+                        "alternatives": alternatives[:2]  # Top 2 alternatives
+                    })
+    
+    # Limit to 3 suggestions max
+    local_gems_suggestions = local_gems_suggestions[:3]
+
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user": user,
@@ -435,7 +466,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_goal": dream_goal,
         "dream_saved": dream_saved,
         "dream_progress": dream_progress,
-        "dream_blur": dream_blur
+        "dream_blur": dream_blur,
+        "local_gems": local_gems_suggestions
     })
 
 
