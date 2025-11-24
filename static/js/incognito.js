@@ -30,6 +30,9 @@
     // Cache for processed elements
     let processedCache = new WeakSet();
 
+    // Global counter instances to track and stop animations
+    let activeCounters = [];
+
     // Optimized hide amount function
     function hideAmountInElement(el) {
         if (!el || processedCache.has(el) || el.closest('.incognito-ignore')) {
@@ -58,21 +61,31 @@
         }
     }
 
-    // Optimized hide all amounts function
+    // Optimized hide all amounts function - NO COUNTER ANIMATION
     window.hideAllAmounts = function () {
+        // IMPORTANT: Stop any running counter animations immediately
+        if (activeCounters && activeCounters.length > 0) {
+            activeCounters.forEach(counter => {
+                if (counter && typeof counter.reset === 'function') {
+                    counter.reset();
+                }
+            });
+            activeCounters = [];
+        }
+
         // Use requestAnimationFrame for smooth performance
         requestAnimationFrame(() => {
-            // Hide dashboard stats by ID (FIRST) - most important
+            // Hide dashboard stats by ID (FIRST) - most important - NO ANIMATION
             const statsIds = ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'];
             statsIds.forEach(id => {
                 const el = document.getElementById(id);
-                if (el && !processedCache.has(el)) {
+                if (el) {
                     // Get original value from data-initial or data-value first, then from text
                     const dataInitial = el.getAttribute('data-initial');
                     const dataValue = el.getAttribute('data-value');
                     const text = el.textContent || el.innerText || '';
 
-                    // Determine original value
+                    // Determine original value and save it
                     let original = el.getAttribute('data-original');
                     if (!original || original === '****' || original.includes('****')) {
                         if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
@@ -80,20 +93,21 @@
                         } else if (dataValue) {
                             const value = parseFloat(dataValue);
                             if (!isNaN(value)) {
-                                original = value.toFixed(2) + ' AZN';
+                                original = value.toFixed(2);
                             } else {
                                 original = text;
                             }
                         } else if (text && text.match(/[\d,]+\.?\d*/) && text !== '****' && !text.includes('****')) {
                             original = text;
                         } else {
-                            original = text; // Fallback
+                            original = text;
                         }
                     }
 
-                    if (original && original !== '****' && !original.includes('****') && original.match(/[\d,]+\.?\d*/)) {
+                    if (original && original !== '****' && !original.includes('****')) {
                         el.setAttribute('data-original', original);
-                        el.textContent = original.replace(/[\d,]+\.?\d*/g, '****');
+                        // INSTANT HIDE - no counter animation
+                        el.textContent = '****';
                         el.classList.add('incognito-processed');
                         processedCache.add(el);
                     }
@@ -144,10 +158,16 @@
         });
     };
 
-    // Show all amounts function
+    // Show all amounts function - WITH COUNTER ANIMATION
     window.showAllAmounts = function () {
-        // Restore dashboard stats FIRST - get original values from data attributes
-        ['stat-total', 'stat-budget', 'stat-remaining', 'projected-balance', 'monthly-savings'].forEach(id => {
+        // Clear active counters array
+        activeCounters = [];
+
+        // Check if CountUp is available
+        const CountUpCtor = window.CountUp?.CountUp || window.CountUp || window.countUp?.CountUp || window.countUp;
+
+        // Restore dashboard stats FIRST - with counter animation
+        ['stat-total', 'stat-budget', 'stat-remaining'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 // Priority: data-initial > data-value > data-original
@@ -155,55 +175,65 @@
 
                 const dataInitial = el.getAttribute('data-initial');
                 const dataValue = el.getAttribute('data-value');
+                const dataOriginal = el.getAttribute('data-original');
 
                 if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****') && dataInitial.match(/[\d,]+\.?\d*/)) {
                     // Remove "AZN" if present (since AZN is in separate span for stat elements)
-                    if (id === 'stat-total' || id === 'stat-budget' || id === 'stat-remaining') {
-                        restoreValue = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
-                    } else {
-                        restoreValue = dataInitial;
-                    }
+                    restoreValue = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
                 } else if (dataValue) {
                     const value = parseFloat(dataValue);
                     if (!isNaN(value)) {
-                        if (id.includes('progress') || id.includes('percentage')) {
-                            restoreValue = value.toFixed(1) + '%';
-                        } else if (id === 'stat-total' || id === 'stat-budget' || id === 'stat-remaining') {
-                            restoreValue = value.toFixed(2); // No AZN for stat elements
-                        } else {
-                            restoreValue = value.toFixed(2) + ' AZN';
-                        }
+                        restoreValue = value.toFixed(2);
                     }
-                } else {
-                    const original = el.getAttribute('data-original');
-                    if (original && original !== '****' && !original.includes('****') && original.match(/[\d,]+\.?\d*/)) {
-                        if (id === 'stat-total' || id === 'stat-budget' || id === 'stat-remaining') {
-                            restoreValue = original.replace(/\s*AZN\s*/gi, '').trim();
-                        } else {
-                            restoreValue = original;
-                        }
-                    }
+                } else if (dataOriginal && dataOriginal !== '****' && !dataOriginal.includes('****')) {
+                    restoreValue = dataOriginal.replace(/\s*AZN\s*/gi, '').trim();
                 }
 
                 if (restoreValue) {
-                    el.textContent = restoreValue;
+                    const numericValue = parseFloat(restoreValue.replace(/,/g, ''));
+
+                    // Use CountUp animation if available
+                    if (CountUpCtor && !isNaN(numericValue)) {
+                        try {
+                            const counter = new CountUpCtor(id, numericValue, {
+                                duration: 1.5,
+                                separator: ',',
+                                decimalPlaces: 2,
+                                startVal: 0
+                            });
+
+                            if (!counter.error) {
+                                counter.start();
+                                activeCounters.push(counter);
+                            } else {
+                                // Fallback without animation
+                                el.textContent = restoreValue;
+                            }
+                        } catch (e) {
+                            console.warn('CountUp error:', e);
+                            el.textContent = restoreValue;
+                        }
+                    } else {
+                        // Fallback without animation
+                        el.textContent = restoreValue;
+                    }
+
                     el.removeAttribute('data-original');
                     el.classList.remove('incognito-processed', 'incognito-hidden');
                     el.style.display = '';
                     el.style.visibility = 'visible';
                     el.style.opacity = '1';
                     processedCache.delete(el);
-                    // Force reflow
-                    void el.offsetHeight;
                 }
             }
         });
 
+        // Restore other elements without animation
         requestAnimationFrame(() => {
             // Clear cache after restoring stats
             processedCache = new WeakSet();
 
-            // Restore all hidden elements
+            // Restore all hidden elements (without counter animation)
             document.querySelectorAll('.incognito-hidden').forEach(el => {
                 const original = el.getAttribute('data-original');
                 if (original && original !== '****' && !original.includes('****')) {
@@ -220,17 +250,26 @@
         const alertCounter = document.getElementById('alert-counter');
 
         if (enabled) {
+            // IMPORTANT: Stop all running counters FIRST
+            if (activeCounters && activeCounters.length > 0) {
+                activeCounters.forEach(counter => {
+                    if (counter && typeof counter.reset === 'function') {
+                        counter.reset();
+                    }
+                });
+                activeCounters = [];
+            }
+
             document.body.classList.add('incognito-mode');
             localStorage.setItem('incognito-mode', 'enabled');
             if (alertCounter) {
                 alertCounter.style.display = 'none';
             }
-            // Use requestAnimationFrame for smooth transition
-            requestAnimationFrame(() => {
-                if (window.hideAllAmounts) {
-                    window.hideAllAmounts();
-                }
-            });
+
+            // INSTANT hide - no delays
+            if (window.hideAllAmounts) {
+                window.hideAllAmounts();
+            }
             updateEyeIcons(true);
         } else {
             document.body.classList.remove('incognito-mode');
@@ -240,81 +279,10 @@
             }
             updateEyeIcons(false);
 
-            // Immediately restore dashboard stats from data attributes - FORCE RESTORE
-            const statIds = ['stat-total', 'stat-budget', 'stat-remaining'];
-            statIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    // Try data-initial first, then data-value
-                    let restoreValue = null;
-                    const dataInitial = el.getAttribute('data-initial');
-                    const dataValue = el.getAttribute('data-value');
-
-                    // Force restore from data attributes
-                    if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
-                        // Remove "AZN" from data-initial if present (since AZN is in separate span)
-                        restoreValue = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
-                    } else if (dataValue) {
-                        const value = parseFloat(dataValue);
-                        if (!isNaN(value)) {
-                            restoreValue = value.toFixed(2);
-                        }
-                    }
-
-                    if (restoreValue) {
-                        // Force set text content
-                        el.textContent = restoreValue;
-                        el.innerText = restoreValue;
-                        el.removeAttribute('data-original');
-                        el.classList.remove('incognito-processed', 'incognito-hidden');
-                        // Force update to ensure visibility
-                        el.style.display = '';
-                        el.style.visibility = 'visible';
-                        el.style.opacity = '1';
-                        el.style.color = ''; // Reset color
-                        // Force reflow multiple times
-                        void el.offsetHeight;
-                        requestAnimationFrame(() => {
-                            void el.offsetHeight;
-                        });
-                    }
-                }
-            });
-
-            // Show all amounts immediately
+            // Show all amounts with counter animation
             if (window.showAllAmounts) {
                 window.showAllAmounts();
             }
-
-            // Force show all amounts again after a short delay
-            setTimeout(() => {
-                if (window.showAllAmounts) {
-                    window.showAllAmounts();
-                }
-            }, 100);
-
-            // Restart counters when incognito mode is disabled
-            setTimeout(() => {
-                // Trigger counter restart event
-                document.body.dispatchEvent(new CustomEvent('incognitoDisabled'));
-
-                // Dashboard counters
-                if (typeof window.restartDashboardCounters === 'function') {
-                    window.restartDashboardCounters();
-                }
-
-                // Dream Vault counters
-                if (typeof window.restartDreamVaultCounters === 'function') {
-                    window.restartDreamVaultCounters();
-                }
-
-                // Final restore after counters
-                setTimeout(() => {
-                    if (window.showAllAmounts) {
-                        window.showAllAmounts();
-                    }
-                }, 500);
-            }, 200);
         }
     };
 
@@ -391,6 +359,16 @@
                         }
                     });
                 } else {
+                    // HIDE: Stop all running counters FIRST
+                    if (activeCounters && activeCounters.length > 0) {
+                        activeCounters.forEach(counter => {
+                            if (counter && typeof counter.reset === 'function') {
+                                counter.reset();
+                            }
+                        });
+                        activeCounters = [];
+                    }
+
                     document.body.classList.add('incognito-mode');
                     localStorage.setItem('incognito-mode', 'enabled');
                     updateEyeIcons(true);
@@ -424,11 +402,8 @@
             }
             if (window.hideAllAmounts) {
                 window.hideAllAmounts();
-                setTimeout(() => {
-                    window.hideAllAmounts();
-                    updateEyeIcons(true);
-                }, 500);
             }
+            updateEyeIcons(true);
         } else {
             if (alertCounter) {
                 alertCounter.style.display = 'block';
