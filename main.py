@@ -760,24 +760,39 @@ async def scan_receipt(
             receipt_data["time"] = expense_date.strftime("%H:%M")
             receipt_data["date_time"] = expense_date.strftime("%d.%m.%Y, %H:%M")
 
-            # Check daily budget limit
+            # Check daily budget limit - only for today's receipts
             daily_limit_alert = None
             if user.daily_budget_limit:
+                # Use receipt date
+                receipt_date = expense_date.date() if isinstance(expense_date, datetime) else expense_date
                 today = date_type.today()
-                today_expenses = db.query(Expense).filter(
-                    Expense.user_id == user.id,
-                    Expense.date >= today,
-                    Expense.date < today + timedelta(days=1)
-                ).all()
-                today_total = sum(exp.amount for exp in today_expenses)
                 
-                if today_total > user.daily_budget_limit:
-                    daily_limit_alert = {
-                        "type": "daily_limit_exceeded",
-                        "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
-                        "today_spending": today_total,
-                        "limit": user.daily_budget_limit
-                    }
+                # Only check limit if receipt is from today
+                if receipt_date == today:
+                    day_start = datetime.combine(today, datetime.min.time())
+                    day_end = datetime.combine(today, datetime.max.time())
+                    
+                    today_expenses = db.query(Expense).filter(
+                        Expense.user_id == user.id,
+                        Expense.date >= day_start,
+                        Expense.date <= day_end
+                    ).all()
+                    today_total = sum(exp.amount for exp in today_expenses)
+                    
+                    if today_total > user.daily_budget_limit:
+                        daily_limit_alert = {
+                            "type": "daily_limit_exceeded",
+                            "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                            "today_spending": today_total,
+                            "limit": user.daily_budget_limit
+                        }
+                    elif today_total > user.daily_budget_limit * 0.9:
+                        daily_limit_alert = {
+                            "type": "approaching",
+                            "message": f"⚡ Gündəlik limitə yaxınlaşırsınız! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                            "today_spending": today_total,
+                            "limit": user.daily_budget_limit
+                        }
 
             scan_xp = gamification.award_xp(user, "scan_receipt", db)
             db.refresh(user)
@@ -863,24 +878,46 @@ async def confirm_receipt(
         db.add(expense)
         db.commit()
         
-        # Check daily budget limit
+        # Check daily budget limit - only for today's receipts
         daily_limit_alert = None
         if user.daily_budget_limit:
-            today = date_type.today()
-            today_expenses = db.query(Expense).filter(
-                Expense.user_id == user.id,
-                Expense.date >= today,
-                Expense.date < today + timedelta(days=1)
-            ).all()
-            today_total = sum(exp.amount for exp in today_expenses)
+            # Parse date from form
+            try:
+                if not date:
+                    receipt_date = date_type.today()
+                else:
+                    receipt_date = datetime.strptime(date, "%Y-%m-%d").date()
+            except:
+                receipt_date = date_type.today()
             
-            if today_total > user.daily_budget_limit:
-                daily_limit_alert = {
-                    "type": "daily_limit_exceeded",
-                    "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
-                    "today_spending": today_total,
-                    "limit": user.daily_budget_limit
-                }
+            today = date_type.today()
+            
+            # Only check limit if receipt is from today
+            if receipt_date == today:
+                day_start = datetime.combine(today, datetime.min.time())
+                day_end = datetime.combine(today, datetime.max.time())
+                
+                today_expenses = db.query(Expense).filter(
+                    Expense.user_id == user.id,
+                    Expense.date >= day_start,
+                    Expense.date <= day_end
+                ).all()
+                today_total = sum(exp.amount for exp in today_expenses)
+                
+                if today_total > user.daily_budget_limit:
+                    daily_limit_alert = {
+                        "type": "daily_limit_exceeded",
+                        "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                        "today_spending": today_total,
+                        "limit": user.daily_budget_limit
+                    }
+                elif today_total > user.daily_budget_limit * 0.9:
+                    daily_limit_alert = {
+                        "type": "approaching",
+                        "message": f"⚡ Gündəlik limitə yaxınlaşırsınız! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                        "today_spending": today_total,
+                        "limit": user.daily_budget_limit
+                    }
         
         # Award XP for scanning receipt
         scan_xp = gamification.award_xp(user, "scan_receipt", db)
