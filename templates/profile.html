@@ -14,7 +14,17 @@
 
     /* Level Card Responsive */
     .level-card {
-        transition: all 0.6s ease-in-out;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+    
+    /* Level class transitions - instant change */
+    .level-manager,
+    .level-rookie,
+    .level-saver,
+    .level-analyst,
+    .level-cfo,
+    .level-master {
+        transition: background 0.2s ease-in-out !important;
     }
 
     @media (max-width: 768px) {
@@ -105,31 +115,37 @@
     body.theme-gold .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #3d2a00 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     body.theme-midnight .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #1a1a1a 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     body.theme-ocean .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #005a8a 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     body.theme-forest .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #2d5a2d 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     body.theme-sunset .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #8b4513 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     body.theme-royal .level-card {
         background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #4a2c6b 100%) !important;
         border-color: var(--glass-border) !important;
+        transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     }
 
     /* Progress Bar Theme Colors - Use CSS Variables */
@@ -561,6 +577,7 @@
     {% elif level_info.title == 'Analyst' %}level-analyst
     {% elif level_info.title == 'CFO' %}level-cfo
     {% else %}level-master{% endif %}" 
+    id="level-card"
     style="animation-delay: 0.05s;">
     <!-- Animated Background Pattern -->
     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-20">
@@ -617,7 +634,7 @@
 
             <!-- Animated Progress Bar -->
             <div class="w-full h-3 md:h-4 bg-white/20 rounded-full overflow-hidden border-2 border-white/30">
-                <div class="h-full rounded-full transition-all duration-1000 ease-out progress-bar-theme
+                <div class="h-full rounded-full transition-all duration-300 ease-out progress-bar-theme
                     {% if level_info.title == 'Manager' %}
                     bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400
                     {% elif level_info.title == 'Rookie' %}
@@ -631,6 +648,7 @@
                     {% else %}
                     bg-gradient-to-r from-pink-300 via-rose-400 to-red-400
                     {% endif %} shadow-lg"
+                    id="level-progress-bar"
                     style="width: {{ level_info.progress_percentage }}%">
                 </div>
             </div>
@@ -856,5 +874,39 @@
 });
 
     // sharePersonality function is now in /static/js/personality-share.js
+    
+    // Fast level transition on page load/update
+    document.addEventListener('DOMContentLoaded', function() {
+        const levelCard = document.getElementById('level-card');
+        const progressBar = document.getElementById('level-progress-bar');
+        
+        if (levelCard && progressBar) {
+            // Force immediate style update for instant transition
+            levelCard.style.transition = 'background 0.2s ease-in-out, border-color 0.2s ease-in-out';
+            progressBar.style.transition = 'width 0.3s ease-out, background 0.2s ease-in-out';
+            
+            // Trigger reflow to ensure styles are applied
+            void levelCard.offsetHeight;
+            void progressBar.offsetHeight;
+        }
+    });
+    
+    // Listen for HTMX updates (if profile is updated via HTMX)
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.detail.target.id === 'level-card' || event.detail.target.querySelector('#level-card')) {
+            const levelCard = document.getElementById('level-card');
+            const progressBar = document.getElementById('level-progress-bar');
+            
+            if (levelCard && progressBar) {
+                // Reset and apply fast transition
+                levelCard.style.transition = 'background 0.2s ease-in-out, border-color 0.2s ease-in-out';
+                progressBar.style.transition = 'width 0.3s ease-out, background 0.2s ease-in-out';
+                
+                // Force reflow
+                void levelCard.offsetHeight;
+                void progressBar.offsetHeight;
+            }
+        }
+    });
 </script>
 {% endblock %}

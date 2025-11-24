@@ -192,14 +192,13 @@
 
         /* Floating Scan Button - Theme Aware */
         .scan-btn {
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            box-shadow: 0 10px 30px rgba(236, 64, 122, 0.45);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
         .scan-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(236, 64, 122, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
         }
 
         /* Midnight theme - scan button: white border, black center */
@@ -510,13 +509,13 @@
 
     <!-- Bottom Navigation (Mobile Only) -->
     <div class="bottom-nav fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div class="max-w-md mx-auto px-3 sm:px-4 py-3">
+        <div class="max-w-md mx-auto px-2 sm:px-3 py-2.5 sm:py-3">
             <div class="flex items-center justify-between relative">
                 <!-- Left Side: 2 items -->
-                <div class="flex items-center justify-start gap-1 sm:gap-2 flex-1">
+                <div class="flex items-center justify-center gap-0.5 sm:gap-1 flex-1">
                     <!-- Dashboard -->
                     <a href="/"
-                        class="nav-item flex flex-col items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/' %}active bg-white/15 text-white{% endif %} min-w-[60px] sm:min-w-[70px]">
+                        class="nav-item flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/' %}active bg-white/15 text-white{% endif %} flex-1 max-w-[80px] sm:max-w-[90px]">
                         <div class="relative">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -525,12 +524,12 @@
                             </svg>
                             <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-green-400/50"></span>
                         </div>
-                        <span class="text-[10px] sm:text-xs font-medium leading-tight text-center whitespace-nowrap">Ana səhifə</span>
+                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ana səhifə</span>
                     </a>
 
                     <!-- Chat -->
                     <a href="/chat"
-                        class="nav-item flex flex-col items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/chat' %}active bg-white/15 text-white{% endif %} min-w-[60px] sm:min-w-[70px]">
+                        class="nav-item flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/chat' %}active bg-white/15 text-white{% endif %} flex-1 max-w-[80px] sm:max-w-[90px]">
                         <div class="relative">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -539,23 +538,24 @@
                             </svg>
                             <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-blue-400/50"></span>
                         </div>
-                        <span class="text-[10px] sm:text-xs font-medium leading-tight text-center whitespace-nowrap">Chat</span>
+                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Chat</span>
                     </a>
                 </div>
 
                 <!-- Center: Scan Button -->
                 <a href="/scan"
-                    class="scan-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative flex-shrink-0 z-10 mx-2 sm:mx-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
+                    class="scan-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative flex-shrink-0 z-10 mx-1 sm:mx-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                    style="background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);">
                     <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
                     </svg>
                 </a>
 
-                <!-- Right Side: 3 items (5 total with left) -->
-                <div class="flex items-center justify-end gap-1 sm:gap-2 flex-1">
+                <!-- Right Side: 3 items (Dreams, Map, Settings) -->
+                <div class="flex items-center justify-center gap-0.5 sm:gap-1 flex-1">
                     <!-- Dream Vault -->
                     <a href="/dream-vault"
-                        class="nav-item flex flex-col items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/dream-vault' %}active bg-white/15 text-white{% endif %} min-w-[60px] sm:min-w-[70px]">
+                        class="nav-item flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/dream-vault' %}active bg-white/15 text-white{% endif %} flex-1 max-w-[80px] sm:max-w-[90px]">
                         <div class="relative">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -564,12 +564,12 @@
                             </svg>
                             <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-yellow-400/50"></span>
                         </div>
-                        <span class="text-[10px] sm:text-xs font-medium leading-tight text-center whitespace-nowrap">Arzular</span>
+                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Arzular</span>
                     </a>
 
                     <!-- Heatmap/Map -->
                     <a href="/heatmap"
-                        class="nav-item flex flex-col items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/heatmap' %}active bg-white/15 text-white{% endif %} min-w-[60px] sm:min-w-[70px]">
+                        class="nav-item flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/heatmap' %}active bg-white/15 text-white{% endif %} flex-1 max-w-[80px] sm:max-w-[90px]">
                         <div class="relative">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -578,12 +578,12 @@
                             </svg>
                             <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-orange-400/50"></span>
                         </div>
-                        <span class="text-[10px] sm:text-xs font-medium leading-tight text-center whitespace-nowrap">Xəritə</span>
+                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Xəritə</span>
                     </a>
 
                     <!-- Settings -->
                     <a href="/settings"
-                        class="nav-item flex flex-col items-center justify-center gap-1 px-2 sm:px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/settings' %}active bg-white/15 text-white{% endif %} min-w-[60px] sm:min-w-[70px]">
+                        class="nav-item flex flex-col items-center justify-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 {% if request.url.path == '/settings' %}active bg-white/15 text-white{% endif %} flex-1 max-w-[80px] sm:max-w-[90px]">
                         <div class="relative">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -594,7 +594,7 @@
                             </svg>
                             <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-purple-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-purple-400/50"></span>
                         </div>
-                        <span class="text-[10px] sm:text-xs font-medium leading-tight text-center whitespace-nowrap">Ayarlar</span>
+                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ayarlar</span>
                     </a>
                 </div>
             </div>
