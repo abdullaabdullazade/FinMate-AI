@@ -120,7 +120,8 @@
     <h2 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">📸 Çek Skan et</h2>
     <p class="text-white/70 mb-4 sm:mb-6 text-sm sm:text-base">Çekin şəklini yükləyin, AI avtomatik məlumatları çıxarsın</p>
 
-    <form id="scanForm" hx-post="/api/scan-receipt" hx-target="#scanResult" hx-encoding="multipart/form-data"
+    <form id="scanForm" hx-post="/api/scan-receipt" hx-target="#scanResult" hx-encoding="multipart/form-data" 
+        hx-headers='js:{"X-Client-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "X-Client-Date": (() => { const now = new Date(); const azOffset = 4 * 60; const azTime = new Date(now.getTime() + (azOffset * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000)); return azTime.toISOString().slice(0, 19) + "+04:00"; })()}'
         class="space-y-4">
 
         <div class="border-2 border-dashed border-white/30 rounded-xl p-6 sm:p-8 text-center hover:border-white/50 transition cursor-pointer"
@@ -175,6 +176,16 @@
 </div>
 
 <script>
+    function getAzerbaijanTime() {
+        // Get current time in UTC+4 (Azerbaijan time)
+        const now = new Date();
+        // Get UTC time in milliseconds
+        const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+        // Add UTC+4 offset (4 hours = 4 * 60 * 60 * 1000 milliseconds)
+        const azTime = new Date(utcTime + (4 * 60 * 60 * 1000));
+        return azTime.toISOString();
+    }
+
     function handleFileSelect(input) {
         const fileName = input.files[0]?.name || 'Fayl seçilməyib';
         document.querySelector('.upload-filename').textContent = fileName;
@@ -182,6 +193,13 @@
         if (input.files[0]) {
             // Show scan modal
             document.getElementById('scanModal').classList.add('active');
+
+            // Set headers for HTMX request with Azerbaijan time
+            const form = input.form;
+            form.setAttribute('hx-headers', JSON.stringify({
+                "X-Client-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+                "X-Client-Date": getAzerbaijanTime()
+            }));
 
             // Submit form after showing modal
             setTimeout(() => {

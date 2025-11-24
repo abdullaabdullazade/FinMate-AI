@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-from datetime import datetime, timedelta, date as date_type
+from datetime import datetime, timedelta, date as date_type, timezone
 from typing import Optional
 import os
 import base64
@@ -638,7 +638,10 @@ async def scan_receipt(
         receipt_data["items"] = items
         receipt_data["merchant"] = receipt_data.get("merchant") or "Unknown Merchant"
         receipt_data["suggested_category"] = receipt_data.get("suggested_category") or "Other"
-        receipt_data["date"] = receipt_data.get("date") or datetime.now().strftime("%Y-%m-%d")
+        # Don't override date if AI extracted it, only set default if missing
+        if not receipt_data.get("date") or receipt_data.get("date") == "null":
+            # Will use current date/time from browser or UTC+4
+            receipt_data["date"] = None
     
         # Check if this is actually a receipt
         if not receipt_data.get("is_receipt", True):
@@ -689,10 +692,52 @@ async def scan_receipt(
         # Auto-save expense (skip manual confirmation)
         try:
             raw_date = receipt_data.get("date")
+            # Get client date/time from request headers (browser's local time)
+            client_date_str = request.headers.get("X-Client-Date", None)
+            
             try:
-                expense_date = datetime.strptime(raw_date, "%Y-%m-%d") if raw_date else datetime.now()
-            except Exception:
-                expense_date = datetime.now()
+                raw_time = receipt_data.get("time")
+                if raw_date and raw_date != "null" and raw_date.lower() != "none":
+                    # Use date from receipt if available (assume it's in Azerbaijan time UTC+4)
+                    if raw_time and raw_time != "null" and raw_time.lower() != "none":
+                        # Both date and time from receipt - treat as UTC+4
+                        try:
+                            time_parts = raw_time.split(":")
+                            hour = int(time_parts[0]) if len(time_parts) > 0 else 0
+                            minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+                            # Receipt time is already in Azerbaijan time (UTC+4), so use it directly
+                            expense_date = datetime.strptime(raw_date, "%Y-%m-%d").replace(hour=hour, minute=minute)
+                        except:
+                            expense_date = datetime.strptime(raw_date, "%Y-%m-%d")
+                    else:
+                        # Only date from receipt, use current time in UTC+4
+                        az_timezone = timezone(timedelta(hours=4))
+                        now_az = datetime.now(az_timezone)
+                        expense_date = datetime.strptime(raw_date, "%Y-%m-%d").replace(hour=now_az.hour, minute=now_az.minute)
+                elif client_date_str:
+                    # Use browser's local time, but convert to UTC+4 (Azerbaijan time)
+                    from dateutil import parser
+                    client_datetime = parser.isoparse(client_date_str)
+                    # If browser sends UTC time, convert to UTC+4
+                    # If browser sends local time, assume it's already in user's timezone
+                    # For Azerbaijan, we want UTC+4
+                    if client_datetime.tzinfo is None:
+                        # No timezone info, assume it's UTC and convert to UTC+4
+                        az_timezone = timezone(timedelta(hours=4))
+                        expense_date = client_datetime.replace(tzinfo=timezone.utc).astimezone(az_timezone).replace(tzinfo=None)
+                    else:
+                        # Has timezone, convert to UTC+4
+                        az_timezone = timezone(timedelta(hours=4))
+                        expense_date = client_datetime.astimezone(az_timezone).replace(tzinfo=None)
+                else:
+                    # Fallback to UTC+4 (Azerbaijan time) - current date and time
+                    az_timezone = timezone(timedelta(hours=4))
+                    expense_date = datetime.now(az_timezone).replace(tzinfo=None)
+            except Exception as date_err:
+                # Fallback to UTC+4 - current date and time
+                print(f"Date parsing error: {date_err}, using current time")
+                az_timezone = timezone(timedelta(hours=4))
+                expense_date = datetime.now(az_timezone).replace(tzinfo=None)
 
             items_list = receipt_data.get("items", [])
             if not isinstance(items_list, list):
@@ -708,6 +753,12 @@ async def scan_receipt(
             )
             db.add(expense)
             db.commit()
+            db.refresh(expense)
+            
+            # Update receipt_data with formatted date/time for display
+            receipt_data["date"] = expense_date.strftime("%d.%m.%Y")
+            receipt_data["time"] = expense_date.strftime("%H:%M")
+            receipt_data["date_time"] = expense_date.strftime("%d.%m.%Y, %H:%M")
 
             # Check daily budget limit
             daily_limit_alert = None
@@ -780,14 +831,18 @@ async def confirm_receipt(
     user = get_current_user(db)
     
     try:
-        # Parse date safely
+        # Parse date safely - use UTC+4 (Azerbaijan time) or browser time
         try:
             if not date:
-                expense_date = datetime.now()
+                from datetime import timezone as tz
+                az_timezone = tz(timedelta(hours=4))
+                expense_date = datetime.now(az_timezone).replace(tzinfo=None)
             else:
                 expense_date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
-            expense_date = datetime.now()
+            from datetime import timezone as tz
+            az_timezone = tz(timedelta(hours=4))
+            expense_date = datetime.now(az_timezone).replace(tzinfo=None)
         
         # Parse items JSON
         import json

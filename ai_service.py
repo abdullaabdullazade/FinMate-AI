@@ -366,7 +366,8 @@ If it IS a receipt, extract the following information in JSON format:
 {
     "is_receipt": true,
     "merchant": "name of the store/restaurant",
-    "date": "date in YYYY-MM-DD format",
+    "date": "date in YYYY-MM-DD format (if available on receipt, otherwise use null)",
+    "time": "time in HH:MM format (if available on receipt, otherwise use null)",
     "currency": "AZN or currency code (USD, EUR, TRY, RUB, GBP)",
     "items": [
         {"name": "item name", "price": 0.00},
@@ -376,8 +377,11 @@ If it IS a receipt, extract the following information in JSON format:
     "suggested_category": "one of: Food, Transport, Shopping, Bills, Entertainment, Health, Other"
 }
 
-Be accurate with numbers. If you can't read something clearly, use your best judgment.
-If the currency appears to be foreign, set the correct currency code.
+IMPORTANT: 
+- Extract the date and time from the receipt if they are visible
+- If date/time is NOT visible on the receipt, set "date" and "time" to null
+- Be accurate with numbers. If you can't read something clearly, use your best judgment.
+- If the currency appears to be foreign, set the correct currency code.
 Return ONLY the JSON, no additional text."""
 
         try:
@@ -419,7 +423,8 @@ Return ONLY the JSON, no additional text."""
         return {
             "is_receipt": True,
             "merchant": merchant_guess or "Qəbz",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": None,  # Will use current date/time from browser or UTC+4
+            "time": None,
             "currency": "AZN",
             "items": [],
             "total": 0.0,

@@ -31,7 +31,15 @@
                 <span class="text-3xl">🧾</span>
             </div>
             <h3 class="text-2xl font-bold text-white mb-1">Qəbz oxundu</h3>
-            <p class="text-white/60 text-sm">{{ receipt_data.date }}</p>
+            <p class="text-white/60 text-sm">
+                {% if receipt_data.date_time %}
+                    {{ receipt_data.date_time }}
+                {% elif receipt_data.date %}
+                    {{ receipt_data.date }}{% if receipt_data.time %}, {{ receipt_data.time }}{% endif %}
+                {% else %}
+                    {{ receipt_data.date }}
+                {% endif %}
+            </p>
         </div>
 
         <!-- XP Award Banner -->
