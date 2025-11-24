@@ -11,6 +11,7 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=True)  # Hashed password (nullable for demo user)
     monthly_budget = Column(Float, default=1000.0)
     
     # Gamification fields

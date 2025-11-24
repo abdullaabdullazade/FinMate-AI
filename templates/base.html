@@ -488,14 +488,20 @@
                     <span class="text-[9px] sm:text-[10px] text-white/60">{{ user.xp_points }} XP</span>
                 </div>
                 {% endif %}
-                <!-- Profile -->
-                <a href="/profile" class="relative flex-shrink-0 group">
-                    <div id="user-avatar"
-                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110"
-                        style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
-                        {{ user.username[0].upper() if user else 'D' }}
+                <!-- Profile / Logout -->
+                <div class="relative flex-shrink-0 group">
+                    <a href="/profile" class="relative">
+                        <div id="user-avatar"
+                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110"
+                            style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
+                            {{ user.username[0].upper() if user else 'D' }}
+                        </div>
+                    </a>
+                    <div class="hidden group-hover:block absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-50">
+                        <a href="/profile" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition">Profil</a>
+                        <a href="/logout" class="block px-4 py-2 text-red-400 hover:text-red-300 hover:bg-white/10 transition">Çıxış</a>
                     </div>
-                </a>
+                </div>
             </div>
         </div>
     </div>

@@ -87,11 +87,14 @@ self.addEventListener('fetch', (event) => {
                         if (cachedResponse) {
                             return cachedResponse;
                         }
-                        // If no cache and we're offline, show offline page
-                        if (request.mode === 'navigate') {
-                            return caches.match(OFFLINE_URL);
-                        }
-                        return new Response('Offline', { status: 503 });
+                        // If no cache and we're offline, don't redirect to offline page
+                        // The offline banner will be shown by offline.js on the current page
+                        // Return error response - browser will handle it, but user stays on current page
+                        return new Response('Network error', { 
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: { 'Content-Type': 'text/plain' }
+                        });
                     });
                 })
         );

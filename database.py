@@ -57,6 +57,7 @@ def ensure_schema():
     add_column_if_missing("users", "login_streak INTEGER DEFAULT 0")
     add_column_if_missing("users", "last_login_date DATE")
     add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
+    add_column_if_missing("users", "password_hash VARCHAR")
 
     # Expense table safety
     add_column_if_missing("expenses", "is_subscription BOOLEAN DEFAULT 0")
@@ -73,15 +74,16 @@ def seed_demo_data():
     db = SessionLocal()
     
     # Check if data already exists
-    existing_user = db.query(User).filter(User.username == "demo_user").first()
+    existing_user = db.query(User).filter(User.username == "demo").first()
     if existing_user:
         print("ℹ️ Demo data already present, skipping seed to preserve operations")
         db.close()
         return
     
-    # Create demo user
+    # Create demo user (username: demo, password: demo)
     demo_user = User(
-        username="demo_user",
+        username="demo",
+        password_hash=None,  # Demo user has no password hash (login checks password directly)
         monthly_budget=3000.0,  # 3000 AZN monthly budget
         currency="AZN",
         is_premium=True
@@ -197,7 +199,8 @@ def reset_demo_data():
     Base.metadata.create_all(bind=engine)
 
     demo_user = User(
-        username="demo_user",
+        username="demo",
+        password_hash=None,  # Demo user has no password hash
         monthly_budget=3000.0,
         currency="AZN",
         is_premium=True

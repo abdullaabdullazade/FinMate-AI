@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends, UploadFile, File, Form, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,6 +11,7 @@ import os
 import base64
 import asyncio
 from dotenv import load_dotenv
+from starlette.middleware.sessions import SessionMiddleware
 
 # Load environment variables
 load_dotenv()
@@ -36,6 +37,9 @@ CURRENCY_RATES = {
 
 # Initialize FastAPI app
 app = FastAPI(title="FinMate AI", description="Your Personal CFO Assistant")
+
+# Add session middleware
+app.add_middleware(SessionMiddleware, secret_key="finmate-secret-key-change-in-production")
 
 # Templates
 templates = Jinja2Templates(directory="templates")
@@ -71,17 +75,29 @@ async def offline_page(request: Request):
 
 # ==================== HELPER FUNCTIONS ====================
 
-def get_current_user(db: Session) -> User:
-    """Get the demo user (in production, this would use authentication)"""
-    # Always query fresh to avoid stale data
-    db.expire_all()  # Expire all cached objects
-    user = db.query(User).filter(User.username == "demo_user").first()
+def hash_password(password: str) -> str:
+    """Hash password using SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """Verify password against hash"""
+    return hash_password(password) == password_hash
+
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> Optional[User]:
+    """Get current logged in user from session"""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return None
+    
+    db.expire_all()
+    user = db.query(User).filter(User.id == user_id).first()
+    return user
+
+def require_auth(request: Request, db: Session = Depends(get_db)) -> User:
+    """Require authentication, redirect to login if not authenticated"""
+    user = get_current_user(request, db)
     if not user:
-        # Create demo user if doesn't exist
-        user = User(username="demo_user", monthly_budget=3000.0)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        raise HTTPException(status_code=401, detail="Authentication required")
     return user
 
 
@@ -340,12 +356,127 @@ def detect_financial_personality(user_id: int, db: Session) -> dict:
         }
 
 
+# ==================== AUTH ROUTES ====================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Login page"""
+    # If already logged in, redirect to dashboard
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/api/login")
+async def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Handle login"""
+    user = db.query(User).filter(User.username == username).first()
+    
+    # Check for demo user (password: "demo")
+    if username == "demo" and password == "demo":
+        # Find or create demo user
+        user = db.query(User).filter(User.username == "demo").first()
+        if not user:
+            user = User(username="demo", monthly_budget=3000.0, password_hash=None)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        request.session["user_id"] = user.id
+        return RedirectResponse(url="/", status_code=303)
+    
+    # Check for regular users
+    if not user or not user.password_hash:
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "error": "İstifadəçi adı və ya şifrə yanlışdır"
+        })
+    
+    if not verify_password(password, user.password_hash):
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "error": "İstifadəçi adı və ya şifrə yanlışdır"
+        })
+    
+    request.session["user_id"] = user.id
+    return RedirectResponse(url="/", status_code=303)
+
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_page(request: Request):
+    """Signup page"""
+    # If already logged in, redirect to dashboard
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+@app.post("/api/signup")
+async def signup(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Handle signup"""
+    # Validation
+    if password != confirm_password:
+        return templates.TemplateResponse("signup.html", {
+            "request": request,
+            "error": "Şifrələr uyğun gəlmir"
+        })
+    
+    if len(password) < 4:
+        return templates.TemplateResponse("signup.html", {
+            "request": request,
+            "error": "Şifrə ən azı 4 simvol olmalıdır"
+        })
+    
+    if len(username) < 3:
+        return templates.TemplateResponse("signup.html", {
+            "request": request,
+            "error": "İstifadəçi adı ən azı 3 simvol olmalıdır"
+        })
+    
+    # Check if user exists
+    existing_user = db.query(User).filter(User.username == username).first()
+    if existing_user:
+        return templates.TemplateResponse("signup.html", {
+            "request": request,
+            "error": "Bu istifadəçi adı artıq mövcuddur"
+        })
+    
+    # Create new user
+    password_hash = hash_password(password)
+    new_user = User(
+        username=username,
+        password_hash=password_hash,
+        monthly_budget=1000.0
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Login the user
+    request.session["user_id"] = new_user.id
+    return RedirectResponse(url="/", status_code=303)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Logout user"""
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=303)
+
 # ==================== ROUTES ====================
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, db: Session = Depends(get_db)):
     """Main dashboard page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     # Greeting
     hour = datetime.now().hour
     if hour < 12:
@@ -503,7 +634,9 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
 @app.get("/chat", response_class=HTMLResponse)
 async def chat_page(request: Request, db: Session = Depends(get_db)):
     """AI Chat page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     
     # Get chat history
     messages = db.query(ChatMessage).filter(
@@ -524,7 +657,9 @@ async def send_chat_message(
     db: Session = Depends(get_db)
 ):
     """Handle chat message from user"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     # Save user message
     user_msg = ChatMessage(
@@ -602,7 +737,9 @@ async def send_chat_message(
 @app.get("/scan", response_class=HTMLResponse)
 async def scan_page(request: Request, db: Session = Depends(get_db)):
     """Receipt scanner page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     return templates.TemplateResponse("scan.html", {
         "request": request,
         "user": user
@@ -616,7 +753,9 @@ async def scan_receipt(
     db: Session = Depends(get_db)
 ):
     """Process uploaded receipt image"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         # Save uploaded file
@@ -843,7 +982,9 @@ async def confirm_receipt(
     db: Session = Depends(get_db)
 ):
     """Save receipt after user confirmation/correction"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         # Parse date safely - use UTC+4 (Azerbaijan time) or browser time
@@ -954,7 +1095,9 @@ async def confirm_receipt(
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page(request: Request, db: Session = Depends(get_db)):
     """User profile page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     
     # Calculate stats
     total_expenses = db.query(Expense).filter(Expense.user_id == user.id).count()
@@ -1005,9 +1148,11 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/api/dashboard-data")
-async def get_dashboard_data(db: Session = Depends(get_db)):
+async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
     """API endpoint for dashboard chart data"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     # Get current month's expenses
     now = datetime.utcnow()
@@ -1049,7 +1194,9 @@ async def get_dashboard_data(db: Session = Depends(get_db)):
 @app.get("/heatmap", response_class=HTMLResponse)
 async def heatmap_page(request: Request, db: Session = Depends(get_db)):
     """Spending heatmap page (Leaflet)"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
     expenses = db.query(Expense).filter(Expense.user_id == user.id).all()
     points = []
     for exp in expenses:
@@ -1069,9 +1216,11 @@ async def heatmap_page(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/api/ghost-subscriptions")
-async def ghost_subscriptions(db: Session = Depends(get_db)):
+async def ghost_subscriptions(request: Request, db: Session = Depends(get_db)):
     """Detect potential hidden subscriptions"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     now = datetime.utcnow()
     month_start = datetime(now.year, now.month, 1)
     expenses = db.query(Expense).filter(Expense.user_id == user.id, Expense.date >= month_start).all()
@@ -1107,7 +1256,9 @@ async def update_expense(
     db: Session = Depends(get_db)
 ):
     """Update an existing expense"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     expense = db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user.id).first()
     
     if not expense:
@@ -1134,7 +1285,9 @@ async def voice_command_endpoint(
     db: Session = Depends(get_db)
 ):
     """Process voice command and create expense"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     if not user.voice_enabled:
         return JSONResponse({"success": False, "error": "Səsli əmrlər deaktiv edilib"}, status_code=403)
     
@@ -1171,7 +1324,9 @@ async def confirm_voice_expense(
     db: Session = Depends(get_db)
 ):
     """Save voice expense after user confirmation"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         # Create expense
@@ -1267,9 +1422,11 @@ async def confirm_voice_expense(
 
 
 @app.get("/api/export-xlsx")
-async def export_xlsx(db: Session = Depends(get_db)):
+async def export_xlsx(request: Request, db: Session = Depends(get_db)):
     """Generate and download Excel (XLSX) report"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     try:
         from openpyxl import Workbook
         from openpyxl.styles import Font, PatternFill, Alignment
@@ -1341,9 +1498,11 @@ async def export_xlsx(db: Session = Depends(get_db)):
 
 
 @app.get("/api/forecast")
-async def get_forecast_endpoint(db: Session = Depends(get_db)):
+async def get_forecast_endpoint(request: Request, db: Session = Depends(get_db)):
     """Get spending forecast for current month"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         forecast = forecast_service.get_forecast(user.id, db)
@@ -1354,9 +1513,11 @@ async def get_forecast_endpoint(db: Session = Depends(get_db)):
 
 
 @app.get("/api/forecast-chart")
-async def get_forecast_chart_endpoint(db: Session = Depends(get_db)):
+async def get_forecast_chart_endpoint(request: Request, db: Session = Depends(get_db)):
     """Get forecast data points for chart"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         forecast_points = forecast_service.get_chart_forecast_data(user.id, db)
@@ -1422,7 +1583,9 @@ async def add_manual_expense(
     db: Session = Depends(get_db)
 ):
     """Add manual expense"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         expense = Expense(
@@ -1475,9 +1638,11 @@ async def add_manual_expense(
 
 
 @app.delete("/api/expenses/{expense_id}")
-async def delete_expense(expense_id: int, db: Session = Depends(get_db)):
+async def delete_expense(request: Request, expense_id: int, db: Session = Depends(get_db)):
     """Delete an expense (with ownership verification)"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     try:
         expense = db.query(Expense).filter(
             Expense.id == expense_id,
@@ -1505,13 +1670,16 @@ async def delete_expense(expense_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/wishlist")
 async def add_wishlist_item(
+    request: Request,
     title: str = Form(...),
     url: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
     db: Session = Depends(get_db)
 ):
     """Add wish to 24h impulse-control list"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     try:
         locked_until = datetime.utcnow() + timedelta(hours=24)
         wish = Wish(
@@ -1537,7 +1705,9 @@ async def add_wishlist_item(
 @app.get("/dream-vault", response_class=HTMLResponse)
 async def dream_vault_page(request: Request, db: Session = Depends(get_db)):
     """Dream Vault page - visualize and track savings goals"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     # Get all dreams for user
     dreams = db.query(Dream).filter(
@@ -1582,7 +1752,9 @@ async def create_dream(
     db: Session = Depends(get_db)
 ):
     """Create a new dream"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         # Parse target_date if provided
@@ -1643,7 +1815,9 @@ async def update_dream(
     db: Session = Depends(get_db)
 ):
     """Update a dream"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
     
     if not dream:
@@ -1697,7 +1871,9 @@ async def add_dream_savings(
     db: Session = Depends(get_db)
 ):
     """Add savings to a dream"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
     
     if not dream:
@@ -1737,7 +1913,9 @@ async def add_dream_savings(
 @app.delete("/api/dreams/{dream_id}")
 async def delete_dream(request: Request, dream_id: int, db: Session = Depends(get_db)):
     """Delete a dream"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
     
     if not dream:
@@ -1762,7 +1940,9 @@ async def delete_dream(request: Request, dream_id: int, db: Session = Depends(ge
 @app.get("/api/dream-stats")
 async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
     """Get dynamic dream statistics"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     # Get all active dreams
     dreams = db.query(Dream).filter(
@@ -1784,9 +1964,11 @@ async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/api/dreams/{dream_id}/data")
-async def get_dream_data(dream_id: int, db: Session = Depends(get_db)):
+async def get_dream_data(request: Request, dream_id: int, db: Session = Depends(get_db)):
     """Get dream data for editing"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     dream = db.query(Dream).filter(Dream.id == dream_id, Dream.user_id == user.id).first()
     
     if not dream:
@@ -1809,9 +1991,11 @@ async def get_dream_data(dream_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/api/settings")
-async def get_settings(db: Session = Depends(get_db)):
+async def get_settings(request: Request, db: Session = Depends(get_db)):
     """Get user settings"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     return JSONResponse({
         "monthly_budget": user.monthly_budget,
@@ -1834,7 +2018,9 @@ async def update_settings(
     db: Session = Depends(get_db)
 ):
     """Update user settings"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     def parse_bool(val):
         if val is None:
@@ -1918,9 +2104,11 @@ async def update_settings(
 
 
 @app.get("/api/notifications")
-async def get_notifications(db: Session = Depends(get_db)):
+async def get_notifications(request: Request, db: Session = Depends(get_db)):
     """Generate dynamic notifications based on user data"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     notifications = []
     
     # Get current month's data
@@ -2041,7 +2229,9 @@ async def get_notifications(db: Session = Depends(get_db)):
 @app.get("/api/dashboard-updates")
 async def get_dashboard_updates(request: Request, db: Session = Depends(get_db)):
     """Return updated dashboard stats and transaction list for HTMX OOB swap"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     # Calculate total spending for current month
     now = datetime.now()
@@ -2085,7 +2275,9 @@ async def get_dashboard_updates(request: Request, db: Session = Depends(get_db))
 @app.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request, db: Session = Depends(get_db)):
     """Settings page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     return templates.TemplateResponse("settings.html", {
         "request": request,
@@ -2094,7 +2286,9 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
         "max": max
     })
     """User settings page"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     return templates.TemplateResponse("settings.html", {
         "request": request,
@@ -2104,12 +2298,15 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/api/export-pdf")
 async def export_pdf(
+    request: Request,
     month: Optional[int] = None,
     year: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     """Export monthly report as PDF"""
-    user = get_current_user(db)
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
         # Default to current month/year if not specified
