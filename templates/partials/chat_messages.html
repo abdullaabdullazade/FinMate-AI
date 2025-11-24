@@ -11,11 +11,6 @@
 <div class="flex justify-start">
     <div class="message-bubble glass p-3 rounded-2xl rounded-tl-sm text-white markdown-content">
         {{ message.content | safe }}
-        {% if loop.last and audio_response %}
-        <div class="mt-2 flex items-center gap-2">
-            <audio controls autoplay class="w-full" src="data:audio/mp3;base64,{{ audio_response }}"></audio>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endif %}

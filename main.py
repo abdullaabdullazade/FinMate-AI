@@ -91,6 +91,11 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> Optiona
     
     db.expire_all()
     user = db.query(User).filter(User.id == user_id).first()
+    
+    # Clear session if user doesn't exist (prevents redirect loops)
+    if not user:
+        request.session.clear()
+    
     return user
 
 def require_auth(request: Request, db: Session = Depends(get_db)) -> User:
@@ -359,10 +364,11 @@ def detect_financial_personality(user_id: int, db: Session) -> dict:
 # ==================== AUTH ROUTES ====================
 
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, db: Session = Depends(get_db)):
     """Login page"""
-    # If already logged in, redirect to dashboard
-    if request.session.get("user_id"):
+    # If already logged in and user exists, redirect to dashboard
+    user = get_current_user(request, db)
+    if user:
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("login.html", {"request": request})
 
@@ -405,10 +411,11 @@ async def login(
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/signup", response_class=HTMLResponse)
-async def signup_page(request: Request):
+async def signup_page(request: Request, db: Session = Depends(get_db)):
     """Signup page"""
-    # If already logged in, redirect to dashboard
-    if request.session.get("user_id"):
+    # If already logged in and user exists, redirect to dashboard
+    user = get_current_user(request, db)
+    if user:
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("signup.html", {"request": request})
 
@@ -693,9 +700,20 @@ async def send_chat_message(
         user  # Pass user for behavioral profiling
     )
     
-    # Convert simple markdown to HTML in AI response (bold text)
+    # Convert markdown to HTML in AI response for better formatting
     import re
+    
+    # Bold text: **text** -> <strong>text</strong>
     ai_response_formatted = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', ai_response)
+    
+    # Italic text: *text* (but not ** which is bold)
+    ai_response_formatted = re.sub(r'(?<!\*)\*(?!\*)([^\*]+?)\*(?!\*)', r'<em>\1</em>', ai_response_formatted)
+    
+    # Bullet points: ↑ or • at start of line -> styled bullet
+    ai_response_formatted = re.sub(r'(^|\n)([↑•])\s*(.+)', r'\1<span class="chat-bullet">\2</span> \3', ai_response_formatted)
+    
+    # Line breaks: convert \n to <br> for proper display
+    ai_response_formatted = ai_response_formatted.replace('\n', '<br>')
     
     # Save AI response
     ai_msg = ChatMessage(
@@ -706,16 +724,6 @@ async def send_chat_message(
     )
     db.add(ai_msg)
     db.commit()
-    
-    # Optional TTS for chat replies
-    audio_response = None
-    if user.voice_enabled:
-        try:
-            audio_bytes = await voice_service.generate_voice_response(ai_response, "az")
-            if audio_bytes:
-                audio_response = base64.b64encode(audio_bytes).decode()
-        except Exception as tts_err:
-            print(f"❌ Chat TTS Error: {tts_err}")
     
     # Award XP for chat interaction
     xp_result = gamification.award_xp(user, "chat_message", db)
@@ -729,8 +737,7 @@ async def send_chat_message(
     return templates.TemplateResponse("partials/chat_messages.html", {
         "request": request,
         "messages": outgoing_messages,
-        "xp_result": xp_result,
-        "audio_response": audio_response
+        "xp_result": xp_result
     })
 
 

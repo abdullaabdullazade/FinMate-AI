@@ -1,0 +1,452 @@
+
+
+/* Premium Dashboard Styles */
+.dashboard-grid {
+    display: grid !important;
+    grid-template-columns: repeat(12, 1fr) !important;
+    gap: 0 !important;
+    row-gap: 0 !important;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Add spacing between cards - Using margin instead of gap */
+.dashboard-grid > * {
+    margin-bottom: 48px !important;
+}
+
+.dashboard-grid > *:last-child {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+        row-gap: 0 !important;
+    }
+
+    .dashboard-grid > * {
+        margin-bottom: 40px !important;
+    }
+
+    .dashboard-grid > *:last-child {
+        margin-bottom: 0 !important;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+    .dashboard-grid {
+        gap: 0 !important;
+        row-gap: 0 !important;
+        padding: 0 8px;
+    }
+
+    .dashboard-grid > * {
+        margin-bottom: 32px !important;
+    }
+
+    .dashboard-grid > *:last-child {
+        margin-bottom: 0 !important;
+    }
+
+        /* Welcome Banner Mobile */
+        .glass-card {
+            padding: 1rem !important;
+        }
+
+        /* Stats Grid Mobile */
+        .grid.grid-cols-2.sm\:grid-cols-4 {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+
+        /* Stat Numbers Mobile */
+        .text-4xl {
+            font-size: 1.75rem !important;
+        }
+
+        .text-lg {
+            font-size: 0.875rem !important;
+        }
+
+        /* Category Cards Mobile */
+        .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+        }
+
+        /* Transaction Items Mobile */
+        .merchant-logo {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 20px !important;
+        }
+
+        /* Time Machine Mobile */
+        .flex.flex-col.md\:flex-row {
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+
+        /* Eco Impact Mobile */
+        .lg\:grid.lg\:grid-cols-3 {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Text Sizes Mobile */
+        h2.text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        h3.text-xl {
+            font-size: 1.125rem !important;
+        }
+
+        .text-sm {
+            font-size: 0.75rem !important;
+        }
+
+        /* XP Progress Mobile */
+        .text-4xl {
+            font-size: 1.5rem !important;
+        }
+
+        /* Budget Warning Mobile */
+        .text-5xl {
+            font-size: 2.5rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        /* Welcome Banner Mobile */
+        .text-6xl {
+            font-size: 3rem !important;
+        }
+
+        .text-2xl.font-bold {
+            font-size: 1.25rem !important;
+        }
+
+        /* Buttons Mobile */
+        .px-6.py-3 {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Hidden desktop buttons on mobile */
+        .hidden.md\:flex {
+            display: none !important;
+        }
+    }
+
+    /* Dream Vault Blur Effect */
+    .dream-image {
+        transition: filter 0.5s ease;
+    }
+
+    /* Eco Score Leaf Icons */
+    .eco-leaf {
+        display: inline-block;
+        font-size: 24px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Persona Card Styles */
+    .persona-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        border: 3px solid rgba(255, 215, 0, 0.5);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Category Icons */
+    .category-market {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .category-restoran {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .category-kafe {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .category-transport {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .category-mobile {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
+
+    .category-kommunal {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+
+    .category-shopping {
+        background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    }
+
+    .category-online {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    }
+
+    .category-entertainment {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .category-health {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    }
+
+    .category-bank {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .merchant-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    /* Smooth animations */
+    .slide-up {
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Chart container */
+    .chart-shell {
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 45%),
+            radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.06), transparent 40%),
+            rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22), 0 8px 20px rgba(79, 70, 229, 0.2);
+    }
+
+    /* Welcome Banner Animations */
+    @keyframes wave {
+
+        0%,
+        100% {
+            transform: rotate(0deg);
+        }
+
+        10%,
+        30% {
+            transform: rotate(14deg);
+        }
+
+        20%,
+        40% {
+            transform: rotate(-8deg);
+        }
+
+        50% {
+            transform: rotate(10deg);
+        }
+
+        60% {
+            transform: rotate(-4deg);
+        }
+
+        70% {
+            transform: rotate(6deg);
+        }
+
+        80% {
+            transform: rotate(-2deg);
+        }
+    }
+
+    .animate-wave {
+        animation: wave 2.5s ease-in-out infinite;
+        transform-origin: 70% 70%;
+        display: inline-block;
+    }
+
+    @keyframes gradient {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .animate-gradient {
+        animation: gradient 3s ease-in-out infinite;
+    }
+
+    /* Transaction Items Animation */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slideDown {
+        animation: slideDown 0.3s ease-out forwards;
+    }
+        /* Pet Container - Mobile Responsive */
+    .pet-container {
+        transition: all 0.3s ease;
+    }
+
+    @media (max-width: 640px) {
+        .pet-container {
+            bottom: 100px;
+            right: 8px;
+            max-width: 150px;
+        }
+
+        #petEmoji {
+            font-size: 2.5rem !important;
+        }
+
+        .speech-bubble p {
+            font-size: 0.6rem !important;
+            padding: 0.5rem !important;
+        }
+
+        .pet-container .glass-card {
+            padding: 0.75rem !important;
+        }
+    }
+
+    /* Pet Animations */
+    .pet-bounce {
+        animation: petBounce 2s ease-in-out infinite;
+        display: inline-block;
+    }
+
+    @keyframes petBounce {
+
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-8px) scale(1.05);
+        }
+    }
+
+    .pet-shake {
+        animation: petShake 0.5s ease-in-out;
+    }
+
+    @keyframes petShake {
+
+        0%,
+        100% {
+            transform: translateX(0) rotate(0deg);
+        }
+
+        25% {
+            transform: translateX(-5px) rotate(-5deg);
+        }
+
+        75% {
+            transform: translateX(5px) rotate(5deg);
+        }
+    }
+
+    /* Floating Hearts */
+    .floating-heart {
+        position: absolute;
+        font-size: 24px;
+        animation: floatUp 2s ease-out forwards;
+        pointer-events: none;
+    }
+
+    @keyframes floatUp {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(0.5);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-100px) scale(1.2);
+        }
+    }
+
+    /* Falling Tears */
+    .falling-tear {
+        position: absolute;
+        font-size: 20px;
+        animation: fallDown 1.5s ease-in forwards;
+        pointer-events: none;
+    }
+
+    @keyframes fallDown {
+        0% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(60px) rotate(20deg);
+        }
+    }
+
+    /* Speech Bubble Pulse */
+    .speech-pulse {
+        animation: pulse 0.3s ease-in-out;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }

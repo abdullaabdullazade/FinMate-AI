@@ -1,0 +1,90 @@
+/* Scan Modal */
+.scan-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.scan-modal.active {
+    display: flex;
+}
+
+.scanner-animation {
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.scanner-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00ff00, transparent);
+    animation: scan 2s infinite;
+}
+
+@keyframes scan {
+
+    0%,
+    100% {
+        top: 0;
+    }
+
+    50% {
+        top: 197px;
+    }
+}
+
+.scanner-corners {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.scanner-corners::before,
+.scanner-corners::after,
+.scanner-corners>span::before,
+.scanner-corners>span::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #00ff00;
+}
+
+.scanner-corners::before {
+    top: -2px;
+    left: -2px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.scanner-corners::after {
+    top: -2px;
+    right: -2px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.scanner-corners>span::before {
+    bottom: -2px;
+    left: -2px;
+    border-right: none;
+    border-top: none;
+}
+
+.scanner-corners>span::after {
+    bottom: -2px;
+    right: -2px;
+    border-left: none;
+    border-top: none;
+}
+

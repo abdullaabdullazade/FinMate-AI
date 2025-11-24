@@ -1,0 +1,74 @@
+/* 404 Page Styles */
+
+/* Crying Pet Tears Animation */
+.tear {
+    position: absolute;
+    font-size: 32px;
+    animation: fallTear 2s ease-in infinite;
+    opacity: 0;
+}
+
+.tear-1 {
+    left: 30%;
+    animation-delay: 0s;
+}
+
+.tear-2 {
+    left: 50%;
+    animation-delay: 0.7s;
+}
+
+.tear-3 {
+    left: 70%;
+    animation-delay: 1.4s;
+}
+
+@keyframes fallTear {
+    0% {
+        top: 60%;
+        opacity: 0;
+        transform: translateY(0) rotate(0deg);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 0.5;
+    }
+
+    100% {
+        top: 150%;
+        opacity: 0;
+        transform: translateY(100px) rotate(20deg);
+    }
+}
+
+/* Shake animation for error text */
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+h1 {
+    animation: shake 2s ease-in-out infinite;
+}
+

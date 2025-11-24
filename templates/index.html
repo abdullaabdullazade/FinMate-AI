@@ -100,28 +100,12 @@
     </div>
 </section>
 
+{% block extra_scripts %}
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const ctx = document.getElementById("categoryChart");
-    if (!ctx) return;
-
-    const labels = {{ chart_labels | safe }};
-    const values = {{ chart_values | safe }};
-    new Chart(ctx, {
-        type: "doughnut",
-        data: {
-            labels,
-            datasets: [{
-                data: values,
-                backgroundColor: ["#60a5fa","#22d3ee","#c084fc","#34d399","#fca5a5","#facc15"],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            plugins: { legend: { display: true, position: "bottom", labels: { color: "#e5e7eb" } } },
-            cutout: "70%"
-        }
-    });
-});
+    // Pass data to JavaScript
+    window.chartLabels = {{ chart_labels | safe }};
+    window.chartValues = {{ chart_values | safe }};
 </script>
+<script src="/static/js/index.js"></script>
+{% endblock %}
 {% endblock %}

@@ -1,0 +1,163 @@
+/* Chat Container - Responsive Heights */
+.chat-container {
+    height: calc(100vh - 250px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+@media (max-width: 640px) {
+    .chat-container {
+        height: calc(100vh - 280px);
+        padding: 0.5rem;
+    }
+}
+
+/* Message Bubbles - Better Mobile Sizing */
+.message-bubble {
+    max-width: 70%;
+    word-wrap: break-word;
+    word-break: break-word;
+    animation: slideIn 0.3s ease-out;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+    .message-bubble {
+        max-width: 85%;
+        font-size: 0.875rem;
+        padding: 0.75rem !important;
+    }
+
+    .chat-container .space-y-6 {
+        gap: 1rem;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    padding: 12px 16px;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    animation: bounce 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Chat Input Container - Fixed Positioning */
+.chat-input-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 640px) {
+    .chat-input-container {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Chat Input Field - Better Styling */
+.chat-input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    min-height: 44px;
+}
+
+.chat-input-field:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(236, 64, 122, 0.5);
+    box-shadow: 0 0 0 3px rgba(236, 64, 122, 0.1);
+}
+
+.chat-input-field::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 640px) {
+    .chat-input-field {
+        font-size: 0.875rem;
+        padding: 0.625rem 0.875rem;
+        min-height: 40px;
+    }
+}
+
+/* Markdown Content Styling in Chat Messages */
+.markdown-content strong,
+.message-bubble strong {
+    font-weight: 700;
+    color: #fff;
+}
+
+.message-bubble em,
+.markdown-content em {
+    font-style: italic;
+}
+
+.markdown-content code,
+.message-bubble code {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Bullet points and lists */
+.chat-bullet {
+    color: #a855f7;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.message-bubble br+.chat-bullet,
+.markdown-content br+.chat-bullet {
+    display: inline-block;
+    margin-top: 8px;
+}
