@@ -418,6 +418,39 @@
     </div>
     {% endif %}
 
+    <!-- Daily Limit Alert -->
+    {% if daily_limit_alert %}
+    {% if daily_limit_alert.exceeded %}
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-red-500 bg-red-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <div class="text-3xl sm:text-5xl flex-shrink-0">🚨</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Gündəlik Limit Keçildi!</h3>
+                <p class="text-sm sm:text-base text-red-100">
+                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }} AZN</strong> xərclədiniz.
+                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
+                    (Artıq: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.over_by) }} AZN</strong>)
+                </p>
+            </div>
+        </div>
+    </div>
+    {% elif daily_limit_alert.warning %}
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <div class="text-3xl sm:text-4xl flex-shrink-0">⚡</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-base sm:text-xl font-bold text-yellow-200 mb-1">Gündəlik Limitə Yaxınlaşırsınız</h3>
+                <p class="text-sm sm:text-base text-yellow-100">
+                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }} AZN</strong> xərclədiniz.
+                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
+                    (Qalan: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.remaining) }} AZN</strong>)
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
     <!-- Budget Overview - Full Width -->
     <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">

@@ -395,6 +395,33 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Budget percentage
     budget_percentage = (total_spending / user.monthly_budget * 100) if user.monthly_budget > 0 else 0
     
+    # Check daily budget limit
+    daily_limit_alert = None
+    if user.daily_budget_limit:
+        today = date_type.today()
+        today_expenses = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.date >= today,
+            Expense.date < today + timedelta(days=1)
+        ).all()
+        today_total = sum(exp.amount for exp in today_expenses)
+        
+        if today_total > user.daily_budget_limit:
+            daily_limit_alert = {
+                "exceeded": True,
+                "today_spending": today_total,
+                "limit": user.daily_budget_limit,
+                "over_by": today_total - user.daily_budget_limit
+            }
+        elif today_total >= user.daily_budget_limit * 0.9:
+            daily_limit_alert = {
+                "exceeded": False,
+                "warning": True,
+                "today_spending": today_total,
+                "limit": user.daily_budget_limit,
+                "remaining": user.daily_budget_limit - today_total
+            }
+    
     # Get level info for gamification
     level_info = gamification.get_level_info(user.xp_points)
     
@@ -452,6 +479,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "budget_percentage": budget_percentage,
         "category_data": category_data,
         "recent_expenses": recent_expenses,
+        "daily_limit_alert": daily_limit_alert,
         "level_info": level_info,
         "forecast": forecast,
         "wishes": wishes,
@@ -467,7 +495,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_saved": dream_saved,
         "dream_progress": dream_progress,
         "dream_blur": dream_blur,
-        "local_gems": local_gems_suggestions
+        "local_gems": local_gems_suggestions,
+        "daily_limit_alert": daily_limit_alert
     })
 
 
@@ -680,6 +709,25 @@ async def scan_receipt(
             db.add(expense)
             db.commit()
 
+            # Check daily budget limit
+            daily_limit_alert = None
+            if user.daily_budget_limit:
+                today = date_type.today()
+                today_expenses = db.query(Expense).filter(
+                    Expense.user_id == user.id,
+                    Expense.date >= today,
+                    Expense.date < today + timedelta(days=1)
+                ).all()
+                today_total = sum(exp.amount for exp in today_expenses)
+                
+                if today_total > user.daily_budget_limit:
+                    daily_limit_alert = {
+                        "type": "daily_limit_exceeded",
+                        "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                        "today_spending": today_total,
+                        "limit": user.daily_budget_limit
+                    }
+
             scan_xp = gamification.award_xp(user, "scan_receipt", db)
             db.refresh(user)
 
@@ -691,7 +739,8 @@ async def scan_receipt(
                 "xp_result": {
                     "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
                     "new_total": user.xp_points
-                }
+                },
+                "daily_limit_alert": daily_limit_alert
             })
         except Exception as save_err:
             return templates.TemplateResponse("partials/receipt_result.html", {
@@ -759,6 +808,25 @@ async def confirm_receipt(
         db.add(expense)
         db.commit()
         
+        # Check daily budget limit
+        daily_limit_alert = None
+        if user.daily_budget_limit:
+            today = date_type.today()
+            today_expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= today,
+                Expense.date < today + timedelta(days=1)
+            ).all()
+            today_total = sum(exp.amount for exp in today_expenses)
+            
+            if today_total > user.daily_budget_limit:
+                daily_limit_alert = {
+                    "type": "daily_limit_exceeded",
+                    "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                    "today_spending": today_total,
+                    "limit": user.daily_budget_limit
+                }
+        
         # Award XP for scanning receipt
         scan_xp = gamification.award_xp(user, "scan_receipt", db)
         db.refresh(user)
@@ -777,7 +845,8 @@ async def confirm_receipt(
             "xp_result": {
                 "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
                 "new_total": user.xp_points
-            }
+            },
+            "daily_limit_alert": daily_limit_alert
         })
         
     except Exception as e:
@@ -1275,14 +1344,38 @@ async def add_manual_expense(
         db.add(expense)
         db.commit()
         
+        # Check daily budget limit
+        daily_limit_alert = None
+        if user.daily_budget_limit:
+            today = date_type.today()
+            today_expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= today,
+                Expense.date < today + timedelta(days=1)
+            ).all()
+            today_total = sum(exp.amount for exp in today_expenses)
+            
+            if today_total > user.daily_budget_limit:
+                daily_limit_alert = {
+                    "type": "daily_limit_exceeded",
+                    "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                    "today_spending": today_total,
+                    "limit": user.daily_budget_limit
+                }
+        
         # Award XP
         xp_result = gamification.award_xp(user, "manual_expense", db)
         
-        return JSONResponse({
+        response_data = {
             "success": True,
             "expense_id": expense.id,
             "xp_result": xp_result
-        })
+        }
+        
+        if daily_limit_alert:
+            response_data["daily_limit_alert"] = daily_limit_alert
+        
+        return JSONResponse(response_data)
         
     except Exception as e:
         print(f"❌ Add Expense Error: {e}")
@@ -1678,10 +1771,31 @@ async def update_settings(
         ai_style = last_value("ai_style")
 
         if monthly_budget not in (None, ""):
-            user.monthly_budget = float(monthly_budget)
-        if daily_budget_limit not in (None, ""):
-            user.daily_budget_limit = float(daily_budget_limit)
+            try:
+                budget_val = float(monthly_budget)
+                if budget_val < 100:
+                    raise ValueError("Budget cannot be less than 100 AZN")
+                if budget_val > 50000:
+                    raise ValueError("Budget cannot exceed 50000 AZN")
+                user.monthly_budget = budget_val
+            except (ValueError, TypeError) as e:
+                print(f"❌ Invalid monthly_budget: {monthly_budget}, error: {e}")
+                return JSONResponse({"success": False, "error": "Yanlış büdcə dəyəri (100-50000 AZN arası)"}, status_code=400)
+        
+        # Handle daily_budget_limit - allow empty string to clear it
+        if daily_budget_limit is not None and daily_budget_limit != "":
+            try:
+                daily_val = float(daily_budget_limit)
+                if daily_val < 0:
+                    raise ValueError("Daily limit cannot be negative")
+                if daily_val > 1000:
+                    raise ValueError("Daily limit cannot exceed 1000 AZN")
+                user.daily_budget_limit = daily_val
+            except (ValueError, TypeError) as e:
+                print(f"❌ Invalid daily_budget_limit: {daily_budget_limit}, error: {e}")
+                return JSONResponse({"success": False, "error": "Yanlış gündəlik limit dəyəri (0-1000 AZN arası)"}, status_code=400)
         else:
+            # Empty string or None means clear the limit
             user.daily_budget_limit = None
 
         if preferred_language is not None:
@@ -1741,6 +1855,29 @@ async def get_notifications(db: Session = Depends(get_db)):
             "color": "amber-500",
             "message": f"Diqqət: Büdcənin {budget_percentage:.0f}%-ni istifadə etmisən."
         })
+    
+    # Daily budget limit check
+    if user.daily_budget_limit:
+        today = date_type.today()
+        today_expenses = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.date >= today,
+            Expense.date < today + timedelta(days=1)
+        ).all()
+        today_total = sum(exp.amount for exp in today_expenses)
+        
+        if today_total > user.daily_budget_limit:
+            notifications.append({
+                "icon": "🚨",
+                "color": "red-500",
+                "message": f"Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)"
+            })
+        elif today_total >= user.daily_budget_limit * 0.9:
+            notifications.append({
+                "icon": "⚡",
+                "color": "amber-500",
+                "message": f"Gündəlik limitə yaxınlaşırsınız! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)"
+            })
     
     # Subscription reminder
     subscriptions = db.query(Expense).filter(
@@ -1855,6 +1992,15 @@ async def get_dashboard_updates(request: Request, db: Session = Depends(get_db))
 
 @app.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request, db: Session = Depends(get_db)):
+    """Settings page"""
+    user = get_current_user(db)
+    
+    return templates.TemplateResponse("settings.html", {
+        "request": request,
+        "user": user,
+        "min": min,
+        "max": max
+    })
     """User settings page"""
     user = get_current_user(db)
     
