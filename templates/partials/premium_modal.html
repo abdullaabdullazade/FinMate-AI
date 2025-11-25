@@ -119,22 +119,49 @@
         document.getElementById('premium-modal').classList.add('hidden');
     }
 
+    // Listen for HTMX events
     document.body.addEventListener('htmx:afterRequest', function (event) {
         if (event.detail.elt.getAttribute('hx-post') === '/api/activate-trial') {
             if (event.detail.successful) {
-                const response = JSON.parse(event.detail.xhr.response);
-                if (response.success) {
-                    closePremiumModal();
-                    // Show success toast (using the one in settings.html if available, or alert)
-                    if (typeof showToast === 'function') {
-                        showToast(response.message);
+                try {
+                    const response = JSON.parse(event.detail.xhr.response);
+                    if (response.success) {
+                        // Close modal first
+                        closePremiumModal();
+
+                        // Show success message
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('✨ ' + response.message, 'success');
+                        } else {
+                            console.log('✅ ' + response.message);
+                        }
+
+                        // Reload page to reflect premium status (longer delay for toast to show)
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
                     } else {
-                        alert(response.message);
+                        // Show error message
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('❌ ' + (response.error || 'Xəta baş verdi'), 'error');
+                        } else {
+                            alert(response.error || 'Xəta baş verdi');
+                        }
                     }
-                    // Reload to update UI (unlock features)
-                    setTimeout(() => window.location.reload(), 1500);
+                } catch (e) {
+                    console.error('Premium activation parse error:', e);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('❌ Xəta baş verdi', 'error');
+                    } else {
+                        alert('Xəta baş verdi');
+                    }
+                }
+            } else {
+                // Request failed
+                if (typeof window.showToast === 'function') {
+                    window.showToast('❌ Əlaqə xətası. Zəhmət olmasa yenidən cəhd edin.', 'error');
                 } else {
-                    alert(response.error || 'Xəta baş verdi');
+                    alert('Əlaqə xətası. Zəhmət olmasa yenidən cəhd edin.');
                 }
             }
         }

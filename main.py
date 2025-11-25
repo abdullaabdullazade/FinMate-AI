@@ -1575,18 +1575,28 @@ async def reset_demo_endpoint():
 
 
 @app.post("/api/activate-trial")
-async def activate_trial_endpoint(db: Session = Depends(get_db)):
-    """Activate premium trial for demo user"""
-    # Force reload
+async def activate_trial_endpoint(request: Request, db: Session = Depends(get_db)):
+    """Activate premium trial for current user"""
     try:
-        user = db.query(User).filter(User.username == "demo_user").first()
-        if user:
-            user.is_premium = True
-            db.commit()
-            return JSONResponse({"success": True, "message": "Premium aktivləşdirildi! 14 gün pulsuz sınaq başladı."})
-        return JSONResponse({"success": False, "error": "İstifadəçi tapılmadı"}, status_code=404)
+        # Get current logged-in user from session
+        user = get_current_user(request, db)
+        if not user:
+            return JSONResponse({"success": False, "error": "Giriş tələb olunur"}, status_code=401)
+        
+        # Check if user already has premium
+        if user.is_premium:
+            return JSONResponse({"success": False, "error": "Artıq Premium üzvüsünüz"}, status_code=400)
+        
+        # Activate premium trial
+        user.is_premium = True
+        db.commit()
+        db.refresh(user)  # Refresh to get updated values
+        
+        return JSONResponse({"success": True, "message": "Premium aktivləşdirildi! 14 gün pulsuz sınaq başladı."})
+        
     except Exception as e:
         print(f"❌ Trial Activation Error: {e}")
+        db.rollback()
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
