@@ -32,7 +32,7 @@
 
     <!-- Base CSS -->
     <link rel="stylesheet" href="/static/css/base.css">
-    
+
     <!-- Base JS (Critical - Load before page render) -->
     <script src="/static/js/base.js"></script>
 
@@ -51,7 +51,8 @@
     <div class="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 py-2 sm:py-3">
         <div class="flex items-center justify-between max-w-md mx-auto">
             <div class="min-w-0 flex-1 flex items-center gap-2">
-                <img src="/static/icons/icon-192.png" alt="FinMate AI" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" onerror="this.style.display='none'">
+                <img src="/static/icons/icon-192.png" alt="FinMate AI"
+                    class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" onerror="this.style.display='none'">
                 <div class="min-w-0">
                     <h1 class="text-lg sm:text-xl font-bold text-white truncate">FinMate AI</h1>
                     <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
@@ -84,7 +85,8 @@
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
                         </path>
                     </svg>
-                    <span id="alert-counter" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
+                    <span id="alert-counter"
+                        class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
                 </button>
                 <div id="alert-panel"
                     class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
@@ -92,7 +94,8 @@
                     <ul class="divide-y text-sm">
                         <li class="px-4 py-3 flex gap-2 items-start">
                             <span class="text-amber-500">⚠️</span>
-                            <div class="incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">Diqqət: Keçən aya görə 15% çox xərcləmisən.</div>
+                            <div class="incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
+                                Diqqət: Keçən aya görə 15% çox xərcləmisən.</div>
                         </li>
                         <li class="px-4 py-3 flex gap-2 items-start">
                             <span class="text-purple-500">🎬</span>
@@ -120,16 +123,19 @@
                 {% endif %}
                 <!-- Profile / Logout -->
                 <div class="relative flex-shrink-0 group">
-                    <a href="/profile" class="relative">
+                    <button type="button" id="profile-dropdown-btn" class="relative focus:outline-none">
                         <div id="user-avatar"
-                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110"
+                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110 hover:scale-110"
                             style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
                             {{ user.username[0].upper() if user else 'D' }}
                         </div>
-                    </a>
-                    <div class="hidden group-hover:block absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-50">
-                        <a href="/profile" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition">Profil</a>
-                        <a href="/logout" class="block px-4 py-2 text-red-400 hover:text-red-300 hover:bg-white/10 transition">Çıxış</a>
+                    </button>
+                    <div id="profile-dropdown"
+                        class="hidden group-hover:block absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-50">
+                        <a href="/profile"
+                            class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition">Profil</a>
+                        <a href="/logout"
+                            class="block px-4 py-2 text-red-400 hover:text-red-300 hover:bg-white/10 transition">Çıxış</a>
                     </div>
                 </div>
             </div>
@@ -158,9 +164,12 @@
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
                                 </path>
                             </svg>
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-green-400/50"></span>
+                            <span
+                                class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-green-400/50"></span>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ana səhifə</span>
+                        <span
+                            class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ana
+                            səhifə</span>
                     </a>
 
                     <!-- Chat -->
@@ -172,9 +181,11 @@
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
                                 </path>
                             </svg>
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-blue-400/50"></span>
+                            <span
+                                class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-blue-400/50"></span>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Chat</span>
+                        <span
+                            class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Chat</span>
                     </a>
                 </div>
 
@@ -198,9 +209,11 @@
                                     d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7">
                                 </path>
                             </svg>
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-yellow-400/50"></span>
+                            <span
+                                class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-yellow-400/50"></span>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Arzular</span>
+                        <span
+                            class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Arzular</span>
                     </a>
 
                     <!-- Heatmap/Map -->
@@ -212,9 +225,11 @@
                                     d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
                                 </path>
                             </svg>
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-orange-400/50"></span>
+                            <span
+                                class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-orange-400/50"></span>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Xəritə</span>
+                        <span
+                            class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Xəritə</span>
                     </a>
 
                     <!-- Settings -->
@@ -228,9 +243,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-purple-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-purple-400/50"></span>
+                            <span
+                                class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-purple-400 rounded-full opacity-0 nav-item.active:opacity-100 transition-opacity shadow-lg shadow-purple-400/50"></span>
                         </div>
-                        <span class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ayarlar</span>
+                        <span
+                            class="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap">Ayarlar</span>
                     </a>
                 </div>
             </div>
@@ -325,8 +342,11 @@
     {% if request.url.path == '/scan' or request.url.path == '/chat' %}
     <button onclick="openVoiceModal()"
         class="fixed {% if request.url.path == '/scan' %}bottom-24{% else %}bottom-32{% endif %} right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass bg-gradient-to-br from-purple-500 to-pink-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:{% if request.url.path == '/scan' %}bottom-20{% else %}bottom-24{% endif %} md:right-8 mb-16 md:mb-0 group">
-        <svg class="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+        <svg class="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+            </path>
         </svg>
     </button>
     {% endif %}
@@ -352,8 +372,38 @@
     <script src="/static/js/voice-mode.js"></script>
     <script src="/static/js/premium-modal.js"></script>
 
+    <!-- Profile Dropdown Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const profileBtn = document.getElementById('profile-dropdown-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+
+            if (profileBtn && profileDropdown) {
+                // Toggle dropdown on click
+                profileBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle('hidden');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.classList.add('hidden');
+                    }
+                });
+
+                // Prevent dropdown from closing when clicking inside it
+                profileDropdown.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
+
     <!-- Toast Container (Global) -->
-    <div id="toast-container" class="fixed top-24 right-4 sm:right-6 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-24 right-4 sm:right-6 z-[100] flex flex-col gap-2 pointer-events-none">
+    </div>
 
     {% block extra_scripts %}{% endblock %}
 </body>
