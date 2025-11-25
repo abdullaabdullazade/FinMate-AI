@@ -1,0 +1,267 @@
+<!-- Income Onboarding Modal -->
+{% if show_income_onboarding %}
+<div id="income-onboarding-modal"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+    <div class="glass-card p-4 sm:p-6 md:p-8 max-w-lg w-full mx-auto my-auto relative overflow-hidden">
+        <!-- Decorative Background -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div class="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-40 h-40 bg-cyan-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="relative z-10">
+            <div class="text-center mb-4 sm:mb-6 md:mb-8">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2">Aylıq büdcənizi təyin edin</h2>
+                <p class="text-white/70 text-xs sm:text-sm">Maliyyə idarəetməsini başlamaq üçün büdcənizi bildirin</p>
+            </div>
+
+            <form id="income-onboarding-form" hx-post="/api/set-budget" hx-swap="none" class="space-y-4 sm:space-y-6">
+                <!-- Custom Budget Input (Moved to top for mobile) -->
+                <div class="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 order-first">
+                    <label class="block text-xs sm:text-sm font-medium text-white/80 mb-2 sm:mb-3">Məbləği daxil edin və ya dəyişdirin</label>
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <!-- Decrease Button -->
+                        <button type="button" onclick="adjustIncomeAmount(-100)" 
+                            class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-bold text-lg sm:text-xl flex items-center justify-center transition-all touch-manipulation">
+                            −
+                        </button>
+                        
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="number" 
+                                id="onboarding-income-input"
+                                name="monthly_budget" 
+                                min="100" 
+                                max="50000" 
+                                step="100"
+                                value=""
+                                placeholder="Məs: 2500"
+                                required
+                                class="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-black/20 text-white placeholder-white/40 rounded-lg border border-white/10 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all text-base sm:text-lg font-semibold touch-manipulation"
+                                oninput="updateOnboardingIncomeFromInput(this.value)"
+                                onchange="updateOnboardingIncomeFromInput(this.value)">
+                        </div>
+                        
+                        <!-- Increase Button -->
+                        <button type="button" onclick="adjustIncomeAmount(100)" 
+                            class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-bold text-lg sm:text-xl flex items-center justify-center transition-all touch-manipulation">
+                            +
+                        </button>
+                        
+                        <span class="text-white/60 text-xs sm:text-sm font-medium whitespace-nowrap">AZN</span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-white/50 mt-2 text-center">+/- düymələri ilə dəyişdirin</p>
+                </div>
+
+                <!-- Income Options Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <button type="button" onclick="selectIncomeRange(500, 1000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">500-1000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(1000, 1500)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">1000-1500</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(1500, 2000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">1500-2000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(2000, 3000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">2000-3000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(3000, 5000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">3000-5000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(5000, 10000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">5000-10000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(10000, 20000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">10000-20000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(20000, 35000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">20000-35000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                    
+                    <button type="button" onclick="selectIncomeRange(35000, 50000)" class="income-option-btn glass-card p-3 sm:p-4 rounded-xl active:scale-95 hover:scale-105 transition-all border-2 border-white/10 hover:border-blue-500/50 group touch-manipulation min-h-[80px] sm:min-h-[100px]">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                        </svg>
+                        <p class="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">35000-50000</p>
+                        <p class="text-white/60 text-[10px] sm:text-xs">AZN</p>
+                    </button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
+                    <button type="button" onclick="skipIncomeOnboarding()"
+                        class="flex-1 px-4 py-2.5 sm:py-3 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-medium transition-all touch-manipulation text-sm sm:text-base">
+                        Sonra
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2.5 sm:py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold active:scale-95 hover:scale-105 transition-transform touch-manipulation text-sm sm:text-base">
+                        Yadda Saxla
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectIncomeRange(min, max) {
+        // Calculate average of range
+        const avgBudget = Math.round((min + max) / 2);
+        const input = document.getElementById('onboarding-income-input');
+        
+        // Update input value
+        if (input) {
+            input.value = avgBudget;
+            // Trigger input event to ensure validation
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        
+        // Remove previous selection
+        document.querySelectorAll('.income-option-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-500/20');
+            btn.classList.add('border-white/10');
+        });
+        
+        // Highlight selected button
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.remove('border-white/10');
+            event.currentTarget.classList.add('border-blue-500', 'bg-blue-500/20');
+        }
+    }
+
+    function adjustIncomeAmount(change) {
+        const input = document.getElementById('onboarding-income-input');
+        if (!input) return;
+        
+        let currentVal = parseFloat(input.value) || 0;
+        let newVal = currentVal + change;
+        
+        // Clamp between min and max
+        if (newVal < 100) {
+            newVal = 100;
+        } else if (newVal > 50000) {
+            newVal = 50000;
+            if (window.showToast) {
+                window.showToast('Maksimum büdcə 50000 AZN-dir', 'error');
+            }
+        }
+        
+        // Round to nearest 100
+        newVal = Math.round(newVal / 100) * 100;
+        
+        input.value = newVal;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Remove selection from buttons when adjusting manually
+        document.querySelectorAll('.income-option-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-500/20');
+            btn.classList.add('border-white/10');
+        });
+    }
+
+    function updateOnboardingIncomeFromInput(val) {
+        let numVal = parseFloat(val);
+        if (isNaN(numVal) || numVal < 100) {
+            numVal = 100;
+        } else if (numVal > 50000) {
+            numVal = 50000;
+            if (window.showToast) {
+                window.showToast('Maksimum büdcə 50000 AZN-dir', 'error');
+            }
+        }
+        
+        // Round to nearest 100
+        numVal = Math.round(numVal / 100) * 100;
+        
+        const input = document.getElementById('onboarding-income-input');
+        if (input && parseFloat(input.value) !== numVal) {
+            input.value = numVal;
+        }
+        
+        // Remove selection from buttons when typing manually
+        document.querySelectorAll('.income-option-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-500/20');
+            btn.classList.add('border-white/10');
+        });
+    }
+
+    function skipIncomeOnboarding() {
+        const modal = document.getElementById('income-onboarding-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    }
+
+    // Handle form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('income-onboarding-form');
+        if (form) {
+            form.addEventListener('htmx:afterRequest', function(event) {
+                if (event.detail.xhr.status === 200) {
+                    skipIncomeOnboarding();
+                    if (window.showToast) {
+                        window.showToast('Büdcə yadda saxlanıldı!', 'success');
+                    }
+                    // Reload page to update budget
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }
+            });
+        }
+    });
+</script>
+{% endif %}
+

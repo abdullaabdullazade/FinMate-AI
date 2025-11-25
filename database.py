@@ -58,6 +58,7 @@ def ensure_schema():
     add_column_if_missing("users", "last_login_date DATE")
     add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
     add_column_if_missing("users", "password_hash VARCHAR")
+    add_column_if_missing("users", "monthly_income FLOAT")
 
     # Expense table safety
     add_column_if_missing("expenses", "is_subscription BOOLEAN DEFAULT 0")

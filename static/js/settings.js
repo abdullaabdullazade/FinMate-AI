@@ -2,6 +2,55 @@
 (function () {
     'use strict';
 
+    // Income Slider Logic
+    window.updateIncomeFromSlider = function (val) {
+        const input = document.getElementById('monthly-income-input');
+        const progress = document.getElementById('income-progress');
+        const thumb = document.getElementById('income-thumb');
+
+        if (input) {
+            input.value = val;
+        }
+        if (progress && thumb) {
+            const percentage = Math.min((val / 100000) * 100, 100);
+            progress.style.width = percentage + '%';
+            thumb.style.left = percentage + '%';
+        }
+    };
+
+    window.updateIncomeFromInput = function (val) {
+        const slider = document.getElementById('monthly-income-slider');
+        const progress = document.getElementById('income-progress');
+        const thumb = document.getElementById('income-thumb');
+        
+        // Validate input
+        let numVal = parseFloat(val);
+        if (isNaN(numVal) || numVal < 0) {
+            numVal = 0;
+        } else if (numVal > 100000) {
+            numVal = 100000;
+            window.showToast('Maksimum maaş 100000 AZN-dir', 'error');
+        }
+        
+        // Update input if value was corrected
+        const input = document.getElementById('monthly-income-input');
+        if (input && input.value != numVal) {
+            input.value = numVal;
+        }
+        
+        // Update slider
+        if (slider) {
+            slider.value = numVal;
+        }
+        
+        // Update progress bar
+        if (progress && thumb) {
+            const percentage = Math.min((numVal / 100000) * 100, 100);
+            progress.style.width = percentage + '%';
+            thumb.style.left = percentage + '%';
+        }
+    };
+
     // Budget Slider Logic
     window.updateBudgetFromSlider = function (val) {
         const input = document.getElementById('monthly-budget-input');

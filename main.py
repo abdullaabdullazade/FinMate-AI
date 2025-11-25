@@ -462,7 +462,7 @@ async def signup(
             "error": "Bu istifadəçi adı artıq mövcuddur"
         })
     
-    # Create new user
+    # Create new user (monthly_income will be set during onboarding after login)
     password_hash = hash_password(password)
     new_user = User(
         username=username,
@@ -616,6 +616,9 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Limit to 3 suggestions max
     local_gems_suggestions = local_gems_suggestions[:3]
 
+    # Check if user needs budget onboarding (budget is default 1000)
+    show_income_onboarding = user.monthly_budget == 1000.0 and (not hasattr(user, 'monthly_income') or getattr(user, 'monthly_income', None) is None)
+    
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user": user,
@@ -640,7 +643,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_progress": dream_progress,
         "dream_blur": dream_blur,
         "local_gems": local_gems_suggestions,
-        "daily_limit_alert": daily_limit_alert
+        "daily_limit_alert": daily_limit_alert,
+        "show_income_onboarding": show_income_onboarding
     })
 
 
@@ -2001,6 +2005,34 @@ async def get_dream_data(request: Request, dream_id: int, db: Session = Depends(
             "priority": dream.priority
         }
     })
+
+
+@app.post("/api/set-budget")
+async def set_budget(
+    request: Request,
+    monthly_budget: float = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Set user monthly budget (onboarding)"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    try:
+        if monthly_budget < 100:
+            return JSONResponse({"success": False, "error": "Minimum büdcə 100 AZN-dir"}, status_code=400)
+        if monthly_budget > 50000:
+            return JSONResponse({"success": False, "error": "Maksimum büdcə 50000 AZN-dir"}, status_code=400)
+        
+        # Set budget and income to the same value
+        user.monthly_budget = monthly_budget
+        user.monthly_income = monthly_budget
+        db.commit()
+        
+        return JSONResponse({"success": True, "message": "Büdcə yadda saxlanıldı"})
+    except Exception as e:
+        print(f"❌ Set Budget Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 @app.get("/api/settings")
