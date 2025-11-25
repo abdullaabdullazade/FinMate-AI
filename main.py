@@ -370,7 +370,14 @@ async def login_page(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if user:
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("login.html", {"request": request})
+    
+    # Check if user just registered
+    registered = request.query_params.get("registered") == "1"
+    
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "registered": registered
+    })
 
 @app.post("/api/login")
 async def login(
@@ -466,9 +473,8 @@ async def signup(
     db.commit()
     db.refresh(new_user)
     
-    # Login the user
-    request.session["user_id"] = new_user.id
-    return RedirectResponse(url="/", status_code=303)
+    # Redirect to login page with success message
+    return RedirectResponse(url="/login?registered=1", status_code=303)
 
 @app.get("/logout")
 async def logout(request: Request):
