@@ -3,7 +3,7 @@
 // CRITICAL: Apply theme before page renders to prevent flash
 (function () {
     'use strict';
-    
+
     // Add preload class to disable transitions
     document.documentElement.classList.add('preload');
 
@@ -30,8 +30,60 @@
     });
 })();
 
+// Global Speech Manager
+window.SpeechManager = {
+    speechTimeout: null,
+
+    stop: function () {
+        // Clear any pending speech timeout
+        if (this.speechTimeout) {
+            clearTimeout(this.speechTimeout);
+            this.speechTimeout = null;
+        }
+
+        // Stop TTS
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            // Double cancel for safety
+            setTimeout(() => {
+                if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+                    window.speechSynthesis.cancel();
+                }
+            }, 10);
+        }
+
+        // Stop Recording if active
+        if (window.voiceRecorder && window.voiceRecorder.isRecording) {
+            window.voiceRecorder.stopRecording();
+        }
+    },
+
+    speak: function (text, lang = 'az-AZ') {
+        if (!('speechSynthesis' in window)) return;
+
+        // Stop everything first
+        this.stop();
+
+        const cleanText = text.trim();
+        if (!cleanText) return;
+
+        // Small delay to ensure cancellation takes effect
+        this.speechTimeout = setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = lang;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+
+            window.speechSynthesis.speak(utterance);
+        }, 100);
+    }
+};
+
+// Backward compatibility
+window.stopAllSpeech = () => window.SpeechManager.stop();
+
 // Global Toast Function
-window.showToast = function(message, type = 'success') {
+window.showToast = function (message, type = 'success') {
     const container = document.getElementById('toast-container');
     if (!container) {
         // Create container if doesn't exist
@@ -69,5 +121,9 @@ window.showToast = function(message, type = 'success') {
         toast.classList.add('translate-x-full', 'opacity-0');
         setTimeout(() => toast.remove(), 500);
     }, 3000);
-};
 
+    // Voice Notification (TTS)
+    if ('speechSynthesis' in window) {
+        window.SpeechManager.speak(message);
+    }
+};

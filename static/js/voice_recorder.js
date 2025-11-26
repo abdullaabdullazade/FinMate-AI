@@ -18,6 +18,13 @@ class VoiceRecorder {
             return;
         }
 
+        // Stop any other speech (TTS) before starting recording
+        if (window.SpeechManager) {
+            window.SpeechManager.stop();
+        } else if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+
         // Clean up any existing recording state completely
         if (this.mediaRecorder) {
             try {
@@ -298,12 +305,19 @@ class VoiceRecorder {
         const resultDiv = document.getElementById('voice-result');
         resultDiv.innerHTML = `
             <div class="error-result">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 mb-3">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <span class="text-white text-sm sm:text-base">${msg}</span>
                 </div>
+                <button onclick="voiceRecorder.resetRecording(); voiceRecorder.startRecording()" 
+                    class="w-full bg-white/10 hover:bg-white/20 text-white py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Yenidən Cəhd Et
+                </button>
             </div>
         `;
 
@@ -384,6 +398,13 @@ window.voiceRecorder = voiceRecorder;
 window.openVoiceModal = () => {
     const modal = document.getElementById('voice-modal');
     if (modal) {
+        // Reset modal state if it was previously used
+        const resultDiv = document.getElementById('voice-result');
+        if (resultDiv && resultDiv.innerHTML !== '') {
+            resultDiv.innerHTML = '';
+            voiceRecorder.updateUI('idle');
+        }
+
         modal.classList.remove('hidden');
         // Smooth open animation
         requestAnimationFrame(() => {

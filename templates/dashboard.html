@@ -321,7 +321,7 @@
                 <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
                 <p class="text-sm sm:text-base text-red-100">
                     Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - user.monthly_budget) }}
-                        AZN</strong> artıq
+                        {{ currency_symbol }}</strong> artıq
                     xərclədiniz.
                     Xərclərinizi azaltmağı tövsiyə edirik.
                 </p>
@@ -344,7 +344,7 @@
                     Büdcənizin <strong class="incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</strong>-ni
                     istifadə etdiniz.
                     Daha <strong class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending) }}
-                        AZN</strong> qalıb.
+                        {{ currency_symbol }}</strong> qalıb.
                 </p>
             </div>
         </div>
@@ -428,10 +428,10 @@
                 <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Gündəlik Limit Keçildi!</h3>
                 <p class="text-sm sm:text-base text-red-100">
                     Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }}
-                        AZN</strong> xərclədiniz.
-                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
+                        {{ currency_symbol }}</strong> xərclədiniz.
+                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} {{ currency_symbol }}</strong>
                     (Artıq: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.over_by) }}
-                        AZN</strong>)
+                        {{ currency_symbol }}</strong>)
                 </p>
             </div>
         </div>
@@ -445,10 +445,10 @@
                 <h3 class="text-base sm:text-xl font-bold text-yellow-200 mb-1">Gündəlik Limitə Yaxınlaşırsınız</h3>
                 <p class="text-sm sm:text-base text-yellow-100">
                     Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }}
-                        AZN</strong> xərclədiniz.
-                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
+                        {{ currency_symbol }}</strong> xərclədiniz.
+                    Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} {{ currency_symbol }}</strong>
                     (Qalan: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.remaining) }}
-                        AZN</strong>)
+                        {{ currency_symbol }}</strong>)
                 </p>
             </div>
         </div>
@@ -499,7 +499,8 @@
                         data-value="{{ total_spending }}" data-initial="{{ " %.2f"|format(total_spending) }}">{{
                         "%.2f"|format(total_spending)
                         }}</span>
-                    <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
+                    <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                        user.currency or '{{ currency_symbol }}' }}</span>
                 </div>
             </div>
 
@@ -508,10 +509,13 @@
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
-                        data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}" data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined else user.monthly_budget)
-                        }}">{{ "%.2f"|format(monthly_budget_display if monthly_budget_display is defined else user.monthly_budget)
+                        data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}"
+                        data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined else
+                        user.monthly_budget) }}">{{ "%.2f"|format(monthly_budget_display if monthly_budget_display is
+                        defined else user.monthly_budget)
                         }}</span>
-                    <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
+                    <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                        user.currency or '{{ currency_symbol }}' }}</span>
                 </div>
             </div>
 
@@ -521,11 +525,14 @@
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-remaining"
                         class="text-2xl sm:text-4xl font-bold {% if (remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
-                        data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}" data-initial="{{ "
-                        %.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }}">
-                        {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }}
+                        data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}"
+                        data-initial="{{ " %.2f"|format(remaining_budget if remaining_budget is defined else
+                        (user.monthly_budget - total_spending)) }}">
+                        {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
+                        total_spending)) }}
                     </span>
-                    <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
+                    <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                        user.currency or '{{ currency_symbol }}' }}</span>
                 </div>
             </div>
 
@@ -584,12 +591,16 @@
                 <p class="text-xs sm:text-sm text-white/60 mb-1">Təxmini Balans</p>
                 <p id="projected-balance"
                     class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
-                    {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }} <span id="projected-balance-currency">{{ user.currency or 'AZN' }}</span>
+                    {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
+                    total_spending)) }} <span id="projected-balance-currency">{{ user.currency or '{{ currency_symbol
+                        }}' }}</span>
                 </p>
                 <p class="text-xs text-white/40 mt-1">
                     Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{
-                        "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending))
-                        }}</span> <span id="monthly-savings-currency">{{ user.currency or 'AZN' }}</span>
+                        "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
+                        total_spending))
+                        }}</span> <span id="monthly-savings-currency">{{ user.currency or '{{ currency_symbol }}'
+                        }}</span>
                 </p>
             </div>
         </div>
@@ -724,7 +735,8 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-white/60 text-xs mb-1">Ümumi məbləğ</p>
                             <p class="text-white font-black text-lg sm:text-2xl incognito-hidden">{{
-                                "%.0f"|format(amount) }} <span class="text-sm sm:text-lg">₼</span></p>
+                                "%.2f"|format(amount) }} <span class="text-sm sm:text-lg">{{ currency_symbol }}</span>
+                            </p>
                         </div>
                         <div class="text-right">
                             <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold
@@ -777,7 +789,8 @@
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-lg sm:text-xl">📍</span>
                             <h4 class="text-sm sm:text-base font-bold text-white truncate">{{ gem.merchant }}</h4>
-                            <span class="text-xs sm:text-sm text-white/70">• {{ "%.2f"|format(gem.amount) }} AZN</span>
+                            <span class="text-xs sm:text-sm text-white/70">• {{ "%.2f"|format(gem.amount) }} {{
+                                currency_symbol }}</span>
                         </div>
                         <p class="text-xs sm:text-sm text-white/60">{{ gem.category }}</p>
                     </div>
@@ -791,10 +804,11 @@
                         <div class="flex-1 min-w-0">
                             {% if alt.get('price') and alt.get('savings') %}
                             <p class="text-xs sm:text-sm font-medium text-white">
-                                <strong>{{ alt.name }}</strong> - {{ "%.2f"|format(alt.price) }} AZN
+                                <strong>{{ alt.name }}</strong> - {{ "%.2f"|format(alt.price) }} {{ currency_symbol }}
                             </p>
                             <p class="text-xs text-green-400 mt-0.5">
-                                💰 {{ "%.2f"|format(alt.savings) }} AZN qənaət ({{ "%.0f"|format((alt.savings /
+                                💰 {{ "%.2f"|format(alt.savings) }} {{ currency_symbol }} qənaət ({{
+                                "%.0f"|format((alt.savings /
                                 gem.amount * 100) if gem.amount > 0 else 0) }}%)
                             </p>
                             {% elif alt.get('special_offer') %}
@@ -861,7 +875,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm text-white/70 mb-1">Məbləğ (AZN)</label>
+                        <label class="block text-sm text-white/70 mb-1">Məbləğ ({{ currency_symbol }})</label>
                         <input type="number" name="amount" id="edit-amount" step="0.01" required
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition">
                     </div>
@@ -1381,7 +1395,7 @@
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
-        showNotification(`+${amount} AZN əlavə edildi! 🎉`);
+        showNotification(`+${amount} {{ currency_symbol }} əlavə edildi! 🎉`);
     }
 
     function showNotification(message) {
@@ -1518,12 +1532,12 @@
                 else {
                     el.innerText = finalValue.toFixed(2);
                     // Update data-initial after animation
-                    el.setAttribute('data-initial', finalValue.toFixed(2) + ' AZN');
+                    el.setAttribute('data-initial', finalValue.toFixed(2) + ' {{ currency_symbol }}');
                 }
             } else {
                 // Kitabxana yoxdursa, sadəcə yaz
                 el.innerText = finalValue.toFixed(2);
-                el.setAttribute('data-initial', finalValue.toFixed(2) + ' AZN');
+                el.setAttribute('data-initial', finalValue.toFixed(2) + ' {{ currency_symbol }}');
                 console.warn("CountUp not found, using fallback");
             }
         }
@@ -1542,8 +1556,8 @@
                     const dataInitial = totalEl.getAttribute('data-initial');
                     const dataValue = totalEl.getAttribute('data-value');
                     if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
-                        // Remove "AZN" if present (since it's in separate span)
-                        totalEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                        // Remove "{{ currency_symbol }}" if present (since it's in separate span)
+                        totalEl.textContent = dataInitial.replace(/\s*{{ currency_symbol }}\s*/gi, '').trim();
                     } else if (dataValue) {
                         const value = parseFloat(dataValue);
                         if (!isNaN(value)) {
@@ -1559,7 +1573,7 @@
                     const dataInitial = budgetEl.getAttribute('data-initial');
                     const dataValue = budgetEl.getAttribute('data-value');
                     if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
-                        budgetEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                        budgetEl.textContent = dataInitial.replace(/\s*{{ currency_symbol }}\s*/gi, '').trim();
                     } else if (dataValue) {
                         const value = parseFloat(dataValue);
                         if (!isNaN(value)) {
@@ -1575,7 +1589,7 @@
                     const dataInitial = remainingEl.getAttribute('data-initial');
                     const dataValue = remainingEl.getAttribute('data-value');
                     if (dataInitial && dataInitial !== '****' && !dataInitial.includes('****')) {
-                        remainingEl.textContent = dataInitial.replace(/\s*AZN\s*/gi, '').trim();
+                        remainingEl.textContent = dataInitial.replace(/\s*{{ currency_symbol }}\s*/gi, '').trim();
                     } else if (dataValue) {
                         const value = parseFloat(dataValue);
                         if (!isNaN(value)) {
@@ -1886,7 +1900,7 @@
             const data = await res.json();
             if (data && data.success && data.audio_response) {
                 const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`);
-                
+
                 // Wait for audio to load and play
                 await new Promise((resolve, reject) => {
                     audio.onloadeddata = () => {

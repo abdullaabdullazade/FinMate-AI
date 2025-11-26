@@ -35,6 +35,14 @@ CURRENCY_RATES = {
     "GBP": 2.15
 }
 
+CURRENCY_SYMBOLS = {
+    "AZN": "₼",
+    "USD": "$",
+    "EUR": "€",
+    "TRY": "₺",
+    "RUB": "₽"
+}
+
 # Initialize FastAPI app
 app = FastAPI(title="FinMate AI", description="Your Personal CFO Assistant")
 
@@ -626,6 +634,9 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Limit to 3 suggestions max
     local_gems_suggestions = local_gems_suggestions[:3]
 
+    # Get currency symbol
+    currency_symbol = CURRENCY_SYMBOLS.get(user_currency, "₼")
+
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user": user,
@@ -652,7 +663,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_progress": dream_progress,
         "dream_blur": dream_blur,
         "local_gems": local_gems_suggestions,
-        "daily_limit_alert": daily_limit_alert
+        "currency_symbol": currency_symbol
     })
 
 
@@ -2434,20 +2445,16 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
     
-    return templates.TemplateResponse("settings.html", {
-        "request": request,
-        "user": user,
-        "min": min,
-        "max": max
-    })
-    """User settings page"""
-    user = get_current_user(request, db)
-    if not user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+    # Get currency symbol
+    user_currency = user.currency or "AZN"
+    currency_symbol = CURRENCY_SYMBOLS.get(user_currency, "₼")
     
     return templates.TemplateResponse("settings.html", {
         "request": request,
-        "user": user
+        "user": user,
+        "currency_symbol": currency_symbol,
+        "min": min,
+        "max": max
     })
 
 

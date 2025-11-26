@@ -29,7 +29,7 @@ document.body.addEventListener('htmx:beforeRequest', function (evt) {
 
     const messages = document.getElementById('messages');
     if (!messages) return;
-    
+
     const userDiv = document.createElement('div');
     userDiv.className = 'flex justify-end';
     userDiv.innerHTML = `
@@ -67,5 +67,21 @@ document.body.addEventListener('htmx:afterRequest', function (evt) {
     const typing = document.getElementById('typing-indicator');
     if (typing) typing.remove();
     scrollToBottom();
+
+    // Auto-speak the new message if it's from AI
+    // We need to find the last message added
+    const messages = document.getElementById('messages');
+    const lastMessage = messages.lastElementChild;
+    if (lastMessage && !lastMessage.classList.contains('justify-end')) {
+        // It's an AI message (justify-start)
+        const text = lastMessage.innerText;
+        speakMessage(text);
+    }
 });
 
+// TTS Function
+window.speakMessage = function (text) {
+    if (window.SpeechManager) {
+        window.SpeechManager.speak(text);
+    }
+};
