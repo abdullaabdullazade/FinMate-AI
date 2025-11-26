@@ -225,6 +225,15 @@
         return true;
     };
 
+    // Format on blur
+    window.formatDailyLimit = function (input) {
+        if (!input.value) return;
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) {
+            input.value = val.toFixed(2);
+        }
+    };
+
     // Form Validation before submit
     window.validateSettingsForm = function (form) {
         const dailyLimitInput = document.getElementById('daily-budget-limit-input');

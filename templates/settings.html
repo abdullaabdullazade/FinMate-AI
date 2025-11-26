@@ -90,10 +90,10 @@
                             currency_symbol }}'
                             }}</span>
                         <input type="number" name="daily_budget_limit" id="daily-budget-limit-input"
-                            value="{{ user.daily_budget_limit if user.daily_budget_limit else '' }}"
+                            value="{{ '%.2f'|format(user.daily_budget_limit) if user.daily_budget_limit else '' }}"
                             placeholder="Limit yoxdur" min="0" step="0.01"
                             class="w-full bg-black/20 text-white pl-4 pr-10 py-3 rounded-lg border border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all placeholder-white/20"
-                            oninput="validateDailyLimit(this)">
+                            oninput="validateDailyLimit(this)" onblur="formatDailyLimit(this)">
                     </div>
                     <p class="text-xs text-white/40 mt-2 flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
