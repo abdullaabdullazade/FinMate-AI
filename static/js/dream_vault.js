@@ -1,7 +1,22 @@
 // Dream Vault JavaScript
 
+function getTodayDateString() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function openAddDreamModal() {
     const modal = document.getElementById('add-dream-modal');
+
+    // Set min date to today
+    const dateInput = modal.querySelector('input[name="target_date"]');
+    if (dateInput) {
+        dateInput.min = getTodayDateString();
+    }
+
     modal.classList.remove('hidden');
     setTimeout(() => {
         modal.classList.remove('opacity-0');
@@ -31,7 +46,7 @@ function handleDreamSubmit(event) {
         if (emptyState) {
             emptyState.style.display = 'none';
         }
-        
+
         // Update count after a short delay to allow DOM to update
         setTimeout(() => {
             const dreamsList = document.getElementById('dreams-list');
@@ -41,13 +56,13 @@ function handleDreamSubmit(event) {
                 countEl.textContent = `Aktiv Arzular (${dreamCards.length})`;
             }
         }, 100);
-        
+
         // Close modal
         closeAddDreamModal();
-        
+
         // Trigger stats update
         document.body.dispatchEvent(new Event('dreamUpdated'));
-        
+
         // Show success toast
         if (typeof window.showToast === 'function') {
             window.showToast('✅ Arzu uğurla yaradıldı! (+25 XP)', 'success');
@@ -83,7 +98,7 @@ function initStatsObserver() {
 }
 
 // Animate numbers when stats update (only if visible)
-document.body.addEventListener('dreamUpdated', function() {
+document.body.addEventListener('dreamUpdated', function () {
     const statsElement = document.getElementById('dream-stats');
     if (statsElement && hasAnimated) {
         // Reset animation flag if element is visible
@@ -102,7 +117,7 @@ document.body.addEventListener('dreamUpdated', function() {
 function animateNumber(elementId) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    
+
     // Check incognito mode first - if enabled, don't animate
     const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
     if (isIncognito) {
@@ -114,12 +129,12 @@ function animateNumber(elementId) {
         }
         return;
     }
-    
+
     // Check if element is visible
     const rect = el.getBoundingClientRect();
-    const isVisible = rect.top < window.innerHeight && rect.bottom > 0 && 
-                     rect.left < window.innerWidth && rect.right > 0;
-    
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0 &&
+        rect.left < window.innerWidth && rect.right > 0;
+
     if (!isVisible) {
         // If hidden, set initial value directly without animation
         const targetValue = parseFloat(el.getAttribute('data-value') || 0);
@@ -133,23 +148,23 @@ function animateNumber(elementId) {
         }
         return;
     }
-    
+
     const targetValue = parseFloat(el.getAttribute('data-value') || el.textContent.replace(/[^\d.]/g, ''));
     const currentText = el.textContent.replace(/[^\d.]/g, '');
     const currentValue = parseFloat(currentText) || 0;
-    
+
     if (Math.abs(targetValue - currentValue) < 0.01) return;
-    
+
     const duration = 1000;
     const startTime = Date.now();
     const startValue = currentValue;
-    
+
     function update() {
         // Check visibility during animation
         const rect = el.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight && rect.bottom > 0 && 
-                         rect.left < window.innerWidth && rect.right > 0;
-        
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0 &&
+            rect.left < window.innerWidth && rect.right > 0;
+
         if (!isVisible) {
             // If becomes hidden, stop animation and set final value
             if (elementId.includes('progress')) {
@@ -159,18 +174,18 @@ function animateNumber(elementId) {
             }
             return;
         }
-        
+
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 3);
         const current = startValue + (targetValue - startValue) * easeOut;
-        
+
         if (elementId.includes('progress')) {
             el.textContent = current.toFixed(1) + '%';
         } else {
             el.textContent = current.toFixed(2) + ' AZN';
         }
-        
+
         if (progress < 1) {
             requestAnimationFrame(update);
         } else {
@@ -182,17 +197,17 @@ function animateNumber(elementId) {
             }
         }
     }
-    
+
     update();
 }
 
 // Initialize observer when page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initStatsObserver();
 });
 
 // Re-initialize after HTMX swaps
-document.body.addEventListener('htmx:afterSwap', function(event) {
+document.body.addEventListener('htmx:afterSwap', function (event) {
     if (event.detail.target.id === 'dream-stats' || event.detail.target.querySelector('#dream-stats')) {
         hasAnimated = false;
         if (statsObserver) {
@@ -206,7 +221,7 @@ document.body.addEventListener('htmx:afterSwap', function(event) {
 });
 
 // Restart counters when incognito mode is disabled
-window.restartDreamVaultCounters = function() {
+window.restartDreamVaultCounters = function () {
     const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
     if (!isIncognito) {
         // Reset animation flag and restart observer
@@ -222,7 +237,7 @@ window.restartDreamVaultCounters = function() {
 };
 
 // Listen for incognito disabled event
-document.body.addEventListener('incognitoDisabled', function() {
+document.body.addEventListener('incognitoDisabled', function () {
     window.restartDreamVaultCounters();
 });
 
@@ -237,7 +252,7 @@ function handleDreamError(event) {
 }
 
 // Close modal on outside click
-document.getElementById('add-dream-modal')?.addEventListener('click', function(e) {
+document.getElementById('add-dream-modal')?.addEventListener('click', function (e) {
     if (e.target === this) {
         closeAddDreamModal();
     }
@@ -264,7 +279,13 @@ function openEditDreamModal(dreamId) {
                 } else {
                     document.getElementById('edit-dream-target-date').value = '';
                 }
-                
+
+                // Set min date
+                const dateInput = document.getElementById('edit-dream-target-date');
+                if (dateInput) {
+                    dateInput.min = getTodayDateString();
+                }
+
                 // Update form action
                 const form = document.getElementById('edit-dream-form');
                 if (form) {
@@ -272,18 +293,18 @@ function openEditDreamModal(dreamId) {
                     form.removeAttribute('hx-put');
                     form.removeAttribute('hx-target');
                     form.removeAttribute('hx-swap');
-                    
+
                     // Set new attributes
                     form.setAttribute('hx-put', `/api/dreams/${dreamId}`);
                     form.setAttribute('hx-target', `#dream-${dreamId}`);
                     form.setAttribute('hx-swap', 'outerHTML');
-                    
+
                     // Re-process HTMX attributes
                     if (typeof htmx !== 'undefined') {
                         htmx.process(form);
                     }
                 }
-                
+
                 // Open modal
                 const modal = document.getElementById('edit-dream-modal');
                 modal.classList.remove('hidden');
@@ -340,58 +361,58 @@ function deleteDream(dreamId) {
     if (confirm('Bu arzunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri alına bilməz.')) {
         fetch(`/api/dreams/${dreamId}`, {
             method: 'DELETE',
-            headers: { 
+            headers: {
                 'HX-Request': 'true',
                 'Content-Type': 'application/json'
             }
         })
-        .then(res => {
-            if (res.ok) {
-                // Remove card from DOM
-                const card = document.getElementById(`dream-${dreamId}`);
-                if (card) {
-                    card.style.transition = 'opacity 0.3s, transform 0.3s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.9)';
-                    setTimeout(() => {
-                        card.remove();
-                        // Update count
-                        const dreamsList = document.getElementById('dreams-list');
-                        const dreamCards = dreamsList.querySelectorAll('.dream-card');
-                        const countEl = document.getElementById('dreams-count');
-                        if (countEl) {
-                            countEl.textContent = `Aktiv Arzular (${dreamCards.length})`;
-                        }
-                        // Check if empty
-                        if (dreamCards.length === 0) {
-                            const emptyState = document.getElementById('empty-dreams');
-                            if (emptyState) {
-                                emptyState.style.display = 'block';
+            .then(res => {
+                if (res.ok) {
+                    // Remove card from DOM
+                    const card = document.getElementById(`dream-${dreamId}`);
+                    if (card) {
+                        card.style.transition = 'opacity 0.3s, transform 0.3s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            card.remove();
+                            // Update count
+                            const dreamsList = document.getElementById('dreams-list');
+                            const dreamCards = dreamsList.querySelectorAll('.dream-card');
+                            const countEl = document.getElementById('dreams-count');
+                            if (countEl) {
+                                countEl.textContent = `Aktiv Arzular (${dreamCards.length})`;
                             }
-                        }
-                    }, 300);
+                            // Check if empty
+                            if (dreamCards.length === 0) {
+                                const emptyState = document.getElementById('empty-dreams');
+                                if (emptyState) {
+                                    emptyState.style.display = 'block';
+                                }
+                            }
+                        }, 300);
+                    }
+                    // Trigger stats update
+                    document.body.dispatchEvent(new Event('dreamUpdated'));
+                    // Show success toast
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('✅ Arzu uğurla silindi', 'success');
+                    }
+                } else {
+                    throw new Error('Delete failed');
                 }
-                // Trigger stats update
-                document.body.dispatchEvent(new Event('dreamUpdated'));
-                // Show success toast
+            })
+            .catch(err => {
+                console.error('Delete error:', err);
                 if (typeof window.showToast === 'function') {
-                    window.showToast('✅ Arzu uğurla silindi', 'success');
+                    window.showToast('❌ Arzu silinərkən xəta baş verdi', 'error');
                 }
-            } else {
-                throw new Error('Delete failed');
-            }
-        })
-        .catch(err => {
-            console.error('Delete error:', err);
-            if (typeof window.showToast === 'function') {
-                window.showToast('❌ Arzu silinərkən xəta baş verdi', 'error');
-            }
-        });
+            });
     }
 }
 
 // Close edit modal on outside click
-document.getElementById('edit-dream-modal')?.addEventListener('click', function(e) {
+document.getElementById('edit-dream-modal')?.addEventListener('click', function (e) {
     if (e.target === this) {
         closeEditDreamModal();
     }

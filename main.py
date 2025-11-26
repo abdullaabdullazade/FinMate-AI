@@ -1768,6 +1768,7 @@ async def dream_vault_page(request: Request, db: Session = Depends(get_db)):
         "completed_dreams": completed_dreams,
         "total_saved": total_saved,
         "total_target": total_target,
+        "today_date": datetime.utcnow().strftime("%Y-%m-%d"),
         "now": datetime.utcnow(),
         "date_type": date_type,
         "max": max,
