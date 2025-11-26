@@ -205,9 +205,36 @@ Only return JSON, no other text.""",
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
                 tmp_path = tmp_file.name
             
+            # Load proxies if available
+            proxy = None
+            proxies_file = "proxies.txt"
+            if os.path.exists(proxies_file):
+                try:
+                    with open(proxies_file, "r") as f:
+                        proxies = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+                    if proxies:
+                        import random
+                        raw_proxy = random.choice(proxies)
+                        
+                        # Handle IP:PORT:USER:PASS format
+                        parts = raw_proxy.split(':')
+                        if len(parts) == 4:
+                            # Convert to http://user:pass@ip:port
+                            proxy = f"http://{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
+                        else:
+                            # Assume it's already in correct format or just IP:PORT
+                            if not raw_proxy.startswith("http"):
+                                proxy = f"http://{raw_proxy}"
+                            else:
+                                proxy = raw_proxy
+                                
+                        print(f"🔄 TTS: Using proxy: {proxy}")
+                except Exception as e:
+                    print(f"⚠️ Proxy Error: {e}")
+
             try:
                 # Generate audio using edge-tts
-                communicate = edge_tts.Communicate(text, voice)
+                communicate = edge_tts.Communicate(text, voice, proxy=proxy)
                 await communicate.save(tmp_path)
                 
                 # Wait a bit to ensure file is written
