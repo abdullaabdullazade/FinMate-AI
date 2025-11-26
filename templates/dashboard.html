@@ -374,7 +374,7 @@
                     FinMate AI ilə xərclərinizi idarə edin, qənaət edin və arzularınıza çatın.
                 </p>
             </div>
-            <div class="hidden md:flex items-center gap-3">
+            <div class="flex items-center gap-3">
                 <a href="/chat"
                     class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg">
                     💬 AI Məsləhəti
@@ -384,7 +384,7 @@
                     📸 Çek Skan
                 </a>
                 <button onclick="openFraudAlert()"
-                    class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg shadow-red-500/50 border-2 border-red-400 animate-pulse">
+                    class="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg shadow-red-500/50 border-2 border-red-400 animate-pulse">
                     🚨 Fraud
                 </button>
             </div>
@@ -427,23 +427,28 @@
             <div class="flex-1 min-w-0">
                 <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Gündəlik Limit Keçildi!</h3>
                 <p class="text-sm sm:text-base text-red-100">
-                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }} AZN</strong> xərclədiniz.
+                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }}
+                        AZN</strong> xərclədiniz.
                     Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
-                    (Artıq: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.over_by) }} AZN</strong>)
+                    (Artıq: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.over_by) }}
+                        AZN</strong>)
                 </p>
             </div>
         </div>
     </div>
     {% elif daily_limit_alert.warning %}
-    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20" style="grid-column: span 12;">
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-yellow-500 bg-yellow-500/20"
+        style="grid-column: span 12;">
         <div class="flex items-center gap-3 sm:gap-4">
             <div class="text-3xl sm:text-4xl flex-shrink-0">⚡</div>
             <div class="flex-1 min-w-0">
                 <h3 class="text-base sm:text-xl font-bold text-yellow-200 mb-1">Gündəlik Limitə Yaxınlaşırsınız</h3>
                 <p class="text-sm sm:text-base text-yellow-100">
-                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }} AZN</strong> xərclədiniz.
+                    Bu gün <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.today_spending) }}
+                        AZN</strong> xərclədiniz.
                     Limit: <strong>{{ "%.2f"|format(daily_limit_alert.limit) }} AZN</strong>
-                    (Qalan: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.remaining) }} AZN</strong>)
+                    (Qalan: <strong class="incognito-hidden">{{ "%.2f"|format(daily_limit_alert.remaining) }}
+                        AZN</strong>)
                 </p>
             </div>
         </div>
@@ -494,7 +499,7 @@
                         data-value="{{ total_spending }}" data-initial="{{ " %.2f"|format(total_spending) }}">{{
                         "%.2f"|format(total_spending)
                         }}</span>
-                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
+                    <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
                 </div>
             </div>
 
@@ -503,10 +508,10 @@
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
-                        data-value="{{ user.monthly_budget }}" data-initial="{{ " %.2f"|format(user.monthly_budget)
-                        }}">{{ "%.2f"|format(user.monthly_budget)
+                        data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}" data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined else user.monthly_budget)
+                        }}">{{ "%.2f"|format(monthly_budget_display if monthly_budget_display is defined else user.monthly_budget)
                         }}</span>
-                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
+                    <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
                 </div>
             </div>
 
@@ -515,12 +520,12 @@
                 <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
                 <div class="flex items-end gap-1 sm:gap-2">
                     <span id="stat-remaining"
-                        class="text-2xl sm:text-4xl font-bold {% if (user.monthly_budget - total_spending) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
-                        data-value="{{ user.monthly_budget - total_spending }}" data-initial="{{ "
-                        %.2f"|format(user.monthly_budget - total_spending) }}">
-                        {{ "%.2f"|format(user.monthly_budget - total_spending) }}
+                        class="text-2xl sm:text-4xl font-bold {% if (remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
+                        data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}" data-initial="{{ "
+                        %.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }}">
+                        {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }}
                     </span>
-                    <span class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">AZN</span>
+                    <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{ user.currency or 'AZN' }}</span>
                 </div>
             </div>
 
@@ -579,12 +584,12 @@
                 <p class="text-xs sm:text-sm text-white/60 mb-1">Təxmini Balans</p>
                 <p id="projected-balance"
                     class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
-                    {{ "%.2f"|format(user.monthly_budget - total_spending) }} ₼
+                    {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) }} <span id="projected-balance-currency">{{ user.currency or 'AZN' }}</span>
                 </p>
                 <p class="text-xs text-white/40 mt-1">
                     Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{
-                        "%.2f"|format(user.monthly_budget - total_spending)
-                        }}</span> ₼
+                        "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending))
+                        }}</span> <span id="monthly-savings-currency">{{ user.currency or 'AZN' }}</span>
                 </p>
             </div>
         </div>
@@ -1292,6 +1297,65 @@
 
 {% endblock %}
 {% block extra_scripts %}
+<script>
+    // Dashboard welcome voice greeting - emotional and helpful
+    (async function () {
+        const voiceMode = localStorage.getItem('voice-mode');
+        if (voiceMode === 'enabled') {
+            // Wait for page to fully load
+            window.addEventListener('load', async function () {
+                setTimeout(async () => {
+                    const totalEl = document.getElementById('stat-total');
+                    const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
+
+                    if (!isIncognito && totalEl) {
+                        // Get actual value from data-value attribute for accuracy
+                        let total = 0;
+                        if (totalEl.hasAttribute('data-value')) {
+                            total = parseFloat(totalEl.getAttribute('data-value')) || 0;
+                        } else {
+                            const totalText = totalEl.textContent || '0';
+                            total = parseFloat(totalText.replace(/[^\d.]/g, '')) || 0;
+                        }
+
+                        console.log('🔊 Dashboard total:', total);
+                        const username = '{{ user.username if user else "İstifadəçi" }}';
+
+                        // Create emotional greeting message
+                        let message = `Salam, ${username}! `;
+
+                        // Add emotional context based on spending
+                        if (total === 0) {
+                            message += 'Təbrik edirəm! Bu ay hələ heç bir xərc yoxdur. Əla başlanğıc!';
+                        } else if (total < 50) {
+                            message += 'Bu ay xərcləriniz çox azdır. Əla idarə edirsiniz! ';
+                        } else if (total < 200) {
+                            message += 'Bu ay yaxşı gedirsiz. ';
+                        } else {
+                            message += 'Bu ay aktiv xərcləyirsiniz. ';
+                        }
+
+                        // Add amount with natural pronunciation
+                        if (total > 0) {
+                            if (typeof window.numberToAzerbaijani === 'function') {
+                                message += `Cari xərciniz ${window.numberToAzerbaijani(total)}.`;
+                            } else {
+                                message += `Cari xərciniz ${total.toFixed(2)} manat.`;
+                            }
+                        }
+
+                        console.log('🔊 Dashboard welcome:', message);
+
+                        // Use queue system with normal priority
+                        if (typeof window.queueVoiceNotification === 'function') {
+                            window.queueVoiceNotification(message, 1, 'az');
+                        }
+                    }
+                }, 1500); // Wait 1.5 seconds for stats to load
+            });
+        }
+    })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js"></script>
 
 <script>
@@ -1814,15 +1878,40 @@
             fd.append('language', 'az');
 
             const res = await fetch('/api/tts', { method: 'POST', body: fd });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) {
+                console.error('TTS request failed:', res.status, res.statusText);
+                throw new Error(`HTTP ${res.status}`);
+            }
 
             const data = await res.json();
             if (data && data.success && data.audio_response) {
                 const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`);
-                await audio.play();
+                
+                // Wait for audio to load and play
+                await new Promise((resolve, reject) => {
+                    audio.onloadeddata = () => {
+                        audio.play().then(resolve).catch(reject);
+                    };
+                    audio.onerror = reject;
+                    // Fallback if onloadeddata doesn't fire
+                    setTimeout(() => {
+                        audio.play().then(resolve).catch(reject);
+                    }, 100);
+                });
+            } else {
+                console.error('TTS response error:', data);
+                throw new Error(data?.error || 'TTS failed');
             }
         } catch (err) {
-            // Silent error handling
+            console.error('Dashboard TTS error:', err);
+            // Show error to user
+            if (speakBtn) {
+                const btnText = speakBtn.querySelector('span.font-semibold');
+                if (btnText) btnText.textContent = 'Xəta';
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = 'Səsləndir';
+                }, 2000);
+            }
         } finally {
             if (speakBtn) {
                 speakBtn.disabled = false;

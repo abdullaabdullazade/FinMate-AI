@@ -13,6 +13,37 @@
         {{ message.content | safe }}
     </div>
 </div>
+<script>
+    // Speak AI response if voice mode enabled
+    (async function () {
+        const voiceMode = localStorage.getItem('voice-mode');
+        if (voiceMode === 'enabled') {
+            const aiText = `{{ message.content | striptags | replace('"', '\\"') | replace('\n', ' ') }}`;
+            console.log('🔊 Speaking AI response...');
+
+            try {
+                const formData = new FormData();
+                formData.append('text', aiText);
+                formData.append('language', 'az');
+
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.audio_response) {
+                        const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`);
+                        audio.play();
+                    }
+                }
+            } catch (error) {
+                console.error('Chat TTS error:', error);
+            }
+        }
+    })();
+</script>
 {% endif %}
 {% endfor %}
 

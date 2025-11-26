@@ -29,7 +29,7 @@ import hashlib
 CURRENCY_RATES = {
     "AZN": 1.0,
     "USD": 1.7,
-    "EUR": 1.82,
+    "EUR": 1.97,  # Real rate: 1 EUR = 1.97 AZN
     "TRY": 0.055,
     "RUB": 0.018,
     "GBP": 2.15
@@ -462,7 +462,7 @@ async def signup(
             "error": "Bu istifadəçi adı artıq mövcuddur"
         })
     
-    # Create new user (monthly_income will be set during onboarding after login)
+    # Create new user
     password_hash = hash_password(password)
     new_user = User(
         username=username,
@@ -521,23 +521,29 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         Expense.date >= month_start
     ).all()
     
-    # Calculate stats
-    total_spending = sum(exp.amount for exp in expenses)
+    # Calculate stats (all amounts are stored in AZN)
+    total_spending_azn = sum(exp.amount for exp in expenses)
     
-    # Category breakdown
+    # Convert to user's preferred currency for display
+    user_currency = user.currency or "AZN"
+    total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
+    monthly_budget_display = convert_currency(user.monthly_budget, "AZN", user_currency)
+    remaining_budget = convert_currency(user.monthly_budget - total_spending_azn, "AZN", user_currency)
+    
+    # Category breakdown (convert for display)
     category_data = {}
     for exp in expenses:
         if exp.category not in category_data:
             category_data[exp.category] = 0
-        category_data[exp.category] += exp.amount
+        category_data[exp.category] += convert_currency(exp.amount, "AZN", user_currency)
     
     # Recent expenses (last 10 by creation time so freshly scanned items appear)
     recent_expenses = db.query(Expense).filter(
         Expense.user_id == user.id
     ).order_by(Expense.created_at.desc()).limit(10).all()
     
-    # Budget percentage
-    budget_percentage = (total_spending / user.monthly_budget * 100) if user.monthly_budget > 0 else 0
+    # Budget percentage (use AZN values for calculation to maintain accuracy)
+    budget_percentage = (total_spending_azn / user.monthly_budget * 100) if user.monthly_budget > 0 else 0
     
     # Check daily budget limit
     daily_limit_alert = None
@@ -550,20 +556,24 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         ).all()
         today_total = sum(exp.amount for exp in today_expenses)
         
+        # Convert daily limit values for display
+        today_total_display = convert_currency(today_total, "AZN", user_currency)
+        daily_limit_display = convert_currency(user.daily_budget_limit, "AZN", user_currency)
+        
         if today_total > user.daily_budget_limit:
             daily_limit_alert = {
                 "exceeded": True,
-                "today_spending": today_total,
-                "limit": user.daily_budget_limit,
-                "over_by": today_total - user.daily_budget_limit
+                "today_spending": today_total_display,
+                "limit": daily_limit_display,
+                "over_by": convert_currency(today_total - user.daily_budget_limit, "AZN", user_currency)
             }
         elif today_total >= user.daily_budget_limit * 0.9:
             daily_limit_alert = {
                 "exceeded": False,
                 "warning": True,
-                "today_spending": today_total,
-                "limit": user.daily_budget_limit,
-                "remaining": user.daily_budget_limit - today_total
+                "today_spending": today_total_display,
+                "limit": daily_limit_display,
+                "remaining": convert_currency(user.daily_budget_limit - today_total, "AZN", user_currency)
             }
     
     # Get level info for gamification
@@ -595,9 +605,9 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         merchant = expense.merchant
         amount = expense.amount
         
-        # Check if it's an expensive merchant or above average amount
+        # Check if it's an expensive merchant or above average amount (use AZN for comparison)
         is_expensive = any(exp_merchant.lower() in merchant.lower() for exp_merchant in expensive_merchants)
-        avg_amount = total_spending / len(expenses) if expenses else 0
+        avg_amount = total_spending_azn / len(expenses) if expenses else 0
         is_above_avg = amount > avg_amount * 1.5 if avg_amount > 0 else False
         
         if is_expensive or is_above_avg:
@@ -616,13 +626,12 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Limit to 3 suggestions max
     local_gems_suggestions = local_gems_suggestions[:3]
 
-    # Check if user needs budget onboarding (budget is default 1000)
-    show_income_onboarding = user.monthly_budget == 1000.0 and (not hasattr(user, 'monthly_income') or getattr(user, 'monthly_income', None) is None)
-    
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user": user,
-        "total_spending": total_spending,
+        "total_spending": total_spending,  # Already converted to user currency
+        "monthly_budget_display": monthly_budget_display,  # Converted to user currency
+        "remaining_budget": remaining_budget,  # Converted to user currency
         "budget_percentage": budget_percentage,
         "category_data": category_data,
         "recent_expenses": recent_expenses,
@@ -643,8 +652,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_progress": dream_progress,
         "dream_blur": dream_blur,
         "local_gems": local_gems_suggestions,
-        "daily_limit_alert": daily_limit_alert,
-        "show_income_onboarding": show_income_onboarding
+        "daily_limit_alert": daily_limit_alert
     })
 
 
@@ -1578,25 +1586,15 @@ async def reset_demo_endpoint():
 async def activate_trial_endpoint(request: Request, db: Session = Depends(get_db)):
     """Activate premium trial for current user"""
     try:
-        # Get current logged-in user from session
         user = get_current_user(request, db)
         if not user:
-            return JSONResponse({"success": False, "error": "Giriş tələb olunur"}, status_code=401)
-        
-        # Check if user already has premium
-        if user.is_premium:
-            return JSONResponse({"success": False, "error": "Artıq Premium üzvüsünüz"}, status_code=400)
-        
-        # Activate premium trial
+            return JSONResponse({"success": False, "error": "İstifadəçi tapılmadı"}, status_code=401)
+            
         user.is_premium = True
         db.commit()
-        db.refresh(user)  # Refresh to get updated values
-        
         return JSONResponse({"success": True, "message": "Premium aktivləşdirildi! 14 gün pulsuz sınaq başladı."})
-        
     except Exception as e:
         print(f"❌ Trial Activation Error: {e}")
-        db.rollback()
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
@@ -2017,34 +2015,6 @@ async def get_dream_data(request: Request, dream_id: int, db: Session = Depends(
     })
 
 
-@app.post("/api/set-budget")
-async def set_budget(
-    request: Request,
-    monthly_budget: float = Form(...),
-    db: Session = Depends(get_db)
-):
-    """Set user monthly budget (onboarding)"""
-    user = get_current_user(request, db)
-    if not user:
-        raise HTTPException(status_code=401, detail="Authentication required")
-    
-    try:
-        if monthly_budget < 100:
-            return JSONResponse({"success": False, "error": "Minimum büdcə 100 AZN-dir"}, status_code=400)
-        if monthly_budget > 50000:
-            return JSONResponse({"success": False, "error": "Maksimum büdcə 50000 AZN-dir"}, status_code=400)
-        
-        # Set budget and income to the same value
-        user.monthly_budget = monthly_budget
-        user.monthly_income = monthly_budget
-        db.commit()
-        
-        return JSONResponse({"success": True, "message": "Büdcə yadda saxlanıldı"})
-    except Exception as e:
-        print(f"❌ Set Budget Error: {e}")
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
-
-
 @app.get("/api/settings")
 async def get_settings(request: Request, db: Session = Depends(get_db)):
     """Get user settings"""
@@ -2106,14 +2076,12 @@ async def update_settings(
         if monthly_budget not in (None, ""):
             try:
                 budget_val = float(monthly_budget)
-                if budget_val < 100:
-                    raise ValueError("Budget cannot be less than 100 AZN")
-                if budget_val > 50000:
-                    raise ValueError("Budget cannot exceed 50000 AZN")
+                if budget_val < 1:
+                    raise ValueError("Budget cannot be less than 1")
                 user.monthly_budget = budget_val
             except (ValueError, TypeError) as e:
                 print(f"❌ Invalid monthly_budget: {monthly_budget}, error: {e}")
-                return JSONResponse({"success": False, "error": "Yanlış büdcə dəyəri (100-50000 AZN arası)"}, status_code=400)
+                return JSONResponse({"success": False, "error": "Yanlış büdcə dəyəri (minimum 100)"}, status_code=400)
         
         # Handle daily_budget_limit - allow empty string to clear it
         if daily_budget_limit is not None and daily_budget_limit != "":
@@ -2121,12 +2089,10 @@ async def update_settings(
                 daily_val = float(daily_budget_limit)
                 if daily_val < 0:
                     raise ValueError("Daily limit cannot be negative")
-                if daily_val > 1000:
-                    raise ValueError("Daily limit cannot exceed 1000 AZN")
                 user.daily_budget_limit = daily_val
             except (ValueError, TypeError) as e:
                 print(f"❌ Invalid daily_budget_limit: {daily_budget_limit}, error: {e}")
-                return JSONResponse({"success": False, "error": "Yanlış gündəlik limit dəyəri (0-1000 AZN arası)"}, status_code=400)
+                return JSONResponse({"success": False, "error": "Yanlış gündəlik limit dəyəri"}, status_code=400)
         else:
             # Empty string or None means clear the limit
             user.daily_budget_limit = None
@@ -2155,6 +2121,140 @@ async def update_settings(
     except Exception as e:
         print(f"❌ Settings Update Error: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.post("/api/update-currency")
+async def update_currency(
+    request: Request,
+    new_currency: str = Form(...),
+    confirm: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    """Update user currency with conversion preview and confirmation"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    try:
+        old_currency = (user.currency or "AZN").upper()
+        new_currency = new_currency.upper()
+        
+        # No change needed
+        if old_currency == new_currency:
+            return JSONResponse({
+                "success": True, 
+                "message": "Valyuta eynidir, dəyişiklik yoxdur"
+            })
+        
+        # Validate currency
+        if new_currency not in CURRENCY_RATES:
+            return JSONResponse({
+                "success": False,
+                "error": f"Dəstəklənməyən valyuta: {new_currency}"
+            }, status_code=400)
+        
+        # If not confirmed, return preview
+        if not confirm:
+            preview_data = calculate_conversion_preview(user, old_currency, new_currency, db)
+            return JSONResponse({
+                "preview": True,
+                "old_currency": old_currency,
+                "new_currency": new_currency,
+                "data": preview_data
+            })
+        
+        # Perform actual conversion
+        conversion_result = convert_all_amounts(user, old_currency, new_currency, db)
+        
+        # Update user's currency preference
+        user.currency = new_currency
+        db.commit()
+        
+        return JSONResponse({
+            "success": True,
+            "message": f"Valyuta {old_currency}-dən {new_currency}-ə çevrildi",
+            "converted_items": conversion_result
+        })
+        
+    except Exception as e:
+        print(f"❌ Currency Update Error: {e}")
+        db.rollback()
+        return JSONResponse({
+            "success": False,
+            "error": str(e)
+        }, status_code=500)
+
+
+def calculate_conversion_preview(user: User, from_currency: str, to_currency: str, db: Session) -> dict:
+    """Calculate what amounts will become after conversion (budget and dreams, not historical expenses)"""
+    
+    # Get dreams
+    dreams = db.query(Dream).filter(Dream.user_id == user.id).all()
+    
+    # Calculate conversions for budget items and dreams
+    monthly_budget_new = convert_currency(user.monthly_budget, from_currency, to_currency)
+    daily_limit_new = convert_currency(user.daily_budget_limit, from_currency, to_currency) if user.daily_budget_limit else None
+    
+    # Dream conversions
+    dream_conversions = []
+    for dream in dreams[:3]:  # Show first 3
+        dream_conversions.append({
+            "title": dream.title,
+            "old_target": dream.target_amount,
+            "new_target": convert_currency(dream.target_amount, from_currency, to_currency),
+            "old_saved": dream.saved_amount,
+            "new_saved": convert_currency(dream.saved_amount, from_currency, to_currency)
+        })
+    
+    return {
+        "monthly_budget": {
+            "old": user.monthly_budget,
+            "new": monthly_budget_new
+        },
+        "daily_limit": {
+            "old": user.daily_budget_limit,
+            "new": daily_limit_new
+        } if user.daily_budget_limit else None,
+        "dreams": dream_conversions,
+        "conversion_rate": {
+            "from": from_currency,
+            "to": to_currency,
+            "rate": CURRENCY_RATES[from_currency] / CURRENCY_RATES[to_currency]
+        }
+    }
+
+
+def convert_all_amounts(user: User, from_currency: str, to_currency: str, db: Session) -> dict:
+    """Convert user budget amounts from one currency to another (NOT expenses - they are historical)"""
+    
+    converted_items = {
+        "budget": False,
+        "daily_limit": False,
+        "dreams": 0
+    }
+    
+    # Convert monthly budget
+    if user.monthly_budget:
+        user.monthly_budget = convert_currency(user.monthly_budget, from_currency, to_currency)
+        converted_items["budget"] = True
+    
+    # Convert daily budget limit
+    if user.daily_budget_limit:
+        user.daily_budget_limit = convert_currency(user.daily_budget_limit, from_currency, to_currency)
+        converted_items["daily_limit"] = True
+    
+    # Convert all dreams/goals (user requested this)
+    dreams = db.query(Dream).filter(Dream.user_id == user.id).all()
+    for dream in dreams:
+        dream.target_amount = convert_currency(dream.target_amount, from_currency, to_currency)
+        dream.saved_amount = convert_currency(dream.saved_amount, from_currency, to_currency)
+        converted_items["dreams"] += 1
+    
+    # NOTE: We do NOT convert expenses because they represent historical real amounts
+    # User can still view them in their preferred currency via display conversion
+    
+    db.commit()
+    return converted_items
 
 
 

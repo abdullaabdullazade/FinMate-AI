@@ -1,80 +1,92 @@
+<!-- Onboarding Modal -->
 <div id="onboarding-modal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
-    <div class="glass-card p-8 max-w-md w-full mx-4 relative overflow-hidden">
-        <!-- Decorative Background -->
-        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <div class="absolute top-10 left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-10 right-10 w-40 h-40 bg-pink-500 rounded-full blur-3xl"></div>
+    class="hidden fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card p-6 sm:p-8 max-w-md w-full rounded-3xl relative animate-slideIn border border-white/10">
+
+        <div class="text-center mb-8">
+            <div
+                class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-500/20">
+                <span class="text-4xl">👋</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Xoş gəldin!</h2>
+            <p class="text-white/60">Maliyyə hədəflərinə çatmaq üçün ilk addımı at.</p>
         </div>
-        <div id="onboarding-step-3" class="onboarding-step hidden relative z-10">
-            <div class="text-center mb-6">
-                <div class="text-6xl mb-4" id="goal-emoji">🎯</div>
-                <h2 class="text-2xl font-bold text-white mb-2">Əla seçim!</h2>
-                <p class="text-white/70 text-sm">AI-ni sənin üçün sazladıq</p>
+
+        <form id="onboarding-form" onsubmit="handleOnboardingSubmit(event)" class="space-y-6">
+            <div>
+                <label class="block text-white/70 text-sm font-medium mb-2 text-center">Aylıq büdcən nə
+                    qədərdir?</label>
+                <div class="relative">
+                    <input type="number" id="onboarding-budget" name="budget" required min="1" step="1"
+                        placeholder="Məs: 1000"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-center text-2xl font-bold text-white focus:outline-none focus:border-purple-500/50 transition-colors placeholder-white/20">
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 font-bold">AZN</span>
+                </div>
             </div>
-            <div class="bg-white/10 rounded-lg p-6 mb-6 text-center">
-                <p class="text-white/80 mb-2">Məqsədin:</p>
-                <p class="text-2xl font-bold text-white" id="goal-text">Qənaət etmək</p>
-            </div>
-            <button onclick="completeOnboarding()"
-                class="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold hover:scale-105 transition-transform">
-                Başlayaq! 🎉
+
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <span>Başla</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6">
+                    </path>
+                </svg>
             </button>
-        </div>
+        </form>
     </div>
 </div>
 
 <script>
-    let selectedGoal = 'save';
+    async function handleOnboardingSubmit(event) {
+        event.preventDefault();
 
-    function nextOnboardingStep(step) {
-        document.querySelectorAll('.onboarding-step').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`onboarding-step-${step}`).classList.remove('hidden');
-    }
+        const budgetInput = document.getElementById('onboarding-budget');
+        const budget = budgetInput.value;
+        const btn = event.submitter;
 
-    function selectGoal(goal) {
-        selectedGoal = goal;
-        const goals = {
-            'save': { emoji: '💰', text: 'Qənaət etmək' },
-            'ps5': { emoji: '🎮', text: 'PS5 almaq' },
-            'travel': { emoji: '✈️', text: 'Səyahət etmək' }
-        };
+        // Show loading state
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
 
-        document.getElementById('goal-emoji').textContent = goals[goal].emoji;
-        document.getElementById('goal-text').textContent = goals[goal].text;
-        nextOnboardingStep(3);
-    }
+        try {
+            // Use existing settings endpoint to update budget
+            const formData = new FormData();
+            formData.append('monthly_budget', budget);
 
-    function completeOnboarding() {
-        // Save to localStorage
-        localStorage.setItem('onboarding_completed', 'true');
-        localStorage.setItem('user_goal', selectedGoal);
-
-        // Hide modal with animation
-        const modal = document.getElementById('onboarding-modal');
-        modal.style.opacity = '0';
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.style.opacity = '1';
-        }, 300);
-
-        // Show confetti
-        if (typeof confetti !== 'undefined') {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
+            const response = await fetch('/api/settings', {
+                method: 'POST',
+                body: formData
             });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Close modal and reload to refresh dashboard
+                const modal = document.getElementById('onboarding-modal');
+                modal.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    window.location.reload();
+                }, 300);
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('✨ Uğurlu başlanğıc!', 'success');
+                }
+            } else {
+                if (typeof window.showToast === 'function') {
+                    window.showToast(result.error || 'Xəta baş verdi', 'error');
+                }
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        } catch (error) {
+            console.error('Onboarding error:', error);
+            if (typeof window.showToast === 'function') {
+                window.showToast('Xəta baş verdi', 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
-
-    // Show onboarding on first visit
-    document.addEventListener('DOMContentLoaded', () => {
-        const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-        if (!hasCompletedOnboarding) {
-            setTimeout(() => {
-                document.getElementById('onboarding-modal').classList.remove('hidden');
-            }, 500);
-        }
-    });
 </script>

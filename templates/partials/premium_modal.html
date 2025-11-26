@@ -96,7 +96,7 @@
                         <span class="font-medium">Reklamsız İstifadə</span>
                     </li>
                 </ul>
-                <button hx-post="/api/activate-trial" hx-swap="none"
+                <button id="activate-trial-btn" hx-post="/api/activate-trial" hx-swap="none"
                     class="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition flex items-center justify-center gap-2">
                     <span>14 Gün Pulsuz Başla</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,9 +119,17 @@
         document.getElementById('premium-modal').classList.add('hidden');
     }
 
-    // Listen for HTMX events
+    // Listen for HTMX events - fixed to properly check for activate-trial endpoint
     document.body.addEventListener('htmx:afterRequest', function (event) {
-        if (event.detail.elt.getAttribute('hx-post') === '/api/activate-trial') {
+        // Check if this is the activate-trial request
+        const elt = event.detail?.elt;
+        const isActivateTrial = elt && (
+            elt.id === 'activate-trial-btn' || 
+            elt.getAttribute('hx-post') === '/api/activate-trial' ||
+            (event.detail?.pathInfo?.requestPath === '/api/activate-trial')
+        );
+        
+        if (isActivateTrial) {
             if (event.detail.successful) {
                 try {
                     const response = JSON.parse(event.detail.xhr.response);

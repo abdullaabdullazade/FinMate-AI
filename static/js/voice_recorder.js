@@ -12,6 +12,34 @@ class VoiceRecorder {
     }
 
     async startRecording() {
+        // If already recording, stop it (toggle behavior)
+        if (this.isRecording && this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.stopRecording();
+            return;
+        }
+
+        // Clean up any existing recording state completely
+        if (this.mediaRecorder) {
+            try {
+                if (this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.stop();
+                }
+            } catch (e) {
+                console.warn('Error stopping existing recorder:', e);
+            }
+            this.mediaRecorder = null;
+        }
+
+        // Clean up any existing stream
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
+        // Reset state completely
+        this.isRecording = false;
+        this.audioChunks = [];
+
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -34,6 +62,18 @@ class VoiceRecorder {
                 // Səsi Blob-a çeviririk
                 const mimeType = this.mediaRecorder.mimeType;
                 const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+
+                // Reset state before sending (so we can record again)
+                const wasRecording = this.isRecording;
+                this.isRecording = false;
+
+                // Clean up stream immediately after stopping
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+
+                // Send audio to server
                 this.sendAudioToServer(audioBlob);
             });
 
@@ -53,10 +93,23 @@ class VoiceRecorder {
     stopRecording() {
         if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
             console.warn('MediaRecorder not active');
+            // Still reset state if recorder is inactive
+            this.isRecording = false;
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.stream = null;
+            }
+            this.updateUI('idle');
             return;
         }
 
+        // Stop media recorder
         this.mediaRecorder.stop();
+        this.isRecording = false;
+
+        // Don't stop stream here - let the 'stop' event handler do it
+        // This ensures the audio is fully captured before stream is released
+
         this.updateUI('processing');
 
         // MediaRecorder will fire 'stop' event which triggers sendAudioToServer
@@ -99,6 +152,7 @@ class VoiceRecorder {
             } else if (contentType && contentType.includes('application/json')) {
                 // JSON response - handle as error or old success
                 const result = await response.json();
+
                 this.updateUI('idle');
 
                 if (result.success) {
@@ -113,6 +167,14 @@ class VoiceRecorder {
 
         } catch (error) {
             console.error('Server xətası:', error);
+            // Reset state on error
+            this.isRecording = false;
+            this.audioChunks = [];
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.stream = null;
+            }
+            this.mediaRecorder = null;
             this.updateUI('idle');
             this.showError('Serverlə əlaqə kəsildi. Yenidən cəhd edin.');
         }
@@ -127,14 +189,19 @@ class VoiceRecorder {
         // Use requestAnimationFrame for smooth UI updates
         requestAnimationFrame(() => {
             if (state === 'recording') {
-                statusEl.textContent = 'Dinləyirəm... Danışın 🎙️';
+                statusEl.textContent = 'Dinləyirəm... Danışın 🎙️ (Dayandırmaq üçün yenidən basın)';
                 recordBtn.classList.remove('hidden');
                 recordBtn.classList.add('recording');
-                stopBtn.classList.remove('hidden');
+                // Stop button is optional now - can hide it since record button toggles
+                if (stopBtn) {
+                    stopBtn.classList.add('hidden');
+                }
                 spinner.classList.add('hidden');
             } else if (state === 'processing') {
                 statusEl.textContent = 'AI Analiz edir... 🧠';
-                stopBtn.classList.add('hidden');
+                if (stopBtn) {
+                    stopBtn.classList.add('hidden');
+                }
                 spinner.classList.remove('hidden');
                 recordBtn.classList.remove('recording');
                 recordBtn.classList.add('hidden');
@@ -142,9 +209,11 @@ class VoiceRecorder {
                 // Idle
                 recordBtn.classList.remove('hidden');
                 recordBtn.classList.remove('recording');
-                stopBtn.classList.add('hidden');
+                if (stopBtn) {
+                    stopBtn.classList.add('hidden');
+                }
                 spinner.classList.add('hidden');
-                statusEl.textContent = 'Hazıram';
+                statusEl.textContent = 'Hazıram (Başlamaq üçün basın)';
             }
         });
     }
@@ -183,16 +252,46 @@ class VoiceRecorder {
             document.body.dispatchEvent(new Event('expensesUpdated'));
         });
 
+        // Voice feedback using queue system
+        if (typeof window.queueVoiceNotification === 'function') {
+            const lang = document.documentElement.lang || 'az';
+            let message = '';
+
+            if (lang === 'az') {
+                message = `Əlavə edildi! ${result.expense_data.amount} manat, ${result.expense_data.category} kateqoriyası`;
+            } else if (lang === 'en') {
+                message = `Added! ${result.expense_data.amount} AZN, ${result.expense_data.category} category`;
+            } else if (lang === 'ru') {
+                message = `Добавлено! ${result.expense_data.amount} манат, категория ${result.expense_data.category}`;
+            }
+
+            window.queueVoiceNotification(message, 0, lang);
+        }
+
+        // Reset state after showing success - but keep UI ready for next recording
+        this.isRecording = false;
+        this.audioChunks = [];
+        this.mediaRecorder = null;
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
+        // Don't update UI to idle immediately - wait for voice notification to finish
+        // The voice notification system will update UI when audio finishes
+        // But set a timeout as fallback in case voice notification doesn't fire
+        setTimeout(() => {
+            // Check if modal is still open and not recording
+            const voiceModal = document.getElementById('voice-modal');
+            if (voiceModal && !voiceModal.classList.contains('hidden') && !this.isRecording) {
+                this.updateUI('idle');
+            }
+        }, 1000);
+
         // 3 saniyə sonra modalı bağla
         setTimeout(() => {
             this.closeModal();
         }, 3000);
-
-        // AI səs cavabını çalırıq (əgər varsa)
-        if (result.audio_response) {
-            const audio = new Audio(`data:audio/mp3;base64,${result.audio_response}`);
-            audio.play().catch(() => { /* ignore autoplay errors */ });
-        }
     }
 
     showError(msg) {
@@ -207,37 +306,79 @@ class VoiceRecorder {
                 </div>
             </div>
         `;
+
+        // Reset state and update UI so user can try again
+        this.isRecording = false;
+        this.audioChunks = [];
+        this.mediaRecorder = null;
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+        this.updateUI('idle');
     }
 
     closeModal() {
         const modal = document.getElementById('voice-modal');
         const resultDiv = document.getElementById('voice-result');
-        
-        // Smooth close animation
-        if (modal) {
-            modal.style.opacity = '0';
-            modal.style.transform = 'scale(0.95)';
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.style.opacity = '';
-                modal.style.transform = '';
-                if (resultDiv) {
-                    resultDiv.innerHTML = '';
-                }
-                this.updateUI('idle');
-                // Clean up stream
-                if (this.stream) {
-                    this.stream.getTracks().forEach(track => track.stop());
-                    this.stream = null;
-                }
-            }, 200);
+
+        // Stop any ongoing recording
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            try {
+                this.mediaRecorder.stop();
+            } catch (e) {
+                console.warn('Error stopping recorder:', e);
+            }
         }
+
+        // Clean up stream
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
+        // Reset state completely
+        this.isRecording = false;
+        this.audioChunks = [];
+        this.mediaRecorder = null;
+
+        // Close modal
+        if (modal) {
+            modal.classList.add('hidden');
+            if (resultDiv) {
+                resultDiv.innerHTML = '';
+            }
+            this.updateUI('idle');
+        }
+    }
+
+    // Reset recording state (public method for external use)
+    resetRecording() {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            try {
+                this.mediaRecorder.stop();
+            } catch (e) {
+                console.warn('Error stopping recorder:', e);
+            }
+        }
+
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
+        this.isRecording = false;
+        this.audioChunks = [];
+        this.mediaRecorder = null;
+        this.updateUI('idle');
     }
 }
 
 // İnstansiya yaradırıq
 const voiceRecorder = new VoiceRecorder();
+
+// Make it globally accessible for voice-notifications.js
+window.voiceRecorder = voiceRecorder;
 
 // Qlobal funksiyalar (HTML-dən çağırmaq üçün)
 window.openVoiceModal = () => {
@@ -263,7 +404,21 @@ window.stopRecording = () => voiceRecorder.stopRecording();
 
 // Button event bindings
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('record-btn')?.addEventListener('click', () => voiceRecorder.startRecording());
-    document.getElementById('stop-btn')?.addEventListener('click', () => voiceRecorder.stopRecording());
+    // Record button toggles recording (start/stop)
+    document.getElementById('record-btn')?.addEventListener('click', () => {
+        if (voiceRecorder.isRecording) {
+            voiceRecorder.stopRecording();
+        } else {
+            voiceRecorder.startRecording();
+        }
+    });
+
+    // Stop button also toggles (for backward compatibility)
+    document.getElementById('stop-btn')?.addEventListener('click', () => {
+        if (voiceRecorder.isRecording) {
+            voiceRecorder.stopRecording();
+        }
+    });
+
     document.getElementById('close-voice-modal')?.addEventListener('click', () => voiceRecorder.closeModal());
 });

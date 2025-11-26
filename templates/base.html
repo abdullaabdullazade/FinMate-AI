@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="az" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -337,6 +337,9 @@
     <!-- Premium Pricing Modal -->
     {% include 'partials/premium_modal.html' %}
 
+    <!-- Onboarding Modal -->
+    {% include 'partials/onboarding_modal.html' %}
+
     <!-- Floating Action Button (Voice) -->
     <!-- Visible only on Scan and Chat pages -->
     {% if request.url.path == '/scan' or request.url.path == '/chat' %}
@@ -352,6 +355,22 @@
     {% endif %}
     {% endif %}
 
+    <script>
+        // Check for new user (default budget 1000.0)
+        document.addEventListener('DOMContentLoaded', () => {
+            {% if user and user.monthly_budget == 1000.0 and user.username != 'demo_user' %}
+            // Only show if not on settings page (to avoid conflict)
+            if (window.location.pathname !== '/settings') {
+                const onboardingModal = document.getElementById('onboarding-modal');
+                if (onboardingModal) {
+                    setTimeout(() => {
+                        onboardingModal.classList.remove('hidden');
+                    }, 1000);
+                }
+            }
+            {% endif %}
+        });
+    </script>
     {% include 'partials/payment_qr.html' %}
     <!-- Split Bill Modal -->
     {% include 'partials/split_bill_modal.html' %}
@@ -370,6 +389,7 @@
     <script src="/static/js/offline.js"></script>
     <script src="/static/js/readability.js"></script>
     <script src="/static/js/voice-mode.js"></script>
+    <script src="/static/js/voice-notifications.js"></script>
     <script src="/static/js/premium-modal.js"></script>
 
     <!-- Profile Dropdown Toggle Script -->

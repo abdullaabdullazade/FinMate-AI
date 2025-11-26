@@ -3,8 +3,32 @@
 <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
     hx-trigger="load" hx-get="/api/dashboard-updates" hx-target="#dashboard-stats" hx-swap="none" id="success-modal">
     <script>
+        console.log('📋 Receipt scan result modal loaded');
+
         // Trigger dashboard refresh
         document.body.dispatchEvent(new Event('newTransaction'));
+
+        // Voice notification - using queue system with HIGH priority
+        (function () {
+            const voiceMode = localStorage.getItem('voice-mode');
+            if (voiceMode === 'enabled' && typeof window.queueVoiceNotification === 'function') {
+                const total = parseFloat('{{ receipt_data.total }}') || 0;
+                const itemCount = parseInt('{{ receipt_data.get("items", [])|length }}') || 0;
+
+                console.log('🔊 Receipt scan - queuing voice...');
+
+                // Use numberToAzerbaijani for natural pronunciation
+                let amountText = total.toFixed(2) + ' manat';
+                if (typeof window.numberToAzerbaijani === 'function') {
+                    amountText = window.numberToAzerbaijani(total);
+                }
+
+                const message = `Qəbz oxundu! ${itemCount} məhsul tapıldı. Ümumi ${amountText}`;
+
+                // Queue with priority 0 (urgent)
+                window.queueVoiceNotification(message, 0, 'az');
+            }
+        })();
 
         // Auto-close after 10 seconds
         setTimeout(() => {
@@ -33,11 +57,11 @@
             <h3 class="text-2xl font-bold text-white mb-1">Qəbz oxundu</h3>
             <p class="text-white/60 text-sm">
                 {% if receipt_data.date_time %}
-                    {{ receipt_data.date_time }}
+                {{ receipt_data.date_time }}
                 {% elif receipt_data.date %}
-                    {{ receipt_data.date }}{% if receipt_data.time %}, {{ receipt_data.time }}{% endif %}
+                {{ receipt_data.date }}{% if receipt_data.time %}, {{ receipt_data.time }}{% endif %}
                 {% else %}
-                    {{ receipt_data.date }}
+                {{ receipt_data.date }}
                 {% endif %}
             </p>
         </div>
@@ -59,6 +83,14 @@
 
         <!-- Daily Limit Alert -->
         {% if daily_limit_alert %}
+        <script>
+            // Speak daily limitwarning
+            if (typeof window.speakNotification === 'function') {
+                setTimeout(() => {
+                    window.speakNotification('{{ daily_limit_alert.message }}', 'warning');
+                }, 1500);
+            }
+        </script>
         <div
             class="mx-6 mt-4 p-4 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl">
             <div class="flex items-start gap-3">
@@ -80,7 +112,8 @@
                         class="text-xl text-white/60">AZN</span></p>
                 {% if conversion_note %}
                 <p class="text-xs text-white/50 mt-1">
-                    Orijinal: {{ "%.2f"|format(receipt_data.get('total_original', receipt_data.total)) }} {{ receipt_data.get('original_currency', receipt_data.currency or 'AZN') }}
+                    Orijinal: {{ "%.2f"|format(receipt_data.get('total_original', receipt_data.total)) }} {{
+                    receipt_data.get('original_currency', receipt_data.currency or 'AZN') }}
                 </p>
                 <p class="text-xs text-green-300 mt-1">{{ conversion_note }}</p>
                 {% endif %}

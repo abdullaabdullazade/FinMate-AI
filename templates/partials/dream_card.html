@@ -3,18 +3,20 @@
 {% set brightness_value = 0.5 + (progress / 100 * 0.5) %}
 {% set days_remaining = None %}
 {% if dream.target_date %}
-    {% if date_type %}
-        {% set today = date_type.today() %}
-        {% if today %}
-            {% set days_remaining = (dream.target_date - today).days %}
-        {% endif %}
-    {% endif %}
+{% if date_type %}
+{% set today = date_type.today() %}
+{% if today %}
+{% set days_remaining = (dream.target_date - today).days %}
+{% endif %}
+{% endif %}
 {% endif %}
 
 <div class="dream-card glass-card p-4 sm:p-6 relative" id="dream-{{ dream.id }}">
     <!-- Priority Badge -->
-    <div class="priority-badge priority-{{ dream.priority }} text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 top-2 right-2 sm:top-3 sm:right-3">
-        {% if dream.priority == 5 %}🔥 <span class="hidden sm:inline">Çox Yüksək</span><span class="sm:hidden">Çox Y.</span>
+    <div
+        class="priority-badge priority-{{ dream.priority }} text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 top-2 right-2 sm:top-3 sm:right-3">
+        {% if dream.priority == 5 %}🔥 <span class="hidden sm:inline">Çox Yüksək</span><span class="sm:hidden">Çox
+            Y.</span>
         {% elif dream.priority == 4 %}⚡ <span class="hidden sm:inline">Yüksək</span><span class="sm:hidden">Yük.</span>
         {% elif dream.priority == 3 %}⭐ <span class="hidden sm:inline">Orta</span><span class="sm:hidden">Orta</span>
         {% elif dream.priority == 2 %}💫 <span class="hidden sm:inline">Aşağı</span><span class="sm:hidden">Aşağı</span>
@@ -24,38 +26,48 @@
     <!-- Dream Image or Placeholder -->
     {% if dream.image_url %}
     <div class="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
-        <img src="{{ dream.image_url }}" alt="{{ dream.title }}" 
-             class="dream-image w-full h-full object-cover transition-all duration-500" 
-             style="filter: blur({{ blur_amount }}px) brightness({{ brightness_value }});"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <img src="{{ dream.image_url }}" alt="{{ dream.title }}"
+            class="dream-image w-full h-full object-cover transition-all duration-500"
+            style="filter: blur({{ blur_amount }}px) brightness({{ brightness_value }});"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <!-- Progress overlay - gets lighter as progress increases -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-500" 
-             style="opacity: {{ (100 - progress) / 100 }};"></div>
-        <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20" style="display: none;">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-500"
+            style="opacity: {{ (100 - progress) / 100 }};"></div>
+        <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20"
+            style="display: none;">
             <div class="category-icon">
                 {% if dream.category == "Səyahət" %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
                 {% elif dream.category == "Gadget" %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>
                 {% elif dream.category == "Maşın" %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                 </svg>
                 {% elif dream.category == "Ev" %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
                 </svg>
                 {% elif dream.category == "Təhsil" %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                    </path>
                 </svg>
                 {% else %}
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z">
+                    </path>
                 </svg>
                 {% endif %}
             </div>
@@ -66,31 +78,41 @@
         </div>
     </div>
     {% else %}
-    <div class="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
+    <div
+        class="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
         <div class="category-icon">
             {% if dream.category == "Səyahət" %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
             {% elif dream.category == "Gadget" %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
             </svg>
             {% elif dream.category == "Maşın" %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
             </svg>
             {% elif dream.category == "Ev" %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
             </svg>
             {% elif dream.category == "Təhsil" %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                </path>
             </svg>
             {% else %}
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z">
+                </path>
             </svg>
             {% endif %}
         </div>
@@ -104,16 +126,21 @@
         <p class="text-xs sm:text-sm text-white/60 line-clamp-2">{{ dream.description }}</p>
         {% endif %}
         <div class="flex items-center gap-1.5 sm:gap-2 mt-2 flex-wrap">
-            <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-white/10 text-white/70">{{ dream.category or "Digər" }}</span>
+            <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-white/10 text-white/70">{{
+                dream.category or "Digər" }}</span>
             {% if days_remaining is not none %}
-                {% if days_remaining < 0 %}
-                <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-red-500/30 text-red-200">Vaxt keçib</span>
-                {% elif days_remaining <= 30 %}
-                <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-yellow-500/30 text-yellow-200">{{ days_remaining }} gün</span>
-                {% else %}
-                <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500/30 text-green-200">{{ days_remaining }} gün</span>
-                {% endif %}
-            {% endif %}
+            {% if days_remaining < 0 %} <span
+                class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-red-500/30 text-red-200">
+                Vaxt keçib</span>
+                {% elif days_remaining <= 30 %} <span
+                    class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-yellow-500/30 text-yellow-200">
+                    {{ days_remaining }} gün</span>
+                    {% else %}
+                    <span
+                        class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500/30 text-green-200">{{
+                        days_remaining }} gün</span>
+                    {% endif %}
+                    {% endif %}
         </div>
     </div>
 
@@ -122,7 +149,8 @@
         <div class="flex justify-between items-center mb-1.5 sm:mb-2">
             <span class="text-xs sm:text-sm text-white/70">Tərəqqi</span>
             <span class="text-xs sm:text-sm font-bold text-white truncate ml-2">
-                {{ "%.2f"|format(dream.saved_amount) }} / {{ "%.2f"|format(dream.target_amount) }} AZN
+                {{ "%.2f"|format(dream.saved_amount) }} / {{ "%.2f"|format(dream.target_amount) }} {{ user.currency or
+                'AZN' }}
             </span>
         </div>
         <div class="dream-progress-bar">
@@ -134,7 +162,7 @@
         </div>
         {% else %}
         <div class="mt-1.5 sm:mt-2 text-xs sm:text-sm text-white/60">
-            {{ "%.2f"|format(dream.target_amount - dream.saved_amount) }} AZN qalıb
+            {{ "%.2f"|format(dream.target_amount - dream.saved_amount) }} {{ user.currency or 'AZN' }} qalıb
         </div>
         {% endif %}
     </div>
@@ -158,24 +186,26 @@
 </div>
 
 <!-- Add Savings Modal -->
-<div id="add-savings-modal-{{ dream.id }}" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 overflow-y-auto">
+<div id="add-savings-modal-{{ dream.id }}"
+    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 overflow-y-auto">
     <div class="flex items-start sm:items-center justify-center min-h-screen px-3 sm:px-4 py-4 sm:py-8">
         <div class="glass-card p-4 sm:p-6 w-full max-w-sm transform scale-95 transition-transform duration-300 my-auto">
             <div class="flex justify-between items-center mb-3 sm:mb-4">
                 <h3 class="text-lg sm:text-xl font-bold text-white">Qənaət Əlavə Et</h3>
-                <button onclick="closeAddSavingsModal({{ dream.id }})" class="text-white/50 hover:text-white flex-shrink-0">
+                <button onclick="closeAddSavingsModal({{ dream.id }})"
+                    class="text-white/50 hover:text-white flex-shrink-0">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
-            <form hx-post="/api/dreams/{{ dream.id }}/add-savings" 
-                  hx-target="#dream-{{ dream.id }}" 
-                  hx-swap="outerHTML"
-                  onsubmit="closeAddSavingsModal({{ dream.id }}); return true;">
+            <form hx-post="/api/dreams/{{ dream.id }}/add-savings" hx-target="#dream-{{ dream.id }}" hx-swap="outerHTML"
+                onsubmit="closeAddSavingsModal({{ dream.id }}); return true;">
                 <div class="space-y-3 sm:space-y-4">
                     <div>
-                        <label class="block text-xs sm:text-sm text-white/70 mb-1.5 sm:mb-2">Məbləğ (AZN)</label>
+                        <label class="block text-xs sm:text-sm text-white/70 mb-1.5 sm:mb-2">Məbləğ ({{ user.currency or
+                            'AZN' }})</label>
                         <input type="number" name="amount" step="0.01" min="0.01" required placeholder="100"
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-green-500 transition">
                     </div>
@@ -221,7 +251,7 @@
 
     // Close modal on outside click
     document.querySelectorAll('[id^="add-savings-modal-"]').forEach(modal => {
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === this) {
                 const dreamId = this.id.split('-').pop();
                 closeAddSavingsModal(dreamId);
@@ -232,4 +262,3 @@
     // Edit and Delete functions are now global in dream_vault.html
     // Edit modal is also in dream_vault.html
 </script>
-

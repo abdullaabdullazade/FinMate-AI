@@ -143,6 +143,17 @@ body.theme-midnight .scan-btn:hover {
 /* Animations */
 .slide-up {
     animation: slideUp 0.4s ease-out forwards;
+    /* Prevent layout shifts on mobile */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Reduce animation on mobile to prevent UI jumps */
+@media (max-width: 640px) {
+    .slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+    }
 }
 
 .skeleton {

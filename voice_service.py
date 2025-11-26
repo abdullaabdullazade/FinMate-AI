@@ -24,11 +24,11 @@ openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 class VoiceService:
     """Manages voice command processing"""
     
-    # Voice names for different languages
+    # Voice names for different languages (Female voices)
     VOICE_MAP = {
-        "az": "az-AZ-BabekNeural",  # Azerbaijani male voice
-        "en": "en-US-GuyNeural",     # English male voice
-        "ru": "ru-RU-DmitryNeural"   # Russian male voice
+        "az": "az-AZ-BanuNeural",      # Azerbaijani female voice
+        "en": "en-US-JennyNeural",     # English female voice
+        "ru": "ru-RU-SvetlanaNeural"   # Russian female voice
     }
     
     @staticmethod
@@ -191,37 +191,59 @@ Only return JSON, no other text.""",
     @staticmethod
     async def generate_voice_response(text: str, language: str = "az") -> Optional[bytes]:
         """
-        Convert text to speech using edge-tts
-        
-        Args:
-            text: Text to convert to speech
-            language: Language code (az, en, ru)
-            
-        Returns:
-            Audio bytes or None if error
+        Convert text to speech using edge-tts with female voices
         """
+        if not text or not text.strip():
+            print("❌ TTS Error: Empty text")
+            return None
+        
         try:
             voice = VoiceService.VOICE_MAP.get(language, VoiceService.VOICE_MAP["az"])
+            print(f"🔊 TTS: Generating with voice {voice}, text: {text[:50]}...")
             
-            # Create temporary file for audio
+            # Create temp file
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
                 tmp_path = tmp_file.name
             
-            # Generate speech
-            communicate = edge_tts.Communicate(text, voice)
-            await communicate.save(tmp_path)
-            
-            # Read audio data
-            with open(tmp_path, "rb") as f:
-                audio_data = f.read()
-            
-            # Clean up temp file
-            os.unlink(tmp_path)
-            
-            return audio_data
+            try:
+                # Generate audio using edge-tts
+                communicate = edge_tts.Communicate(text, voice)
+                await communicate.save(tmp_path)
+                
+                # Wait a bit to ensure file is written
+                await asyncio.sleep(0.2)
+                
+                # Check file exists and has content
+                if not os.path.exists(tmp_path):
+                    raise Exception("Audio file not created")
+                
+                file_size = os.path.getsize(tmp_path)
+                if file_size == 0:
+                    raise Exception("Audio file is empty")
+                
+                print(f"✅ TTS: Generated {file_size} bytes")
+                
+                # Read and return audio
+                with open(tmp_path, "rb") as f:
+                    audio_data = f.read()
+                
+                if not audio_data or len(audio_data) == 0:
+                    raise Exception("No audio data read from file")
+                
+                return audio_data
+                
+            finally:
+                # Clean up temp file
+                if os.path.exists(tmp_path):
+                    try:
+                        os.unlink(tmp_path)
+                    except:
+                        pass
             
         except Exception as e:
             print(f"❌ TTS Error: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     @staticmethod

@@ -9,7 +9,7 @@
 {% block content %}
 <!-- Chat Messages Container -->
 <div class="max-w-5xl mx-auto px-2 sm:px-4">
-    <div class="glass-card p-6 sm:p-8 mb-20 lg:mb-10">
+    <div class="glass-card p-6 sm:p-8 mb-32 lg:mb-16">
         <div class="chat-container" id="chatContainer">
             <div id="messages" class="space-y-6 sm:space-y-8">
                 {% for message in messages %}
@@ -37,12 +37,12 @@
 
 <!-- Chat Input (Fixed at Bottom) -->
 <div
-    class="chat-input-container fixed bottom-20 sm:bottom-24 left-0 right-0 px-2 sm:px-4 md:bottom-4 transition-all duration-300 z-50">
-    <div class="max-w-2xl mx-auto">
+    class="chat-input-container fixed bottom-20 sm:bottom-24 left-0 right-0 px-4 sm:px-6 md:bottom-4 transition-all duration-300 z-50">
+    <div class="max-w-4xl mx-auto">
         <form hx-post="/api/chat" hx-target="#messages" hx-swap="beforeend" hx-headers='{"X-Client-Appended":"true"}'
             hx-on::after-request="this.reset(); scrollToBottom();"
-            class="glass-card p-2 sm:p-3 flex items-center gap-2 sm:gap-3" id="chat-form">
-            <input type="text" name="message" placeholder="CFO-dan nə istədiyini yaz..." required
+            class="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4" id="chat-form">
+            <input type="text" name="message" placeholder="AI CFO-dan nə öyrənmək istəyirsən?" required
                 class="chat-input-field flex-1" autocomplete="off" id="chat-input" />
             <button type="submit"
                 class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center hover:scale-110 transition shadow-lg group">

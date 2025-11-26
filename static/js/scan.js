@@ -47,15 +47,26 @@ function handleFileSelect(input) {
 // Make function globally accessible
 window.handleFileSelect = handleFileSelect;
 
-// Hide modal when scan complete
-document.body.addEventListener('htmx:afterRequest', function (evt) {
-    if (evt.detail.target.id === 'scanResult') {
+// HTMX After Settle - cleanup after response is rendered
+document.body.addEventListener('htmx:afterSettle', function (event) {
+    if (event.detail.target.id === 'scanResult') {
         setTimeout(() => {
             const scanModal = document.getElementById('scanModal');
             if (scanModal) {
                 scanModal.classList.remove('active');
             }
         }, 1500); // Keep modal for 1.5 seconds to show animation
+
+        // Clear file input after successful scan
+        const fileInput = document.getElementById('fileInput');
+        const fileNameEl = document.querySelector('.upload-filename');
+
+        if (fileInput) {
+            fileInput.value = '';  // Clear the input
+        }
+        if (fileNameEl) {
+            fileNameEl.textContent = 'Fayl seçilməyib';  // Reset text
+        }
     }
 });
 
