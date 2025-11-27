@@ -27,93 +27,131 @@
         </div>
     </div>
 
-    <!-- Available Rewards -->
-    <div class="space-y-4 mb-8">
+    <!-- Available Rewards - SLIDING CAROUSEL -->
+    <div class="mb-8">
         <h2 class="text-xl font-bold text-white mb-4">🛒 Mağaza</h2>
 
-        {% set current_coins = user.coins if user.coins is defined else 0 %}
+        <!-- Carousel Container -->
+        <div class="relative">
+            <!-- Scroll Buttons -->
+            <button onclick="scrollRewards('left')"
+                class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition hidden md:block">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <button onclick="scrollRewards('right')"
+                class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition hidden md:block">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
 
-        <!-- 100 Coins - Bronze -->
-        <div class="glass-card p-5 border border-amber-400/30 hover:border-amber-400/50 transition">
-            <div class="flex items-start gap-4">
-                <div class="text-4xl flex-shrink-0">🥉</div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-bold text-white mb-1">1 Coffee Kuponu</h3>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-yellow-400 font-bold">🪙 100 coin</span>
-                        {% if reward_counts.get('bronze', 0) > 0 %}
-                        <span class="text-green-400 text-xs">• {{ reward_counts.get('bronze') }}x alınıb</span>
-                        {% endif %}
+            <!-- Scrollable Rewards -->
+            <div id="rewards-carousel"
+                class="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 px-1"
+                style="scroll-behavior: smooth;">
+                {% set current_coins = user.coins if user.coins is defined else 0 %}
+
+                <!-- 100 Coins - Bronze -->
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
+                    <div
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-amber-400/30 hover:border-amber-400/60 transition bg-gradient-to-br from-amber-500/5 to-yellow-500/5">
+                        <div class="text-center mb-3 sm:mb-4">
+                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥉</div>
+                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Bronz Paket</h3>
+                            <p class="text-white/70 text-xs sm:text-sm mb-1">1 Coffee Kuponu</p>
+                            {% if reward_counts.get('bronze', 0) > 0 %}
+                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('bronze') }}x alınıb</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 100</span>
+                        </div>
+                        <button onclick="openClaimModal('bronze', 100, '🥉', '1 Coffee Kuponu')"
+                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 100 %}bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                            {% if current_coins < 100 %}disabled{% endif %}>
+                            {% if current_coins >= 100 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                        </button>
                     </div>
-                    <button onclick="claimReward('bronze', 100)"
-                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 100 %}bg-amber-500 hover:bg-amber-600 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
-                        {% if current_coins < 100 %}disabled{% endif %}>
-                        {% if current_coins >= 100 %}🛒 Al (100 coin){% else %}Kifayət deyil{% endif %}
-                    </button>
+                </div>
+
+                <!-- 200 Coins - Silver -->
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
+                    <div
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-gray-300/30 hover:border-gray-300/60 transition bg-gradient-to-br from-gray-200/5 to-gray-400/5">
+                        <div class="text-center mb-3 sm:mb-4">
+                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥈</div>
+                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Gümüş Paket</h3>
+                            <p class="text-white/70 text-xs sm:text-sm mb-1">3 Coffee Kuponu</p>
+                            {% if reward_counts.get('silver', 0) > 0 %}
+                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('silver') }}x alınıb</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 200</span>
+                        </div>
+                        <button onclick="openClaimModal('silver', 200, '🥈', '3 Coffee Kuponu')"
+                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 200 %}bg-gray-200 hover:bg-gray-300 text-black shadow-lg shadow-gray-300/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                            {% if current_coins < 200 %}disabled{% endif %}>
+                            {% if current_coins >= 200 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 500 Coins - Gold -->
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
+                    <div
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-yellow-400/30 hover:border-yellow-400/60 transition bg-gradient-to-br from-yellow-400/5 to-amber-500/5">
+                        <div class="text-center mb-3 sm:mb-4">
+                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥇</div>
+                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Qızıl Paket</h3>
+                            <p class="text-white/70 text-xs sm:text-sm mb-1">5 AZN pul mükafatı</p>
+                            {% if reward_counts.get('gold', 0) > 0 %}
+                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('gold') }}x alınıb</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 500</span>
+                        </div>
+                        <button onclick="openClaimModal('gold', 500, '🥇', '5 AZN pul mükafatı')"
+                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 500 %}bg-yellow-400 hover:bg-yellow-500 text-black shadow-lg shadow-yellow-400/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                            {% if current_coins < 500 %}disabled{% endif %}>
+                            {% if current_coins >= 500 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5000 Coins - Platinum -->
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
+                    <div
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-purple-500/30 hover:border-purple-500/60 transition bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+                        <div class="text-center mb-3 sm:mb-4">
+                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">💎</div>
+                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Platin Paket</h3>
+                            <p class="text-white/70 text-xs sm:text-sm mb-1">Premium 1 ay + 20 AZN</p>
+                            {% if reward_counts.get('platinum', 0) > 0 %}
+                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('platinum') }}x alınıb</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 5000</span>
+                        </div>
+                        <button onclick="openClaimModal('platinum', 5000, '💎', 'Premium 1 ay + 20 AZN')"
+                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 5000 %}bg-purple-500 hover:bg-purple-600 text-white shadow-lg shadow-purple-500/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                            {% if current_coins < 5000 %}disabled{% endif %}>
+                            {% if current_coins >= 5000 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 200 Coins - Silver -->
-        <div class="glass-card p-5 border border-gray-300/30 hover:border-gray-300/50 transition">
-            <div class="flex items-start gap-4">
-                <div class="text-4xl flex-shrink-0">🥈</div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-bold text-white mb-1">3 Coffee Kuponu</h3>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-yellow-400 font-bold">🪙 200 coin</span>
-                        {% if reward_counts.get('silver', 0) > 0 %}
-                        <span class="text-green-400 text-xs">• {{ reward_counts.get('silver') }}x alınıb</span>
-                        {% endif %}
-                    </div>
-                    <button onclick="claimReward('silver', 200)"
-                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 200 %}bg-gray-200 hover:bg-gray-300 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
-                        {% if current_coins < 200 %}disabled{% endif %}>
-                        {% if current_coins >= 200 %}🛒 Al (200 coin){% else %}Kifayət deyil{% endif %}
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 500 Coins - Gold -->
-        <div class="glass-card p-5 border border-yellow-400/30 hover:border-yellow-400/50 transition">
-            <div class="flex items-start gap-4">
-                <div class="text-4xl flex-shrink-0">🥇</div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-bold text-white mb-1">5 AZN pul mükafatı</h3>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-yellow-400 font-bold">🪙 500 coin</span>
-                        {% if reward_counts.get('gold', 0) > 0 %}
-                        <span class="text-green-400 text-xs">• {{ reward_counts.get('gold') }}x alınıb</span>
-                        {% endif %}
-                    </div>
-                    <button onclick="claimReward('gold', 500)"
-                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 500 %}bg-yellow-400 hover:bg-yellow-500 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
-                        {% if current_coins < 500 %}disabled{% endif %}>
-                        {% if current_coins >= 500 %}🛒 Al (500 coin){% else %}Kifayət deyil{% endif %}
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5000 Coins - Platinum -->
-        <div class="glass-card p-5 border border-purple-500/30 hover:border-purple-500/50 transition">
-            <div class="flex items-start gap-4">
-                <div class="text-4xl flex-shrink-0">💎</div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-bold text-white mb-1">Premium 1 ay + 20 AZN</h3>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-yellow-400 font-bold">🪙 5000 coin</span>
-                        {% if reward_counts.get('platinum', 0) > 0 %}
-                        <span class="text-green-400 text-xs">• {{ reward_counts.get('platinum') }}x alınıb</span>
-                        {% endif %}
-                    </div>
-                    <button onclick="claimReward('platinum', 5000)"
-                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 5000 %}bg-purple-500 hover:bg-purple-600 text-white{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
-                        {% if current_coins < 5000 %}disabled{% endif %}>
-                        {% if current_coins >= 5000 %}🛒 Al (5000 coin){% else %}Kifayət deyil{% endif %}
-                    </button>
-                </div>
+            <!-- Scroll Indicator Dots -->
+            <div class="flex justify-center gap-2 mt-4">
+                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
             </div>
         </div>
     </div>
@@ -148,10 +186,92 @@
         </div>
         {% endif %}
     </div>
+
+    <!-- Claim Confirmation Modal -->
+    <div id="claim-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full p-6 mx-4 animate-scale-in">
+            <div class="text-center mb-6">
+                <div id="modal-icon" class="text-6xl mb-4">🎁</div>
+                <h3 id="modal-title" class="text-2xl font-bold text-white mb-2">Hədiyyə Al</h3>
+                <p id="modal-description" class="text-white/70 text-sm"></p>
+            </div>
+
+            <div class="bg-white/5 rounded-lg p-4 mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-white/70 text-sm">Cari Balans:</span>
+                    <span id="modal-current-coins" class="text-yellow-400 font-bold"></span>
+                </div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-white/70 text-sm">Qiymət:</span>
+                    <span id="modal-cost" class="text-red-400 font-bold"></span>
+                </div>
+                <div class="border-t border-white/10 my-2"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-white font-medium text-sm">Qalacaq:</span>
+                    <span id="modal-remaining" class="text-green-400 font-bold text-lg"></span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeClaimModal()"
+                    class="flex-1 px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition">
+                    ❌ İmtina
+                </button>
+                <button id="confirm-claim-btn" onclick="confirmClaim()"
+                    class="flex-1 px-4 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold transition">
+                    ✅ Təsdiq Et
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
+<style>
+    /* Hide scrollbar but keep functionality */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Modal animation */
+    @keyframes scale-in {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .animate-scale-in {
+        animation: scale-in 0.2s ease-out;
+    }
+</style>
+
 <script>
-    function claimReward(rewardType, cost) {
+    let currentRewardType = '';
+    let currentCost = 0;
+
+    function scrollRewards(direction) {
+        const carousel = document.getElementById('rewards-carousel');
+        const cardWidth = 288 + 12; // 72*4 (w-72) + gap
+
+        if (direction === 'left') {
+            carousel.scrollLeft -= cardWidth;
+        } else {
+            carousel.scrollLeft += cardWidth;
+        }
+    }
+
+    function openClaimModal(rewardType, cost, icon, name) {
         const currentCoins = parseInt(document.getElementById('coin-balance').textContent);
 
         if (currentCoins < cost) {
@@ -159,29 +279,67 @@
             return;
         }
 
-        if (confirm(`${cost} coin xərcləyərək bu hədiyyəni almaq istəyirsiniz?\n\nCoin balansınız: ${currentCoins} → ${currentCoins - cost}`)) {
-            fetch('/api/claim-reward', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `reward_type=${rewardType}`
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.showToast(data.message, 'success');
-                        // Reload page to show updated balance and history
-                        setTimeout(() => location.reload(), 800);
-                    } else {
-                        window.showToast(data.error || 'Xəta baş verdi', 'error');
-                    }
-                })
-                .catch(error => {
-                    window.showToast('Xəta baş verdi', 'error');
-                    console.error('Error:', error);
-                });
-        }
+        currentRewardType = rewardType;
+        currentCost = cost;
+
+        document.getElementById('modal-icon').textContent = icon;
+        document.getElementById('modal-title').textContent = name;
+        document.getElementById('modal-description').textContent = `Bu hədiyyəni almaq istəyirsiniz?`;
+        document.getElementById('modal-current-coins').textContent = `🪙 ${currentCoins}`;
+        document.getElementById('modal-cost').textContent = `-🪙 ${cost}`;
+        document.getElementById('modal-remaining').textContent = `🪙 ${currentCoins - cost}`;
+
+        document.getElementById('claim-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
+
+    function closeClaimModal() {
+        document.getElementById('claim-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+        currentRewardType = '';
+        currentCost = 0;
+    }
+
+    function confirmClaim() {
+        if (!currentRewardType || !currentCost) return;
+
+        const btn = document.getElementById('confirm-claim-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Gözləyin...';
+
+        fetch('/api/claim-reward', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `reward_type=${currentRewardType}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.showToast(data.message, 'success');
+                    closeClaimModal();
+                    // Reload page after short delay
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    window.showToast(data.error || 'Xəta baş verdi', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '✅ Təsdiq Et';
+                }
+            })
+            .catch(error => {
+                window.showToast('Xəta baş verdi', 'error');
+                console.error('Error:', error);
+                btn.disabled = false;
+                btn.textContent = '✅ Təsdiq Et';
+            });
+    }
+
+    // Close modal on outside click
+    document.getElementById('claim-modal')?.addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeClaimModal();
+        }
+    });
 </script>
 {% endblock %}
