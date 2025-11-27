@@ -33,7 +33,7 @@ document.body.addEventListener('htmx:beforeRequest', function (evt) {
     const userDiv = document.createElement('div');
     userDiv.className = 'flex justify-end';
     userDiv.innerHTML = `
-        <div class="message-bubble bg-gradient-to-br from-purple-500 to-pink-600 text-white p-3 rounded-2xl rounded-tr-sm">
+        <div class="message-bubble bg-gradient-to-br text-white p-3 rounded-2xl rounded-tr-sm">
             ${text.replace(/</g, "&lt;")}
         </div>
     `;
@@ -51,7 +51,7 @@ document.body.addEventListener('htmx:beforeRequest', function (evt) {
     typingDiv.className = 'flex justify-start';
     typingDiv.id = 'typing-indicator';
     typingDiv.innerHTML = `
-        <div class="glass p-3 rounded-2xl rounded-tl-sm">
+        <div class="message-bubble glass p-3 rounded-2xl rounded-tl-sm">
             <div class="typing-indicator">
                 <span></span><span></span><span></span>
             </div>

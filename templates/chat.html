@@ -4,12 +4,22 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="/static/css/chat.css">
+<style>
+    /* Hide scan button on chat page */
+    body.chat-page .scan-button-float {
+        display: none !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
+<script>
+    // Add class to body to identify chat page
+    document.body.classList.add('chat-page');
+</script>
 <!-- Chat Messages Container -->
 <div class="max-w-5xl mx-auto px-2 sm:px-4">
-    <div class="glass-card p-6 sm:p-8 mb-32 lg:mb-16">
+    <div class="glass-card p-4 sm:p-6 mb-32 lg:mb-16">
         <div class="chat-container" id="chatContainer">
             <div id="messages" class="space-y-6 sm:space-y-8">
                 {% for message in messages %}
@@ -27,7 +37,7 @@
                     <div class="message-bubble glass p-4 rounded-2xl rounded-tl-sm text-white shadow-lg relative">
                         {{ message.content | safe }}
                         <button onclick="speakMessage(this.parentElement.innerText)"
-                            class="absolute -right-8 top-2 text-white/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                            class="absolute -right-8 top-2 text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-white/20 rounded-full backdrop-blur-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
