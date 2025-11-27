@@ -1,7 +1,7 @@
 {% if success %}
-<!-- Result Modal Overlay -->
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
-    hx-trigger="load" hx-get="/api/dashboard-updates" hx-target="#dashboard-stats" hx-swap="none" id="success-modal">
+<!-- Result Inline Card -->
+<div class="w-full animate-fade-in" hx-trigger="load" hx-get="/api/dashboard-updates" hx-target="#dashboard-stats"
+    hx-swap="none" id="success-result">
     <script>
         console.log('📋 Receipt scan result modal loaded');
 
@@ -29,19 +29,12 @@
                 window.queueVoiceNotification(message, 0, 'az');
             }
         })();
-
-        // Auto-close after 10 seconds
-        setTimeout(() => {
-            const modal = document.getElementById('success-modal');
-            if (modal) modal.remove();
-        }, 10000);
     </script>
-    <!-- Modal Content -->
-    <div class="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto relative slide-up flex flex-col">
+    <!-- Card Content -->
+    <div class="glass-card w-full max-w-2xl mx-auto relative slide-up flex flex-col">
 
         <!-- Close Button -->
-        <button
-            onclick="this.closest('.fixed').remove(); document.getElementById('scanModal').classList.remove('active');"
+        <button onclick="resetScan();"
             class="absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition z-10">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -199,7 +192,7 @@
                 class="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-500/25">
                 Lövhəyə qayıt
             </a>
-            <button onclick="this.closest('.fixed').remove()"
+            <button onclick="resetScan();"
                 class="block w-full text-white/50 text-sm text-center mt-4 hover:text-white transition">
                 Başqa qəbz skan et
             </button>
@@ -237,20 +230,10 @@
 </style>
 
 {% else %}
-<!-- Error Modal -->
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
-    id="error-modal">
-    <script>
-        // Auto-close after 10 seconds
-        setTimeout(() => {
-            const modal = document.getElementById('error-modal');
-            if (modal) modal.remove();
-        }, 10000);
-    </script>
-    <div class="glass-card w-full max-w-md p-6 relative slide-up bg-red-500/10 border-red-500/30">
-        <button
-            onclick="this.closest('.fixed').remove(); document.getElementById('scanModal').classList.remove('active');"
-            class="absolute top-4 right-4 text-white/70 hover:text-white">
+<!-- Error Inline Card -->
+<div class="w-full animate-fade-in" id="error-result">
+    <div class="glass-card w-full max-w-2xl mx-auto p-6 relative slide-up bg-red-500/10 border-red-500/30">
+        <button onclick="resetScan();" class="absolute top-4 right-4 text-white/70 hover:text-white">
             ✕
         </button>
 
@@ -273,7 +256,7 @@
                 yenidən cəhd edin.' }}</p>
             {% endif %}
 
-            <button onclick="this.closest('.fixed').remove()"
+            <button onclick="resetScan();"
                 class="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-medium transition">
                 Yenidən cəhd et
             </button>

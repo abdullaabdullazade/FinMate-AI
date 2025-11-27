@@ -3,107 +3,177 @@
 {% block title %}Skan et - FinMate AI{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="/static/css/scan.css">
+<style>
+    /* Glassmorphism Dizaynı */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+    }
+
+    .slide-up {
+        animation: slideUp 0.5s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    @keyframes slideUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Scan Modal -->
-<div class="scan-modal" id="scanModal">
+<div id="scanModal" class="fixed inset-0 z-[200] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center">
     <div class="text-center">
-        <div class="scanner-animation mb-6">
-            <div class="scanner-corners">
-                <span></span>
-            </div>
-            <div class="scanner-line"></div>
+        <div class="relative w-24 h-24 mx-auto mb-6">
+            <div class="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+            <div class="absolute inset-0 border-t-4 border-green-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-4xl">🧾</div>
         </div>
-        <h3 class="text-2xl font-bold text-white mb-2">📸 Skan edilir...</h3>
-        <p class="text-white/70">Zəhmət olmasa gözləyin</p>
-        <div class="flex justify-center gap-2 mt-4">
-            <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
-            <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-            <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">Skan edilir...</h3>
+        <p class="text-white/60">Süni intellekt çeki emal edir</p>
     </div>
 </div>
 
-<div class="glass-card p-4 sm:p-6 mb-4 sm:mb-6 slide-up">
-    <h2 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">📸 Çek Skan et</h2>
-    <p class="text-white/70 mb-4 sm:mb-6 text-sm sm:text-base">Çekin şəklini yükləyin, AI avtomatik məlumatları çıxarsın
-    </p>
+<div class="max-w-2xl mx-auto pt-2 relative z-10">
 
-    <form id="scanForm" hx-post="/api/scan-receipt" hx-target="#scanResult" hx-encoding="multipart/form-data"
-        hx-headers='js:{"X-Client-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "X-Client-Date": (() => { const now = new Date(); const azOffset = 4 * 60; const azTime = new Date(now.getTime() + (azOffset * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000)); return azTime.toISOString().slice(0, 19) + "+04:00"; })()}'
-        class="space-y-4">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- File Upload -->
-            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 sm:p-8 text-center hover:border-white/50 transition cursor-pointer"
-                onclick="document.getElementById('fileInput').click()">
-                <svg class="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-white/50 mb-3 sm:mb-4" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12">
-                    </path>
-                </svg>
-                <p class="text-white font-medium text-sm sm:text-base">Fayl Yüklə</p>
-                <p class="text-xs sm:text-sm text-white/50 mt-1">PNG, JPG</p>
-                <input type="file" name="file" id="fileInput" accept="image/*" class="hidden"
-                    onchange="handleFileSelect(this)">
-            </div>
-
-            <!-- Camera Capture -->
-            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 sm:p-8 text-center hover:border-white/50 transition cursor-pointer bg-white/5"
-                onclick="document.getElementById('cameraInput').click()">
-                <svg class="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-white/50 mb-3 sm:mb-4" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
-                    </path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <p class="text-white font-medium text-sm sm:text-base">Kamera ilə Çək</p>
-                <p class="text-xs sm:text-sm text-white/50 mt-1">Birbaşa skan et</p>
-                <input type="file" name="camera" id="cameraInput" accept="image/*" capture="environment" class="hidden"
-                    onchange="handleFileSelect(this)">
-            </div>
+    <!-- Initial State: Upload Buttons + Instructions -->
+    <div id="initial-state">
+        <div class="glass-card p-6 mb-6 text-center slide-up">
+            <h2 class="text-2xl font-bold text-white mb-2">📸 Çek Skan Et</h2>
+            <p class="text-white/70 text-sm">Çekin şəklini yükləyin, AI avtomatik məlumatları çıxarsın</p>
         </div>
 
-        <p class="text-xs sm:text-sm text-white/60 text-center upload-filename">Fayl seçilməyib</p>
-    </form>
-</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 slide-up" style="animation-delay: 0.1s">
 
-<!-- Scan Result -->
-<div id="scanResult"></div>
+            <label
+                class="group cursor-pointer border-2 border-dashed border-white/30 rounded-2xl p-8 text-center hover:bg-white/5 hover:border-green-500 transition-all duration-300 relative z-20 block bg-black/20">
+                <div
+                    class="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-green-500/20 transition-all">
+                    <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                </div>
+                <p class="text-white font-bold text-lg mb-1">Fayl Yüklə</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">PNG, JPG, PDF</p>
+                <input type="file" class="hidden" accept="image/*" onchange="uploadFile(this)">
+            </label>
 
-<!-- Demo Tips -->
-<div class="glass-card p-4 sm:p-6 slide-up" style="animation-delay: 0.1s">
-    <h3 class="text-base sm:text-lg font-bold text-white mb-3">💡 Necə işləyir?</h3>
-    <ul class="space-y-2 text-white/80 text-xs sm:text-sm">
-        <li class="flex items-start gap-2">
-            <span class="text-green-400 mt-1">✓</span>
-            <span>Çekin şəklini çəkin və ya yükləyin</span>
-        </li>
-        <li class="flex items-start gap-2">
-            <span class="text-green-400 mt-1">✓</span>
-            <span>AI avtomatik olaraq merchant, məhsullar və qiymətləri oxuyur</span>
-        </li>
-        <li class="flex items-start gap-2">
-            <span class="text-green-400 mt-1">✓</span>
-            <span>Xərc kateqoriyasını avtomatik təyin edir</span>
-        </li>
-        <li class="flex items-start gap-2">
-            <span class="text-green-400 mt-1">✓</span>
-            <span>Xərcinizi bazaya əlavə edir</span>
-        </li>
-    </ul>
+            <label
+                class="group cursor-pointer border-2 border-dashed border-white/30 rounded-2xl p-8 text-center hover:bg-white/5 hover:border-purple-500 transition-all duration-300 relative z-20 block bg-black/20">
+                <div
+                    class="w-14 h-14 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all">
+                    <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <p class="text-white font-bold text-lg mb-1">Kamera</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">Şəkil Çək</p>
+                <input type="file" class="hidden" accept="image/*" capture="environment" onchange="uploadFile(this)">
+            </label>
+        </div>
 
-    <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-500/20 rounded-lg">
-        <p class="text-xs sm:text-sm text-white/90">
-            <strong>💡 Məsləhət:</strong> Daha yaxşı nəticə üçün çekin şəklini aydın çəkin və işıqlandırma yaxşı olsun.
-        </p>
+        <div class="glass-card p-5 mt-6 slide-up" style="animation-delay: 0.3s">
+            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                <span>💡</span> Necə işləyir?
+            </h3>
+            <ul class="space-y-2 text-white/70 text-sm">
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-0.5">✓</span>
+                    <span>Çekin şəklini aydın çəkin və ya yükləyin</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-0.5">✓</span>
+                    <span>AI avtomatik olaraq oxuyur</span>
+                </li>
+            </ul>
+        </div>
     </div>
+
+    <!-- Result State -->
+    <div id="scanResult" class="slide-up" style="animation-delay: 0.2s"></div>
 </div>
 
-<script src="/static/js/scan.js"></script>
+<script>
+    // Timezone
+    function getAzTime() {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        return new Date(utc + (4 * 3600000)).toISOString();
+    }
+
+    // Reset function - brings back upload UI
+    function resetScan() {
+        const initialState = document.getElementById('initial-state');
+        const resultDiv = document.getElementById('scanResult');
+
+        // Clear result
+        resultDiv.innerHTML = '';
+
+        // Show initial state
+        initialState.classList.remove('hidden');
+    }
+
+    // Upload file function with state toggle
+    async function uploadFile(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const modal = document.getElementById('scanModal');
+            const initialState = document.getElementById('initial-state');
+            const resultDiv = document.getElementById('scanResult');
+
+            // 1. Show loading modal
+            modal.classList.remove('hidden');
+
+            // 2. Prepare data
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // 3. Send to server
+                const response = await fetch('/api/scan-receipt', {
+                    method: 'POST',
+                    headers: {
+                        'X-Client-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        'X-Client-Date': getAzTime()
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // 4. Success - show result
+                    const html = await response.text();
+                    resultDiv.innerHTML = html;
+
+                    // Hide initial state (upload buttons)
+                    initialState.classList.add('hidden');
+
+                    // Process HTMX if available
+                    if (window.htmx) htmx.process(resultDiv);
+                } else {
+                    console.error('Server Error:', response.status);
+                    alert("Xəta: Server cavab vermir.");
+                }
+            } catch (err) {
+                console.error('Network Error:', err);
+                alert("İnternet xətası.");
+            } finally {
+                // 5. Clean up
+                input.value = '';
+                modal.classList.add('hidden');
+            }
+        }
+    }
+</script>
 {% endblock %}

@@ -1,87 +1,69 @@
-// Scan Page JavaScript
-
-function getAzerbaijanTime() {
-    // Get current time in UTC+4 (Azerbaijan time)
-    const now = new Date();
-    // Get UTC time in milliseconds
-    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
-    // Add UTC+4 offset (4 hours = 4 * 60 * 60 * 1000 milliseconds)
-    const azTime = new Date(utcTime + (4 * 60 * 60 * 1000));
-    return azTime.toISOString();
+// Bakı vaxtını ISO formatında qaytaran funksiya
+function getAzTime() {
+    try {
+        const now = new Date();
+        // UTC vaxtı
+        const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+        // Bakı vaxtı (UTC+4)
+        return new Date(utc + 4 * 3600000).toISOString();
+    } catch (e) {
+        console.error("getAzTime error:", e);
+        return new Date().toISOString();
+    }
 }
 
-function handleFileSelect(input) {
-    const fileName = input.files[0]?.name || 'Fayl seçilməyib';
-    const filenameEl = document.querySelector('.upload-filename');
-    if (filenameEl) {
-        filenameEl.textContent = fileName;
-    }
+// SKAN FUNKSİYASI (BUG-SIZ)
+async function uploadFile(inputElement) {
 
-    if (input.files[0]) {
-        // Show scan modal
-        const scanModal = document.getElementById('scanModal');
-        if (scanModal) {
-            scanModal.classList.add('active');
-        }
+    // Fayl seçilməyibsə çıx
+    if (!inputElement || !inputElement.files || !inputElement.files[0]) return;
 
-        // Set headers for HTMX request with Azerbaijan time
-        const form = input.form;
-        if (form) {
-            form.setAttribute('hx-headers', JSON.stringify({
+    const file = inputElement.files[0];
+    const modal = document.getElementById("scanModal");
+    const resultDiv = document.getElementById("scanResult");
+
+    // Modalı göstər
+    if (modal) modal.classList.remove("hidden");
+
+    // FormData düzgün hazırlanır
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        // Serverə göndər
+        const response = await fetch("/api/scan-receipt", {
+            method: "POST",
+            body: formData, // MÜTLƏQ: Content-Type AJAX-da əl ilə verilməməlidir!
+            headers: {
                 "X-Client-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
-                "X-Client-Date": getAzerbaijanTime()
-            }));
+                "X-Client-Date": getAzTime()
+            }
+        });
 
-            // Submit form after showing modal
-            setTimeout(() => {
-                if (form.requestSubmit) {
-                    form.requestSubmit();
-                } else {
-                    form.submit();
-                }
-            }, 100);
+        if (!response.ok) {
+            alert("Server xətası: " + response.status);
+            console.error("SERVER ERROR:", response.status);
+            return;
         }
+
+        // HTML nəticəni alırıq
+        const html = await response.text();
+
+        // Səhifədə göstəririk
+        if (resultDiv) {
+            resultDiv.innerHTML = html;
+            // HTMX varsa yeni gələn HTML-i aktiv edir
+            if (window.htmx) htmx.process(resultDiv);
+        }
+
+    } catch (error) {
+        console.error("Upload Error:", error);
+        alert("Xəta: İnternet bağlantısı və ya server çalışmır");
+    } finally {
+        // Inputu təmizlə — eyni fayl yenidən seçilə bilsin
+        inputElement.value = "";
+
+        // Modalı bağla
+        if (modal) modal.classList.add("hidden");
     }
 }
-
-// Make function globally accessible
-window.handleFileSelect = handleFileSelect;
-
-// HTMX After Settle - cleanup after response is rendered
-document.body.addEventListener('htmx:afterSettle', function (event) {
-    if (event.detail.target.id === 'scanResult') {
-        setTimeout(() => {
-            const scanModal = document.getElementById('scanModal');
-            if (scanModal) {
-                scanModal.classList.remove('active');
-            }
-        }, 1500); // Keep modal for 1.5 seconds to show animation
-
-        // Clear file input after successful scan
-        const fileInput = document.getElementById('fileInput');
-        const fileNameEl = document.querySelector('.upload-filename');
-
-        if (fileInput) {
-            fileInput.value = '';  // Clear the input
-        }
-        if (fileNameEl) {
-            fileNameEl.textContent = 'Fayl seçilməyib';  // Reset text
-        }
-    }
-});
-
-// Handle errors
-document.body.addEventListener('htmx:responseError', function (evt) {
-    if (evt.detail.target.id === 'scanResult') {
-        const scanModal = document.getElementById('scanModal');
-        if (scanModal) {
-            scanModal.classList.remove('active');
-        }
-        if (typeof window.showToast === 'function') {
-            window.showToast('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', 'error');
-        } else {
-            alert("Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.");
-        }
-    }
-});
-

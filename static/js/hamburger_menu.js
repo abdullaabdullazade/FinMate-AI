@@ -22,6 +22,12 @@
             return;
         }
 
+        // Initialize state
+        if (!menuPanel.classList.contains('active')) {
+            menuPanel.inert = true;
+            menuPanel.setAttribute('aria-hidden', 'true');
+        }
+
         // Toggle menu function
         function toggleMenu(open) {
             const isOpen = open !== undefined ? open : !menuPanel.classList.contains('active');
@@ -33,9 +39,16 @@
                 hamburgerBtn.classList.add('active');
                 document.body.classList.add('menu-open');
 
-                // Announce to screen readers
+                // Enable interaction and announce to screen readers
+                menuPanel.inert = false;
                 menuPanel.setAttribute('aria-hidden', 'false');
                 hamburgerBtn.setAttribute('aria-expanded', 'true');
+
+                // Focus the close button or first item for better a11y
+                setTimeout(() => {
+                    const closeBtn = document.getElementById('menu-close-btn');
+                    if (closeBtn) closeBtn.focus();
+                }, 100);
             } else {
                 // Close menu
                 menuPanel.classList.remove('active');
@@ -43,9 +56,13 @@
                 hamburgerBtn.classList.remove('active');
                 document.body.classList.remove('menu-open');
 
-                // Announce to screen readers
+                // Disable interaction and announce to screen readers
+                menuPanel.inert = true;
                 menuPanel.setAttribute('aria-hidden', 'true');
                 hamburgerBtn.setAttribute('aria-expanded', 'false');
+
+                // Return focus to hamburger button
+                hamburgerBtn.focus();
             }
         }
 

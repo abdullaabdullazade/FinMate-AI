@@ -181,7 +181,7 @@
 
     // Keep old function for backward compatibility (used by slider)
     window.updateBudgetFromInput = function (val) {
-        updateBudgetDisplay(val);
+        window.updateBudgetDisplay(val);
     };
 
     // Daily Limit Validation

@@ -128,7 +128,6 @@
                 <span class="menu-item-label">Dream Vault</span>
             </a>
             <a href="/rewards" class="menu-item {% if request.url.path == '/rewards' %}active{% endif %}">
-                <div class="menu-item-icon">🎁</div>
                 <span class="menu-item-label">Hədiyyələr</span>
             </a>
             <a href="/heatmap" class="menu-item {% if request.url.path == '/heatmap' %}active{% endif %}">
@@ -457,20 +456,31 @@
     {% endif %}
     {% endif %}
 
+    <div id="user-onboarding-data" data-has-user="{{ 'true' if user else 'false' }}"
+        data-budget="{{ user.monthly_budget if user else 0 }}" data-username="{{ user.username if user else '' }}"
+        style="display: none;"></div>
+
     <script>
         // Check for new user (default budget 1000.0)
         document.addEventListener('DOMContentLoaded', () => {
-            {% if user and user.monthly_budget == 1000.0 and user.username != 'demo_user' %}
-            // Only show if not on settings page (to avoid conflict)
-            if (window.location.pathname !== '/settings') {
-                const onboardingModal = document.getElementById('onboarding-modal');
-                if (onboardingModal) {
-                    setTimeout(() => {
-                        onboardingModal.classList.remove('hidden');
-                    }, 1000);
+            const dataEl = document.getElementById('user-onboarding-data');
+            if (!dataEl) return;
+
+            const hasUser = dataEl.dataset.hasUser === 'true';
+            const budget = parseFloat(dataEl.dataset.budget);
+            const username = dataEl.dataset.username;
+
+            if (hasUser && budget === 1000.0 && username !== 'demo_user') {
+                // Only show if not on settings page (to avoid conflict)
+                if (window.location.pathname !== '/settings') {
+                    const onboardingModal = document.getElementById('onboarding-modal');
+                    if (onboardingModal) {
+                        setTimeout(() => {
+                            onboardingModal.classList.remove('hidden');
+                        }, 1000);
+                    }
                 }
             }
-            {% endif %}
         });
     </script>
     {% include 'partials/payment_qr.html' %}
