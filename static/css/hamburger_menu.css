@@ -67,27 +67,35 @@
     transform: translateY(-6.75px) rotate(-45deg);
 }
 
-/* Menu Panel - Enhanced Glassmorphism with Rounded Corners */
+/* Menu Panel - Enhanced Premium Glassmorphism */
 .menu-panel {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     width: 300px;
+    /* Softer, more translucent gradient background */
     background: linear-gradient(135deg,
-            rgba(20, 27, 61, 0.90) 0%,
-            rgba(15, 20, 45, 0.95) 100%);
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0 24px 24px 0;
-    box-shadow: 4px 0 60px rgba(0, 0, 0, 0.4),
-        0 0 100px rgba(var(--accent-primary, 92, 107, 192), 0.15),
-        inset -1px 0 40px rgba(var(--accent-primary, 92, 107, 192), 0.1);
+            rgba(15, 20, 50, 0.75) 0%,
+            rgba(25, 15, 60, 0.85) 50%,
+            rgba(20, 10, 55, 0.80) 100%);
+    /* Enhanced blur for premium feel */
+    backdrop-filter: blur(60px) saturate(180%);
+    -webkit-backdrop-filter: blur(60px) saturate(180%);
+    /* Elegant larger border radius */
+    border-radius: 0 32px 32px 0;
+    /* Multi-layer shadows for sophisticated depth */
+    box-shadow: 4px 0 80px rgba(0, 0, 0, 0.5),
+        0 0 120px rgba(138, 92, 246, 0.2),
+        inset -2px 0 60px rgba(138, 92, 246, 0.15),
+        inset 0 0 80px rgba(236, 72, 153, 0.08);
+    /* Vibrant gradient border */
+    border-right: 2px solid rgba(192, 132, 252, 0.4);
     z-index: 55;
-    transform: translateX(-100%) scale(0.95);
+    /* Dramatic entry animation */
+    transform: translateX(-110%) scale(0.9);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -95,11 +103,13 @@
 /* Light Mode Menu Panel */
 [data-theme="light"] .menu-panel {
     background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.92) 0%,
-            rgba(255, 255, 255, 0.96) 100%);
-    border-right: 1px solid rgba(0, 0, 0, 0.15);
-    box-shadow: 4px 0 60px rgba(94, 53, 177, 0.25),
-        0 0 100px rgba(var(--accent-primary, 236, 64, 122), 0.2);
+            rgba(255, 255, 255, 0.88) 0%,
+            rgba(250, 245, 255, 0.92) 50%,
+            rgba(255, 250, 255, 0.90) 100%);
+    border-right: 2px solid rgba(192, 132, 252, 0.3);
+    box-shadow: 4px 0 80px rgba(138, 92, 246, 0.25),
+        0 0 120px rgba(236, 72, 153, 0.2),
+        inset -2px 0 60px rgba(192, 132, 252, 0.1);
 }
 
 [data-theme="light"] .menu-panel .menu-header {
@@ -175,13 +185,20 @@
     background: var(--accent-primary, rgba(138, 92, 246, 0.7));
 }
 
-/* Menu Header */
+/* Menu Header - Vibrant Electric Gradient */
 .menu-header {
     padding: 24px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    /* Electric gradient card */
     background: linear-gradient(135deg,
-            var(--accent-primary, rgba(92, 107, 192, 0.12)) 0%,
-            var(--accent-secondary, rgba(63, 81, 181, 0.12)) 100%);
+            rgba(138, 92, 246, 0.25) 0%,
+            rgba(192, 132, 252, 0.20) 35%,
+            rgba(236, 72, 153, 0.25) 70%,
+            rgba(244, 114, 182, 0.20) 100%);
+    /* Soft inner glow */
+    box-shadow: 0 4px 24px rgba(138, 92, 246, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 30px rgba(236, 72, 153, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .menu-header-content {
@@ -204,7 +221,27 @@
     color: white;
     font-size: 20px;
     font-weight: 700;
-    box-shadow: 0 6px 20px rgba(var(--accent-primary, 92, 107, 192), 0.4);
+    /* 3D elevated appearance with animated glow */
+    box-shadow: 0 8px 32px rgba(138, 92, 246, 0.5),
+        0 4px 16px rgba(236, 72, 153, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: avatarGlow 3s ease-in-out infinite;
+}
+
+@keyframes avatarGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 8px 32px rgba(138, 92, 246, 0.5),
+            0 4px 16px rgba(236, 72, 153, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 8px 40px rgba(236, 72, 153, 0.7),
+            0 4px 20px rgba(138, 92, 246, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
 }
 
 .menu-user-info {
@@ -228,7 +265,7 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* Close Button */
+/* Close Button - 3D Glass Effect */
 .menu-close-btn {
     position: absolute;
     right: 0;
@@ -239,18 +276,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* 3D glass gradient */
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15),
+            rgba(255, 255, 255, 0.05));
+    /* 3D depth shadows */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 10px;
+    backdrop-filter: blur(10px);
     color: white;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-close-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-50%) scale(1.05) rotate(90deg);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    /* Elevated on hover with color glow */
+    background: linear-gradient(135deg,
+            rgba(192, 132, 252, 0.25),
+            rgba(236, 72, 153, 0.15));
+    transform: translateY(-50%) scale(1.1) rotate(90deg);
+    box-shadow: 0 8px 24px rgba(138, 92, 246, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(192, 132, 252, 0.3);
 }
 
 .menu-close-btn:active {
@@ -291,6 +341,26 @@
     margin: 4px 12px;
 }
 
+/* Ripple effect container */
+.menu-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center,
+            rgba(192, 132, 252, 0.3),
+            transparent 70%);
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.menu-item:active::after {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0s;
+}
+
 .menu-item::before {
     content: '';
     position: absolute;
@@ -306,10 +376,12 @@
 }
 
 .menu-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     color: white;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(6px) scale(1.01);
+    /* Soft glow */
+    box-shadow: 0 4px 16px rgba(138, 92, 246, 0.2),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 /* Brighten icons on hover for better visibility */
@@ -327,14 +399,23 @@
     transform: translateX(0);
 }
 
-/* Active Menu Item */
+/* Active Menu Item - Electric Glow */
 .menu-item.active {
+    /* Electric gradient background */
     background: linear-gradient(90deg,
-            rgba(var(--accent-primary, 92, 107, 192), 0.25) 0%,
-            rgba(var(--accent-secondary, 63, 81, 181), 0.2) 100%);
+            rgba(138, 92, 246, 0.35) 0%,
+            rgba(192, 132, 252, 0.25) 50%,
+            rgba(236, 72, 153, 0.3) 100%);
     color: white;
-    box-shadow: 0 4px 16px rgba(var(--accent-primary, 92, 107, 192), 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    /* Multi-layer glow effect */
+    box-shadow: 0 4px 20px rgba(138, 92, 246, 0.4),
+        0 2px 10px rgba(236, 72, 153, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 0 30px rgba(192, 132, 252, 0.15);
+    /* Glowing border */
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    /* Scale up slightly */
+    transform: translateX(6px) scale(1.02);
 }
 
 .menu-item.active::before {
@@ -494,4 +575,84 @@ body.menu-open .toast-container {
 
 .menu-backdrop {
     z-index: 50;
+}
+
+/* ============================================
+   PREMIUM MICRO-ANIMATIONS
+   ============================================ */
+
+/* Menu Item Cascade Entry Animation */
+.menu-panel.active .menu-item {
+    animation: menuItemSlideIn 0.4s ease-out forwards;
+}
+
+.menu-panel.active .menu-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.menu-panel.active .menu-item:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.menu-panel.active .menu-item:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.menu-panel.active .menu-item:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.menu-panel.active .menu-item:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.menu-panel.active .menu-item:nth-child(6) {
+    animation-delay: 0.35s;
+}
+
+.menu-panel.active .menu-item:nth-child(7) {
+    animation-delay: 0.4s;
+}
+
+.menu-panel.active .menu-item:nth-child(8) {
+    animation-delay: 0.45s;
+}
+
+.menu-panel.active .menu-item:nth-child(9) {
+    animation-delay: 0.5s;
+}
+
+.menu-panel.active .menu-item:nth-child(10) {
+    animation-delay: 0.55s;
+}
+
+@keyframes menuItemSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Icon scale on menu item hover */
+.menu-item:hover .menu-item-icon {
+    animation: iconPulse 0.3s ease-out;
+}
+
+@keyframes iconPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
 }
