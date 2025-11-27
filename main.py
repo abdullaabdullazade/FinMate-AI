@@ -1591,11 +1591,28 @@ async def get_forecast_chart_endpoint(request: Request, db: Session = Depends(ge
 @app.post("/api/tts")
 async def text_to_speech(
     text: str = Form(...),
-    language: str = Form("az")
+    language: str = Form("az"),
+    rate: str = Form("+0%"),      # Speech rate: -50% to +100%
+    pitch: str = Form("+0Hz"),    # Pitch: -50Hz to +50Hz
+    volume: str = Form("+0%"),    # Volume: -50% to +100%
+    quality: str = Form("high")   # Quality flag (for future use)
 ):
-    """Convert text to speech using edge-tts"""
+    """Convert text to speech using edge-tts with enhanced quality parameters"""
     try:
-        audio_bytes = await voice_service.generate_voice_response(text, language)
+        # Enhanced parameters for high-quality TTS
+        # Adjust rate slightly for more natural speech (slightly slower = clearer)
+        if quality == "high":
+            rate = "+0%"  # Natural speed
+            pitch = "+0Hz"  # Natural pitch
+            volume = "+0%"  # Full volume
+        
+        audio_bytes = await voice_service.generate_voice_response(
+            text, 
+            language, 
+            rate=rate,
+            pitch=pitch,
+            volume=volume
+        )
         if not audio_bytes:
             return JSONResponse({"success": False, "error": "TTS failed"}, status_code=500)
         return JSONResponse({
@@ -2539,6 +2556,7 @@ async def claim_reward(
         "success": True,
         "message": f"🎉 {reward_info['name']} alındı!",
         "remaining_coins": user.coins,
+        "new_balance": user.coins,  # For frontend update
         "reward_name": reward_info["name"]
     })
 

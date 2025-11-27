@@ -304,9 +304,12 @@
         }, 3000);
     };
 
-    // HTMX Request Validation
+    // HTMX Request Validation - Prevent refresh
     document.body.addEventListener('htmx:configRequest', function (event) {
         if (event.detail && event.detail.target && event.detail.target.tagName === 'FORM') {
+            // Prevent default form submission (HTMX will handle it)
+            event.preventDefault();
+            
             // Validate form before submit
             if (!window.validateSettingsForm(event.detail.target)) {
                 event.preventDefault();
@@ -314,6 +317,16 @@
             }
         }
     });
+    
+    // Prevent form refresh on submit
+    document.body.addEventListener('submit', function (event) {
+        const form = event.target;
+        if (form && (form.hasAttribute('hx-post') || form.hasAttribute('hx-get') || form.hasAttribute('hx-put'))) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+    }, true);
 
     // HTMX Response Handling
     document.body.addEventListener('htmx:afterRequest', function (event) {
@@ -338,7 +351,13 @@
     });
 
     // Reset Demo Data
-    window.resetDemoData = async function () {
+    window.resetDemoData = async function (event) {
+        // Prevent page refresh
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         if (!confirm('Demo məlumatlarını sıfırlamaq istəyirsən? Bütün cari məlumatlar silinəcək.')) return;
         try {
             const res = await fetch('/api/reset-demo', { method: 'POST' });
@@ -397,7 +416,13 @@
     };
 
     // Premium Theme Switching (Settings-specific wrapper)
-    window.applyPremiumThemeSettings = function (theme) {
+    window.applyPremiumThemeSettings = function (theme, event) {
+        // Prevent page refresh if event is provided
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         console.log('Settings: Applying theme:', theme);
 
         // Call global function if available
@@ -457,7 +482,13 @@
     };
 
     // Incognito Mode Toggle (Settings-specific wrapper)
-    window.toggleIncognitoModeSettings = function (enabled) {
+    window.toggleIncognitoModeSettings = function (enabled, event) {
+        // Prevent page refresh if event is provided
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         if (typeof window.toggleIncognitoMode === 'function') {
             window.toggleIncognitoMode(enabled);
             if (enabled) {
@@ -619,19 +650,35 @@
         modal.classList.add('flex');
     };
 
-    window.closeCurrencyModal = function () {
+    window.closeCurrencyModal = function (event) {
+        // Prevent page refresh if event is provided
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         const modal = document.getElementById('currency-confirm-modal');
         const selector = document.getElementById('currency-selector');
 
         // Reset selector to current currency
-        selector.value = currentCurrency;
+        if (selector) {
+            selector.value = currentCurrency;
+        }
 
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
         pendingCurrencyChange = null;
     };
 
-    window.confirmCurrencyConversion = async function () {
+    window.confirmCurrencyConversion = async function (event) {
+        // Prevent page refresh if event is provided
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         if (!pendingCurrencyChange) {
             window.closeCurrencyModal();
             return;

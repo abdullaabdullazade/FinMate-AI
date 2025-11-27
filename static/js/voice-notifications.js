@@ -57,10 +57,16 @@
         console.log(`🔊 Speaking (${voiceQueue.length} remaining):`, item.text.substring(0, 50));
 
         try {
-            // Call backend TTS API
+            // Call backend TTS API with enhanced quality parameters
             const formData = new FormData();
             formData.append('text', item.text);
             formData.append('language', item.language);
+            
+            // Enhanced quality parameters for better TTS
+            formData.append('rate', '1.0');      // Natural speed
+            formData.append('pitch', '1.0');     // Natural pitch
+            formData.append('volume', '1.0');    // Full volume
+            formData.append('quality', 'high');  // High quality flag
 
             const response = await fetch('/api/tts', {
                 method: 'POST',
@@ -90,40 +96,98 @@
     }
 
     /**
-     * Play audio from base64 and wait for completion
+     * Play audio from base64 using global AudioManager
+     * This ensures audio persists through DOM changes
      */
     function playAudio(base64Audio) {
         return new Promise((resolve, reject) => {
-            const audio = new Audio(`data:audio/mp3;base64,${base64Audio}`);
-
-            audio.onended = () => {
-                console.log('✅ Audio finished');
-
-                // Notify voice recorder that audio is finished so it can reset UI
-                if (typeof window.voiceRecorder !== 'undefined' && window.voiceRecorder) {
-                    // Check if we're in voice modal and recording is not active
-                    const voiceModal = document.getElementById('voice-modal');
-                    if (voiceModal && !voiceModal.classList.contains('hidden')) {
-                        const isRecording = window.voiceRecorder.isRecording;
-                        if (!isRecording) {
-                            // Reset UI to idle so user can record again
-                            window.voiceRecorder.updateUI('idle');
+            // Use global AudioManager if available, otherwise fallback
+            if (window.AudioManager) {
+                // Get audio instance to track completion
+                const audioInstance = window.AudioManager.getInstance();
+                
+                // Store current state
+                const wasPlaying = window.AudioManager.isPlaying();
+                
+                // Play audio through AudioManager
+                window.AudioManager.play(base64Audio, 1);
+                
+                // Wait for audio to finish
+                // Since AudioManager queues audio, we need to wait for the specific audio to finish
+                const checkCompletion = () => {
+                    // Check if audio ended (not playing and was playing before)
+                    if (!window.AudioManager.isPlaying() && wasPlaying) {
+                        // Audio finished
+                        notifyVoiceRecorder();
+                        resolve();
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // If audio was not playing, it will start now - wait for it to finish
+                if (!wasPlaying) {
+                    // Listen for ended event on the audio instance
+                    const handleEnded = () => {
+                        audioInstance.removeEventListener('ended', handleEnded);
+                        notifyVoiceRecorder();
+                        resolve();
+                    };
+                    
+                    audioInstance.addEventListener('ended', handleEnded, { once: true });
+                    
+                    // Fallback timeout
+                    setTimeout(() => {
+                        audioInstance.removeEventListener('ended', handleEnded);
+                        if (!checkCompletion()) {
+                            resolve(); // Resolve anyway after timeout
+                        }
+                    }, 30000);
+                } else {
+                    // Audio was already playing, wait for queue to finish
+                    const checkInterval = setInterval(() => {
+                        if (checkCompletion()) {
+                            clearInterval(checkInterval);
+                        }
+                    }, 200);
+                    
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 30000);
+                }
+                
+                function notifyVoiceRecorder() {
+                    // Notify voice recorder that audio is finished
+                    if (typeof window.voiceRecorder !== 'undefined' && window.voiceRecorder) {
+                        const voiceModal = document.getElementById('voice-modal');
+                        if (voiceModal && !voiceModal.classList.contains('hidden')) {
+                            const isRecording = window.voiceRecorder.isRecording;
+                            if (!isRecording) {
+                                window.voiceRecorder.updateUI('idle');
+                            }
                         }
                     }
                 }
-
-                resolve();
-            };
-
-            audio.onerror = (error) => {
-                console.error('❌ Audio play error:', error);
-                reject(error);
-            };
-
-            audio.play().catch(err => {
-                console.error('❌ Audio play failed:', err);
-                reject(err);
-            });
+            } else {
+                // Fallback to old method
+                const audio = new Audio(`data:audio/mp3;base64,${base64Audio}`);
+                audio.onended = () => {
+                    // Notify voice recorder
+                    if (typeof window.voiceRecorder !== 'undefined' && window.voiceRecorder) {
+                        const voiceModal = document.getElementById('voice-modal');
+                        if (voiceModal && !voiceModal.classList.contains('hidden')) {
+                            const isRecording = window.voiceRecorder.isRecording;
+                            if (!isRecording) {
+                                window.voiceRecorder.updateUI('idle');
+                            }
+                        }
+                    }
+                    resolve();
+                };
+                audio.onerror = () => reject();
+                audio.play().catch(err => reject(err));
+            }
         });
     }
 
@@ -163,10 +227,17 @@
         // Speak the notification only if voice mode is enabled
         const voiceMode = localStorage.getItem('voice-mode');
         if (voiceMode === 'enabled') {
+            // Skip audio if voice modal is open (recording interface)
+            const voiceModal = document.getElementById('voice-modal');
+            if (voiceModal && !voiceModal.classList.contains('hidden')) {
+                console.log('🔇 Skipping toast audio - voice modal is open');
+                return;
+            }
+            
             // Clean message from HTML and emojis for better speech
             const cleanMessage = message
                 .replace(/<[^>]*>/g, '') // Remove HTML tags
-                .replace(/[✓✅❌⚠️🔥⚡💰🎉👍]/g, '') // Remove common emojis
+                .replace(/[✓✅❌⚠️🔥⚡💰🎉👍🪙]/g, '') // Remove common emojis
                 .replace(/\s+/g, ' ') // Normalize whitespace
                 .trim();
 

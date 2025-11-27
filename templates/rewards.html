@@ -344,11 +344,7 @@
         document.getElementById('modal-remaining').textContent = `🪙 ${currentCoins - cost}`;
         document.getElementById('claim-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        // Voice notification
-        if (typeof window.queueVoiceNotification === 'function') {
-            const message = `${name}. Qiymət ${cost} coin. Almaq istəyirsinizmi?`;
-            window.queueVoiceNotification(message, 1, 'az');
-        }
+        // Voice notification will be handled automatically by event-manager.js
     }
 
     function closeClaimModal() {
@@ -371,9 +367,32 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.showToast(data.message, 'success');
+                    // Close modal first
                     closeClaimModal();
-                    setTimeout(() => location.reload(), 1000);
+                    
+                    // Update coin balance without refresh
+                    const coinBalance = document.getElementById('coin-balance');
+                    if (coinBalance && data.new_balance !== undefined) {
+                        coinBalance.textContent = data.new_balance;
+                    }
+                    
+                    // Show success message with voice
+                    const rewardName = document.getElementById('modal-title')?.textContent || 'Hədiyyə';
+                    const successMessage = `${rewardName} uğurla alındı!`;
+                    window.showToast(successMessage, 'success');
+                    
+                    // Voice notification - say that reward was claimed
+                    if (typeof window.queueVoiceNotification === 'function') {
+                        const cleanRewardName = rewardName.replace(/[🥉🥈🥇💎🎁]/g, '').trim();
+                        const voiceMessage = `${cleanRewardName} uğurla alındı. Təbriklər!`;
+                        window.queueVoiceNotification(voiceMessage, 0, 'az');
+                    }
+                    
+                    // Update rewards list if needed (without refresh)
+                    if (typeof htmx !== 'undefined') {
+                        // Trigger event to update rewards
+                        document.body.dispatchEvent(new Event('rewardClaimed'));
+                    }
                 } else {
                     window.showToast(data.error || 'Xəta baş verdi', 'error');
                     btn.disabled = false;

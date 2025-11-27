@@ -141,3 +141,115 @@
         appearance: textfield;
     }
 </style>
+
+<script>
+    // Trigger audio when voice confirmation modal opens
+    (function() {
+        'use strict';
+        
+        function triggerVoiceConfirmationAudio() {
+            const modal = document.getElementById('voice-confirmation');
+            if (!modal) return;
+            
+            // Check if voice mode is enabled
+            const voiceMode = localStorage.getItem('voice-mode');
+            if (voiceMode !== 'enabled') return;
+            
+            // Skip if voice modal is open (recording interface)
+            const voiceModal = document.getElementById('voice-modal');
+            if (voiceModal && !voiceModal.classList.contains('hidden')) {
+                console.log('🔇 Skipping voice confirmation audio - voice modal is open');
+                return;
+            }
+            
+            // Build audio message
+            let audioMessage = 'Səsi yoxlayın. Düz başa düşdümsə, davam edin.';
+            
+            // Get transcribed text
+            const transcribedText = modal.querySelector('p.text-white.italic');
+            if (transcribedText) {
+                const text = transcribedText.textContent.trim().replace(/[""]/g, '');
+                if (text) {
+                    audioMessage += ` Siz dediniz: ${text}.`;
+                }
+            }
+            
+            // Get amount
+            const amountInput = modal.querySelector('input[name="amount"]');
+            if (amountInput) {
+                const amount = parseFloat(amountInput.value) || 0;
+                if (amount > 0) {
+                    if (typeof window.numberToAzerbaijani === 'function') {
+                        const amountText = window.numberToAzerbaijani(amount);
+                        audioMessage += ` Məbləğ: ${amountText}.`;
+                    } else {
+                        audioMessage += ` Məbləğ: ${amount} manat.`;
+                    }
+                }
+            }
+            
+            // Get merchant
+            const merchantInput = modal.querySelector('input[name="merchant"]');
+            if (merchantInput && merchantInput.value) {
+                audioMessage += ` Məhsul: ${merchantInput.value}.`;
+            }
+            
+            // Get category
+            const categorySpan = modal.querySelector('span.bg-purple-500\\/30');
+            if (categorySpan) {
+                audioMessage += ` Kateqoriya: ${categorySpan.textContent.trim()}.`;
+            }
+            
+            // Get button instructions
+            const buttons = modal.querySelectorAll('button');
+            const buttonTexts = [];
+            buttons.forEach(btn => {
+                const btnText = btn.textContent.trim();
+                if (btnText && btnText.length < 50) {
+                    const cleanText = btnText.replace(/[✓✅←🎤]/g, '').trim();
+                    if (cleanText) {
+                        buttonTexts.push(cleanText);
+                    }
+                }
+            });
+            
+            if (buttonTexts.length >= 2) {
+                const confirmBtn = buttonTexts.find(t => t.includes('Düzdür') || t.includes('Saxla') || t.includes('Təsdiq'));
+                const cancelBtn = buttonTexts.find(t => t.includes('Yenidən') || t.includes('Cəhd') || t.includes('Ləğv'));
+                
+                if (confirmBtn && cancelBtn) {
+                    audioMessage += ` Əgər düz başa düşdümsə, ${confirmBtn} düyməsinə basın. Əgər yenidən cəhd etmək istəyirsinizsə, ${cancelBtn} düyməsinə basın.`;
+                } else {
+                    audioMessage += ` Düymələr: ${buttonTexts[0]}, ${buttonTexts[1]}.`;
+                }
+            }
+            
+            // Clean and send audio message
+            const cleanMessage = audioMessage
+                .replace(/\s+/g, ' ') // Normalize whitespace
+                .trim();
+            
+            if (cleanMessage && typeof window.queueVoiceNotification === 'function') {
+                console.log('🔊 Voice confirmation audio:', cleanMessage);
+                window.queueVoiceNotification(cleanMessage, 0, 'az'); // High priority
+            }
+        }
+        
+        // Wait for modal to be fully rendered and try multiple times
+        let attempts = 0;
+        const maxAttempts = 5;
+        const checkInterval = setInterval(() => {
+            attempts++;
+            const modal = document.getElementById('voice-confirmation');
+            if (modal) {
+                clearInterval(checkInterval);
+                // Wait a bit more for content to load
+                setTimeout(() => {
+                    triggerVoiceConfirmationAudio();
+                }, 300);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+            }
+        }, 200);
+    })();
+</script>

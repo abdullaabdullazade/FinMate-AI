@@ -189,9 +189,16 @@ Only return JSON, no other text.""",
             }
     
     @staticmethod
-    async def generate_voice_response(text: str, language: str = "az") -> Optional[bytes]:
+    async def generate_voice_response(
+        text: str, 
+        language: str = "az",
+        rate: str = "+0%",
+        pitch: str = "+0Hz",
+        volume: str = "+0%"
+    ) -> Optional[bytes]:
         """
         Convert text to speech using edge-tts with female voices
+        Enhanced with quality parameters for better audio output
         """
         if not text or not text.strip():
             print("❌ TTS Error: Empty text")
@@ -199,7 +206,7 @@ Only return JSON, no other text.""",
         
         try:
             voice = VoiceService.VOICE_MAP.get(language, VoiceService.VOICE_MAP["az"])
-            print(f"🔊 TTS: Generating with voice {voice}, text: {text[:50]}...")
+            print(f"🔊 TTS: Generating with voice {voice}, rate={rate}, pitch={pitch}, text: {text[:50]}...")
             
             # Create temp file
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
@@ -247,8 +254,16 @@ Only return JSON, no other text.""",
                     print(f"🔄 TTS Attempt {attempt + 1}/{max_retries}: No proxy")
 
                 try:
-                    # Generate audio using edge-tts
-                    communicate = edge_tts.Communicate(text, voice, proxy=proxy)
+                    # Generate audio using edge-tts with enhanced quality parameters
+                    # Format: rate (speed), pitch (tone), volume
+                    communicate = edge_tts.Communicate(
+                        text, 
+                        voice, 
+                        proxy=proxy,
+                        rate=rate,      # Speech rate: -50% to +100% (default: +0%)
+                        pitch=pitch,     # Pitch: -50Hz to +50Hz (default: +0Hz)
+                        volume=volume   # Volume: -50% to +100% (default: +0%)
+                    )
                     await communicate.save(tmp_path)
                     
                     # Wait a bit to ensure file is written
