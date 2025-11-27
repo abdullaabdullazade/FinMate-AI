@@ -6,8 +6,8 @@
 <div class="max-w-2xl mx-auto px-4 py-6 pb-24 lg:ml-64">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">🎁 Hədiyyələr</h1>
-        <p class="text-white/60 text-sm">Coin xərcləyib hədiyyə al!</p>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">🎁 Mükafat Mağazası</h1>
+        <p class="text-white/60 text-sm">Coin toplayın, hədiyyələr qazanın!</p>
     </div>
 
     <!-- Current Balance Card -->
@@ -29,7 +29,7 @@
 
     <!-- Available Rewards - SLIDING CAROUSEL -->
     <div class="mb-8">
-        <h2 class="text-xl font-bold text-white mb-4">🛒 Mağaza</h2>
+        <h2 class="text-xl font-bold text-white mb-4">🛒 Hədiyyə Seçimləri</h2>
 
         <!-- Carousel Container -->
         <div class="relative">
@@ -56,22 +56,37 @@
                 <!-- 100 Coins - Bronze -->
                 <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
                     <div
-                        class="glass-card p-5 sm:p-6 h-full border-2 border-amber-400/30 hover:border-amber-400/60 transition bg-gradient-to-br from-amber-500/5 to-yellow-500/5">
-                        <div class="text-center mb-3 sm:mb-4">
-                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥉</div>
-                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Bronz Paket</h3>
-                            <p class="text-white/70 text-xs sm:text-sm mb-1">1 Coffee Kuponu</p>
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-amber-400/40 hover:border-amber-400/80 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-amber-500/10 to-yellow-500/10 shadow-xl">
+                        <div class="flex justify-between items-start mb-3">
+                            <span
+                                class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase">Bronz</span>
                             {% if reward_counts.get('bronze', 0) > 0 %}
-                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('bronze') }}x alınıb</p>
+                            <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">✓ {{
+                                reward_counts.get('bronze') }}x</span>
                             {% endif %}
                         </div>
-                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 100</span>
+                        <div class="text-center mb-4">
+                            <div class="text-6xl sm:text-7xl mb-3 filter drop-shadow-lg">🥉</div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">Coffee Kuponu</h3>
+                            <div class="h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent mb-3">
+                            </div>
+                            <p class="text-white/80 text-sm font-medium">1 ədəd pulsuz kofe</p>
                         </div>
-                        <button onclick="openClaimModal('bronze', 100, '🥉', '1 Coffee Kuponu')"
-                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 100 %}bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        <div class="bg-black/20 rounded-lg p-3 mb-4 border border-amber-400/20">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-yellow-400 text-3xl">🪙</span>
+                                <span class="text-yellow-400 font-bold text-2xl sm:text-3xl">100</span>
+                                <span class="text-white/50 text-sm">coin</span>
+                            </div>
+                        </div>
+                        <button onclick="openClaimModal('bronze', 100, '🥉', 'Coffee Kuponu')"
+                            class="w-full px-4 py-3 sm:py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 {% if current_coins >= 100 %}bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black shadow-lg shadow-amber-500/50{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
                             {% if current_coins < 100 %}disabled{% endif %}>
-                            {% if current_coins >= 100 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                            {% if current_coins >= 100 %}<span
+                                class="flex items-center justify-center gap-2"><span>🛒</span><span>Al
+                                    İndi</span></span>{% else %}<span
+                                class="flex items-center justify-center gap-2"><span>🔒</span><span>Kiliddə</span></span>{%
+                            endif %}
                         </button>
                     </div>
                 </div>
@@ -79,22 +94,37 @@
                 <!-- 200 Coins - Silver -->
                 <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
                     <div
-                        class="glass-card p-5 sm:p-6 h-full border-2 border-gray-300/30 hover:border-gray-300/60 transition bg-gradient-to-br from-gray-200/5 to-gray-400/5">
-                        <div class="text-center mb-3 sm:mb-4">
-                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥈</div>
-                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Gümüş Paket</h3>
-                            <p class="text-white/70 text-xs sm:text-sm mb-1">3 Coffee Kuponu</p>
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-gray-300/40 hover:border-gray-300/80 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-gray-300/10 to-gray-400/10 shadow-xl">
+                        <div class="flex justify-between items-start mb-3">
+                            <span
+                                class="px-3 py-1 rounded-full bg-gray-300/20 text-gray-200 text-xs font-bold uppercase">Gümüş</span>
                             {% if reward_counts.get('silver', 0) > 0 %}
-                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('silver') }}x alınıb</p>
+                            <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">✓ {{
+                                reward_counts.get('silver') }}x</span>
                             {% endif %}
                         </div>
-                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 200</span>
+                        <div class="text-center mb-4">
+                            <div class="text-6xl sm:text-7xl mb-3 filter drop-shadow-lg">🥈</div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">Coffee Paket</h3>
+                            <div class="h-px bg-gradient-to-r from-transparent via-gray-300/50 to-transparent mb-3">
+                            </div>
+                            <p class="text-white/80 text-sm font-medium">3 ədəd pulsuz kofe</p>
                         </div>
-                        <button onclick="openClaimModal('silver', 200, '🥈', '3 Coffee Kuponu')"
-                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 200 %}bg-gray-200 hover:bg-gray-300 text-black shadow-lg shadow-gray-300/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        <div class="bg-black/20 rounded-lg p-3 mb-4 border border-gray-300/20">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-yellow-400 text-3xl">🪙</span>
+                                <span class="text-yellow-400 font-bold text-2xl sm:text-3xl">200</span>
+                                <span class="text-white/50 text-sm">coin</span>
+                            </div>
+                        </div>
+                        <button onclick="openClaimModal('silver', 200, '🥈', 'Coffee Paket')"
+                            class="w-full px-4 py-3 sm:py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 {% if current_coins >= 200 %}bg-gradient-to-r from-gray-200 to-gray-300 hover:from-gray-300 hover:to-gray-400 text-black shadow-lg shadow-gray-300/50{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
                             {% if current_coins < 200 %}disabled{% endif %}>
-                            {% if current_coins >= 200 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                            {% if current_coins >= 200 %}<span
+                                class="flex items-center justify-center gap-2"><span>🛒</span><span>Al
+                                    İndi</span></span>{% else %}<span
+                                class="flex items-center justify-center gap-2"><span>🔒</span><span>Kiliddə</span></span>{%
+                            endif %}
                         </button>
                     </div>
                 </div>
@@ -102,22 +132,37 @@
                 <!-- 500 Coins - Gold -->
                 <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
                     <div
-                        class="glass-card p-5 sm:p-6 h-full border-2 border-yellow-400/30 hover:border-yellow-400/60 transition bg-gradient-to-br from-yellow-400/5 to-amber-500/5">
-                        <div class="text-center mb-3 sm:mb-4">
-                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🥇</div>
-                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Qızıl Paket</h3>
-                            <p class="text-white/70 text-xs sm:text-sm mb-1">5 AZN pul mükafatı</p>
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-yellow-400/40 hover:border-yellow-400/80 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-yellow-400/10 to-amber-500/10 shadow-xl">
+                        <div class="flex justify-between items-start mb-3">
+                            <span
+                                class="px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-200 text-xs font-bold uppercase">Qızıl</span>
                             {% if reward_counts.get('gold', 0) > 0 %}
-                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('gold') }}x alınıb</p>
+                            <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">✓ {{
+                                reward_counts.get('gold') }}x</span>
                             {% endif %}
                         </div>
-                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 500</span>
+                        <div class="text-center mb-4">
+                            <div class="text-6xl sm:text-7xl mb-3 filter drop-shadow-lg">🥇</div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">Pul Mükafatı</h3>
+                            <div class="h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent mb-3">
+                            </div>
+                            <p class="text-white/80 text-sm font-medium">5 AZN bank hesabınıza</p>
                         </div>
-                        <button onclick="openClaimModal('gold', 500, '🥇', '5 AZN pul mükafatı')"
-                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 500 %}bg-yellow-400 hover:bg-yellow-500 text-black shadow-lg shadow-yellow-400/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        <div class="bg-black/20 rounded-lg p-3 mb-4 border border-yellow-400/20">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-yellow-400 text-3xl">🪙</span>
+                                <span class="text-yellow-400 font-bold text-2xl sm:text-3xl">500</span>
+                                <span class="text-white/50 text-sm">coin</span>
+                            </div>
+                        </div>
+                        <button onclick="openClaimModal('gold', 500, '🥇', 'Pul Mükafatı - 5 AZN')"
+                            class="w-full px-4 py-3 sm:py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 {% if current_coins >= 500 %}bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-black shadow-lg shadow-yellow-400/50{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
                             {% if current_coins < 500 %}disabled{% endif %}>
-                            {% if current_coins >= 500 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                            {% if current_coins >= 500 %}<span
+                                class="flex items-center justify-center gap-2"><span>🛒</span><span>Al
+                                    İndi</span></span>{% else %}<span
+                                class="flex items-center justify-center gap-2"><span>🔒</span><span>Kiliddə</span></span>{%
+                            endif %}
                         </button>
                     </div>
                 </div>
@@ -125,22 +170,37 @@
                 <!-- 5000 Coins - Platinum -->
                 <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
                     <div
-                        class="glass-card p-5 sm:p-6 h-full border-2 border-purple-500/30 hover:border-purple-500/60 transition bg-gradient-to-br from-purple-500/5 to-pink-500/5">
-                        <div class="text-center mb-3 sm:mb-4">
-                            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">💎</div>
-                            <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Platin Paket</h3>
-                            <p class="text-white/70 text-xs sm:text-sm mb-1">Premium 1 ay + 20 AZN</p>
+                        class="glass-card p-5 sm:p-6 h-full border-2 border-purple-500/40 hover:border-purple-500/80 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-purple-500/10 to-pink-500/10 shadow-xl">
+                        <div class="flex justify-between items-start mb-3">
+                            <span
+                                class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 text-xs font-bold uppercase">Platin</span>
                             {% if reward_counts.get('platinum', 0) > 0 %}
-                            <p class="text-green-400 text-xs">✅ {{ reward_counts.get('platinum') }}x alınıb</p>
+                            <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">✓ {{
+                                reward_counts.get('platinum') }}x</span>
                             {% endif %}
                         </div>
-                        <div class="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-                            <span class="text-yellow-400 font-bold text-xl sm:text-2xl">🪙 5000</span>
+                        <div class="text-center mb-4">
+                            <div class="text-6xl sm:text-7xl mb-3 filter drop-shadow-lg">💎</div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">Premium Paket</h3>
+                            <div class="h-px bg-gradient-to-r from-transparent via-purple-400/50 to-transparent mb-3">
+                            </div>
+                            <p class="text-white/80 text-sm font-medium">1 ay Premium + 20 AZN</p>
                         </div>
-                        <button onclick="openClaimModal('platinum', 5000, '💎', 'Premium 1 ay + 20 AZN')"
-                            class="w-full px-4 py-2.5 sm:py-3 rounded-lg font-bold text-base sm:text-lg transition {% if current_coins >= 5000 %}bg-purple-500 hover:bg-purple-600 text-white shadow-lg shadow-purple-500/50{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        <div class="bg-black/20 rounded-lg p-3 mb-4 border border-purple-400/20">
+                            <div class="flex items-center justify-center gap-2">
+                                <span class="text-yellow-400 text-3xl">🪙</span>
+                                <span class="text-yellow-400 font-bold text-2xl sm:text-3xl">5000</span>
+                                <span class="text-white/50 text-sm">coin</span>
+                            </div>
+                        </div>
+                        <button onclick="openClaimModal('platinum', 5000, '💎', 'Premium Paket')"
+                            class="w-full px-4 py-3 sm:py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 {% if current_coins >= 5000 %}bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/50{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
                             {% if current_coins < 5000 %}disabled{% endif %}>
-                            {% if current_coins >= 5000 %}🛒 Al{% else %}🔒 Kiliddə{% endif %}
+                            {% if current_coins >= 5000 %}<span
+                                class="flex items-center justify-center gap-2"><span>🛒</span><span>Al
+                                    İndi</span></span>{% else %}<span
+                                class="flex items-center justify-center gap-2"><span>🔒</span><span>Kiliddə</span></span>{%
+                            endif %}
                         </button>
                     </div>
                 </div>
@@ -148,10 +208,10 @@
 
             <!-- Scroll Indicator Dots -->
             <div class="flex justify-center gap-2 mt-4">
-                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
-                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
-                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
-                <div class="scroll-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+                <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+                <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                <div class="w-2 h-2 rounded-full bg-purple-400"></div>
             </div>
         </div>
     </div>
@@ -228,7 +288,6 @@
 </div>
 
 <style>
-    /* Hide scrollbar but keep functionality */
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
@@ -238,7 +297,6 @@
         scrollbar-width: none;
     }
 
-    /* Modal animation */
     @keyframes scale-in {
         from {
             transform: scale(0.9);
@@ -262,8 +320,7 @@
 
     function scrollRewards(direction) {
         const carousel = document.getElementById('rewards-carousel');
-        const cardWidth = 288 + 12; // 72*4 (w-72) + gap
-
+        const cardWidth = 288 + 12;
         if (direction === 'left') {
             carousel.scrollLeft -= cardWidth;
         } else {
@@ -273,24 +330,25 @@
 
     function openClaimModal(rewardType, cost, icon, name) {
         const currentCoins = parseInt(document.getElementById('coin-balance').textContent);
-
         if (currentCoins < cost) {
             window.showToast(`Kifayət qədər coin yoxdur. Lazım: ${cost}, Sizin: ${currentCoins}`, 'error');
             return;
         }
-
         currentRewardType = rewardType;
         currentCost = cost;
-
         document.getElementById('modal-icon').textContent = icon;
         document.getElementById('modal-title').textContent = name;
         document.getElementById('modal-description').textContent = `Bu hədiyyəni almaq istəyirsiniz?`;
         document.getElementById('modal-current-coins').textContent = `🪙 ${currentCoins}`;
         document.getElementById('modal-cost').textContent = `-🪙 ${cost}`;
         document.getElementById('modal-remaining').textContent = `🪙 ${currentCoins - cost}`;
-
         document.getElementById('claim-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        // Voice notification
+        if (typeof window.queueVoiceNotification === 'function') {
+            const message = `${name}. Qiymət ${cost} coin. Almaq istəyirsinizmi?`;
+            window.queueVoiceNotification(message, 1, 'az');
+        }
     }
 
     function closeClaimModal() {
@@ -302,16 +360,12 @@
 
     function confirmClaim() {
         if (!currentRewardType || !currentCost) return;
-
         const btn = document.getElementById('confirm-claim-btn');
         btn.disabled = true;
         btn.textContent = '⏳ Gözləyin...';
-
         fetch('/api/claim-reward', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `reward_type=${currentRewardType}`
         })
             .then(response => response.json())
@@ -319,7 +373,6 @@
                 if (data.success) {
                     window.showToast(data.message, 'success');
                     closeClaimModal();
-                    // Reload page after short delay
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     window.showToast(data.error || 'Xəta baş verdi', 'error');
@@ -335,11 +388,8 @@
             });
     }
 
-    // Close modal on outside click
     document.getElementById('claim-modal')?.addEventListener('click', function (e) {
-        if (e.target === this) {
-            closeClaimModal();
-        }
+        if (e.target === this) closeClaimModal();
     });
 </script>
 {% endblock %}
