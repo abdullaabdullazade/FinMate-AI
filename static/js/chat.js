@@ -79,9 +79,17 @@ document.body.addEventListener('htmx:afterRequest', function (evt) {
     }
 });
 
-// TTS Function
+// TTS Function - use backend TTS for consistent voice
 window.speakMessage = function (text) {
-    if (window.SpeechManager) {
-        window.SpeechManager.speak(text);
+    if (typeof window.queueVoiceNotification === 'function') {
+        // Clean the text from HTML and extra whitespace
+        const cleanText = text
+            .replace(/\u003c[^\u003e]*\u003e/g, '') // Remove HTML tags
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+
+        if (cleanText.length > 0) {
+            window.queueVoiceNotification(cleanText, 1, 'az');
+        }
     }
 };

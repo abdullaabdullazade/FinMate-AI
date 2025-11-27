@@ -970,6 +970,29 @@ async def scan_receipt(
                         }
 
             scan_xp = gamification.award_xp(user, "scan_receipt", db)
+            
+            # Award FinMate Coins
+            if user.coins is None:
+                user.coins = 0
+            user.coins += 1
+            milestone_reached = None
+            
+            # Check for milestones
+            milestones = {
+                100: {"name": "🥉 Bronz", "reward": "1 Coffee Kuponu"},
+                200: {"name": "🥈 Gümüş", "reward": "3 Coffee Kuponu"},
+                500: {"name": "🥇 Qızıl", "reward": "5 AZN pul mükafatı"},
+                5000: {"name": "💎 Platin", "reward": "Premium 1 ay + 20 AZN"}
+            }
+            
+            if user.coins in milestones:
+                milestone_reached = {
+                    "coins": user.coins,
+                    "name": milestones[user.coins]["name"],
+                    "reward": milestones[user.coins]["reward"]
+                }
+            
+            db.commit()
             db.refresh(user)
 
             return templates.TemplateResponse("partials/receipt_result.html", {
@@ -981,6 +1004,8 @@ async def scan_receipt(
                     "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
                     "new_total": user.xp_points
                 },
+                "coins": user.coins,
+                "milestone_reached": milestone_reached,
                 "daily_limit_alert": daily_limit_alert
             })
         except Exception as save_err:
@@ -2436,6 +2461,85 @@ async def get_dashboard_updates(request: Request, db: Session = Depends(get_db))
         "now": now,
         "min": min,
         "float": float
+    })
+
+
+@app.get("/rewards")
+def rewards_page(request: Request, db: Session = Depends(get_db)):
+    """Rewards page - show user's achievements and milestones"""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=303)
+    
+    # Get user's claimed rewards
+    from models import UserReward
+    claimed_rewards = db.query(UserReward).filter(UserReward.user_id == user.id).order_by(UserReward.claimed_at.desc()).all()
+    
+    # Count by type
+    reward_counts = {}
+    for reward in claimed_rewards:
+        reward_counts[reward.reward_type] = reward_counts.get(reward.reward_type, 0) + 1
+    
+    return templates.TemplateResponse("rewards.html", {
+        "request": request,
+        "user": user,
+        "claimed_rewards": claimed_rewards,
+        "reward_counts": reward_counts
+    })
+
+
+@app.post("/api/claim-reward")
+async def claim_reward(
+    request: Request,
+    reward_type: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Claim a reward and deduct coins"""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"success": False, "error": "Authentication required"}, status_code=401)
+    
+    # Define rewards
+    rewards = {
+        "bronze": {"name": "1 Coffee Kuponu", "cost": 100},
+        "silver": {"name": "3 Coffee Kuponu", "cost": 200},
+        "gold": {"name": "5 AZN pul mükafatı", "cost": 500},
+        "platinum": {"name": "Premium 1 ay + 20 AZN", "cost": 5000}
+    }
+    
+    if reward_type not in rewards:
+        return JSONResponse({"success": False, "error": "Invalid reward type"}, status_code=400)
+    
+    reward_info = rewards[reward_type]
+    cost = reward_info["cost"]
+    
+    # Check if user has enough coins
+    if user.coins < cost:
+        return JSONResponse({
+            "success": False,
+            "error": f"Kifayət qədər coin yoxdur. Lazım: {cost}, Sizin: {user.coins}"
+        }, status_code=400)
+    
+    # Deduct coins
+    user.coins -= cost
+    
+    # Create reward record
+    from models import UserReward
+    claimed_reward = UserReward(
+        user_id=user.id,
+        reward_type=reward_type,
+        reward_name=reward_info["name"],
+        coins_spent=cost
+    )
+    db.add(claimed_reward)
+    db.commit()
+    db.refresh(user)
+    
+    return JSONResponse({
+        "success": True,
+        "message": f"🎉 {reward_info['name']} alındı!",
+        "remaining_coins": user.coins,
+        "reward_name": reward_info["name"]
     })
 
 

@@ -81,6 +81,42 @@
         </div>
         {% endif %}
 
+        <!-- Coin Award Banner -->
+        <div
+            class="mx-6 mt-4 p-4 bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-400/30 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🪙</span>
+                <div>
+                    <p class="text-white font-bold text-sm">FinMate Coin!</p>
+                    <p class="text-white/70 text-xs">Toplam: {{ coins }} coin</p>
+                </div>
+            </div>
+            <span class="text-xl font-bold text-yellow-400">+1 🪙</span>
+        </div>
+
+        <!-- Milestone Celebration -->
+        {% if milestone_reached %}
+        <script>
+            // Celebrate milestone
+            setTimeout(() => {
+                if (typeof window.queueVoiceNotification === 'function') {
+                    const message = "{{ milestone_reached.name }} mükafatı qazandınız! {{ milestone_reached.reward }}";
+                    window.queueVoiceNotification(message, 0, 'az');
+                }
+            }, 1500);
+        </script>
+        <div
+            class="mx-6 mt-4 p-6 bg-gradient-to-br from-purple-500/30 to-pink-500/30 border-2 border-yellow-400 rounded-xl text-center animate-pulse">
+            <div class="text-5xl mb-3">{{ milestone_reached.name.split(' ')[0] }}</div>
+            <h4 class="text-2xl font-bold text-white mb-2">{{ milestone_reached.name.split(' ')[1] }} Mükafat!</h4>
+            <p class="text-white/90 text-lg mb-3">{{ milestone_reached.reward }}</p>
+            <div class="flex items-center justify-center gap-2 text-yellow-300 font-bold">
+                <span class="text-xl">🪙</span>
+                <span class="text-2xl">{{ milestone_reached.coins }} coins</span>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Daily Limit Alert -->
         {% if daily_limit_alert %}
         <script>

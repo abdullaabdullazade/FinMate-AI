@@ -27,6 +27,7 @@ class User(Base):
     personality_mode = Column(String, default="normal")  # normal, mom, strict
     is_premium = Column(Boolean, default=False)  # Premium subscription status
     readability_mode = Column(Boolean, default=False)  # Accessibility mode for vision-impaired users
+    coins = Column(Integer, default=0)  # FinMate Coins for reward system
     
     # AI Persona fields (NEW)
     ai_name = Column(String, default="FinMate")  # Customizable AI name
@@ -112,7 +113,24 @@ class XPLog(Base):
     user = relationship("User", back_populates="xp_logs")
     
     def __repr__(self):
-        return f"<XPLog(action='{self.action_type}', amount={self.amount})>"
+        return f"<XPLog(user_id={self.user_id}, action='{self.action_type}', xp={self.amount})>"
+
+
+class UserReward(Base):
+    __tablename__ = "user_rewards"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    reward_type = Column(String, nullable=False)  # bronze, silver, gold, platinum
+    reward_name = Column(String, nullable=False)  # e.g., "1 Coffee Kuponu"
+    coins_spent = Column(Integer, nullable=False)  # How many coins spent
+    claimed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationship
+    user = relationship("User", backref="claimed_rewards")
+    
+    def __repr__(self):
+        return f"<UserReward(user_id={self.user_id}, reward='{self.reward_name}', coins={self.coins_spent})>"
 
 
 class Wish(Base):

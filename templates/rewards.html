@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Hədiyyələr - FinMate AI{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-6 pb-24 lg:ml-64">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">🎁 Hədiyyələr</h1>
+        <p class="text-white/60 text-sm">Coin xərcləyib hədiyyə al!</p>
+    </div>
+
+    <!-- Current Balance Card -->
+    <div class="glass-card p-6 mb-6 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border border-yellow-500/20">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-white/60 text-sm mb-1">Balansınız</p>
+                <div class="flex items-center gap-3">
+                    <span class="text-5xl">🪙</span>
+                    <span id="coin-balance" class="text-4xl font-bold text-yellow-400">{{ user.coins if user.coins is
+                        defined else 0 }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10">
+            <p class="text-white/50 text-xs">💡 Hər qəbz scan = +1 coin</p>
+        </div>
+    </div>
+
+    <!-- Available Rewards -->
+    <div class="space-y-4 mb-8">
+        <h2 class="text-xl font-bold text-white mb-4">🛒 Mağaza</h2>
+
+        {% set current_coins = user.coins if user.coins is defined else 0 %}
+
+        <!-- 100 Coins - Bronze -->
+        <div class="glass-card p-5 border border-amber-400/30 hover:border-amber-400/50 transition">
+            <div class="flex items-start gap-4">
+                <div class="text-4xl flex-shrink-0">🥉</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-white mb-1">1 Coffee Kuponu</h3>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-400 font-bold">🪙 100 coin</span>
+                        {% if reward_counts.get('bronze', 0) > 0 %}
+                        <span class="text-green-400 text-xs">• {{ reward_counts.get('bronze') }}x alınıb</span>
+                        {% endif %}
+                    </div>
+                    <button onclick="claimReward('bronze', 100)"
+                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 100 %}bg-amber-500 hover:bg-amber-600 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        {% if current_coins < 100 %}disabled{% endif %}>
+                        {% if current_coins >= 100 %}🛒 Al (100 coin){% else %}Kifayət deyil{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 200 Coins - Silver -->
+        <div class="glass-card p-5 border border-gray-300/30 hover:border-gray-300/50 transition">
+            <div class="flex items-start gap-4">
+                <div class="text-4xl flex-shrink-0">🥈</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-white mb-1">3 Coffee Kuponu</h3>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-400 font-bold">🪙 200 coin</span>
+                        {% if reward_counts.get('silver', 0) > 0 %}
+                        <span class="text-green-400 text-xs">• {{ reward_counts.get('silver') }}x alınıb</span>
+                        {% endif %}
+                    </div>
+                    <button onclick="claimReward('silver', 200)"
+                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 200 %}bg-gray-200 hover:bg-gray-300 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        {% if current_coins < 200 %}disabled{% endif %}>
+                        {% if current_coins >= 200 %}🛒 Al (200 coin){% else %}Kifayət deyil{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 500 Coins - Gold -->
+        <div class="glass-card p-5 border border-yellow-400/30 hover:border-yellow-400/50 transition">
+            <div class="flex items-start gap-4">
+                <div class="text-4xl flex-shrink-0">🥇</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-white mb-1">5 AZN pul mükafatı</h3>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-400 font-bold">🪙 500 coin</span>
+                        {% if reward_counts.get('gold', 0) > 0 %}
+                        <span class="text-green-400 text-xs">• {{ reward_counts.get('gold') }}x alınıb</span>
+                        {% endif %}
+                    </div>
+                    <button onclick="claimReward('gold', 500)"
+                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 500 %}bg-yellow-400 hover:bg-yellow-500 text-black{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        {% if current_coins < 500 %}disabled{% endif %}>
+                        {% if current_coins >= 500 %}🛒 Al (500 coin){% else %}Kifayət deyil{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5000 Coins - Platinum -->
+        <div class="glass-card p-5 border border-purple-500/30 hover:border-purple-500/50 transition">
+            <div class="flex items-start gap-4">
+                <div class="text-4xl flex-shrink-0">💎</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-white mb-1">Premium 1 ay + 20 AZN</h3>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-yellow-400 font-bold">🪙 5000 coin</span>
+                        {% if reward_counts.get('platinum', 0) > 0 %}
+                        <span class="text-green-400 text-xs">• {{ reward_counts.get('platinum') }}x alınıb</span>
+                        {% endif %}
+                    </div>
+                    <button onclick="claimReward('platinum', 5000)"
+                        class="px-4 py-2 rounded-lg font-medium transition {% if current_coins >= 5000 %}bg-purple-500 hover:bg-purple-600 text-white{% else %}bg-white/10 text-white/30 cursor-not-allowed{% endif %}"
+                        {% if current_coins < 5000 %}disabled{% endif %}>
+                        {% if current_coins >= 5000 %}🛒 Al (5000 coin){% else %}Kifayət deyil{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claimed Rewards History -->
+    <div class="space-y-4">
+        <h2 class="text-xl font-bold text-white mb-4">📜 Alınmış Hədiyyələr</h2>
+        {% if claimed_rewards %}
+        <div class="space-y-2">
+            {% for reward in claimed_rewards %}
+            <div class="glass-card p-4 flex items-center justify-between hover:bg-white/5 transition">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">
+                        {% if reward.reward_type == 'bronze' %}🥉
+                        {% elif reward.reward_type == 'silver' %}🥈
+                        {% elif reward.reward_type == 'gold' %}🥇
+                        {% else %}💎{% endif %}
+                    </span>
+                    <div>
+                        <p class="text-white font-medium text-sm">{{ reward.reward_name }}</p>
+                        <p class="text-white/50 text-xs">{{ reward.claimed_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                    </div>
+                </div>
+                <span class="text-red-400 font-bold text-sm">-{{ reward.coins_spent }} 🪙</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card p-6 text-center">
+            <p class="text-white/50 text-sm">Hələ hədiyyə almamısınız</p>
+            <p class="text-white/30 text-xs mt-1">Coin toplayın və yuxarıdan seçin!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function claimReward(rewardType, cost) {
+        const currentCoins = parseInt(document.getElementById('coin-balance').textContent);
+
+        if (currentCoins < cost) {
+            window.showToast(`Kifayət qədər coin yoxdur. Lazım: ${cost}, Sizin: ${currentCoins}`, 'error');
+            return;
+        }
+
+        if (confirm(`${cost} coin xərcləyərək bu hədiyyəni almaq istəyirsiniz?\n\nCoin balansınız: ${currentCoins} → ${currentCoins - cost}`)) {
+            fetch('/api/claim-reward', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `reward_type=${rewardType}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.showToast(data.message, 'success');
+                        // Reload page to show updated balance and history
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        window.showToast(data.error || 'Xəta baş verdi', 'error');
+                    }
+                })
+                .catch(error => {
+                    window.showToast('Xəta baş verdi', 'error');
+                    console.error('Error:', error);
+                });
+        }
+    }
+</script>
+{% endblock %}
