@@ -2129,7 +2129,7 @@ async def update_settings(
             user.ai_style = ai_style
 
         db.commit()
-        return JSONResponse({"success": True, "message": "Settings updated successfully"})
+        return JSONResponse({"success": True, "message": "Tənzimləmələr yadda saxlanıldı"})
     except Exception as e:
         print(f"❌ Settings Update Error: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)

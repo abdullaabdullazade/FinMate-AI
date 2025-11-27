@@ -322,13 +322,14 @@
                 try {
                     const response = JSON.parse(event.detail.xhr.response);
                     if (response.success) {
-                        window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı!');
+                        window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı');
                         // Voice notification happens automatically via showToast override
                     } else {
                         window.showToast(response.error || 'Xəta baş verdi', 'error');
                     }
                 } catch (e) {
-                    window.showToast('Tənzimləmələr yadda saxlanıldı!', 'success');
+                    // JSON parse failed - likely non-JSON response, ignore
+                    console.log('Non-JSON response received');
                 }
             } else {
                 window.showToast('Server xətası baş verdi', 'error');
@@ -701,6 +702,21 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
+        // Toggle manual mode fields visibility based on persona mode selection
+        const personaModeSelect = document.querySelector('select[name="ai_persona_mode"]');
+        const manualModeFields = document.getElementById('manual-mode-fields');
+
+        if (personaModeSelect && manualModeFields) {
+            personaModeSelect.addEventListener('change', function () {
+                if (this.value === 'Manual') {
+                    manualModeFields.style.display = 'grid';
+                } else {
+                    manualModeFields.style.display = 'none';
+                }
+            });
+        }
+
+
         // Initialize budget display
         const budgetInput = document.getElementById('monthly-budget-input');
         if (budgetInput) {

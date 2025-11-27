@@ -205,61 +205,90 @@ Only return JSON, no other text.""",
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
                 tmp_path = tmp_file.name
             
-            # Load proxies if available
-            proxy = None
+            # Load all proxies if available
+            all_proxies = []
             proxies_file = "proxies.txt"
             if os.path.exists(proxies_file):
                 try:
                     with open(proxies_file, "r") as f:
-                        proxies = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-                    if proxies:
-                        import random
-                        raw_proxy = random.choice(proxies)
-                        
-                        # Handle IP:PORT:USER:PASS format
-                        parts = raw_proxy.split(':')
-                        if len(parts) == 4:
-                            # Convert to http://user:pass@ip:port
-                            proxy = f"http://{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
-                        else:
-                            # Assume it's already in correct format or just IP:PORT
-                            if not raw_proxy.startswith("http"):
-                                proxy = f"http://{raw_proxy}"
-                            else:
-                                proxy = raw_proxy
-                                
-                        print(f"🔄 TTS: Using proxy: {proxy}")
+                        raw_proxies = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+                    
+                    # Randomly select up to 100 proxies
+                    import random
+                    if len(raw_proxies) > 100:
+                        all_proxies = random.sample(raw_proxies, 100)
+                    else:
+                        all_proxies = raw_proxies.copy()
+                    
+                    # Shuffle them for random order
+                    random.shuffle(all_proxies)
+                    print(f"📋 Loaded {len(all_proxies)} random proxies")
                 except Exception as e:
                     print(f"⚠️ Proxy Error: {e}")
 
-            try:
-                # Generate audio using edge-tts
-                communicate = edge_tts.Communicate(text, voice, proxy=proxy)
-                await communicate.save(tmp_path)
-                
-                # Wait a bit to ensure file is written
-                await asyncio.sleep(0.2)
-                
-                # Check file exists and has content
-                if not os.path.exists(tmp_path):
-                    raise Exception("Audio file not created")
-                
-                file_size = os.path.getsize(tmp_path)
-                if file_size == 0:
-                    raise Exception("Audio file is empty")
-                
-                print(f"✅ TTS: Generated {file_size} bytes")
-                
-                # Read and return audio
-                with open(tmp_path, "rb") as f:
-                    audio_data = f.read()
-                
-                if not audio_data or len(audio_data) == 0:
-                    raise Exception("No audio data read from file")
-                
-                return audio_data
-                
-            finally:
+            # Try up to 3 different proxies before giving up
+            max_retries = min(3, len(all_proxies)) if all_proxies else 3
+            for attempt in range(max_retries):
+                proxy = None
+                if all_proxies and attempt < len(all_proxies):
+                    # Use shuffled list - each attempt gets next proxy
+                    raw_proxy = all_proxies[attempt]
+                    # Convert IP:PORT:USER:PASS to http://USER:PASS@IP:PORT
+                    parts = raw_proxy.split(':')
+                    if len(parts) == 4:
+                        proxy = f"http://{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
+                    else:
+                        if not raw_proxy.startswith("http"):
+                            proxy = f"http://{raw_proxy}"
+                        else:
+                            proxy = raw_proxy
+                    print(f"🔄 TTS Attempt {attempt + 1}/{max_retries}: Using proxy: {proxy}")
+                else:
+                    print(f"🔄 TTS Attempt {attempt + 1}/{max_retries}: No proxy")
+
+                try:
+                    # Generate audio using edge-tts
+                    communicate = edge_tts.Communicate(text, voice, proxy=proxy)
+                    await communicate.save(tmp_path)
+                    
+                    # Wait a bit to ensure file is written
+                    await asyncio.sleep(0.2)
+                    
+                    # Check file exists and has content
+                    if not os.path.exists(tmp_path):
+                        raise Exception("Audio file not created")
+                    
+                    file_size = os.path.getsize(tmp_path)
+                    if file_size == 0:
+                        raise Exception("Audio file is empty")
+                    
+                    print(f"✅ TTS: Generated {file_size} bytes")
+                    
+                    # Read and return audio
+                    with open(tmp_path, "rb") as f:
+                        audio_data = f.read()
+                    
+                    if not audio_data or len(audio_data) == 0:
+                        raise Exception("No audio data read from file")
+                    
+                    return audio_data
+                    
+                except Exception as e:
+                    print(f"❌ TTS Attempt {attempt + 1} failed: {e}")
+                    if attempt < max_retries - 1:
+                        print(f"⏳ Retrying with different proxy...")
+                        await asyncio.sleep(0.5)  # Small delay before retry
+                        continue
+                    else:
+                        print(f"❌ All {max_retries} attempts failed")
+                        raise
+            
+        except Exception as e:
+            print(f"❌ TTS Error: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+        finally:
                 # Clean up temp file
                 if os.path.exists(tmp_path):
                     try:
@@ -267,11 +296,7 @@ Only return JSON, no other text.""",
                     except:
                         pass
             
-        except Exception as e:
-            print(f"❌ TTS Error: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+    
     
     @staticmethod
     async def process_voice_command(

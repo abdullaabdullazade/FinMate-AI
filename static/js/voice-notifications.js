@@ -98,7 +98,7 @@
 
             audio.onended = () => {
                 console.log('✅ Audio finished');
-                
+
                 // Notify voice recorder that audio is finished so it can reset UI
                 if (typeof window.voiceRecorder !== 'undefined' && window.voiceRecorder) {
                     // Check if we're in voice modal and recording is not active
@@ -111,7 +111,7 @@
                         }
                     }
                 }
-                
+
                 resolve();
             };
 
@@ -144,7 +144,7 @@
         };
 
         const priority = priorityMap[type] || 1;
-        const language = document.documentElement.lang || 'az';
+        const language = 'az'; // Always use Azerbaijani
 
         window.queueVoiceNotification(text, priority, language);
     };
@@ -232,7 +232,7 @@
      * Speak scan result with natural number pronunciation
      */
     window.speakScanResult = function (totalAmount, itemCount) {
-        const lang = document.documentElement.lang || 'az';
+        const lang = 'az'; // Always use Azerbaijani
         let message = '';
 
         if (lang === 'az') {

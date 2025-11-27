@@ -261,7 +261,7 @@ class VoiceRecorder {
 
         // Voice feedback using queue system
         if (typeof window.queueVoiceNotification === 'function') {
-            const lang = document.documentElement.lang || 'az';
+            const lang = 'az'; // Always use Azerbaijani
             let message = '';
 
             if (lang === 'az') {
