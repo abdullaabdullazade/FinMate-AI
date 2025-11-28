@@ -593,7 +593,11 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         today_total_display = convert_currency(today_total, "AZN", user_currency)
         daily_limit_display = convert_currency(user.daily_budget_limit, "AZN", user_currency)
         
-        if today_total > user.daily_budget_limit:
+        # Round for comparison to avoid floating point issues
+        today_total_rounded = round(today_total, 2)
+        limit_rounded = round(user.daily_budget_limit, 2)
+        
+        if today_total_rounded > limit_rounded:
             daily_limit_alert = {
                 "exceeded": True,
                 "today_spending": today_total_display,
@@ -2361,6 +2365,14 @@ async def update_settings(
         else:
             # Empty string or None means clear the limit
             user.daily_budget_limit = None
+        
+        # Convert daily limit to AZN if currency is not AZN
+        if user.daily_budget_limit is not None:
+            # Determine currency to convert from
+            from_currency = currency if currency else (user.currency or "AZN")
+            if from_currency != "AZN":
+                # Convert from user currency to AZN
+                user.daily_budget_limit = convert_currency(user.daily_budget_limit, from_currency, "AZN")
 
         if preferred_language is not None:
             user.preferred_language = preferred_language

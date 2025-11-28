@@ -37,7 +37,7 @@
 
             <!-- Edit Button -->
             <button
-                onclick="window.openEditModal && window.openEditModal({{ expense.id }}, {{ expense.merchant|tojson }}, {{ expense.amount|tojson }}, {{ expense.category|tojson }});"
+                onclick="event.stopPropagation(); if(typeof window.openEditModal === 'function') { window.openEditModal({{ expense.id }}, {{ expense.merchant|tojson }}, {{ expense.amount|tojson }}, {{ expense.category|tojson }}); } else { console.error('openEditModal function not found'); }"
                 class="transition-opacity text-blue-400 hover:text-blue-300 p-1.5 sm:p-2 rounded-lg hover:bg-blue-500/10 flex-shrink-0"
                 title="Düzəliş et">
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@
             </button>
 
             <!-- Delete Icon -->
-            <button onclick="openDeleteModal({{ expense.id }})"
+            <button onclick="event.stopPropagation(); openDeleteModal({{ expense.id }});"
                 class="transition-opacity text-red-400 hover:text-red-300 p-1.5 sm:p-2 rounded-lg hover:bg-red-500/10 flex-shrink-0"
                 title="Sil">
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
