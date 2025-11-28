@@ -1,59 +1,10 @@
-INFO:     Started server process [612188]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8200 (Press CTRL+C to quit)
-✅ Database initialized
-🗑️  Cleared existing data
-✅ Seeded Azerbaijan market data:
-   - 36 real expenses
-   - Total spending: 1717.58 AZN
-   - Categories: Market, Restoran, Nəqliyyat, Mobil Operator, Kommunal, və s.
-INFO:     127.0.0.1:34850 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34850 - "GET /static/js/gamification.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:34854 - "GET /static/js/voice_recorder.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:35486 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35494 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51630 - "GET /scan HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39032 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41258 - "POST /api/expense HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56612 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57398 - "GET /settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57398 - "GET /static/js/gamification.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57400 - "GET /static/js/voice_recorder.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:57400 - "POST /api/settings HTTP/1.1" 422 Unprocessable Content
-INFO:     127.0.0.1:57400 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56514 - "GET /chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56514 - "POST /api/chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56514 - "GET /scan HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41438 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41438 - "GET /static/js/qr_pay.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41452 - "GET /static/js/ghost_hunter.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41456 - "GET /static/js/gamification.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:41464 - "GET /static/js/voice_recorder.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41452 - "GET /api/ghost-subscriptions HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:41464 - "GET /api/dashboard-data HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41464 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:41452 - "GET /api/forecast-chart HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41472 - "GET /api/ghost-subscriptions HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:41472 - "GET /chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41472 - "GET /static/js/qr_pay.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:41472 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:41472 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41472 - "GET /settings HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41472 - "GET /static/js/qr_pay.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:41472 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40426 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:44460 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:44460 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:44460 - "GET /profile HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44460 - "GET /static/js/qr_pay.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:43882 - "GET /scan HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43882 - "GET /static/js/qr_pay.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:43882 - "POST /api/scan-receipt HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55236 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:60742 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:48350 - "GET /heatmap HTTP/1.1" 404 Not Found
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [612188]
+nohup: ignoring input
+/home/abdullaxows/Documents/smartspeed/main.py:72: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+WARNING:  You must pass the application as an import string to enable 'reload' or 'workers'.
+AIzaSyClUtOh2oGvsc_soLzHqcFt3tSHxalFfnw

@@ -1118,124 +1118,125 @@
 
 <script>
     // Time Machine Logic
+    // Time Machine Logic - Tam Sinxronlaşdırılmış Versiya
     const slider = document.getElementById('time-machine-slider');
     const label = document.getElementById('time-machine-label');
     const projectedDisplay = document.getElementById('projected-balance');
     const balanceLabel = document.getElementById('balance-label');
     const savingsElement = document.getElementById('monthly-savings');
 
-    if (slider && savingsElement) {
-        // Get current financial data from DOM
-        const totalSpendingEl = document.getElementById('stat-total');
-        const monthlyBudgetEl = document.getElementById('stat-budget');
-        const remainingEl = document.getElementById('stat-remaining');
-        const remainingCurrencyEl = document.getElementById('stat-remaining-currency');
-        const projectedCurrencyEl = document.getElementById('projected-balance-currency');
+    // Əsas Qalıq Elementləri (Yuxarıdakı Kart)
+    const remainingEl = document.getElementById('stat-remaining');
+    const remainingCurrencyEl = document.getElementById('stat-remaining-currency');
+    // Qalıq sözü yazılan P etiketini tapırıq (başlığı dəyişmək üçün)
+    const remainingLabelEl = remainingEl ? remainingEl.parentElement.parentElement.querySelector('p') : null;
 
-        // Get currency symbol from remaining currency element or projected currency element
-        let currencySymbol = '₼'; // default
+    if (slider && remainingEl) {
+        // 1. Dataları DOM-dan təmiz şəkildə oxumaq üçün funksiya
+        const getCleanNumber = (element) => {
+            if (!element) return 0;
+            // data-value varsa onu, yoxdursa mətni götürür
+            const val = element.getAttribute('data-value') || element.innerText;
+            // Bütün simvolları təmizləyib rəqəmə çevirir
+            return parseFloat(val.replace(/[^\d.-]/g, '')) || 0;
+        };
+
+        // 2. Cari vəziyyəti alırıq
+        const totalSpending = getCleanNumber(document.getElementById('stat-total'));
+        const monthlyBudget = getCleanNumber(document.getElementById('stat-budget'));
+
+        // Əsas Qalıq (Start nöqtəmiz budur - "Qalıq" kartından götürülür)
+        const currentBalance = getCleanNumber(remainingEl);
+
+        // Valyuta simvolunu təyin edirik
+        let currencySymbol = '₼';
         if (remainingCurrencyEl && remainingCurrencyEl.textContent) {
             currencySymbol = remainingCurrencyEl.textContent.trim();
-        } else if (projectedCurrencyEl && projectedCurrencyEl.textContent) {
-            currencySymbol = projectedCurrencyEl.textContent.trim();
         }
 
-        // Get values - use data-value attribute if available (more reliable)
-        const totalSpending = totalSpendingEl ? (parseFloat(totalSpendingEl.getAttribute('data-value')) || parseFloat(totalSpendingEl.innerText.replace(/[^\d.-]/g, '')) || 0) : 0;
-        const monthlyBudget = monthlyBudgetEl ? (parseFloat(monthlyBudgetEl.getAttribute('data-value')) || parseFloat(monthlyBudgetEl.innerText.replace(/[^\d.-]/g, '')) || 0) : 0;
-
-        // Calculate actual monthly savings (Budget - Current Spending)
+        // Aylıq Qənaət Hesablaması (Büdcə - Xərc)
+        // Qeyd: Bu, hər ay nə qədər pulun artığını və ya azaldığını göstərir
         const monthlySavings = monthlyBudget - totalSpending;
 
-        // Get current balance (remaining for this month) - use data-value if available
-        let currentBalance = monthlySavings;
-        if (remainingEl) {
-            const dataValue = remainingEl.getAttribute('data-value');
-            if (dataValue) {
-                currentBalance = parseFloat(dataValue);
-            } else {
-                // Fallback: parse from innerText, removing any currency symbols
-                const textValue = remainingEl.innerText.replace(/[^\d.-]/g, '');
-                currentBalance = parseFloat(textValue) || monthlySavings;
-            }
-        }
+        // Orijinal "Qalıq" mətnini yadda saxlayırıq (Slider 0 olanda geri qaytarmaq üçün)
+        const originalRemainingText = remainingLabelEl ? remainingLabelEl.innerText : 'Qalıq';
 
+        // 3. Slider hərəkət edəndə işə düşən funksiya
         slider.addEventListener('input', (e) => {
             const months = parseInt(e.target.value);
 
-            // Update label based on months selected
+            // A. Etiketləri və Başlıqları Yenilə
             if (months === 0) {
+                // İNDİ
                 label.innerText = 'İndi';
                 if (balanceLabel) balanceLabel.innerText = 'Balans';
-            } else if (months < 0) {
-                // Past months
+
+                // Yuxarıdakı kartın başlığını əvvəlki halına qaytar
+                if (remainingLabelEl) {
+                    remainingLabelEl.innerHTML = originalRemainingText; // "Qalıq"
+                    remainingLabelEl.classList.remove('text-purple-300');
+                }
+            } else {
+                // GƏLƏCƏK və ya KEÇMİŞ
                 const absMonths = Math.abs(months);
-                if (absMonths === 1) {
-                    label.innerText = '1 ay əvvəl';
-                } else {
-                    label.innerText = `${absMonths} ay əvvəl`;
+                const suffix = months < 0 ? 'əvvəl' : 'sonra';
+                label.innerText = `${absMonths} ay ${suffix}`;
+
+                if (balanceLabel) balanceLabel.innerText = months < 0 ? 'O zamanın balansı' : 'Təxmini balans';
+
+                // Yuxarıdakı karta "Proqnoz" olduğunu yazırıq
+                if (remainingLabelEl) {
+                    // Məsələn: Qalıq (Proqnoz: +2 ay)
+                    const direction = months > 0 ? '+' : '';
+                    remainingLabelEl.innerHTML = `Qalıq <span class="text-xs bg-purple-500/30 px-2 py-0.5 rounded text-purple-200 ml-2 border border-purple-500/50">Proqnoz: ${direction}${months} ay</span>`;
                 }
-                if (balanceLabel) balanceLabel.innerText = 'O zamanın balansı';
-            } else {
-                // Future months
-                if (months === 1) {
-                    label.innerText = '1 ay sonra';
-                } else {
-                    label.innerText = `${months} ay sonra`;
-                }
-                if (balanceLabel) balanceLabel.innerText = 'Təxmini balans';
             }
 
-            // Calculate balance based on time direction
-            let projectedBalance;
-            if (months === 0) {
-                // Current time - show current balance
-                projectedBalance = currentBalance;
-            } else if (months < 0) {
-                // Past: Current Balance - (Monthly Savings * abs(months))
-                // If we were saving X per month, N months ago we had: current - (X * N)
-                projectedBalance = currentBalance - (monthlySavings * Math.abs(months));
-            } else {
-                // Future: Current Balance + (Monthly Savings * Months)
-                // If we continue saving X per month, in N months we'll have: current + (X * N)
-                projectedBalance = currentBalance + (monthlySavings * months);
+            // B. Hesablama (Qalıq üzərindən)
+            // Düstur: Cari Qalıq + (Aylıq Qənaət * Ay Sayı)
+            let projectedBalance = currentBalance + (monthlySavings * months);
+
+            const formattedBalance = projectedBalance.toFixed(2);
+
+            // C. Time Machine Kartını Yenilə (Aşağıdakı)
+            if (projectedDisplay) {
+                projectedDisplay.innerText = formattedBalance + ' ' + currencySymbol;
+                updateColor(projectedDisplay, projectedBalance);
             }
 
-            // Update display with correct currency symbol (same as remaining balance)
-            projectedDisplay.innerText = projectedBalance.toFixed(2) + ' ' + currencySymbol;
-
-            // Also update the currency span if it exists
-            if (projectedCurrencyEl) {
-                projectedCurrencyEl.textContent = currencySymbol;
-            }
-
-            // Visual feedback: RED for negative, GREEN for positive
-            if (projectedBalance < 0) {
-                projectedDisplay.classList.remove('text-white', 'text-green-400');
-                projectedDisplay.classList.add('text-red-400');
-            } else {
-                projectedDisplay.classList.remove('text-white', 'text-red-400');
-                projectedDisplay.classList.add('text-green-400');
+            // D. ƏSAS QALIQ KARTINI YENİLƏ (Yuxarıdakı - Sinxronizasiya)
+            if (remainingEl) {
+                remainingEl.innerText = formattedBalance;
+                updateColor(remainingEl, projectedBalance);
             }
         });
 
-        // Initialize with current balance (when slider is at 0)
+        // Rəngləri idarə edən köməkçi funksiya (Mənfi = Qırmızı, Müsbət = Yaşıl)
+        function updateColor(element, value) {
+            if (value < 0) {
+                element.classList.remove('text-white', 'text-green-400');
+                element.classList.add('text-red-400');
+            } else {
+                element.classList.remove('text-white', 'text-red-400');
+                element.classList.add('text-green-400');
+            }
+        }
+
+        // Başlanğıc vəziyyəti təyin et (Səhifə açılanda)
         if (projectedDisplay) {
             projectedDisplay.innerText = currentBalance.toFixed(2) + ' ' + currencySymbol;
-            if (projectedCurrencyEl) {
-                projectedCurrencyEl.textContent = currencySymbol;
-            }
-            // Set initial color
-            if (currentBalance < 0) {
-                projectedDisplay.classList.remove('text-white', 'text-green-400');
-                projectedDisplay.classList.add('text-red-400');
-            } else {
-                projectedDisplay.classList.remove('text-white', 'text-red-400');
-                projectedDisplay.classList.add('text-green-400');
+            updateColor(projectedDisplay, currentBalance);
+        }
+
+        // Savings (qənaət) hissəsini də düzgün göstər
+        if (savingsElement) {
+            savingsElement.innerText = monthlySavings.toFixed(2);
+            // Əgər qənaət mənfidirsə qırmızı rəng
+            if (monthlySavings < 0) {
+                savingsElement.parentElement.classList.add('text-red-300');
             }
         }
     }
-
     // Edit Modal functions are already defined in extra_head block - no duplicate needed here
 
     // Financial Pet Logic

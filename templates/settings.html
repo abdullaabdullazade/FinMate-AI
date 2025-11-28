@@ -71,7 +71,8 @@
                         </div>
                     </div>
                     <div class="flex justify-between mt-2 text-xs text-white/40 font-medium">
-                        <span id="budget-min-label">100 <span id="currency-symbol-min">{{ user.currency or currency_symbol }}</span></span>
+                        <span id="budget-min-label">100 <span id="currency-symbol-min">{{ user.currency or
+                                currency_symbol }}</span></span>
                         <span id="budget-max-label">{{ "%.0f"|format(slider_max) }}</span>
                     </div>
                 </div>
@@ -83,7 +84,8 @@
                     </label>
                     <div class="relative">
                         <span id="daily-currency-symbol"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">{{ user.currency or currency_symbol }}</span>
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">{{ user.currency or
+                            currency_symbol }}</span>
                         <input type="number" name="daily_budget_limit" id="daily-budget-limit-input"
                             value="{{ '%.2f'|format(user.daily_budget_limit) if user.daily_budget_limit else '' }}"
                             placeholder="Limit yoxdur" min="0" step="0.01"
@@ -489,7 +491,8 @@
                 </div>
                 <div class="text-center bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/30">
                     <span class="block text-3xl font-black text-white drop-shadow-md"><span
-                            id="premium-price">4.99</span> <span id="premium-currency">{{ user.currency or currency_symbol }}</span></span>
+                            id="premium-price">4.99</span> <span id="premium-currency">{{ user.currency or
+                            currency_symbol }}</span></span>
                     <span class="text-xs font-bold text-purple-100 uppercase tracking-wider">/ay</span>
                 </div>
             </div>
