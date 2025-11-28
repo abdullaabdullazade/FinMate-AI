@@ -547,6 +547,43 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         Income.date >= month_start
     ).all()
     
+    # Calculate salary increase (compare to previous month)
+    salary_increase_info = None
+    current_month_salary = None
+    
+    # Get current month salary income
+    current_salary_incomes = [inc for inc in incomes if inc.source.lower() in ["maaş", "salary", "maas"]]
+    if current_salary_incomes:
+        current_month_salary = sum(inc.amount for inc in current_salary_incomes)
+        
+        # Get previous month's salary
+        prev_month = month_start - timedelta(days=1)
+        prev_month_start = datetime(prev_month.year, prev_month.month, 1)
+        prev_month_end = month_start
+        
+        prev_salary_incomes = db.query(Income).filter(
+            Income.user_id == user.id,
+            Income.date >= prev_month_start,
+            Income.date < prev_month_end
+        ).all()
+        
+        prev_salary_list = [inc for inc in prev_salary_incomes if inc.source.lower() in ["maaş", "salary", "maas"]]
+        if prev_salary_list:
+            prev_month_salary = sum(inc.amount for inc in prev_salary_list)
+            
+            # Calculate increase
+            if prev_month_salary > 0 and current_month_salary > prev_month_salary:
+                increase_amount = current_month_salary - prev_month_salary
+                increase_percentage = (increase_amount / prev_month_salary) * 100
+                
+                salary_increase_info = {
+                    "amount": convert_currency(increase_amount, "AZN", user_currency),
+                    "percentage": increase_percentage,
+                    "current": convert_currency(current_month_salary, "AZN", user_currency),
+                    "previous": convert_currency(prev_month_salary, "AZN", user_currency)
+                }
+
+    
     # Calculate stats (all amounts are stored in AZN)
     total_spending_azn = sum(exp.amount for exp in expenses)
     total_income_azn = sum(inc.amount for inc in incomes)
@@ -666,6 +703,15 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     
     # Get forecast data
     forecast = forecast_service.get_forecast(user.id, db)
+    
+    # Convert forecast values to user currency
+    if forecast and "current_spending" in forecast:
+        forecast["current_spending"] = convert_currency(forecast["current_spending"], "AZN", user_currency)
+        forecast["projected_total"] = convert_currency(forecast["projected_total"], "AZN", user_currency)
+        forecast["budget"] = convert_currency(forecast["budget"], "AZN", user_currency)
+        forecast["daily_average"] = convert_currency(forecast["daily_average"], "AZN", user_currency)
+        forecast["overspend_amount"] = convert_currency(forecast["overspend_amount"], "AZN", user_currency)
+        forecast["suggested_daily_limit"] = convert_currency(forecast["suggested_daily_limit"], "AZN", user_currency)
     # Wishlist items
     wishes = db.query(Wish).filter(Wish.user_id == user.id).order_by(Wish.created_at.desc()).limit(10).all()
 
@@ -744,7 +790,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "dream_progress": dream_progress,
         "dream_blur": dream_blur,
         "local_gems": local_gems_suggestions,
-        "currency_symbol": currency_symbol
+        "currency_symbol": currency_symbol,
+        "salary_increase_info": salary_increase_info
     })
 
 
@@ -2352,16 +2399,26 @@ async def update_settings(
                 print(f"❌ Invalid monthly_budget: {monthly_budget}, error: {e}")
                 return JSONResponse({"success": False, "error": "Yanlış büdcə dəyəri (minimum 100)"}, status_code=400)
         
+        # Convert monthly budget to AZN if currency is not AZN
+        if user.monthly_budget:
+            # Determine currency to convert from
+            from_currency = currency if currency else (user.currency or "AZN")
+            if from_currency != "AZN":
+                # Convert from user currency to AZN
+                user.monthly_budget = convert_currency(user.monthly_budget, from_currency, "AZN")
+        
         # Handle daily_budget_limit - allow empty string to clear it
+        # No maximum limit - user can set any positive value
         if daily_budget_limit is not None and daily_budget_limit != "":
             try:
                 daily_val = float(daily_budget_limit)
                 if daily_val < 0:
                     raise ValueError("Daily limit cannot be negative")
+                # No maximum limit check - allow any positive value
                 user.daily_budget_limit = daily_val
             except (ValueError, TypeError) as e:
                 print(f"❌ Invalid daily_budget_limit: {daily_budget_limit}, error: {e}")
-                return JSONResponse({"success": False, "error": "Yanlış gündəlik limit dəyəri"}, status_code=400)
+                return JSONResponse({"success": False, "error": "Gündəlik limit mənfi ola bilməz. İstənilən müsbət məbləğ daxil edə bilərsiniz."}, status_code=400)
         else:
             # Empty string or None means clear the limit
             user.daily_budget_limit = None

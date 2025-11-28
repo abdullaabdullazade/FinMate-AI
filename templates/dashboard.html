@@ -321,7 +321,7 @@
             <div class="flex-1 min-w-0">
                 <h3 class="text-lg sm:text-2xl font-bold text-red-200 mb-1">Büdcə Aşıldı!</h3>
                 <p class="text-sm sm:text-base text-red-100">
-                    Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - user.monthly_budget) }}
+                    Bu ay <strong class="incognito-hidden">{{ "%.2f"|format(total_spending - monthly_budget_display) }}
                         {{ currency_symbol }}</strong> artıq
                     xərclədiniz.
                     Xərclərinizi azaltmağı tövsiyə edirik.
@@ -344,7 +344,7 @@
                 <p class="text-sm sm:text-base text-yellow-100">
                     Büdcənizin <strong class="incognito-hidden">{{ "%.0f"|format(budget_percentage) }}%</strong>-ni
                     istifadə etdiniz.
-                    Daha <strong class="incognito-hidden">{{ "%.2f"|format(user.monthly_budget - total_spending) }}
+                    Daha <strong class="incognito-hidden">{{ "%.2f"|format(remaining_budget) }}
                         {{ currency_symbol }}</strong> qalıb.
                 </p>
             </div>
@@ -396,6 +396,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Salary Increase Celebration Card -->
+    {% if salary_increase_info %}
+    <div class="glass-card p-4 sm:p-6 slide-up border-2 border-green-500/50 bg-gradient-to-br from-green-500/20 to-emerald-600/20 relative overflow-hidden"
+        style="grid-column: span 12; animation-delay: 0.03s;">
+        <!-- Animated Background -->
+        <div
+            class="absolute inset-0 bg-gradient-to-br from-green-400/10 via-emerald-500/10 to-teal-600/10 animate-gradient">
+        </div>
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-green-500/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/30 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div class="text-4xl sm:text-6xl animate-bounce">🎉</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-lg sm:text-2xl font-bold text-green-200 mb-1">Təbriklər! Maaş Artımı! 💰</h3>
+                <p class="text-green-100 text-sm sm:text-base">
+                    Maaşınız <strong class="incognito-hidden">{{ "%.1f"|format(salary_increase_info.percentage)
+                        }}%</strong> artıb!
+                    Əvvəlki ay: <strong class="incognito-hidden">{{ "%.2f"|format(salary_increase_info.previous) }} {{
+                        currency_symbol }}</strong>
+                    → İndi: <strong class="incognito-hidden">{{ "%.2f"|format(salary_increase_info.current) }} {{
+                        currency_symbol }}</strong>
+                </p>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <p class="text-green-200 text-xs sm:text-sm">Artım</p>
+                <p class="text-2xl sm:text-4xl font-bold text-green-100 incognito-hidden">
+                    +{{ "%.2f"|format(salary_increase_info.amount) }} {{ currency_symbol }}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 
     <!-- XP Progress - Full Width (MOVED TO TOP) -->
     {% if level_info %}
@@ -534,12 +569,9 @@
                     <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
                     <div class="flex items-end gap-1 sm:gap-2">
                         <span id="stat-remaining"
-                            class="text-2xl sm:text-4xl font-bold {% if (remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
-                            data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}"
-                            data-initial="{{ " %.2f"|format(remaining_budget if remaining_budget is defined else
-                            (user.monthly_budget - total_spending)) }}">
-                            {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
-                            total_spending)) }}
+                            class="text-2xl sm:text-4xl font-bold {% if total_available < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
+                            data-value="{{ total_available }}" data-initial="{{ " %.2f"|format(total_available) }}">
+                            {{ "%.2f"|format(total_available) }}
                         </span>
                         <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
                             user.currency or currency_symbol }}</span>
@@ -577,9 +609,9 @@
     <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.1s;">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
             <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                ⏳ Gələcək Proqnozu
+                ⏳ Maliyyə Zaman Maşını
             </h3>
-            <span class="text-xs sm:text-sm text-white/60">Maliyyə Zaman Maşını</span>
+            <span class="text-xs sm:text-sm text-white/60">Keçmiş və gələcək proqnoz</span>
         </div>
 
         <div class="flex flex-col md:flex-row gap-4 sm:gap-8 items-stretch md:items-center">
@@ -589,17 +621,17 @@
                     <span>Zamanı irəli çək:</span>
                     <span id="time-machine-label" class="font-bold text-white">İndi</span>
                 </label>
-                <input type="range" id="time-machine-slider" min="0" max="12" value="0" step="1"
+                <input type="range" id="time-machine-slider" min="-12" max="12" value="0" step="1"
                     class="w-full h-2 sm:h-3 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500">
                 <div class="flex justify-between text-xs text-white/40 mt-2">
+                    <span>1 il əvvəl</span>
                     <span>İndi</span>
-                    <span>6 ay</span>
-                    <span>1 il</span>
+                    <span>1 il sonra</span>
                 </div>
             </div>
 
             <div class="text-center md:text-right w-full md:w-auto md:min-w-[200px]">
-                <p class="text-xs sm:text-sm text-white/60 mb-1">Təxmini Balans</p>
+                <p id="balance-label" class="text-xs sm:text-sm text-white/60 mb-1">Balans</p>
                 <p id="projected-balance"
                     class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
                     {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
@@ -866,8 +898,7 @@
     onclick="if(event.target === this) { if(typeof window.closeEditModal === 'function') { window.closeEditModal(); } }">
     <div class="flex items-center justify-center min-h-screen px-4 py-8">
         <div class="glass-card p-6 w-full max-w-md transform scale-95 transition-transform duration-300"
-            id="edit-modal-content"
-            onclick="event.stopPropagation();">
+            id="edit-modal-content" onclick="event.stopPropagation();">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-white">Düzəliş et</h3>
                 <button
@@ -881,7 +912,7 @@
             </div>
 
             <form id="edit-form" hx-put="" hx-target="" hx-swap="outerHTML"
-                hx-on:htmx:after-request="window.handleEditExpenseSubmit(event)">
+                hx-on::after-request="handleEditExpenseSubmit(event)">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm text-white/70 mb-1">Obyekt / Mağaza</label>
@@ -1090,6 +1121,7 @@
     const slider = document.getElementById('time-machine-slider');
     const label = document.getElementById('time-machine-label');
     const projectedDisplay = document.getElementById('projected-balance');
+    const balanceLabel = document.getElementById('balance-label');
     const savingsElement = document.getElementById('monthly-savings');
 
     if (slider && savingsElement) {
@@ -1134,19 +1166,44 @@
             // Update label based on months selected
             if (months === 0) {
                 label.innerText = 'İndi';
-            } else if (months === 1) {
-                label.innerText = '1 ay sonra';
+                if (balanceLabel) balanceLabel.innerText = 'Balans';
+            } else if (months < 0) {
+                // Past months
+                const absMonths = Math.abs(months);
+                if (absMonths === 1) {
+                    label.innerText = '1 ay əvvəl';
+                } else {
+                    label.innerText = `${absMonths} ay əvvəl`;
+                }
+                if (balanceLabel) balanceLabel.innerText = 'O zamanın balansı';
             } else {
-                label.innerText = `${months} ay sonra`;
+                // Future months
+                if (months === 1) {
+                    label.innerText = '1 ay sonra';
+                } else {
+                    label.innerText = `${months} ay sonra`;
+                }
+                if (balanceLabel) balanceLabel.innerText = 'Təxmini balans';
             }
 
-            // Formula: Current Balance + (Monthly Savings * Months)
-            // This assumes we continue saving/spending at the current rate
-            const projectedBalance = currentBalance + (monthlySavings * months);
+            // Calculate balance based on time direction
+            let projectedBalance;
+            if (months === 0) {
+                // Current time - show current balance
+                projectedBalance = currentBalance;
+            } else if (months < 0) {
+                // Past: Current Balance - (Monthly Savings * abs(months))
+                // If we were saving X per month, N months ago we had: current - (X * N)
+                projectedBalance = currentBalance - (monthlySavings * Math.abs(months));
+            } else {
+                // Future: Current Balance + (Monthly Savings * Months)
+                // If we continue saving X per month, in N months we'll have: current + (X * N)
+                projectedBalance = currentBalance + (monthlySavings * months);
+            }
 
             // Update display with correct currency symbol (same as remaining balance)
             projectedDisplay.innerText = projectedBalance.toFixed(2) + ' ' + currencySymbol;
-            
+
             // Also update the currency span if it exists
             if (projectedCurrencyEl) {
                 projectedCurrencyEl.textContent = currencySymbol;
@@ -1161,7 +1218,7 @@
                 projectedDisplay.classList.add('text-green-400');
             }
         });
-        
+
         // Initialize with current balance (when slider is at 0)
         if (projectedDisplay) {
             projectedDisplay.innerText = currentBalance.toFixed(2) + ' ' + currencySymbol;
@@ -1500,6 +1557,11 @@
 
             // Event atırıq ki, digər komponentlər də bilsin
             document.body.dispatchEvent(new Event('transactionUpdated'));
+
+            // Reload page after a short delay to show the toast
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } else {
             console.error('❌ Xəta baş verdi');
             let errorMsg = 'Yadda saxlanılmadı';

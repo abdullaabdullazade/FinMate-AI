@@ -66,6 +66,27 @@
         return currentCurrency || 'AZN';
     };
 
+    // Helper function to update all currency display elements
+    window.updateCurrencyDisplays = function (currency) {
+        const currencySymbolMin = document.getElementById('currency-symbol-min');
+        const budgetDisplayUnit = document.getElementById('budget-display-unit');
+        const dailyCurrencySymbol = document.getElementById('daily-currency-symbol');
+        const dailyLimitCurrency = document.getElementById('daily-limit-currency');
+        
+        if (currencySymbolMin) {
+            currencySymbolMin.textContent = currency;
+        }
+        if (budgetDisplayUnit) {
+            budgetDisplayUnit.textContent = currency;
+        }
+        if (dailyCurrencySymbol) {
+            dailyCurrencySymbol.textContent = currency;
+        }
+        if (dailyLimitCurrency) {
+            dailyLimitCurrency.textContent = currency;
+        }
+    };
+
     // Budget Slider Logic
     window.updateBudgetFromSlider = function (val) {
         const input = document.getElementById('monthly-budget-input');
@@ -197,28 +218,34 @@
         window.updateBudgetDisplay(val);
     };
 
-    // Daily Limit Validation
+    // Daily Limit Validation - No maximum limit (removed 1000 limit)
     window.validateDailyLimit = function (input) {
-        const value = parseFloat(input.value);
+        if (!input) return true;
+        
+        const inputValue = input.value.trim();
         const inputElement = input;
 
         // Remove any previous error styling
         inputElement.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
 
         // If empty, allow it (optional field)
-        if (input.value === '' || input.value === null) {
+        if (inputValue === '' || inputValue === null || inputValue === undefined) {
             inputElement.classList.add('border-white/10', 'focus:border-green-500', 'focus:ring-green-500');
             return true;
         }
 
+        // Try to parse as number
+        const cleaned = inputValue.replace(/[^\d.]/g, '');
+        const value = parseFloat(cleaned);
+
         // Check if valid number
-        if (isNaN(value)) {
+        if (isNaN(value) || cleaned === '' || cleaned === '.') {
             inputElement.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
             window.showToast('Yalnız rəqəm daxil edin', 'error');
             return false;
         }
 
-        // Check range
+        // Check range - only check for negative, no maximum limit
         if (value < 0) {
             inputElement.value = '0';
             inputElement.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
@@ -226,24 +253,27 @@
             return false;
         }
 
-        if (value > 1000) {
-            inputElement.value = '1000';
-            inputElement.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-            window.showToast('Maksimum limit 1000 AZN-dir', 'error');
-            return false;
-        }
-
-        // Valid value
+        // Valid value - allow any positive number
         inputElement.classList.add('border-white/10', 'focus:border-green-500', 'focus:ring-green-500');
         return true;
     };
 
     // Format on blur
     window.formatDailyLimit = function (input) {
-        if (!input.value) return;
-        const val = parseFloat(input.value);
-        if (!isNaN(val)) {
+        if (!input || !input.value) return;
+        
+        const inputValue = input.value.trim();
+        if (inputValue === '' || inputValue === null) return;
+        
+        // Clean the value
+        const cleaned = inputValue.replace(/[^\d.]/g, '');
+        const val = parseFloat(cleaned);
+        
+        if (!isNaN(val) && val >= 0) {
+            // Format to 2 decimal places
             input.value = val.toFixed(2);
+            // Re-validate after formatting
+            window.validateDailyLimit(input);
         }
     };
 
@@ -252,11 +282,16 @@
         try {
             // Validate daily limit if provided
             const dailyLimitInput = document.getElementById('daily-budget-limit-input');
-            if (dailyLimitInput && dailyLimitInput.value !== '' && dailyLimitInput.value !== null) {
-                const dailyVal = parseFloat(dailyLimitInput.value);
-                if (isNaN(dailyVal) || dailyVal < 0 || dailyVal > 1000) {
-                    window.showToast('Gündəlik limit 0-1000 arasında olmalıdır', 'error');
-                    return false;
+            if (dailyLimitInput) {
+                const inputValue = String(dailyLimitInput.value).trim();
+                // Allow empty (optional field)
+                if (inputValue !== '' && inputValue !== null && inputValue !== undefined) {
+                    const cleaned = inputValue.replace(/[^\d.]/g, '');
+                    const dailyVal = parseFloat(cleaned);
+                    if (isNaN(dailyVal) || cleaned === '' || cleaned === '.' || dailyVal < 0) {
+                        window.showToast('Gündəlik limit düzgün rəqəm olmalıdır və mənfi ola bilməz', 'error');
+                        return false;
+                    }
                 }
             }
 
@@ -597,7 +632,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         const selector = document.getElementById('currency-selector');
         if (selector) {
-            currentCurrency = selector.getAttribute('data-current-currency') || 'AZN';
+            currentCurrency = selector.getAttribute('data-current-currency') || selector.value || 'AZN';
+            // Update all currency display elements with current currency
+            window.updateCurrencyDisplays(currentCurrency);
         }
     });
 
@@ -611,14 +648,7 @@
         }
 
         // Update currency display elements immediately (before confirmation)
-        const currencySymbolMin = document.getElementById('currency-symbol-min');
-        const budgetDisplayUnit = document.getElementById('budget-display-unit');
-        if (currencySymbolMin) {
-            currencySymbolMin.textContent = newCurrency;
-        }
-        if (budgetDisplayUnit) {
-            budgetDisplayUnit.textContent = newCurrency;
-        }
+        window.updateCurrencyDisplays(newCurrency);
 
         // Get preview from server
         try {
