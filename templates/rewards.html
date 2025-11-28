@@ -3,7 +3,7 @@
 {% block title %}Hədiyyələr - FinMate AI{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto px-4 py-6 pb-24 lg:ml-64">
+<div class="max-w-2xl mx-auto px-4 py-6 pb-24 lg:ml-64" style="overflow: visible !important;">
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">🎁 Mükafat Mağazası</h1>
@@ -29,71 +29,81 @@
     </div>
 
     <!-- Available Rewards - REDESIGNED CAROUSEL -->
-    <div class="mb-8">
+    <div class="mb-8" style="overflow: visible;">
         <h2 class="text-xl font-bold text-white mb-6 px-1">🛒 Hədiyyə Seçimləri</h2>
 
         <!-- Carousel Container -->
-        <div class="relative">
-            <!-- Scroll Buttons -->
+        <div class="relative" style="overflow: visible; padding: 1rem 0.5rem;">
+            <!-- Scroll Buttons - Fixed Position to Avoid Overlap -->
             <button onclick="scrollRewards('left')"
-                class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition hidden md:block">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/15 hover:bg-white/25 backdrop-blur-md p-2.5 md:p-3 rounded-full transition-all duration-200 shadow-lg border border-white/20 hidden md:flex items-center justify-center">
+                <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
             <button onclick="scrollRewards('right')"
-                class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition hidden md:block">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/15 hover:bg-white/25 backdrop-blur-md p-2.5 md:p-3 rounded-full transition-all duration-200 shadow-lg border border-white/20 hidden md:flex items-center justify-center">
+                <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>
 
-            <!-- Scrollable Rewards -->
-            <div id="rewards-carousel" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 px-1"
-                style="scroll-behavior: smooth;">
+            <!-- Scrollable Rewards - Added padding to prevent arrow overlap -->
+            <div id="rewards-carousel" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-6 px-4 md:px-12"
+                style="scroll-behavior: smooth; overflow-y: visible !important;">
                 {% set current_coins = user.coins if user.coins is defined else 0 %}
 
                 <!-- 100 Coins - Bronze - REDESIGNED -->
-                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
-                    <div class="glass-card p-6 h-full border border-amber-400/30 hover:border-amber-400/60 hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 rounded-2xl"
-                        style="box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);">
-                        <div class="flex justify-between items-start mb-4">
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center reward-card-wrapper">
+                    <div class="glass-card p-5 sm:p-6 h-full border border-amber-400/30 hover:border-amber-400/60 transition-all duration-300 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 rounded-2xl relative reward-card-hover"
+                        style="box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(251, 191, 36, 0.1);">
+                        <!-- Badge Container - Fixed Alignment -->
+                        <div class="flex justify-between items-center mb-5 min-h-[28px]">
                             <span
-                                class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 text-[10px] font-bold uppercase tracking-wide">Bronz</span>
+                                class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-200 text-[11px] font-bold uppercase tracking-wider border border-amber-400/30 flex-shrink-0">Bronz</span>
                             {% if reward_counts.get('bronze', 0) > 0 %}
-                            <span class="px-2 py-1 rounded-lg bg-green-500/20 text-green-300 text-xs">✓ {{
-                                reward_counts.get('bronze') }}x</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-green-500/25 text-green-200 text-[11px] font-semibold border border-green-400/30 flex items-center gap-1 flex-shrink-0">
+                                <span>✓</span>
+                                <span>{{ reward_counts.get('bronze') }}x</span>
+                            </span>
+                            {% else %}
+                            <span class="flex-shrink-0"></span>
                             {% endif %}
                         </div>
-                        <div class="text-center mb-5">
-                            <div class="text-7xl mb-4 flex justify-center items-center">🥉</div>
-                            <h3 class="text-2xl font-semibold text-white mb-2 tracking-tight">Coffee Kuponu</h3>
-                            <div class="h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mb-3">
+                        <!-- Content Section - Improved Spacing -->
+                        <div class="text-center mb-6">
+                            <div class="text-6xl sm:text-7xl mb-5 flex justify-center items-center leading-none">🥉</div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight leading-tight">Coffee Kuponu</h3>
+                            <div class="h-0.5 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent mb-4 mx-auto max-w-[120px]">
                             </div>
-                            <p class="text-white/70 text-sm">1 ədəd pulsuz kofe</p>
+                            <p class="text-white/60 text-sm font-medium">1 ədəd pulsuz kofe</p>
                         </div>
-                        <div class="bg-black/30 rounded-xl p-4 mb-5 border border-amber-400/20">
-                            <div class="flex items-center justify-center gap-3">
-                                <span class="text-yellow-400 text-2xl">🪙</span>
-                                <span class="text-yellow-400 font-bold text-3xl">100</span>
-                                <span class="text-white/50 text-sm">coin</span>
+                        <!-- Coin Display - Better Alignment -->
+                        <div class="bg-black/25 rounded-2xl p-4 mb-6 border border-amber-400/25 backdrop-blur-sm">
+                            <div class="flex items-center justify-center gap-2.5">
+                                <span class="text-yellow-400 text-xl sm:text-2xl leading-none">🪙</span>
+                                <span class="text-yellow-400 font-bold text-2xl sm:text-3xl leading-none tracking-tight">100</span>
+                                <span class="text-white/40 text-xs sm:text-sm font-medium ml-0.5">coin</span>
                             </div>
                         </div>
+                        <!-- Button - Fixed Text Alignment -->
                         <button onclick="openClaimModal('bronze', 100, '🥉', 'Coffee Kuponu')"
-                            class="w-full px-5 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] {% if current_coins >= 100 %}bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black shadow-lg shadow-amber-500/40{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
+                            class="w-full px-5 py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 {% if current_coins >= 100 %}bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black shadow-lg shadow-amber-500/50{% else %}bg-white/5 text-white/30 cursor-not-allowed border border-white/10{% endif %}"
                             {% if current_coins < 100 %}disabled{% endif %}>
-                            {% if current_coins >= 100 %}<span
-                                class="flex items-center justify-center gap-2.5"><span>🛒</span><span>Al
-                                    İndi</span></span>{% else %}<span
-                                class="flex items-center justify-center gap-2.5"><span>🔒</span><span>Kiliddə</span></span>{%
-                            endif %}
+                            {% if current_coins >= 100 %}
+                            <span>🛒</span>
+                            <span>Al İndi</span>
+                            {% else %}
+                            <span>🔒</span>
+                            <span>Kiliddə</span>
+                            {% endif %}
                         </button>
                     </div>
                 </div>
 
                 <!-- 200 Coins - Silver - REDESIGNED -->
-                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
-                    <div class="glass-card p-6 h-full border border-gray-300/30 hover:border-gray-300/60 hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-gray-300/5 to-gray-400/5 rounded-2xl"
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center reward-card-wrapper">
+                    <div class="glass-card p-6 h-full border border-gray-300/30 hover:border-gray-300/60 transition-all duration-300 bg-gradient-to-br from-gray-300/5 to-gray-400/5 rounded-2xl reward-card-hover"
                         style="box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);">
                         <div class="flex justify-between items-start mb-4">
                             <span
@@ -130,8 +140,8 @@
                 </div>
 
                 <!-- 500 Coins - Gold - REDESIGNED -->
-                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
-                    <div class="glass-card p-6 h-full border border-yellow-400/30 hover:border-yellow-400/60 hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-yellow-400/5 to-amber-500/5 rounded-2xl"
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center reward-card-wrapper">
+                    <div class="glass-card p-6 h-full border border-yellow-400/30 hover:border-yellow-400/60 transition-all duration-300 bg-gradient-to-br from-yellow-400/5 to-amber-500/5 rounded-2xl reward-card-hover"
                         style="box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);">
                         <div class="flex justify-between items-start mb-4">
                             <span
@@ -168,8 +178,8 @@
                 </div>
 
                 <!-- 5000 Coins - Platinum - REDESIGNED -->
-                <div class="flex-shrink-0 w-72 sm:w-80 snap-center">
-                    <div class="glass-card p-6 h-full border border-purple-500/30 hover:border-purple-500/60 hover:scale-[1.02] transition-all duration-300 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-2xl"
+                <div class="flex-shrink-0 w-72 sm:w-80 snap-center reward-card-wrapper">
+                    <div class="glass-card p-6 h-full border border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-2xl reward-card-hover"
                         style="box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);">
                         <div class="flex justify-between items-start mb-4">
                             <span
@@ -358,6 +368,96 @@
 
     .animate-scale-in {
         animation: scale-in 0.2s ease-out;
+    }
+
+    /* Fix overflow issue on hover for reward cards - COMPLETE FIX */
+    #rewards-carousel {
+        overflow-y: visible !important;
+        overflow-x: auto;
+        padding: 12px 0 !important;
+    }
+
+    /* Card wrapper with padding to prevent overflow */
+    .reward-card-wrapper {
+        padding: 12px !important;
+        margin: -12px !important;
+        overflow: visible !important;
+    }
+
+    #rewards-carousel > div {
+        overflow: visible !important;
+    }
+
+    #rewards-carousel > div > .glass-card {
+        will-change: transform, box-shadow;
+        transform-origin: center;
+        overflow: visible !important;
+    }
+
+    /* Ensure ALL parent containers allow overflow */
+    .max-w-2xl.mx-auto {
+        overflow: visible !important;
+    }
+
+    /* Fix parent container in base.html */
+    .w-full.lg\\:max-w-7xl.mx-auto {
+        overflow: visible !important;
+    }
+
+    /* Fix main content wrapper */
+    .pt-24.pb-8.px-4 {
+        overflow: visible !important;
+    }
+
+    /* Force overflow visible on all possible parents */
+    body > div,
+    [class*="max-w"],
+    [class*="container"] {
+        overflow-x: visible !important;
+    }
+
+    /* Reward Card Improvements */
+    .reward-card-badge {
+        line-height: 1.2;
+        letter-spacing: 0.05em;
+    }
+
+    .reward-card-emoji {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .reward-card-title {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .reward-coin-display {
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* NO SCALE - Only translateY to prevent overflow */
+    .reward-card-hover {
+        transform-origin: center;
+        will-change: transform, box-shadow;
+    }
+
+    /* Desktop hover - NO SCALE, only translateY */
+    @media (min-width: 640px) {
+        .reward-card-hover:hover {
+            transform: translateY(-6px) !important;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(251, 191, 36, 0.2) !important;
+            z-index: 15 !important;
+            position: relative;
+        }
+    }
+
+    /* Mobile hover - NO SCALE */
+    @media (max-width: 639px) {
+        .reward-card-hover:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(251, 191, 36, 0.15) !important;
+            z-index: 15 !important;
+            position: relative;
+        }
     }
 </style>
 

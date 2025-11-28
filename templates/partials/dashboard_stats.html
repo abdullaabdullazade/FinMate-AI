@@ -1,5 +1,22 @@
 <!-- Dashboard Stats Partial - Auto-updates via HTMX -->
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <!-- Budget -->
+    <div>
+        <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
+        <div class="flex items-end gap-1 sm:gap-2">
+            <span id="stat-budget" class="text-xl sm:text-2xl lg:text-3xl font-bold text-white incognito-hidden"
+                data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}"
+                data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined else
+                user.monthly_budget) }}">
+                {{ "%.2f"|format(monthly_budget_display if monthly_budget_display is defined else user.monthly_budget)
+                }}
+            </span>
+            <span id="stat-budget-currency" class="text-xs sm:text-sm text-white/70 mb-0.5 sm:mb-1">
+                {{ user.currency or 'AZN' }}
+            </span>
+        </div>
+    </div>
+
     <!-- Total Spending -->
     <div>
         <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
@@ -28,29 +45,15 @@
         </div>
     </div>
 
-    <!-- Additional Income (This Month) -->
+    <!-- Total Income (This Month) -->
     <div>
-        <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Əlavə gəlir</p>
+        <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi gəlir</p>
         <div class="flex items-end gap-1 sm:gap-2">
             <span id="stat-income" class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-400 incognito-hidden"
                 data-value="{{ total_income }}" data-initial="{{ " %.2f"|format(total_income) }}">
                 {{ "%.2f"|format(total_income) }}
             </span>
             <span id="stat-income-currency" class="text-xs sm:text-sm text-white/70 mb-0.5 sm:mb-1">
-                {{ user.currency or 'AZN' }}
-            </span>
-        </div>
-    </div>
-
-    <!-- Budget -->
-    <div>
-        <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
-        <div class="flex items-end gap-1 sm:gap-2">
-            <span id="stat-budget" class="text-xl sm:text-2xl lg:text-3xl font-bold text-white incognito-hidden"
-                data-value="{{ user.monthly_budget }}" data-initial="{{ " %.2f"|format(user.monthly_budget) }}">
-                {{ "%.2f"|format(user.monthly_budget) }}
-            </span>
-            <span id="stat-budget-currency" class="text-xs sm:text-sm text-white/70 mb-0.5 sm:mb-1">
                 {{ user.currency or 'AZN' }}
             </span>
         </div>

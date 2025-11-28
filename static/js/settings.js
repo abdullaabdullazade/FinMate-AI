@@ -53,39 +53,17 @@
 
     // Helper function to get current currency
     window.getCurrentCurrency = function () {
-        const selector = document.getElementById('currency-selector');
-        if (selector && selector.value) {
-            return selector.value;
-        }
-        // Fallback: try to get from currency-symbol-min
-        const currencyEl = document.getElementById('currency-symbol-min');
-        if (currencyEl) {
-            return currencyEl.textContent.trim();
-        }
-        // Last fallback
-        return currentCurrency || 'AZN';
+        return 'AZN';
     };
 
     // Helper function to update all currency display elements
     window.updateCurrencyDisplays = function (currency) {
-        const currencySymbolMin = document.getElementById('currency-symbol-min');
-        const budgetDisplayUnit = document.getElementById('budget-display-unit');
-        const dailyCurrencySymbol = document.getElementById('daily-currency-symbol');
-        const dailyLimitCurrency = document.getElementById('daily-limit-currency');
-        
-        if (currencySymbolMin) {
-            currencySymbolMin.textContent = currency;
-        }
-        if (budgetDisplayUnit) {
-            budgetDisplayUnit.textContent = currency;
-        }
-        if (dailyCurrencySymbol) {
-            dailyCurrencySymbol.textContent = currency;
-        }
-        if (dailyLimitCurrency) {
-            dailyLimitCurrency.textContent = currency;
-        }
+        // No-op since we hardcoded AZN in HTML
+        // But keeping function signature to avoid breaking callers
     };
+
+    // Currency conversion handlers removed (Only AZN allowed)
+
 
     // Budget Slider Logic
     window.updateBudgetFromSlider = function (val) {
@@ -221,7 +199,7 @@
     // Daily Limit Validation - No maximum limit (removed 1000 limit)
     window.validateDailyLimit = function (input) {
         if (!input) return true;
-        
+
         const inputValue = input.value.trim();
         const inputElement = input;
 
@@ -261,14 +239,14 @@
     // Format on blur
     window.formatDailyLimit = function (input) {
         if (!input || !input.value) return;
-        
+
         const inputValue = input.value.trim();
         if (inputValue === '' || inputValue === null) return;
-        
+
         // Clean the value
         const cleaned = inputValue.replace(/[^\d.]/g, '');
         const val = parseFloat(cleaned);
-        
+
         if (!isNaN(val) && val >= 0) {
             // Format to 2 decimal places
             input.value = val.toFixed(2);
@@ -622,236 +600,8 @@
         }
     };
 
-    // ========== CURRENCY CONVERSION HANDLERS ==========
+    // Currency conversion handlers removed (Only AZN allowed)
 
-    let pendingCurrencyChange = null;
-    // Initialize currentCurrency from DOM or default
-    let currentCurrency = 'AZN';
-
-    // We need to wait for DOM to get the initial currency value
-    document.addEventListener('DOMContentLoaded', () => {
-        const selector = document.getElementById('currency-selector');
-        if (selector) {
-            currentCurrency = selector.getAttribute('data-current-currency') || selector.value || 'AZN';
-            // Update all currency display elements with current currency
-            window.updateCurrencyDisplays(currentCurrency);
-        }
-    });
-
-    window.handleCurrencyChange = async function (newCurrency) {
-        const selector = document.getElementById('currency-selector');
-        const oldCurrency = currentCurrency;
-
-        // If same currency, do nothing
-        if (oldCurrency === newCurrency) {
-            return;
-        }
-
-        // Update currency display elements immediately (before confirmation)
-        window.updateCurrencyDisplays(newCurrency);
-
-        // Get preview from server
-        try {
-            const formData = new FormData();
-            formData.append('new_currency', newCurrency);
-            formData.append('confirm', 'false');
-
-            const response = await fetch('/api/update-currency', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.preview) {
-                // Show preview modal
-                pendingCurrencyChange = {
-                    old: result.old_currency,
-                    new: result.new_currency,
-                    data: result.data
-                };
-                showCurrencyPreview(result);
-            } else if (result.success) {
-                // No conversion needed
-                window.showToast(result.message, 'info');
-            } else {
-                window.showToast(result.error || 'Xəta baş verdi', 'error');
-                // Reset selector to old value
-                selector.value = oldCurrency;
-            }
-        } catch (error) {
-            console.error('Currency preview error:', error);
-            window.showToast('Xəta baş verdi', 'error');
-            // Reset selector to old value
-            selector.value = oldCurrency;
-        }
-    };
-
-    window.showCurrencyPreview = function (previewResult) {
-        const modal = document.getElementById('currency-confirm-modal');
-        const content = document.getElementById('conversion-preview-content');
-
-        const { old_currency, new_currency, data } = previewResult;
-
-        // Build preview HTML with mobile-responsive design
-        let html = `
-            <div class="bg-gradient-to-r from-purple-500/15 to-pink-500/15 rounded-xl p-3 sm:p-4 border border-purple-500/30">
-                <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-lg font-bold">
-                    <span class="text-purple-400">${old_currency}</span>
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                    </svg>
-                    <span class="text-pink-400">${new_currency}</span>
-                </div>
-                <p class="text-center text-white/60 text-xs sm:text-sm mt-1.5 sm:mt-2">
-                    1 ${old_currency} = ${data.conversion_rate.rate.toFixed(4)} ${new_currency}
-                </p>
-            </div>
-        `;
-
-        // Monthly Budget
-        html += `
-            <div class="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10">
-                <div class="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <span class="text-white/70 text-xs sm:text-sm">💰 Aylıq Büdcə</span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-red-400 line-through text-xs sm:text-sm truncate">${data.monthly_budget.old.toFixed(2)} ${old_currency}</span>
-                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white/30 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                    <span class="text-green-400 font-bold text-sm sm:text-base truncate">${data.monthly_budget.new.toFixed(2)} ${new_currency}</span>
-                </div>
-            </div>
-        `;
-
-        // Daily Limit (if exists)
-        if (data.daily_limit) {
-            html += `
-                <div class="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10">
-                    <div class="flex items-center justify-between mb-1.5 sm:mb-2">
-                        <span class="text-white/70 text-xs sm:text-sm">📅 Gündəlik Limit</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="text-red-400 line-through text-xs sm:text-sm truncate">${data.daily_limit.old.toFixed(2)} ${old_currency}</span>
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white/30 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                        <span class="text-green-400 font-bold text-sm sm:text-base truncate">${data.daily_limit.new.toFixed(2)} ${new_currency}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Dreams (if any)
-        if (data.dreams && data.dreams.length > 0) {
-            html += `
-                <div class="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10">
-                    <div class="flex items-center justify-between mb-2 sm:mb-3">
-                        <span class="text-white/70 text-xs sm:text-sm">✨ Dream Vault</span>
-                        <span class="text-white/50 text-xs">${data.dreams.length} ədəd</span>
-                    </div>
-            `;
-
-            data.dreams.forEach(dream => {
-                html += `
-                    <div class="mb-2 last:mb-0">
-                        <p class="text-white/80 text-xs sm:text-sm mb-1 truncate">${dream.title}</p>
-                        <div class="flex items-center justify-between text-xs gap-2">
-                            <span class="text-white/50">Hədəf:</span>
-                            <div class="flex items-center gap-1.5 flex-shrink-0">
-                                <span class="text-red-400 line-through">${dream.old_target.toFixed(0)}</span>
-                                <span class="text-green-400 font-medium">${dream.new_target.toFixed(0)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `</div>`;
-        }
-
-        content.innerHTML = html;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    };
-
-    window.closeCurrencyModal = function (event) {
-        // Prevent page refresh if event is provided
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        const modal = document.getElementById('currency-confirm-modal');
-        const selector = document.getElementById('currency-selector');
-
-        // Reset selector to current currency
-        if (selector) {
-            selector.value = currentCurrency;
-        }
-
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-        pendingCurrencyChange = null;
-    };
-
-    window.confirmCurrencyConversion = async function (event) {
-        // Prevent page refresh if event is provided
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        if (!pendingCurrencyChange) {
-            window.closeCurrencyModal();
-            return;
-        }
-
-        const { new: newCurrency } = pendingCurrencyChange;
-
-        try {
-            const formData = new FormData();
-            formData.append('new_currency', newCurrency);
-            formData.append('confirm', 'true');
-
-            const response = await fetch('/api/update-currency', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                window.showToast(result.message || 'Valyuta uğurla dəyişdirildi', 'success');
-                currentCurrency = newCurrency;
-
-                // Close modal
-                window.closeCurrencyModal();
-
-                // Reload page after 1 second to show new amounts
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                window.showToast(result.error || 'Xəta baş verdi', 'error');
-            }
-        } catch (error) {
-            console.error('Currency conversion error:', error);
-            window.showToast('Xəta baş verdi', 'error');
-        }
-    };
-
-    // Currency selector change handler
-    window.updateCurrencyDisplay = function (currency) {
-        // This function seems to be a placeholder or used elsewhere, keeping it for compatibility
-        if (typeof window.updateCurrencyDisplay === 'function' && window.updateCurrencyDisplay !== window.updateCurrencyDisplay) {
-            // Avoid recursion if it was defined externally
-            window.updateCurrencyDisplay(currency);
-        }
-    };
 
     // Handle HTMX response for settings form
     window.handleSettingsResponse = function (event) {

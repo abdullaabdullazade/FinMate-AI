@@ -46,13 +46,13 @@
                     <div class="flex justify-between items-end mb-3 sm:mb-4">
                         <label class="text-xs sm:text-sm font-medium text-white/80">Aylıq Büdcə</label>
                         <div class="text-right flex items-center gap-2">
-                            <input type="text" id="monthly-budget-input" name="monthly_budget"
-                                value="{{ user.monthly_budget }}"
+                            <input type="number" id="monthly-budget-input" name="monthly_budget"
+                                value="{{ user.monthly_budget }}" step="0.01" min="100"
                                 class="w-24 sm:w-32 bg-black/20 text-green-400 text-xl sm:text-2xl font-bold text-right px-2 py-1 rounded-lg border border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all"
                                 oninput="updateBudgetDisplay(this.value)" onblur="validateBudgetInput(this)"
-                                placeholder="100">
-                            <span id="budget-display-unit" class="text-white/60 text-xs sm:text-sm font-medium">{{
-                                user.currency or currency_symbol }}</span>
+                                placeholder="100" required>
+                            <span id="budget-display-unit"
+                                class="text-white/60 text-xs sm:text-sm font-medium">AZN</span>
                         </div>
                     </div>
                     <div class="relative h-2 bg-white/10 rounded-full">
@@ -71,8 +71,7 @@
                         </div>
                     </div>
                     <div class="flex justify-between mt-2 text-xs text-white/40 font-medium">
-                        <span id="budget-min-label">100 <span id="currency-symbol-min">{{ user.currency or
-                                currency_symbol }}</span></span>
+                        <span id="budget-min-label">100 <span id="currency-symbol-min">AZN</span></span>
                         <span id="budget-max-label">{{ "%.0f"|format(slider_max) }}</span>
                     </div>
                 </div>
@@ -84,8 +83,7 @@
                     </label>
                     <div class="relative">
                         <span id="daily-currency-symbol"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">{{ user.currency or
-                            currency_symbol }}</span>
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">AZN</span>
                         <input type="number" name="daily_budget_limit" id="daily-budget-limit-input"
                             value="{{ '%.2f'|format(user.daily_budget_limit) if user.daily_budget_limit else '' }}"
                             placeholder="Limit yoxdur" min="0" step="0.01"
@@ -98,7 +96,7 @@
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         Limit keçildikdə xəbərdarlıq alacaqsınız (<span id="daily-limit-range">İstənilən məbləğ <span
-                                id="daily-limit-currency">{{ user.currency or currency_symbol }}</span></span>
+                                id="daily-limit-currency">AZN</span></span>
                         arası)
                     </p>
                 </div>
@@ -118,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Voice Commands Toggle -->
                 <div class="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-colors">
                     <div class="flex items-center justify-between gap-3">
@@ -137,76 +135,42 @@
                     </div>
                 </div>
 
-                <!-- Currency -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    <div
-                        class="bg-white/5 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-colors">
-                        <label class="block text-xs sm:text-sm font-medium text-white/80 mb-2">Valyuta</label>
-                        <div class="relative">
-                            {% set curr = user.currency or 'AZN' %}
-                            <select name="currency" id="currency-selector" onchange="handleCurrencyChange(this.value)"
-                                data-current-currency="{{ curr }}"
-                                class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none appearance-none cursor-pointer transition-all">
-                                <option value="AZN" class="bg-gray-900" {% if curr=='AZN' %}selected{% endif %}>🇦🇿 AZN
-                                    (₼)
-                                </option>
-                                <option value="USD" class="bg-gray-900" {% if curr=='USD' %}selected{% endif %}>🇺🇸 USD
-                                    ($)
-                                </option>
-                                <option value="EUR" class="bg-gray-900" {% if curr=='EUR' %}selected{% endif %}>🇪🇺 EUR
-                                    (€)
-                                </option>
-                                <option value="TRY" class="bg-gray-900" {% if curr=='TRY' %}selected{% endif %}>🇹🇷 TRY
-                                    (₺)
-                                </option>
-                                <option value="RUB" class="bg-gray-900" {% if curr=='RUB' %}selected{% endif %}>🇷🇺 RUB
-                                    (₽)
-                                </option>
-                            </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <p class="text-xs text-white/40 mt-2">⚠️ Valyuta dəyişdirildikdə bütün məbləğlər çevriləcək</p>
+                <!-- Voice Mode Toggle (TTS) -->
+                <div
+                    class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between hover:border-white/20 transition-colors">
+                    <div>
+                        <label class="block text-sm font-medium text-white">🔊 Səsləndirmə</label>
+                        <p class="text-xs text-white/50 mt-1">Mətnləri səsli oxumaq</p>
                     </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="voice-mode-toggle" class="sr-only peer"
+                            onchange="toggleVoiceMode(this.checked)">
+                        <div
+                            class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500 transition-colors">
+                        </div>
+                    </label>
+                </div>
 
-                    <!-- Voice Mode Toggle (TTS) -->
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
-                        <div>
-                            <label class="block text-sm font-medium text-white">🔊 Səsləndirmə Rejimi</label>
-                            <p class="text-xs text-white/50 mt-1">Mətnləri səsli oxumaq üçün</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="voice-mode-toggle" class="sr-only peer"
-                                onchange="toggleVoiceMode(this.checked)">
-                            <div
-                                class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500 transition-colors">
-                            </div>
-                        </label>
+                <!-- Readability Mode Toggle (NEW) -->
+                <div
+                    class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between hover:border-white/20 transition-colors md:col-span-2">
+                    <div>
+                        <label class="block text-sm font-medium text-white">👁️ Oxunaqlılıq Rejimi</label>
+                        <p class="text-xs text-white/50 mt-1">Gözü zəif görənlər üçün böyük yazı</p>
                     </div>
-
-                    <!-- Readability Mode Toggle (NEW) -->
-                    <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
-                        <div>
-                            <label class="block text-sm font-medium text-white">👁️ Oxunaqlılıq Rejimi</label>
-                            <p class="text-xs text-white/50 mt-1">Gözü zəif görənlər üçün böyük yazı</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="hidden" name="readability_mode" value="false">
+                        <input type="checkbox" id="readability-mode-toggle" name="readability_mode" value="true" {% if
+                            user.readability_mode %}checked{% endif %} class="sr-only peer"
+                            onchange="toggleReadabilityMode(this.checked)">
+                        <div
+                            class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 transition-colors">
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="hidden" name="readability_mode" value="false">
-                            <input type="checkbox" id="readability-mode-toggle" name="readability_mode" value="true" {%
-                                if user.readability_mode %}checked{% endif %} class="sr-only peer"
-                                onchange="toggleReadabilityMode(this.checked)">
-                            <div
-                                class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 transition-colors">
-                            </div>
-                        </label>
-                    </div>
+                    </label>
                 </div>
             </div>
         </div>
+
 
         <!-- AI Persona Customization Section -->
         <div class="glass-card p-8 slide-up" style="animation-delay: 0.25s">
@@ -229,7 +193,8 @@
                         <select name="ai_persona_mode"
                             class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none appearance-none cursor-pointer transition-all">
                             <option value="Auto" class="bg-gray-900" {% if user.ai_persona_mode=='Auto' %}selected{%
-                                endif %}>🎭 Avtomatik (Məsləhətli)</option>
+                                endif %}>🎭
+                                Avtomatik (Məsləhətli)</option>
                             <option value="Manual" class="bg-gray-900" {% if user.ai_persona_mode=='Manual' %}selected{%
                                 endif %}>✍️ Əl ilə (Manual)</option>
                         </select>
@@ -270,7 +235,8 @@
                                 <option value="Strict" class="bg-gray-900" {% if user.ai_attitude=='Strict' %}selected{%
                                     endif %}>😤 Sərt Ana</option>
                                 <option value="Funny" class="bg-gray-900" {% if user.ai_attitude=='Funny' %}selected{%
-                                    endif %}>😄 Zarafatcıl</option>
+                                    endif %}>
+                                    😄 Zarafatcıl</option>
                                 <option value="Sarcastic" class="bg-gray-900" {% if user.ai_attitude=='Sarcastic'
                                     %}selected{% endif %}>😏 Sarkastik</option>
                                 <option value="Supportive" class="bg-gray-900" {% if user.ai_attitude=='Supportive'
@@ -279,7 +245,8 @@
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
+                                        d="M19 9l-7 7-7-7">
+                                    </path>
                                 </svg>
                             </div>
                         </div>
@@ -292,20 +259,24 @@
                             <select name="ai_style"
                                 class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none appearance-none cursor-pointer transition-all">
                                 <option value="Formal" class="bg-gray-900" {% if user.ai_style=='Formal' %}selected{%
-                                    endif %}>🎩 Rəsmi</option>
+                                    endif %}>
+                                    🎩 Rəsmi</option>
                                 <option value="Slang" class="bg-gray-900" {% if user.ai_style=='Slang' %}selected{%
-                                    endif %}>😎 Jarqon / Slang</option>
+                                    endif %}>😎
+                                    Jarqon / Slang</option>
                                 <option value="Shakespearean" class="bg-gray-900" {% if user.ai_style=='Shakespearean'
                                     %}selected{% endif %}>📜 Shakespearean</option>
                                 <option value="Dialect" class="bg-gray-900" {% if user.ai_style=='Dialect' %}selected{%
                                     endif %}>🗣️ Ləhcə</option>
                                 <option value="Short" class="bg-gray-900" {% if user.ai_style=='Short' %}selected{%
-                                    endif %}>⚡ Qısa</option>
+                                    endif %}>⚡
+                                    Qısa</option>
                             </select>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
+                                        d="M19 9l-7 7-7-7">
+                                    </path>
                                 </svg>
                             </div>
                         </div>
@@ -491,8 +462,7 @@
                 </div>
                 <div class="text-center bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/30">
                     <span class="block text-3xl font-black text-white drop-shadow-md"><span
-                            id="premium-price">4.99</span> <span id="premium-currency">{{ user.currency or
-                            currency_symbol }}</span></span>
+                            id="premium-price">4.99</span> <span id="premium-currency">AZN</span></span>
                     <span class="text-xs font-bold text-purple-100 uppercase tracking-wider">/ay</span>
                 </div>
             </div>
@@ -601,69 +571,7 @@
 </div>
 
 <!-- Currency Conversion Confirmation Modal -->
-<div id="currency-confirm-modal"
-    class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="glass-card max-w-lg w-full p-4 sm:p-6 slide-up animate-in" style="max-height: 95vh; overflow-y: auto;">
-        <!-- Header -->
-        <div class="flex items-start justify-between mb-4 sm:mb-6">
-            <div class="flex items-center gap-2 sm:gap-3 flex-1">
-                <div
-                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-purple-500/30 flex-shrink-0">
-                    💱
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h3 class="text-base sm:text-xl font-bold text-white truncate">Valyuta Çevirməsi</h3>
-                    <p class="text-white/60 text-xs sm:text-sm">Bütün məbləğlər çevriləcək</p>
-                </div>
-            </div>
-            <button onclick="closeCurrencyModal()"
-                class="text-white/50 hover:text-white transition-colors p-1 -mr-1 flex-shrink-0">
-                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Conversion Info -->
-        <div id="conversion-preview-content" class="space-y-3 sm:space-y-4">
-            <!-- Will be populated by JavaScript -->
-        </div>
-
-        <!-- Warning -->
-        <div
-            class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-3 sm:p-4 mt-4 sm:mt-6">
-            <div class="flex items-start gap-2 sm:gap-3">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 mt-0.5 flex-shrink-0" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div class="min-w-0">
-                    <p class="text-xs sm:text-sm text-purple-200 font-medium">Büdcə, limitlər və Dream Vault çevrilir
-                    </p>
-                    <p class="text-xs text-purple-200/70 mt-0.5 sm:mt-1 leading-relaxed">Keçmiş xərcləriniz öz
-                        valyutasında qalır, amma gələcək planlarınız yeni valyutada olacaq.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">
-            <button onclick="closeCurrencyModal()"
-                class="w-full sm:flex-1 px-4 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all text-sm sm:text-base order-2 sm:order-1">
-                Ləğv Et
-            </button>
-            <button onclick="confirmCurrencyConversion()"
-                class="w-full sm:flex-1 px-4 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 text-sm sm:text-base order-1 sm:order-2">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Təsdiq Et və Çevir
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Currency Conversion Confirmation Modal Removed -->
 
 
 <!-- Toast Container -->
@@ -672,4 +580,69 @@
 
 {% block extra_scripts %}
 <script src="/static/js/settings.js"></script>
+<script>
+    // Handle settings form submission
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('settings-form');
+        if (form) {
+            form.addEventListener('htmx:afterRequest', function (event) {
+                console.log('⚙️ Settings form response:', event.detail);
+
+                if (event.detail.successful) {
+                    try {
+                        const response = JSON.parse(event.detail.xhr.response);
+                        console.log('✅ Settings updated successfully:', response);
+
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı', 'success');
+                        }
+
+                        // Trigger stats update
+                        if (typeof htmx !== 'undefined') {
+                            htmx.trigger('body', 'update-stats');
+                        }
+
+                        // Reload page after a short delay to show updated settings
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } catch (e) {
+                        console.error('❌ Error parsing response:', e);
+                        console.error('   Raw response:', event.detail.xhr?.responseText);
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Tənzimləmələr yadda saxlanıldı', 'success');
+                        }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                } else {
+                    console.error('❌ Settings form submission failed');
+                    console.error('   Status:', event.detail.xhr?.status);
+                    console.error('   Response:', event.detail.xhr?.responseText);
+                    try {
+                        const response = JSON.parse(event.detail.xhr.response);
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(response.error || 'Xəta baş verdi', 'error');
+                        }
+                    } catch (e) {
+                        console.error('   Error parsing error response:', e);
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Xəta baş verdi', 'error');
+                        }
+                    }
+                }
+            });
+
+            form.addEventListener('htmx:beforeRequest', function (event) {
+                console.log('⚙️ Settings form submitting...');
+                const formData = new FormData(form);
+                console.log('   Form data:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`     ${key}: ${value}`);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

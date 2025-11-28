@@ -118,3 +118,14 @@
     backdrop-filter: blur(10px);
 }
 
+/* Fix for completed dreams with images - ensure text appears above image */
+.dream-card .relative.z-10 {
+    position: relative;
+    z-index: 10;
+}
+
+.dream-card .relative.z-10 > div:not(:first-child) {
+    position: relative;
+    z-index: 20;
+}
+

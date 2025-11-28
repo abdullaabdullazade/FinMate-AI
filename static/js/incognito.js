@@ -140,16 +140,21 @@
                 }
             }
 
-            // Hide amounts in alert panel (only if visible)
+            // Hide amounts in alert panel (process even if hidden, so restoration works)
             const alertPanel = document.getElementById('alert-panel');
-            if (alertPanel && !alertPanel.classList.contains('hidden')) {
-                alertPanel.querySelectorAll('div:not(.text-amber-500):not(.text-purple-500):not(.text-blue-500), li, span:not(.text-amber-500):not(.text-purple-500):not(.text-blue-500), p').forEach(el => {
+            if (alertPanel) {
+                // Process all elements, excluding icon spans with specific colors
+                alertPanel.querySelectorAll('div:not(.text-amber-500):not(.text-purple-500):not(.text-blue-500):not(.text-red-500):not(.text-green-500):not(.text-yellow-500), li, span:not(.text-amber-500):not(.text-purple-500):not(.text-blue-500):not(.text-red-500):not(.text-green-500):not(.text-yellow-500), p').forEach(el => {
                     if (!processedCache.has(el)) {
                         const text = el.textContent || el.innerText || '';
                         if (text && text.match(/[\d,]+\.?\d*/) && !text.includes('Premium') && !text.includes('4.99')) {
-                            const original = el.getAttribute('data-original') || text;
-                            el.setAttribute('data-original', original);
+                            // Only save original if we don't already have a valid one
+                            const currentOriginal = el.getAttribute('data-original');
+                            if (!currentOriginal || currentOriginal === '****' || currentOriginal.includes('****')) {
+                                el.setAttribute('data-original', text);
+                            }
                             el.textContent = text.replace(/[\d,]+\.?\d*/g, '****');
+                            el.classList.add('incognito-hidden');
                             processedCache.add(el);
                         }
                     }
@@ -230,7 +235,66 @@
 
         // Restore other elements without animation
         requestAnimationFrame(() => {
-            // Clear cache after restoring stats
+            // Specifically restore alert panel elements FIRST (before clearing cache)
+            // Process even if panel is hidden, so amounts are ready when panel is opened
+            const alertPanel = document.getElementById('alert-panel');
+            if (alertPanel) {
+                // Restore all elements in alert panel, including nested ones
+                // Use a more comprehensive selector to catch all possible elements
+                const allElements = alertPanel.querySelectorAll('*');
+                allElements.forEach(el => {
+                    // Skip icon spans (they shouldn't have amounts)
+                    if (el.classList.contains('text-amber-500') || 
+                        el.classList.contains('text-purple-500') || 
+                        el.classList.contains('text-blue-500') ||
+                        el.classList.contains('text-red-500') ||
+                        el.classList.contains('text-green-500') ||
+                        el.classList.contains('text-yellow-500')) {
+                        return;
+                    }
+                    
+                    const original = el.getAttribute('data-original');
+                    if (original && original !== '****' && !original.includes('****')) {
+                        // Check if the element actually contains numbers (was hidden)
+                        if (original.match(/[\d,]+\.?\d*/)) {
+                            el.textContent = original;
+                            el.removeAttribute('data-original');
+                            el.classList.remove('incognito-processed', 'incognito-hidden');
+                            // Remove from cache so it can be processed again if needed
+                            processedCache.delete(el);
+                        }
+                    } else if (el.textContent && el.textContent.includes('****')) {
+                        // If element has **** but no data-original, try to find original from parent
+                        // This handles cases where the original might have been lost
+                        const parent = el.parentElement;
+                        if (parent) {
+                            const parentOriginal = parent.getAttribute('data-original');
+                            if (parentOriginal && parentOriginal !== '****' && !parentOriginal.includes('****')) {
+                                // Check if this element's text matches a pattern in parent original
+                                const matches = parentOriginal.match(/[\d,]+\.?\d*/g);
+                                if (matches && matches.length > 0) {
+                                    // Try to restore based on context
+                                    el.textContent = parentOriginal;
+                                    parent.removeAttribute('data-original');
+                                    el.classList.remove('incognito-processed', 'incognito-hidden');
+                                    processedCache.delete(el);
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Also check the alert panel itself and its direct children
+                if (alertPanel.hasAttribute('data-original')) {
+                    const panelOriginal = alertPanel.getAttribute('data-original');
+                    if (panelOriginal && panelOriginal !== '****' && !panelOriginal.includes('****')) {
+                        alertPanel.textContent = panelOriginal;
+                        alertPanel.removeAttribute('data-original');
+                    }
+                }
+            }
+
+            // Clear cache after restoring stats and alert panel
             processedCache = new WeakSet();
 
             // Restore all hidden elements (without counter animation)
@@ -277,6 +341,49 @@
             if (window.showAllAmounts) {
                 window.showAllAmounts();
             }
+            
+            // Force alert panel restoration after a short delay to ensure it happens
+            // This ensures notification amounts are restored even if panel is hidden
+            setTimeout(() => {
+                const alertPanel = document.getElementById('alert-panel');
+                if (alertPanel) {
+                    // Force restore all elements in alert panel (even if panel is hidden)
+                    const allElements = alertPanel.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        // Skip icon spans
+                        if (el.classList.contains('text-amber-500') || 
+                            el.classList.contains('text-purple-500') || 
+                            el.classList.contains('text-blue-500') ||
+                            el.classList.contains('text-red-500') ||
+                            el.classList.contains('text-green-500') ||
+                            el.classList.contains('text-yellow-500')) {
+                            return;
+                        }
+                        
+                        const original = el.getAttribute('data-original');
+                        if (original && original !== '****' && !original.includes('****')) {
+                            if (original.match(/[\d,]+\.?\d*/)) {
+                                el.textContent = original;
+                                el.removeAttribute('data-original');
+                                el.classList.remove('incognito-processed', 'incognito-hidden');
+                                processedCache.delete(el);
+                            }
+                        } else if (el.textContent && el.textContent.includes('****')) {
+                            // If still has ****, try parent's original
+                            const parent = el.parentElement;
+                            if (parent) {
+                                const parentOriginal = parent.getAttribute('data-original');
+                                if (parentOriginal && parentOriginal !== '****' && !parentOriginal.includes('****')) {
+                                    el.textContent = parentOriginal;
+                                    parent.removeAttribute('data-original');
+                                    el.classList.remove('incognito-processed', 'incognito-hidden');
+                                    processedCache.delete(el);
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 200);
         }
     };
 

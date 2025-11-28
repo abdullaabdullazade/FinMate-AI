@@ -322,15 +322,50 @@
         const form = document.getElementById('income-onboarding-form');
         if (form) {
             form.addEventListener('htmx:afterRequest', function (event) {
-                if (event.detail.xhr.status === 200) {
-                    skipIncomeOnboarding();
-                    if (window.showToast) {
-                        window.showToast('Büdcə yadda saxlanıldı!', 'success');
+                console.log('💰 Budget form response:', event.detail);
+                
+                if (event.detail.successful) {
+                    try {
+                        const response = JSON.parse(event.detail.xhr.response);
+                        console.log('✅ Budget set successfully:', response);
+                        
+                        skipIncomeOnboarding();
+                        
+                        if (window.showToast) {
+                            window.showToast(response.message || 'Büdcə yadda saxlanıldı!', 'success');
+                        }
+                        
+                        // Trigger stats update
+                        if (typeof htmx !== 'undefined') {
+                            htmx.trigger('body', 'update-stats');
+                        }
+                        
+                        // Reload page to update budget
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } catch(e) {
+                        console.error('❌ Error parsing response:', e);
+                        skipIncomeOnboarding();
+                        if (window.showToast) {
+                            window.showToast('Büdcə yadda saxlanıldı!', 'success');
+                        }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                     }
-                    // Reload page to update budget
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
+                } else {
+                    console.error('❌ Budget form submission failed');
+                    try {
+                        const response = JSON.parse(event.detail.xhr.response);
+                        if (window.showToast) {
+                            window.showToast(response.error || 'Xəta baş verdi', 'error');
+                        }
+                    } catch(e) {
+                        if (window.showToast) {
+                            window.showToast('Xəta baş verdi', 'error');
+                        }
+                    }
                 }
             });
         }

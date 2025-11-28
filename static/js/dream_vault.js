@@ -231,6 +231,15 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
             initStatsObserver();
         }, 100);
     }
+    
+    // Check if dream was completed - refresh page if so
+    const xhr = event.detail.xhr;
+    if (xhr && xhr.getResponseHeader && xhr.getResponseHeader('HX-Refresh') === 'true') {
+        // Small delay to show the completion animation
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
 });
 
 // Restart counters when incognito mode is disabled

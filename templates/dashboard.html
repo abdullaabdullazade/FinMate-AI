@@ -384,8 +384,7 @@
                     class="px-6 py-3 bg-white/10 rounded-xl text-white font-medium hover:bg-white/20 transition border border-white/20">
                     📸 Çek Skan
                 </a>
-                <button id="income-button"
-                    onclick="if(typeof window.openAddIncomeModal === 'function') { window.openAddIncomeModal(); } else { console.error('openAddIncomeModal not found'); alert('Funksiya tapılmadı!'); }"
+                <button id="income-button" onclick="openIncomeModal()"
                     class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg border border-white/20">
                     💰 Gəlir
                 </button>
@@ -501,7 +500,8 @@
     <div class="glass-card p-4 sm:p-6 slide-up" style="grid-column: span 12; animation-delay: 0.05s;">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
             <div class="flex-1 min-w-0">
-                <p class="text-xs sm:text-sm text-white/50">{{ greeting }}, {{ user.username.capitalize() }}</p>
+                <p class="text-xs sm:text-sm text-white/50" id="greeting-text">{{ greeting }}, {{
+                    user.username.capitalize() }}</p>
                 <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
                     Bu ay
                     <button id="incognito-toggle-btn"
@@ -535,7 +535,7 @@
         <div id="dashboard-stats-wrapper" hx-get="/api/dashboard-stats" hx-trigger="update-stats from:body"
             hx-swap="innerHTML">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
-                <!-- Total Spending -->
+                <!-- Total Spending (moved to first position) -->
                 <div>
                     <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
                     <div class="flex items-end gap-1 sm:gap-2">
@@ -548,7 +548,7 @@
                     </div>
                 </div>
 
-                <!-- Budget -->
+                <!-- Budget (moved to second position) -->
                 <div>
                     <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
                     <div class="flex items-end gap-1 sm:gap-2">
@@ -569,9 +569,9 @@
                     <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
                     <div class="flex items-end gap-1 sm:gap-2">
                         <span id="stat-remaining"
-                            class="text-2xl sm:text-4xl font-bold {% if total_available < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
-                            data-value="{{ total_available }}" data-initial="{{ " %.2f"|format(total_available) }}">
-                            {{ "%.2f"|format(total_available) }}
+                            class="text-2xl sm:text-4xl font-bold {% if remaining_budget < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
+                            data-value="{{ remaining_budget }}" data-initial="{{ " %.2f"|format(remaining_budget) }}">
+                            {{ "%.2f"|format(remaining_budget) }}
                         </span>
                         <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
                             user.currency or currency_symbol }}</span>
@@ -633,14 +633,14 @@
                 <p id="balance-label" class="text-xs sm:text-sm text-white/60 mb-1">Balans</p>
                 <p id="projected-balance"
                     class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
-                    {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
-                    total_spending)) }} <span id="projected-balance-currency">{{ user.currency or currency_symbol
+                    {{ "%.2f"|format(total_available) }} <span id="projected-balance-currency">{{ user.currency or
+                        currency_symbol
                         }}</span>
                 </p>
                 <p class="text-xs text-white/40 mt-1">
-                    Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{
-                        "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
-                        total_spending))
+                    Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden"
+                        data-value="{{ monthly_budget_display - total_spending }}">{{
+                        "%.2f"|format(monthly_budget_display - total_spending)
                         }}</span> <span id="monthly-savings-currency">{{ user.currency or currency_symbol }}</span>
                 </p>
             </div>
@@ -1116,6 +1116,33 @@
 </style>
 
 <script>
+    // Greeting Update - İstifadəçinin yerli vaxtına görə
+    function updateGreeting() {
+        const greetingEl = document.getElementById('greeting-text');
+        if (!greetingEl) return;
+
+        const hour = new Date().getHours();
+        let greeting = '';
+
+        if (hour < 12) {
+            greeting = 'Sabahın xeyir';
+        } else if (hour < 18) {
+            greeting = 'Günün aydın';
+        } else {
+            greeting = 'Axşamın xeyir';
+        }
+
+        // Username-i saxlayırıq
+        const currentText = greetingEl.innerText;
+        const username = currentText.split(', ')[1] || '{{ user.username.capitalize() }}';
+        greetingEl.innerText = `${greeting}, ${username}`;
+    }
+
+    // Səhifə yüklənəndə greeting-i yenilə
+    updateGreeting();
+    // Hər dəqiqə yenilə (vaxt dəyişəndə)
+    setInterval(updateGreeting, 60000);
+
     // Time Machine Logic
     // Time Machine Logic - Tam Sinxronlaşdırılmış Versiya
     const slider = document.getElementById('time-machine-slider');
@@ -1155,9 +1182,21 @@
 
         // Aylıq Qənaət Hesablaması (Büdcə - Xərc)
         // Qeyd: Bu, hər ay nə qədər pulun artığını və ya azaldığını göstərir
-        const monthlySavings = monthlyBudget - totalSpending;
+        // Əvvəlcə template-dən oxuyuruq (valyuta çevrilməsi düzgün olması üçün), yoxdursa hesablayırıq
+        let monthlySavings = 0;
+        if (savingsElement) {
+            const savingsValue = savingsElement.getAttribute('data-value');
+            if (savingsValue) {
+                monthlySavings = parseFloat(savingsValue) || 0;
+            } else {
+                monthlySavings = monthlyBudget - totalSpending;
+            }
+        } else {
+            monthlySavings = monthlyBudget - totalSpending;
+        }
 
-        // Orijinal "Qalıq" mətnini yadda saxlayırıq (Slider 0 olanda geri qaytarmaq üçün)
+        // Orijinal "Qalıq" dəyərini yadda saxlayırıq (Qalıq kartı həmişə bu dəyəri göstərməlidir)
+        const originalRemainingValue = currentBalance;
         const originalRemainingText = remainingLabelEl ? remainingLabelEl.innerText : 'Qalıq';
 
         // 3. Slider hərəkət edəndə işə düşən funksiya
@@ -1169,45 +1208,34 @@
                 currencySymbol = remainingCurrencyEl.textContent.trim();
             }
 
-            // A. Etiketləri və Başlıqları Yenilə
+            // A. Etiketləri və Başlıqları Yenilə (Yalnız Time Machine üçün)
             if (months === 0) {
-                // İNDİ
+                // İNDİ - Orijinal qalıq dəyərini göstər
                 label.innerText = 'İndi';
                 if (balanceLabel) balanceLabel.innerText = 'Balans';
-
-                // Yuxarıdakı kartın başlığını əvvəlki halına qaytar
-                if (remainingLabelEl) {
-                    remainingLabelEl.innerHTML = originalRemainingText; // "Qalıq"
-                    remainingLabelEl.classList.remove('text-purple-300');
+                if (projectedDisplay) {
+                    projectedDisplay.innerText = originalRemainingValue.toFixed(2) + ' ' + currencySymbol;
+                    updateColor(projectedDisplay, originalRemainingValue);
                 }
             } else {
                 // GƏLƏCƏK (yalnız irəli, keçmiş yoxdur)
                 label.innerText = `${months} ay sonra`;
                 if (balanceLabel) balanceLabel.innerText = 'Təxmini balans';
 
-                // Yuxarıdakı karta "Proqnoz" olduğunu yazırıq
-                if (remainingLabelEl) {
-                    remainingLabelEl.innerHTML = `Qalıq <span class="text-xs bg-purple-500/30 px-2 py-0.5 rounded text-purple-200 ml-2 border border-purple-500/50">Proqnoz: +${months} ay</span>`;
+                // B. Hesablama (Orijinal Qalıq üzərindən)
+                // Düstur: Orijinal Qalıq + (Aylıq Qənaət * Ay Sayı)
+                let projectedBalance = originalRemainingValue + (monthlySavings * months);
+                const formattedBalance = projectedBalance.toFixed(2);
+
+                // C. Time Machine Kartını Yenilə (Aşağıdakı)
+                if (projectedDisplay) {
+                    projectedDisplay.innerText = formattedBalance + ' ' + currencySymbol;
+                    updateColor(projectedDisplay, projectedBalance);
                 }
             }
 
-            // B. Hesablama (Qalıq üzərindən)
-            // Düstur: Cari Qalıq + (Aylıq Qənaət * Ay Sayı)
-            let projectedBalance = currentBalance + (monthlySavings * months);
-
-            const formattedBalance = projectedBalance.toFixed(2);
-
-            // C. Time Machine Kartını Yenilə (Aşağıdakı)
-            if (projectedDisplay) {
-                projectedDisplay.innerText = formattedBalance + ' ' + currencySymbol;
-                updateColor(projectedDisplay, projectedBalance);
-            }
-
-            // D. ƏSAS QALIQ KARTINI YENİLƏ (Yuxarıdakı - Sinxronizasiya)
-            if (remainingEl) {
-                remainingEl.innerText = formattedBalance;
-                updateColor(remainingEl, projectedBalance);
-            }
+            // D. QALIQ KARTINI DƏYİŞDİRMƏ - Qalıq kartı həmişə cari ayın qalığını göstərməlidir
+            // Time machine-dən asılı olmamalıdır, buna görə də burada heç nə etmirik
         });
 
         // Rəngləri idarə edən köməkçi funksiya (Mənfi = Qırmızı, Müsbət = Yaşıl)
@@ -1221,10 +1249,10 @@
             }
         }
 
-        // Başlanğıc vəziyyəti təyin et (Səhifə açılanda)
+        // Başlanğıc vəziyyəti təyin et (Səhifə açılanda - orijinal qalıq dəyərini göstər)
         if (projectedDisplay) {
-            projectedDisplay.innerText = currentBalance.toFixed(2) + ' ' + currencySymbol;
-            updateColor(projectedDisplay, currentBalance);
+            projectedDisplay.innerText = originalRemainingValue.toFixed(2) + ' ' + currencySymbol;
+            updateColor(projectedDisplay, originalRemainingValue);
         }
 
         // Savings (qənaət) hissəsini də düzgün göstər
@@ -1392,18 +1420,29 @@
     });
 </script>
 
-{% endblock %}
-<!-- Add Income Modal -->
+<!-- Add Income Modal - Redesigned -->
 <div id="add-income-modal"
-    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="glass-card p-6 w-full max-w-md transform scale-95 transition-transform duration-300"
+    class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-300"
+    style="display: none; opacity: 0;">
+    <!-- Modal Container - Perfectly Centered -->
+    <div class="relative w-full max-w-lg p-4 mx-auto my-auto">
+        <div class="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 p-8 transform transition-all duration-300 scale-95"
             id="add-income-modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white">Gəlir Əlavə Et</h3>
-                <button
-                    onclick="if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } else { console.error('closeAddIncomeModal not found'); }"
-                    class="text-white/50 hover:text-white">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Gəlir Əlavə Et</h3>
+                        <p class="text-sm text-white/50">Əlavə gəlirinizi qeyd edin</p>
+                    </div>
+                </div>
+                <button onclick="closeIncomeModal()" type="button"
+                    class="text-white/50 hover:text-white hover:bg-white/10 p-2 rounded-lg transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -1411,46 +1450,122 @@
                 </button>
             </div>
 
-            <form hx-post="/api/add-income" hx-swap="none"
-                hx-on::after-request="if(event.detail.successful) { if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } htmx.trigger('body', 'update-stats'); if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.message || 'Gəlir əlavə edildi', 'success'); } catch(e) { window.showToast('Gəlir əlavə edildi', 'success'); } } } else { if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.error || 'Xəta baş verdi', 'error'); } catch(e) { window.showToast('Xəta baş verdi', 'error'); } } }">
-                <div class="space-y-4">
+            <!-- Error Message (Hidden by default) -->
+            <div id="income-error-message" class="hidden mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <div class="flex items-center gap-2 text-red-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="income-error-text" class="text-sm font-medium"></span>
+                </div>
+            </div>
+
+            <!-- Success Message (Hidden by default) -->
+            <div id="income-success-message"
+                class="hidden mb-4 p-4 bg-green-500/20 border border-green-500/50 rounded-xl">
+                <div class="flex items-center gap-2 text-green-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Gəlir uğurla əlavə edildi! ✓</span>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="add-income-form" hx-post="/api/add-income" hx-swap="none">
+                <div class="space-y-5">
+                    <!-- Amount -->
                     <div>
-                        <label class="block text-sm text-white/70 mb-2">Məbləğ ({{ user.currency or 'AZN' }})</label>
-                        <input type="number" name="amount" step="0.01" min="0.01" required placeholder="100"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+                            <span class="text-lg">💵</span>
+                            Məbləğ ({{ user.currency or 'AZN' }})
+                        </label>
+                        <input type="number" id="income-amount-input" name="amount" step="0.01" min="0.01" required
+                            placeholder="Məsələn: 500"
+                            class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3.5 text-white text-lg placeholder-white/30 focus:outline-none focus:border-green-500 focus:bg-white/10 transition-all"
+                            autocomplete="off">
                     </div>
+
+                    <!-- Source -->
                     <div>
-                        <label class="block text-sm text-white/70 mb-2">Mənbə</label>
-                        <select name="source" required
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
-                            <option value="Maaş" class="text-black">Maaş</option>
-                            <option value="Bonus" class="text-black">Bonus</option>
-                            <option value="Freelance" class="text-black">Freelance</option>
-                            <option value="Hədiyyə" class="text-black">Hədiyyə</option>
-                            <option value="Digər" class="text-black">Digər</option>
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+                            <span class="text-lg">📊</span>
+                            Mənbə
+                        </label>
+                        <select name="source" id="income-source-select" required
+                            class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-green-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
+                            <option value="Maaş" class="bg-slate-800">💼 Maaş</option>
+                            <option value="Bonus" class="bg-slate-800">🎁 Bonus</option>
+                            <option value="Freelance" class="bg-slate-800">💻 Freelance</option>
+                            <option value="Hədiyyə" class="bg-slate-800">🎉 Hədiyyə</option>
+                            <option value="Digər" class="bg-slate-800">➕ Digər</option>
                         </select>
                     </div>
+
+                    <!-- Date -->
                     <div>
-                        <label class="block text-sm text-white/70 mb-2">Tarix</label>
-                        <input type="date" name="date" required value="{{ now.strftime('%Y-%m-%d') }}"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+                            <span class="text-lg">📅</span>
+                            Tarix
+                        </label>
+                        <input type="date" name="date" id="income-date-input" required
+                            value="{{ now.strftime('%Y-%m-%d') }}"
+                            class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-green-500 focus:bg-white/10 transition-all">
                     </div>
+
+                    <!-- Description (Optional) -->
                     <div>
-                        <label class="block text-sm text-white/70 mb-2">Təsvir (istəyə bağlı)</label>
-                        <input type="text" name="description" placeholder="Əlavə məlumat..."
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                        <label class="flex items-center gap-2 text-sm font-medium text-white/80 mb-2">
+                            <span class="text-lg">📝</span>
+                            Təsvir <span class="text-white/40 text-xs">(istəyə bağlı)</span>
+                        </label>
+                        <input type="text" name="description" id="income-description-input"
+                            placeholder="Əlavə məlumat..."
+                            class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-green-500 focus:bg-white/10 transition-all"
+                            autocomplete="off">
                     </div>
-                    <button type="submit"
-                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:scale-[1.02]">
-                        + Əlavə Et
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="income-submit-btn"
+                        class="relative w-full bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 text-white font-bold py-4 rounded-xl hover:shadow-2xl hover:shadow-green-500/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden group">
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span id="income-submit-text">Əlavə Et</span>
+                        </span>
+                        <!-- Loading Spinner (Hidden) -->
+                        <span id="income-loading-spinner"
+                            class="hidden absolute inset-0 flex items-center justify-center bg-green-600">
+                            <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </span>
+                        <!-- Hover Effect -->
+                        <span
+                            class="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 opacity-0 group-hover:opacity-20 transition-opacity"></span>
                     </button>
                 </div>
             </form>
+
+            <!-- Footer Tip -->
+            <div class="mt-6 pt-4 border-t border-white/10">
+                <p class="text-xs text-white/40 text-center">
+                    💡 Əlavə gəliriniz büdcənizə avtomatik olaraq əlavə olunacaq
+                </p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Income modal functions are now defined in extra_head block -->
+{% endblock %}
 
 {% block extra_scripts %}
 <!-- Edit Modal Functions (Moved from head) -->
@@ -1589,78 +1704,281 @@
             }
         }
     });
-    // Define income modal functions
-    window.openAddIncomeModal = function () {
-        console.log('💰 openAddIncomeModal called');
+    // ==========================================
+    // INCOME MODAL - Simplified & Reliable
+    // ==========================================
+
+    // Open Income Modal
+    window.openIncomeModal = function () {
+        console.log('💰 Opening income modal');
         const modal = document.getElementById('add-income-modal');
         const content = document.getElementById('add-income-modal-content');
 
         if (!modal || !content) {
-            console.error('❌ Income modal elements not found', { modal: !!modal, content: !!content });
-            alert('Xəta: Modal tapılmadı. Səhifəni yeniləyin.');
+            console.error('❌ Modal elements not found');
+            alert('Xəta: Modal açılmadı. Səhifəni yeniləyin.');
             return;
         }
 
-        console.log('✅ Opening income modal');
+        // Hide any previous messages
+        hideIncomeMessages();
+
+        // Show modal
         modal.classList.remove('hidden');
-        // Small delay for animation
+        modal.style.display = 'flex';
+
+        // Trigger animation
         setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-            content.classList.add('scale-100');
+            modal.style.opacity = '1';
+            content.style.transform = 'scale(1)';
         }, 10);
     };
 
-    window.closeAddIncomeModal = function () {
-        console.log('💰 closeAddIncomeModal called');
-        try {
-            const modal = document.getElementById('add-income-modal');
-            const content = document.getElementById('add-income-modal-content');
-            if (!modal || !content) {
-                console.error('Income modal elements not found');
-                return;
-            }
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        } catch (error) {
-            console.error('Error closing income modal:', error);
+    // Close Income Modal
+    window.closeIncomeModal = function () {
+        console.log('💰 Closing income modal');
+        const modal = document.getElementById('add-income-modal');
+        const content = document.getElementById('add-income-modal-content');
+        const form = document.getElementById('add-income-form');
+
+        if (!modal) return;
+
+        // Reset form
+        if (form) {
+            form.reset();
         }
+
+        // Hide messages
+        hideIncomeMessages();
+
+        // Start closing animation
+        modal.style.opacity = '0';
+        if (content) {
+            content.style.transform = 'scale(0.9)';
+        }
+
+        // Hide after animation
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
     };
 
-    // Also add event listener when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupIncomeButton);
-    } else {
-        // DOM already loaded
-        setupIncomeButton();
+    // Show Error Message
+    function showIncomeError(message) {
+        const errorBox = document.getElementById('income-error-message');
+        const errorText = document.getElementById('income-error-text');
+        const submitBtn = document.getElementById('income-submit-btn');
+
+        if (errorBox && errorText) {
+            errorText.textContent = message;
+            errorBox.classList.remove('hidden');
+        }
+
+        // Re-enable submit button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+        }
+        hideLoadingSpinner();
     }
 
-    function setupIncomeButton() {
-        console.log('✅ Setting up income button listener');
-        const incomeButton = document.getElementById('income-button') || document.querySelector('[onclick*="openAddIncomeModal"]');
-        if (incomeButton) {
-            console.log('✅ Income button found:', incomeButton);
-            // Keep onclick but also add event listener as backup
-            incomeButton.addEventListener('click', function (e) {
-                console.log('💰 Income button clicked via event listener!');
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof window.openAddIncomeModal === 'function') {
-                    window.openAddIncomeModal();
-                } else {
-                    console.error('❌ openAddIncomeModal function not found!');
-                    alert('Funksiya tapılmadı! Səhifəni yeniləyin.');
-                }
-                return false;
-            });
-        } else {
-            console.warn('⚠️ Income button not found');
+    // Show Success Message
+    function showIncomeSuccess() {
+        const successBox = document.getElementById('income-success-message');
+        if (successBox) {
+            successBox.classList.remove('hidden');
         }
     }
+
+    // Hide All Messages
+    function hideIncomeMessages() {
+        const errorBox = document.getElementById('income-error-message');
+        const successBox = document.getElementById('income-success-message');
+
+        if (errorBox) errorBox.classList.add('hidden');
+        if (successBox) successBox.classList.add('hidden');
+    }
+
+    // Show Loading Spinner
+    function showLoadingSpinner() {
+        const spinner = document.getElementById('income-loading-spinner');
+        const submitText = document.getElementById('income-submit-text');
+        const submitBtn = document.getElementById('income-submit-btn');
+
+        if (spinner) spinner.classList.remove('hidden');
+        if (submitText) submitText.style.opacity = '0';
+        if (submitBtn) submitBtn.disabled = true;
+    }
+
+    // Hide Loading Spinner  
+    function hideLoadingSpinner() {
+        const spinner = document.getElementById('income-loading-spinner');
+        const submitText = document.getElementById('income-submit-text');
+        const submitBtn = document.getElementById('income-submit-btn');
+
+        if (spinner) spinner.classList.add('hidden');
+        if (submitText) submitText.style.opacity = '1';
+        if (submitBtn) submitBtn.disabled = false;
+    }
+
+    // Handle Form Submit
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('add-income-form');
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                console.log('💰 Submitting income form');
+
+                // Hide previous messages
+                hideIncomeMessages();
+
+                // Show loading
+                showLoadingSpinner();
+
+                // Get form data
+                const formData = new FormData(form);
+
+                // Send to backend
+                fetch('/api/add-income', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        console.log('📡 Response status:', response.status);
+                        return response.json().then(data => ({
+                            ok: response.ok,
+                            status: response.status,
+                            data: data
+                        }));
+                    })
+                    .then(result => {
+                        hideLoadingSpinner();
+
+                        if (result.ok && result.data.success) {
+                            console.log('✅ Income added successfully');
+                            showIncomeSuccess();
+
+                            // Close modal and reload after short delay
+                            setTimeout(() => {
+                                closeIncomeModal();
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            console.error('❌ Server returned error');
+                            showIncomeError(result.data.error || 'Məlumat yadda saxlanılmadı');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('❌ Network error:', error);
+                        hideLoadingSpinner();
+                        showIncomeError('Şəbəkə xətası. Yenidən cəhd edin.');
+                    });
+            });
+        }
+
+        // Close on ESC key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('add-income-modal');
+                if (modal && modal.style.display === 'flex') {
+                    closeIncomeModal();
+                }
+            }
+        });
+
+        // Close on backdrop click
+        const modal = document.getElementById('add-income-modal');
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    closeIncomeModal();
+                }
+            });
+        }
+    });
+
+    // Handle income form response
+    function handleIncomeFormResponse(event) {
+        console.log('💰 Income form response:', event.detail);
+        console.log('   Status:', event.detail.xhr?.status);
+        console.log('   Response:', event.detail.xhr?.responseText);
+
+        if (event.detail.successful) {
+            try {
+                const response = JSON.parse(event.detail.xhr.response);
+                console.log('✅ Income added successfully:', response);
+
+                // Close modal
+                if (typeof window.closeAddIncomeModal === 'function') {
+                    window.closeAddIncomeModal();
+                }
+
+                // Show success toast
+                if (typeof window.showToast === 'function') {
+                    window.showToast(response.message || 'Gəlir əlavə edildi', 'success');
+                }
+
+                // Trigger stats update
+                if (typeof htmx !== 'undefined') {
+                    htmx.trigger('body', 'update-stats');
+                }
+
+                // Reload page after a short delay to show updated stats
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (e) {
+                console.error('❌ Error parsing response:', e);
+                console.error('   Raw response:', event.detail.xhr?.responseText);
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Gəlir əlavə edildi', 'success');
+                }
+                // Still reload to show updated data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        } else {
+            console.error('❌ Income form submission failed');
+            console.error('   Status:', event.detail.xhr?.status);
+            console.error('   Response:', event.detail.xhr?.responseText);
+            try {
+                const response = JSON.parse(event.detail.xhr.response);
+                if (typeof window.showToast === 'function') {
+                    window.showToast(response.error || 'Xəta baş verdi', 'error');
+                }
+            } catch (e) {
+                console.error('   Error parsing error response:', e);
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Xəta baş verdi', 'error');
+                }
+            }
+        }
+    }
+
+    // Also add form submit handler for debugging
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('add-income-form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                console.log('💰 Income form submitting...');
+                const formData = new FormData(form);
+                console.log('   Form data:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`     ${key}: ${value}`);
+                }
+            });
+
+            form.addEventListener('htmx:beforeRequest', function (e) {
+                console.log('💰 HTMX before request:', e.detail);
+            });
+
+            form.addEventListener('htmx:afterRequest', function (e) {
+                console.log('💰 HTMX after request:', e.detail);
+            });
+        }
+    });
 
 </script>
 <script>
@@ -1967,7 +2285,7 @@
                 // Then animate after a short delay
                 setTimeout(() => {
                     animateNumber('stat-total', {{ total_spending }});
-                animateNumber('stat-budget', {{ user.monthly_budget }});
+                animateNumber('stat-budget', {{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }});
     {% if monthly_income_display %}
     animateNumber('stat-salary', {{ monthly_income_display }});
     {% endif %}
@@ -1977,7 +2295,7 @@
     {% if total_available %}
     animateNumber('stat-available', {{ total_available }});
     {% endif %}
-    animateNumber('stat-remaining', {{ user.monthly_budget - total_spending }});
+    animateNumber('stat-remaining', {{ remaining_budget }});
                 }, 300);
             } else {
         // Incognito mode-da sadəcə dəyərləri yaz, animasiya yox
