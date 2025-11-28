@@ -160,8 +160,7 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="hidden" name="readability_mode" value="false">
-                        <input type="checkbox" id="readability-mode-toggle" name="readability_mode" value="true" {% if
-                            user.readability_mode %}checked{% endif %} class="sr-only peer"
+                        <input type="checkbox" id="readability-mode-toggle" name="readability_mode" value="true" {% if user.readability_mode %}checked{% endif %} class="sr-only peer"
                             onchange="toggleReadabilityMode(this.checked)">
                         <div
                             class="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500 transition-colors">
@@ -192,11 +191,9 @@
                     <div class="relative">
                         <select name="ai_persona_mode"
                             class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none appearance-none cursor-pointer transition-all">
-                            <option value="Auto" class="bg-gray-900" {% if user.ai_persona_mode=='Auto' %}selected{%
-                                endif %}>🎭
+                            <option value="Auto" class="bg-gray-900" {% if user.ai_persona_mode=='Auto' %}selected{% endif %}>🎭
                                 Avtomatik (Məsləhətli)</option>
-                            <option value="Manual" class="bg-gray-900" {% if user.ai_persona_mode=='Manual' %}selected{%
-                                endif %}>✍️ Əl ilə (Manual)</option>
+                            <option value="Manual" class="bg-gray-900" {% if user.ai_persona_mode=='Manual' %}selected{% endif %}>✍️ Əl ilə (Manual)</option>
                         </select>
                         <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,17 +227,11 @@
                         <div class="relative">
                             <select name="ai_attitude"
                                 class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none appearance-none cursor-pointer transition-all">
-                                <option value="Professional" class="bg-gray-900" {% if user.ai_attitude=='Professional'
-                                    %}selected{% endif %}>💼 Professional</option>
-                                <option value="Strict" class="bg-gray-900" {% if user.ai_attitude=='Strict' %}selected{%
-                                    endif %}>😤 Sərt Ana</option>
-                                <option value="Funny" class="bg-gray-900" {% if user.ai_attitude=='Funny' %}selected{%
-                                    endif %}>
-                                    😄 Zarafatcıl</option>
-                                <option value="Sarcastic" class="bg-gray-900" {% if user.ai_attitude=='Sarcastic'
-                                    %}selected{% endif %}>😏 Sarkastik</option>
-                                <option value="Supportive" class="bg-gray-900" {% if user.ai_attitude=='Supportive'
-                                    %}selected{% endif %}>🤗 Dəstəkləyici</option>
+                                <option value="Professional" class="bg-gray-900" {% if user.ai_attitude=='Professional' %}selected{% endif %}>💼 Professional</option>
+                                <option value="Strict" class="bg-gray-900" {% if user.ai_attitude=='Strict' %}selected{% endif %}>😤 Sərt Ana</option>
+                                <option value="Funny" class="bg-gray-900" {% if user.ai_attitude=='Funny' %}selected{% endif %}>😄 Zarafatcıl</option>
+                                <option value="Sarcastic" class="bg-gray-900" {% if user.ai_attitude=='Sarcastic' %}selected{% endif %}>😏 Sarkastik</option>
+                                <option value="Supportive" class="bg-gray-900" {% if user.ai_attitude=='Supportive' %}selected{% endif %}>🤗 Dəstəkləyici</option>
                             </select>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,19 +249,11 @@
                         <div class="relative">
                             <select name="ai_style"
                                 class="w-full bg-black/20 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none appearance-none cursor-pointer transition-all">
-                                <option value="Formal" class="bg-gray-900" {% if user.ai_style=='Formal' %}selected{%
-                                    endif %}>
-                                    🎩 Rəsmi</option>
-                                <option value="Slang" class="bg-gray-900" {% if user.ai_style=='Slang' %}selected{%
-                                    endif %}>😎
-                                    Jarqon / Slang</option>
-                                <option value="Shakespearean" class="bg-gray-900" {% if user.ai_style=='Shakespearean'
-                                    %}selected{% endif %}>📜 Shakespearean</option>
-                                <option value="Dialect" class="bg-gray-900" {% if user.ai_style=='Dialect' %}selected{%
-                                    endif %}>🗣️ Ləhcə</option>
-                                <option value="Short" class="bg-gray-900" {% if user.ai_style=='Short' %}selected{%
-                                    endif %}>⚡
-                                    Qısa</option>
+                                <option value="Formal" class="bg-gray-900" {% if user.ai_style=='Formal' %}selected{% endif %}>🎩 Rəsmi</option>
+                                <option value="Slang" class="bg-gray-900" {% if user.ai_style=='Slang' %}selected{% endif %}>😎 Jarqon / Slang</option>
+                                <option value="Shakespearean" class="bg-gray-900" {% if user.ai_style=='Shakespearean' %}selected{% endif %}>📜 Shakespearean</option>
+                                <option value="Dialect" class="bg-gray-900" {% if user.ai_style=='Dialect' %}selected{% endif %}>🗣️ Ləhcə</option>
+                                <option value="Short" class="bg-gray-900" {% if user.ai_style=='Short' %}selected{% endif %}>⚡ Qısa</option>
                             </select>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,7 +427,7 @@
         {% endif %}
 
         <!-- Premium Upgrade Card -->
-        <div class="relative overflow-hidden rounded-2xl p-6 slide-up group"
+        <div class="relative overflow-hidden rounded-2xl p-6 slide-up group premium-upgrade-card"
             style="animation-delay: 0.25s; cursor: pointer;" onclick="openPremiumModal()">
             <div
                 class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 opacity-90 group-hover:scale-105 transition-transform duration-700">
@@ -643,6 +626,49 @@
                 }
             });
         }
+        
+        // Ensure premium modal button works
+        const premiumCards = document.querySelectorAll('.premium-upgrade-card, [onclick*="openPremiumModal"]');
+        premiumCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (typeof window.openPremiumModal === 'function') {
+                    window.openPremiumModal();
+                } else {
+                    console.error('openPremiumModal function not found');
+                    // Try to find modal manually and show it
+                    const modal = document.getElementById('premium-modal');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.style.display = 'flex';
+                    } else {
+                        alert('Premium modal tapılmadı. Zəhmət olmasa səhifəni yeniləyin.');
+                    }
+                }
+            });
+        });
+        
+        // Also handle PDF/XLSX export buttons that open premium modal
+        const premiumButtons = document.querySelectorAll('[onclick*="openPremiumModal"]');
+        premiumButtons.forEach(btn => {
+            const originalOnclick = btn.getAttribute('onclick');
+            btn.removeAttribute('onclick');
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window.openPremiumModal === 'function') {
+                    window.openPremiumModal();
+                } else {
+                    const modal = document.getElementById('premium-modal');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.style.display = 'flex';
+                    }
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

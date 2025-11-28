@@ -115,8 +115,18 @@
 </div>
 
 <script>
+    // Use global closePremiumModal function if available, otherwise fallback
     function closePremiumModal() {
-        document.getElementById('premium-modal').classList.add('hidden');
+        if (typeof window.closePremiumModal === 'function') {
+            window.closePremiumModal();
+        } else {
+            const modal = document.getElementById('premium-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
     }
 
     // Listen for HTMX events - fixed to properly check for activate-trial endpoint

@@ -60,7 +60,12 @@ def ensure_schema():
     add_column_if_missing("users", "coins INTEGER DEFAULT 0")
     add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
     add_column_if_missing("users", "password_hash VARCHAR")
+    add_column_if_missing("users", "password_hash VARCHAR")
     add_column_if_missing("users", "monthly_income FLOAT")
+    
+    # Visual Preferences
+    add_column_if_missing("users", "theme VARCHAR DEFAULT 'default'")
+    add_column_if_missing("users", "incognito_mode BOOLEAN DEFAULT 0")
 
     # Expense table safety
     add_column_if_missing("expenses", "is_subscription BOOLEAN DEFAULT 0")

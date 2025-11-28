@@ -40,6 +40,10 @@ class User(Base):
     login_streak = Column(Integer, default=0)
     last_login_date = Column(Date, nullable=True)
     
+    # Visual Preferences (Server-side persistence)
+    theme = Column(String, default="default")  # gold, midnight, ocean, etc.
+    incognito_mode = Column(Boolean, default=False)  # Hide amounts
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships

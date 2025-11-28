@@ -2567,6 +2567,10 @@ async def update_settings(
         ai_persona_mode = last_value("ai_persona_mode")
         ai_attitude = last_value("ai_attitude")
         ai_style = last_value("ai_style")
+        
+        # Visual Preferences
+        theme = last_value("theme")
+        incognito_mode = parse_bool(form.getlist("incognito_mode"))
 
         if monthly_budget not in (None, ""):
             try:
@@ -2630,6 +2634,12 @@ async def update_settings(
             user.ai_attitude = ai_attitude
         if ai_style is not None:
             user.ai_style = ai_style
+            
+        # Save Visual Preferences
+        if theme is not None:
+            user.theme = theme
+        if incognito_mode is not None:
+            user.incognito_mode = incognito_mode
 
         db.commit()
         db.refresh(user)
