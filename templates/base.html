@@ -202,12 +202,14 @@
                     </div>
                 </button>
 
-                <img src="/static/icons/icon-192.png" alt="FinMate AI"
-                    class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" onerror="this.style.display='none'">
-                <div class="min-w-0">
-                    <h1 class="text-lg sm:text-xl font-bold text-white truncate">FinMate AI</h1>
-                    <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
-                </div>
+                <a href="/" class="min-w-0 flex-1 flex items-center gap-2 hover:opacity-90 transition-opacity">
+                    <img src="/static/icons/icon-192.png" alt="FinMate AI"
+                        class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0" onerror="this.style.display='none'">
+                    <div class="min-w-0">
+                        <h1 class="text-lg sm:text-xl font-bold text-white truncate">FinMate AI</h1>
+                        <p class="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
+                    </div>
+                </a>
             </div>
             <div class="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
                 <!-- Theme Toggle -->
@@ -230,7 +232,7 @@
                 </button>
 
                 <!-- Alerts -->
-                <button id="alert-bell" class="relative text-white/80 hover:text-white transition p-1">
+                <button id="alert-bell" onclick="document.getElementById('alert-panel').classList.toggle('hidden');" class="relative text-white/80 hover:text-white transition p-1">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
@@ -243,39 +245,38 @@
                     class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
                     <div class="px-4 py-3 border-b text-sm font-semibold">Bildirişlər (AI)</div>
                     <ul class="divide-y text-sm">
-                        <li class="px-4 py-3 flex gap-2 items-start">
-                            <span class="text-amber-500">⚠️</span>
-                            <div class="incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
+                        <li class="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                            <span class="text-amber-500 flex-shrink-0">⚠️</span>
+                            <div class="flex-1 incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
                                 Diqqət: Keçən aya görə 15% çox xərcləmisən.</div>
+                            <button onclick="this.closest('li').remove(); updateAlertCounter();" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1" aria-label="Bağla" title="Ləğv et">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </li>
-                        <li class="px-4 py-3 flex gap-2 items-start">
-                            <span class="text-purple-500">🎬</span>
-                            <div>Netflix abunəliyin sabah bitir.</div>
+                        <li class="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                            <span class="text-purple-500 flex-shrink-0">🎬</span>
+                            <div class="flex-1">Netflix abunəliyin sabah bitir.</div>
+                            <button onclick="this.closest('li').remove(); updateAlertCounter();" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1" aria-label="Bağla" title="Ləğv et">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </li>
-                        <li class="px-4 py-3 flex gap-2 items-start">
-                            <span class="text-blue-500">📈</span>
-                            <div>28-ində büdcə limitini keçə bilərsən.</div>
+                        <li class="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                            <span class="text-blue-500 flex-shrink-0">📈</span>
+                            <div class="flex-1">28-ində büdcə limitini keçə bilərsən.</div>
+                            <button onclick="this.closest('li').remove(); updateAlertCounter();" class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1" aria-label="Bağla" title="Ləğv et">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </li>
                     </ul>
                 </div>
 
-                {% if user and user.xp_points is defined %}
-                <!-- XP & Coins Combined Badge -->
-                <div class="hidden sm:flex items-center gap-2">
-                    <!-- XP Badge -->
-                    <div class="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
-                        <span class="text-base">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title ==
-                            'Saver' %}💰{% elif user.level_title == 'Analyst' %}📊{% elif user.level_title == 'Manager'
-                            %}🎯{% elif user.level_title == 'CFO' %}👑{% else %}⭐{% endif %}</span>
-                        <span class="text-xs font-bold text-white/80">{{ user.xp_points }}</span>
-                    </div>
-                    <!-- Coin Badge -->
-                    <div class="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
-                        <span class="text-base">🪙</span>
-                        <span class="text-xs font-bold text-yellow-400">{{ user.coins or 0 }}</span>
-                    </div>
-                </div>
-                {% endif %}
+                {% include "partials/user_stats.html" %}
                 <!-- Profile / Logout -->
                 <div class="relative flex-shrink-0 group">
                     <button type="button" id="profile-dropdown-btn" class="relative focus:outline-none">
@@ -534,6 +535,25 @@
                 });
             }
         });
+        
+        // Update alert counter function
+        function updateAlertCounter() {
+            const alertPanel = document.getElementById('alert-panel');
+            const alertCounter = document.getElementById('alert-counter');
+            if (alertPanel && alertCounter) {
+                const alertCount = alertPanel.querySelectorAll('li').length;
+                if (alertCount > 0) {
+                    alertCounter.style.display = 'block';
+                } else {
+                    alertCounter.style.display = 'none';
+                    // Hide alert panel if no alerts
+                    const alertBtn = document.querySelector('[onclick*="alert-panel"]');
+                    if (alertBtn && !alertPanel.classList.contains('hidden')) {
+                        alertPanel.classList.add('hidden');
+                    }
+                }
+            }
+        }
     </script>
 
     <!-- Toast Container (Global) -->

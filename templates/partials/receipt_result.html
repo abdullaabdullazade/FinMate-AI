@@ -7,6 +7,23 @@
 
         // Trigger dashboard refresh
         document.body.dispatchEvent(new Event('newTransaction'));
+        
+        // Check for level up and show coin reward
+        {% if xp_result and xp_result.level_up %}
+        if (typeof triggerLevelUp === 'function') {
+            setTimeout(() => {
+                triggerLevelUp('{{ xp_result.new_level }}', {{ xp_result.level_info|tojson|safe }}, {{ xp_result.coins_awarded|default(0) }});
+            }, 500);
+        }
+        {% endif %}
+        
+        // Reload page after receipt is confirmed (for scan page)
+        // This will reload when user clicks "Lövhəyə qayıt" or after confirmation
+        // Store flag to reload on navigation
+        if (window.location.pathname === '/scan' || window.location.pathname.includes('scan')) {
+            // Mark that we should reload when navigating
+            sessionStorage.setItem('reloadAfterReceipt', 'true');
+        }
 
         // Voice notification - using queue system with HIGH priority
         (function () {
@@ -188,7 +205,7 @@
                 onclick="openSplitBill(this.dataset.total, JSON.parse(this.dataset.items || '[]'))">
                 🤝 Dostlarla böl
             </button>
-            <a href="/"
+            <a href="/" onclick="if(window.location.pathname === '/scan' || window.location.pathname.includes('scan')) { window.location.href = '/'; return false; }"
                 class="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-500/25">
                 Lövhəyə qayıt
             </a>

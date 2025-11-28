@@ -40,23 +40,7 @@
         </h2>
 
         <div id="dreams-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {% if dreams %}
-            {% for dream in dreams %}
-            {% include "partials/dream_card.html" %}
-            {% endfor %}
-            {% else %}
-            <div id="empty-dreams" class="glass-card p-6 sm:p-12 text-center col-span-full">
-                <div class="text-4xl sm:text-6xl mb-3 sm:mb-4">💭</div>
-                <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Hələ arzu yoxdur</h3>
-                <p class="text-white/60 text-sm sm:text-base mb-4 sm:mb-6">İlk arzunuzu əlavə edin və qənaət etməyə
-                    başlayın!</p>
-                <button onclick="openAddDreamModal()"
-                    class="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-sm sm:text-base font-bold hover:scale-105 transition"
-                    style="background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);">
-                    + İlk Arzunu Əlavə Et
-                </button>
-            </div>
-            {% endif %}
+            {% include "partials/dream_list.html" %}
         </div>
     </div>
 
@@ -216,7 +200,7 @@
                 </button>
             </div>
 
-            <form id="add-dream-form" hx-post="/api/dreams" hx-target="#dreams-list" hx-swap="beforeend"
+            <form id="add-dream-form" hx-post="/api/dreams" hx-target="#dreams-list" hx-swap="innerHTML"
                 hx-on::after-request="handleDreamSubmit(event)" hx-on::htmx:response-error="handleDreamError(event)">
                 <div class="space-y-3 sm:space-y-4">
                     <div>

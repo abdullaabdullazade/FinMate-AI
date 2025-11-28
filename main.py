@@ -17,7 +17,7 @@ from starlette.middleware.sessions import SessionMiddleware
 load_dotenv()
 
 from database import get_db, init_db, seed_demo_data, reset_demo_data
-from models import User, Expense, ChatMessage, XPLog, Wish, Dream
+from models import User, Expense, ChatMessage, XPLog, Wish, Dream, Income
 from ai_service import ai_service
 from gamification import gamification
 from forecast_service import forecast_service
@@ -48,6 +48,18 @@ app = FastAPI(title="FinMate AI", description="Your Personal CFO Assistant")
 
 # Add session middleware
 app.add_middleware(SessionMiddleware, secret_key="finmate-secret-key-change-in-production")
+
+@app.get("/api/stats")
+async def get_user_stats(request: Request, db: Session = Depends(get_db)):
+    """Return updated user stats partial"""
+    user = get_current_user(request, db)
+    if not user:
+        return Response(status_code=200) # Return empty if no user
+        
+    return templates.TemplateResponse("partials/user_stats.html", {
+        "request": request,
+        "user": user
+    })
 
 # Templates
 templates = Jinja2Templates(directory="templates")
@@ -529,14 +541,27 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         Expense.date >= month_start
     ).all()
     
+    # Get current month's incomes
+    incomes = db.query(Income).filter(
+        Income.user_id == user.id,
+        Income.date >= month_start
+    ).all()
+    
     # Calculate stats (all amounts are stored in AZN)
     total_spending_azn = sum(exp.amount for exp in expenses)
+    total_income_azn = sum(inc.amount for inc in incomes)
+    
+    # Calculate total available (budget + income - spending)
+    total_available_azn = user.monthly_budget + total_income_azn - total_spending_azn
     
     # Convert to user's preferred currency for display
     user_currency = user.currency or "AZN"
     total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
+    total_income = convert_currency(total_income_azn, "AZN", user_currency)
     monthly_budget_display = convert_currency(user.monthly_budget, "AZN", user_currency)
+    monthly_income_display = convert_currency(user.monthly_income or 0, "AZN", user_currency) if user.monthly_income else 0
     remaining_budget = convert_currency(user.monthly_budget - total_spending_azn, "AZN", user_currency)
+    total_available = convert_currency(total_available_azn, "AZN", user_currency)
     
     # Category breakdown (convert for display)
     category_data = {}
@@ -586,6 +611,54 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     
     # Get level info for gamification
     level_info = gamification.get_level_info(user.xp_points)
+
+    # Check for Monthly Savings Reward
+    monthly_reward_alert = None
+    try:
+        today = date_type.today()
+        # Calculate last month
+        first = today.replace(day=1)
+        last_month_date = first - timedelta(days=1)
+        last_month_str = last_month_date.strftime("%Y-%m")
+        
+        # Check if already rewarded for last month
+        if user.last_rewarded_month != last_month_str:
+            # Calculate savings for last month
+            last_month_start = last_month_date.replace(day=1)
+            # End of last month is start of current month (first)
+            
+            last_month_expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= last_month_start,
+                Expense.date < first
+            ).all()
+            
+            last_month_spending = sum(exp.amount for exp in last_month_expenses)
+            
+            # If user had a budget
+            if user.monthly_budget > 0:
+                savings = user.monthly_budget - last_month_spending
+                if savings > 0:
+                    savings_percent = (savings / user.monthly_budget) * 100
+                    # Award coins: 1 coin for every 1% saved
+                    coins_to_award = int(savings_percent)
+                    
+                    if coins_to_award > 0:
+                        user.coins = (user.coins or 0) + coins_to_award
+                        user.last_rewarded_month = last_month_str
+                        db.commit()
+                        
+                        monthly_reward_alert = {
+                            "coins": coins_to_award,
+                            "percent": int(savings_percent),
+                            "month": last_month_date.strftime("%B")
+                        }
+            else:
+                # Mark as checked even if no budget, to avoid re-checking
+                user.last_rewarded_month = last_month_str
+                db.commit()
+    except Exception as e:
+        print(f"Error checking monthly reward: {e}")
     
     # Get forecast data
     forecast = forecast_service.get_forecast(user.id, db)
@@ -641,8 +714,12 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "request": request,
         "user": user,
         "total_spending": total_spending,  # Already converted to user currency
+        "total_income": total_income,  # Current month income
+        "monthly_income_display": monthly_income_display,  # Monthly salary
         "monthly_budget_display": monthly_budget_display,  # Converted to user currency
         "remaining_budget": remaining_budget,  # Converted to user currency
+        "total_available": total_available,  # Budget + Income - Spending
+        "incomes": incomes,  # List of incomes for this month
         "budget_percentage": budget_percentage,
         "category_data": category_data,
         "recent_expenses": recent_expenses,
@@ -1007,7 +1084,7 @@ async def scan_receipt(
                 "coins": user.coins,
                 "milestone_reached": milestone_reached,
                 "daily_limit_alert": daily_limit_alert
-            })
+            }, headers={"HX-Trigger": "update-stats"})
         except Exception as save_err:
             return templates.TemplateResponse("partials/receipt_result.html", {
                 "request": request,
@@ -1129,19 +1206,24 @@ async def confirm_receipt(
         return templates.TemplateResponse("partials/receipt_result.html", {
             "request": request,
             "receipt_data": {
-                "total": total,
+                "items": items_list,
                 "merchant": merchant,
+                "total": total,
+                "date": expense_date.strftime("%d.%m.%Y"),
                 "suggested_category": category,
-                "date": date,
-                "items": items_list
+                "currency": "AZN"
             },
             "success": True,
             "xp_result": {
                 "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
-                "new_total": user.xp_points
+                "new_total": user.xp_points,
+                "level_up": scan_xp.get("level_up", False) if scan_xp else False,
+                "new_level": scan_xp.get("new_level", "") if scan_xp else "",
+                "level_info": scan_xp.get("level_info", {}) if scan_xp else {},
+                "coins_awarded": scan_xp.get("coins_awarded", 0) if scan_xp else 0
             },
             "daily_limit_alert": daily_limit_alert
-        })
+        }, headers={"HX-Trigger": "update-stats"})
         
     except Exception as e:
         return templates.TemplateResponse("partials/receipt_result.html", {
@@ -1252,6 +1334,59 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
     })
 
 
+@app.get("/api/dashboard-stats")
+async def get_dashboard_stats(request: Request, db: Session = Depends(get_db)):
+    """Get dashboard stats for auto-update"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    # Get current month's expenses
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    
+    expenses = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.date >= month_start
+    ).all()
+    
+    # Get current month's incomes
+    incomes = db.query(Income).filter(
+        Income.user_id == user.id,
+        Income.date >= month_start
+    ).all()
+    
+    # Calculate stats (all amounts are stored in AZN)
+    total_spending_azn = sum(exp.amount for exp in expenses)
+    total_income_azn = sum(inc.amount for inc in incomes)
+    total_available_azn = user.monthly_budget + total_income_azn - total_spending_azn
+    
+    # Convert to user's preferred currency for display
+    user_currency = user.currency or "AZN"
+    total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
+    total_income = convert_currency(total_income_azn, "AZN", user_currency)
+    monthly_income_display = convert_currency(user.monthly_income or 0, "AZN", user_currency) if user.monthly_income else 0
+    total_available = convert_currency(total_available_azn, "AZN", user_currency)
+    
+    # Budget percentage (use AZN values for calculation to maintain accuracy)
+    budget_percentage = (total_spending_azn / user.monthly_budget * 100) if user.monthly_budget > 0 else 0
+    
+    # Recalculate eco_score for the partial
+    eco_score = calculate_eco_score(expenses)
+    
+    return templates.TemplateResponse("partials/dashboard_stats.html", {
+        "request": request,
+        "user": user,
+        "total_spending": total_spending,
+        "total_income": total_income,
+        "monthly_income_display": monthly_income_display,
+        "total_available": total_available,
+        "budget_percentage": budget_percentage,
+        "eco_score": eco_score,
+        "now": now
+    })
+
+
 @app.get("/heatmap", response_class=HTMLResponse)
 async def heatmap_page(request: Request, db: Session = Depends(get_db)):
     """Spending heatmap page (Leaflet)"""
@@ -1325,17 +1460,24 @@ async def update_expense(
     if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
     
-    expense.merchant = merchant
-    expense.amount = amount
-    expense.category = category
-    
-    db.commit()
-    db.refresh(expense)
-    
-    return templates.TemplateResponse("partials/transaction_row.html", {
-        "request": request,
-        "expense": expense
-    })
+    try:
+        expense.merchant = merchant
+        expense.amount = amount
+        expense.category = category
+        
+        db.commit()
+        db.refresh(expense)
+        
+        return templates.TemplateResponse("partials/transaction_row.html", {
+            "request": request,
+            "expense": expense,
+            "user": user
+        }, headers={"HX-Trigger": "update-stats"})
+    except Exception as e:
+        print(f"❌ Update Expense Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 @app.post("/api/voice-command")
@@ -1733,20 +1875,71 @@ async def delete_expense(request: Request, expense_id: int, db: Session = Depend
                 status_code=404
             )
         
+        if user.coins and user.coins > 0:
+            user.coins -= 1
+            
         db.delete(expense)
         db.commit()
         
         # Return response with HX-Refresh header to reload page and recalculate totals
         return Response(
             status_code=200,
-            headers={"HX-Refresh": "true"}
+            headers={"HX-Refresh": "true", "HX-Trigger": "update-stats"}
         )
     except Exception as e:
         print(f"❌ Delete Error: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.post("/api/wishlist")
+@app.post("/api/add-income")
+async def add_income(
+    request: Request,
+    amount: float = Form(...),
+    source: str = Form(...),
+    date: str = Form(...),
+    description: Optional[str] = Form(None),
+    is_recurring: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    """Add income (salary or extra income)"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    try:
+        # Parse date
+        try:
+            income_date = datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            income_date = datetime.utcnow()
+        
+        # If source is "Maaş" or "Salary", update monthly_income
+        if source.lower() in ["maaş", "salary", "maas"]:
+            user.monthly_income = amount
+            is_recurring = True
+        
+        # Create Income record
+        income = Income(
+            user_id=user.id,
+            amount=amount,
+            source=source,
+            description=description,
+            date=income_date,
+            is_recurring=is_recurring
+        )
+        db.add(income)
+        db.commit()
+        db.refresh(user)
+        
+        # Trigger stats update
+        return JSONResponse({
+            "success": True, 
+            "message": f"Gəlir əlavə edildi: {amount:.2f} {user.currency or 'AZN'}"
+        }, headers={"HX-Trigger": "update-stats"})
+    except Exception as e:
+        print(f"❌ Add Income Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
 async def add_wishlist_item(
     request: Request,
     title: str = Form(...),
@@ -1835,6 +2028,15 @@ async def create_dream(
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
     
+    # Check active dreams limit
+    active_dreams_count = db.query(Dream).filter(
+        Dream.user_id == user.id, 
+        Dream.saved_amount < Dream.target_amount
+    ).count()
+    
+    if active_dreams_count >= 5:
+        return JSONResponse({"success": False, "error": "Maksimum 5 aktiv arzu yarada bilərsiniz"}, status_code=400)
+
     try:
         # Parse target_date if provided
         parsed_date = None
@@ -1859,21 +2061,24 @@ async def create_dream(
         db.commit()
         db.refresh(dream)
         
-        # Award XP for creating a dream
-        gamification.award_xp(user, "create_dream", db)
-        db.refresh(user)
+        # Get all active dreams for the list refresh
+        active_dreams = db.query(Dream).filter(
+            Dream.user_id == user.id, 
+            Dream.saved_amount < Dream.target_amount
+        ).order_by(Dream.priority.desc(), Dream.created_at.desc()).all()
         
-        # Return the new dream card only (not the whole list)
-        response = templates.TemplateResponse("partials/dream_card.html", {
+        # Return the updated list partial
+        response = templates.TemplateResponse("partials/dream_list.html", {
             "request": request,
-            "dream": dream,
+            "dreams": active_dreams,
+            "user": user,
             "now": datetime.utcnow(),
             "date_type": date_type,
             "max": max,
             "min": min
         })
-        # Trigger stats update
-        response.headers["HX-Trigger"] = "dreamUpdated"
+        # Trigger stats update - fire dreamUpdated event on body so stats refresh
+        response.headers["HX-Trigger"] = 'dreamUpdated'
         return response
     except Exception as e:
         print(f"❌ Create Dream Error: {e}")
@@ -1929,13 +2134,14 @@ async def update_dream(
         response = templates.TemplateResponse("partials/dream_card.html", {
             "request": request,
             "dream": dream,
+            "user": user,
             "now": datetime.utcnow(),
             "date_type": date_type,
             "max": max,
             "min": min
         })
-        # Trigger stats update
-        response.headers["HX-Trigger"] = "dreamUpdated"
+        # Trigger stats update - fire dreamUpdated event on body so stats refresh
+        response.headers["HX-Trigger"] = 'dreamUpdated'
         return response
     except Exception as e:
         print(f"❌ Update Dream Error: {e}")
@@ -1961,6 +2167,9 @@ async def add_dream_savings(
     try:
         dream.saved_amount += amount
         
+        # Award XP for funding a dream
+        gamification.award_xp(user, "add_savings", db)
+        
         # Check if dream is completed
         if dream.saved_amount >= dream.target_amount:
             dream.saved_amount = dream.target_amount
@@ -1976,13 +2185,14 @@ async def add_dream_savings(
         response = templates.TemplateResponse("partials/dream_card.html", {
             "request": request,
             "dream": dream,
+            "user": user,
             "now": datetime.utcnow(),
             "date_type": date_type,
             "max": max,
             "min": min
         })
-        # Trigger stats update
-        response.headers["HX-Trigger"] = "dreamUpdated"
+        # Trigger stats update - fire dreamUpdated event on body so stats refresh
+        response.headers["HX-Trigger"] = 'dreamUpdated'
         return response
     except Exception as e:
         print(f"❌ Add Savings Error: {e}")
@@ -2035,6 +2245,7 @@ async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
     
     return templates.TemplateResponse("partials/dream_stats.html", {
         "request": request,
+        "user": user,
         "total_saved": total_saved,
         "total_target": total_target,
         "max": max,
@@ -2171,7 +2382,11 @@ async def update_settings(
             user.ai_style = ai_style
 
         db.commit()
-        return JSONResponse({"success": True, "message": "Tənzimləmələr yadda saxlanıldı"})
+        db.refresh(user)
+        return JSONResponse(
+            {"success": True, "message": "Tənzimləmələr yadda saxlanıldı"},
+            headers={"HX-Trigger": "update-stats,settingsUpdated"}
+        )
     except Exception as e:
         print(f"❌ Settings Update Error: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
@@ -2557,8 +2772,9 @@ async def claim_reward(
         "message": f"🎉 {reward_info['name']} alındı!",
         "remaining_coins": user.coins,
         "new_balance": user.coins,  # For frontend update
-        "reward_name": reward_info["name"]
-    })
+        "reward_name": reward_info["name"],
+        "show_coupon": "Coffee" in reward_info["name"]
+    }, headers={"HX-Trigger": "update-stats"})
 
 
 @app.get("/settings", response_class=HTMLResponse)

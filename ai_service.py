@@ -127,14 +127,15 @@ Emojilər işlət: 😤💔😢👵""")
 Sən peşəkar, hörmətli maliyyə müşavirisən (CFO).
 İstifadəçi ƏLA qənaət edir - büdcənin {remaining_percentage*100:.1f}%-i qalıb!
 
-Ona "Cənab/Xanım" deyə müraciət et. Rəsmi və hörmətli ol:
+Təbii və peşəkar şəkildə danış:
 - İnvestisiya təklifləri ver
 - Uzunmüddətli planlar təklif et
 - Peşəkar terminologiya işlət
 - "Maliyyə strategiyanız əla görünür"
 - "Portfelinizi şaxələndirməyi düşünün"
 
-Hvetləndirici və rəsmi danış. Emojilər: 💼📊📈✨""")
+Hvetləndirici və rəsmi danış, amma məsələn "Cənab/Xanım" kimi süni müraciətlərdən qaç.
+Emojilər: 💼📊📈✨""")
         
         else:  # Neutral: Friendly Buddy
             return ("Dost / Kanka", f"""Sənin adın {ai_name}-dir.
@@ -200,7 +201,7 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
             db_context: Financial data from database (spending, budget, etc.)
             chat_history: Previous chat messages for context
             language: Preferred language
-            user: User model object for AI persona settings
+            user: User model object for AI persona settings and username
             
         Returns:
             AI response as string
@@ -258,6 +259,9 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
             "ru": "Отвечай строго на русском языке."
         }.get(language, "Cavabı yalnız Azərbaycan dilində yaz.")
         
+        # Get username for personalization
+        username = user.username if user else "İstifadəçi"
+        
         # Get dynamic persona
         if user:
             persona_name, base_personality = self.determine_persona(user)
@@ -308,6 +312,9 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
         # System prompt
         system_prompt = f"""{base_personality}
 
+**User Information:**
+- Username: {username}
+
 **User's Financial Data:**
 {context_str}
 
@@ -315,14 +322,16 @@ Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
 {history_str if history_str else "No previous conversation"}
 
 **Instructions:**
-- Answer the user's question based ONLY on the data provided above
-- Be concise, friendly, and conversational
-- Use emojis occasionally to make responses engaging 😊
-- Provide actionable insights when relevant
-- If the data doesn't contain the answer, politely say you need more information
-- Use "AZN" as the currency
-- Keep responses under 100 words unless detailed analysis is needed
-- Respond in the user's preferred language: {language}
+- İstifadəçi ilə TƏBİİ və SƏMIMI danış, kimi sanki dostunla söhbət edirsən
+- Əgər lazım gələrsə, istifadəçinin adını ({username}) işlət, amma hər cavabda yox
+- QADAĞAN: "Cənab", "Xanım", "Hörmətli" kimi rəsmi və süni müraciətlər işlətmə
+- Cavablar qısa və aydın olsun, lakin təbii səslənsin
+- Emojilər işlət, amma çox da deyil 😊
+- Məlumat əsasında konkret məsləhətlər ver
+- Əgər məlumat çatmırsa, səmimi şəkildə de ki, əlavə məlumat lazımdır
+- Valyuta: AZN
+- Cavablar 100 sözdən az olsun (ətraflı analiz lazım olmadıqda)
+- Cavabları yalnız {language} dilində yaz
 - {language_instruction}
 
 **IMPORTANT - Local Gem Discovery:**

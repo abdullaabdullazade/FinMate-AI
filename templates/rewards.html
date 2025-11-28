@@ -287,6 +287,51 @@
             </div>
         </div>
     </div>
+
+    <!-- Coffee Coupon Modal -->
+    <div id="coupon-modal"
+        class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-300 opacity-0">
+        <div class="glass-card max-w-sm w-full p-0 mx-4 transform scale-90 transition-transform duration-300 rounded-3xl overflow-hidden relative"
+            id="coupon-content" style="box-shadow: 0 0 50px rgba(196, 139, 96, 0.3);">
+            <!-- Confetti Canvas -->
+            <canvas id="coupon-confetti" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+            <div class="bg-gradient-to-br from-[#C48B60] to-[#A06B45] p-6 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full opacity-10"
+                    style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');">
+                </div>
+
+                <div
+                    class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl border border-white/30">
+                    <span class="text-5xl">☕</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-1">Coffee Kuponu</h3>
+                <p class="text-white/80 text-sm font-medium">Təbriklər! Dadını çıxarın.</p>
+            </div>
+
+            <div class="p-6 bg-[#1a1a1a] relative">
+                <!-- Ticket Cutout Effect -->
+                <div class="absolute -top-3 left-0 w-6 h-6 bg-[#1a1a1a] rounded-full -ml-3"></div>
+                <div class="absolute -top-3 right-0 w-6 h-6 bg-[#1a1a1a] rounded-full -mr-3"></div>
+                <div class="border-t-2 border-dashed border-white/10 absolute top-0 left-4 right-4"></div>
+
+                <div class="text-center space-y-4 pt-2">
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-1">KOD</p>
+                        <p class="text-2xl font-mono font-bold text-white tracking-wider" id="coupon-code">FREE-COFFEE
+                        </p>
+                    </div>
+
+                    <p class="text-white/50 text-xs">Bu kuponu kassaya təqdim edin.</p>
+
+                    <button onclick="closeCouponModal()"
+                        class="w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition transform hover:scale-[1.02]">
+                        Bağla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -390,6 +435,18 @@
                         window.queueVoiceNotification(voiceMessage, 0, 'az');
                     }
 
+                    // Show coupon if applicable
+                    if (data.show_coupon) {
+                        setTimeout(() => {
+                            showCouponModal();
+                        }, 500);
+                    } else {
+                        // If no coupon, reload page immediately to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+
                     // Update rewards list if needed (without refresh)
                     if (typeof htmx !== 'undefined') {
                         // Trigger event to update rewards
@@ -412,5 +469,43 @@
     document.getElementById('claim-modal')?.addEventListener('click', function (e) {
         if (e.target === this) closeClaimModal();
     });
+
+    // Coupon Modal Functions
+    function showCouponModal() {
+        const modal = document.getElementById('coupon-modal');
+        const content = document.getElementById('coupon-content');
+        modal.classList.remove('hidden');
+        // Trigger reflow
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-90');
+        content.classList.add('scale-100');
+
+        // Launch confetti inside modal
+        const canvas = document.getElementById('coupon-confetti');
+        const myConfetti = confetti.create(canvas, {
+            resize: true,
+            useWorker: true
+        });
+        myConfetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#C48B60', '#ffffff', '#FFD700']
+        });
+    }
+
+    function closeCouponModal() {
+        const modal = document.getElementById('coupon-modal');
+        const content = document.getElementById('coupon-content');
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-90');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            // Reload page to show updated coin balance and claimed rewards
+            window.location.reload();
+        }, 300);
+    }
 </script>
 {% endblock %}

@@ -86,11 +86,17 @@ class GamificationService:
         new_level_info = GamificationService.get_level_info(user.xp_points)
         new_level_title = new_level_info["title"]
         
+        # Check if level up occurred
+        level_up = old_level_title != new_level_title
+        
         # Update user's level title
         user.level_title = new_level_title
         
-        # Check if leveled up
-        level_up = old_level_title != new_level_title
+        # Bonus coins for leveling up
+        coins_awarded = 0
+        if level_up:
+            coins_awarded = 10  # 10 coins per level up
+            user.coins = (user.coins or 0) + coins_awarded
         
         # Create XP Log
         xp_log = XPLog(
@@ -104,6 +110,7 @@ class GamificationService:
         
         return {
             "xp_awarded": xp_amount,
+            "coins_awarded": coins_awarded,
             "level_up": level_up,
             "old_level": old_level_title,
             "new_level": new_level_title,

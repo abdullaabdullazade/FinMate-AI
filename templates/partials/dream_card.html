@@ -11,7 +11,8 @@
 {% endif %}
 {% endif %}
 
-<div class="dream-card glass-card p-4 sm:p-6 relative" id="dream-{{ dream.id }}">
+<div class="dream-card glass-card p-4 sm:p-6 relative" id="dream-{{ dream.id }}"
+     hx-on::after-swap="htmx.trigger('body', 'dreamUpdated');">
     <!-- Priority Badge -->
     <div
         class="priority-badge priority-{{ dream.priority }} text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 top-2 right-2 sm:top-3 sm:right-3">

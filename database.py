@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from models import Base, User, Expense, ChatMessage, XPLog, Dream
+from models import Base, User, Expense, ChatMessage, XPLog, Dream, Income
 from datetime import datetime, timedelta
 import random
 
@@ -56,6 +56,8 @@ def ensure_schema():
     add_column_if_missing("users", "ai_persona_mode VARCHAR DEFAULT 'Auto'")
     add_column_if_missing("users", "login_streak INTEGER DEFAULT 0")
     add_column_if_missing("users", "last_login_date DATE")
+    add_column_if_missing("users", "last_rewarded_month VARCHAR")
+    add_column_if_missing("users", "coins INTEGER DEFAULT 0")
     add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
     add_column_if_missing("users", "password_hash VARCHAR")
     add_column_if_missing("users", "monthly_income FLOAT")
@@ -65,6 +67,21 @@ def ensure_schema():
     add_column_if_missing("expenses", "items JSON")
     add_column_if_missing("expenses", "notes TEXT")
     add_column_if_missing("expenses", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
+
+    # Create incomes table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS incomes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            amount FLOAT NOT NULL,
+            source VARCHAR NOT NULL,
+            description TEXT,
+            date DATETIME NOT NULL,
+            is_recurring BOOLEAN DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
 
     conn.commit()
     conn.close()

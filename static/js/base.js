@@ -103,11 +103,142 @@ window.showToast = function (message, type = 'success') {
 
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
 
-    toast.className = `pointer-events-auto backdrop-blur-md text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full ${styles}`;
+    toast.className = `pointer-events-auto backdrop-blur-md text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full ${styles} select-none touch-pan-y cursor-grab active:cursor-grabbing`;
     toast.innerHTML = `
-        <span class="text-xl">${icon}</span>
-        <span class="font-medium text-sm sm:text-base">${message}</span>
+        <span class="text-xl flex-shrink-0">${icon}</span>
+        <span class="font-medium text-sm sm:text-base flex-1">${message}</span>
+        <button class="toast-close-btn p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0" aria-label="Close">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
     `;
+
+    // Store auto-remove timeout in a way that removeToast can access it
+    let autoRemoveTimeout;
+    
+    // Remove toast function
+    function removeToast() {
+        // Clear auto-remove timeout if exists
+        if (autoRemoveTimeout) {
+            clearTimeout(autoRemoveTimeout);
+        }
+        // Animate out
+        toast.style.transition = 'all 0.5s ease';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.opacity = '0';
+        // Remove from DOM after animation
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 500);
+    }
+
+    // Close button handler
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeToast();
+    });
+
+    // Swipe to dismiss logic (both touch and mouse)
+    let touchStartX = 0;
+    let touchCurrentX = 0;
+    let mouseStartX = 0;
+    let mouseCurrentX = 0;
+    let isDragging = false;
+    const swipeThreshold = 50; // px
+
+    // Touch events
+    toast.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        toast.style.transition = 'none';
+        isDragging = true;
+    }, { passive: true });
+
+    toast.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        touchCurrentX = e.touches[0].clientX;
+        const diff = touchCurrentX - touchStartX;
+
+        // Allow swiping right (dismiss) or left (reset)
+        if (diff > 0) {
+            toast.style.transform = `translateX(${Math.min(diff, 300)}px)`;
+            toast.style.opacity = `${Math.max(0, 1 - (diff / 200))}`;
+        } else if (diff < -20) {
+            // Small left swipe to show it's interactive
+            toast.style.transform = `translateX(${diff}px)`;
+        }
+    }, { passive: true });
+
+    toast.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        const diff = touchCurrentX - touchStartX;
+        toast.style.transition = 'all 0.5s ease';
+        isDragging = false;
+
+        if (diff > swipeThreshold) {
+            // Swiped enough to dismiss
+            removeToast();
+        } else {
+            // Reset position
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        }
+    });
+
+    // Mouse drag events (for desktop)
+    toast.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.toast-close-btn')) return; // Don't drag if clicking close button
+        mouseStartX = e.clientX;
+        isDragging = true;
+        toast.style.transition = 'none';
+        toast.style.cursor = 'grabbing';
+        e.preventDefault();
+    });
+
+    toast.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        mouseCurrentX = e.clientX;
+        const diff = mouseCurrentX - mouseStartX;
+
+        if (diff > 0) {
+            toast.style.transform = `translateX(${Math.min(diff, 300)}px)`;
+            toast.style.opacity = `${Math.max(0, 1 - (diff / 200))}`;
+        }
+    });
+
+    toast.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        const diff = mouseCurrentX - mouseStartX;
+        toast.style.transition = 'all 0.5s ease';
+        toast.style.cursor = 'grab';
+        isDragging = false;
+
+        if (diff > swipeThreshold) {
+            removeToast();
+        } else {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        }
+    });
+
+    toast.addEventListener('mouseleave', (e) => {
+        if (isDragging) {
+            const diff = mouseCurrentX - mouseStartX;
+            toast.style.transition = 'all 0.5s ease';
+            toast.style.cursor = 'grab';
+            isDragging = false;
+
+            if (diff > swipeThreshold) {
+                removeToast();
+            } else {
+                toast.style.transform = 'translateX(0)';
+                toast.style.opacity = '1';
+            }
+        }
+    });
 
     container.appendChild(toast);
 
@@ -116,11 +247,22 @@ window.showToast = function (message, type = 'success') {
         toast.classList.remove('translate-x-full');
     });
 
-    // Remove after 3 seconds
-    setTimeout(() => {
-        toast.classList.add('translate-x-full', 'opacity-0');
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    // Remove after 5 seconds (increased from 3 to give time to read/interact)
+    autoRemoveTimeout = setTimeout(() => {
+        removeToast();
+    }, 5000);
+
+    // Pause auto-remove on hover/touch
+    toast.addEventListener('mouseenter', () => {
+        if (autoRemoveTimeout) {
+            clearTimeout(autoRemoveTimeout);
+        }
+    });
+    toast.addEventListener('touchstart', () => {
+        if (autoRemoveTimeout) {
+            clearTimeout(autoRemoveTimeout);
+        }
+    }, { passive: true });
 
     // Voice Notification (TTS)
     if ('speechSynthesis' in window) {

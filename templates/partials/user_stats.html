@@ -1,0 +1,18 @@
+{% if user and user.xp_points is defined %}
+<!-- XP & Coins Combined Badge -->
+<div class="hidden sm:flex items-center gap-2" id="user-stats-container" hx-get="/api/stats"
+    hx-trigger="update-stats from:body" hx-swap="outerHTML">
+    <!-- XP Badge -->
+    <div class="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
+        <span class="text-base">{% if user.level_title == 'Rookie' %}🌱{% elif user.level_title ==
+            'Saver' %}💰{% elif user.level_title == 'Analyst' %}📊{% elif user.level_title == 'Manager'
+            %}🎯{% elif user.level_title == 'CFO' %}👑{% else %}⭐{% endif %}</span>
+        <span class="text-xs font-bold text-white/80">{{ user.xp_points }}</span>
+    </div>
+    <!-- Coin Badge -->
+    <div class="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
+        <span class="text-base">🪙</span>
+        <span class="text-xs font-bold text-yellow-400">{{ user.coins or 0 }}</span>
+    </div>
+</div>
+{% endif %}

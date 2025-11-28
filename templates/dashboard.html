@@ -3,6 +3,211 @@
 {% block title %}Dashboard - FinMate AI{% endblock %}
 
 {% block extra_head %}
+<!-- Edit Modal Functions - Define early -->
+<script>
+    // Define income modal functions immediately (before DOM is ready)
+    window.openAddIncomeModal = function() {
+        console.log('💰 openAddIncomeModal called');
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(function() {
+            try {
+                const modal = document.getElementById('add-income-modal');
+                const content = document.getElementById('add-income-modal-content');
+                console.log('Modal elements:', { modal: !!modal, content: !!content });
+                
+                if (!modal) {
+                    console.error('❌ Income modal not found!');
+                    alert('Modal tapılmadı. Səhifəni yeniləyin.');
+                    return;
+                }
+                
+                if (!content) {
+                    console.error('❌ Income modal content not found!');
+                    return;
+                }
+                
+                console.log('✅ Opening income modal');
+                modal.classList.remove('hidden');
+                // Small delay for animation
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }, 10);
+            } catch (error) {
+                console.error('❌ Error opening income modal:', error);
+                alert('Xəta: ' + error.message);
+            }
+        }, 0);
+    };
+
+    window.closeAddIncomeModal = function() {
+        console.log('💰 closeAddIncomeModal called');
+        try {
+            const modal = document.getElementById('add-income-modal');
+            const content = document.getElementById('add-income-modal-content');
+            if (!modal || !content) {
+                console.error('Income modal elements not found');
+                return;
+            }
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        } catch (error) {
+            console.error('Error closing income modal:', error);
+        }
+    };
+    
+    // Also add event listener when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ DOM loaded, setting up income button listener');
+        const incomeButton = document.querySelector('[onclick*="openAddIncomeModal"]');
+        if (incomeButton) {
+            console.log('✅ Income button found, adding click listener');
+            // Remove old onclick and add event listener
+            incomeButton.removeAttribute('onclick');
+            incomeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('💰 Income button clicked!');
+                window.openAddIncomeModal();
+            });
+        } else {
+            console.warn('⚠️ Income button not found');
+        }
+    });
+
+    // Define edit modal functions immediately (before DOM is ready)
+    window.openEditModal = function (id, merchant, amount, category) {
+        console.log('openEditModal called with:', { id, merchant, amount, category });
+
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(function () {
+            try {
+                const modal = document.getElementById('edit-modal');
+                const form = document.getElementById('edit-form');
+
+                if (!modal) {
+                    console.error('Edit modal not found');
+                    return;
+                }
+
+                if (!form) {
+                    console.error('Edit form not found');
+                    return;
+                }
+
+                // Set form values
+                const merchantInput = document.getElementById('edit-merchant');
+                const amountInput = document.getElementById('edit-amount');
+                const categoryInput = document.getElementById('edit-category');
+
+                if (merchantInput) merchantInput.value = merchant || '';
+                if (amountInput) amountInput.value = amount || 0;
+                if (categoryInput) categoryInput.value = category || 'Digər';
+
+                // Remove old HTMX attributes first
+                form.removeAttribute('hx-put');
+                form.removeAttribute('hx-target');
+                form.removeAttribute('hx-swap');
+
+                // Set new HTMX attributes
+                form.setAttribute('hx-put', '/api/expenses/' + id);
+                form.setAttribute('hx-target', '#expense-' + id);
+                form.setAttribute('hx-swap', 'outerHTML');
+
+                // Re-process HTMX attributes
+                if (typeof htmx !== 'undefined') {
+                    setTimeout(function () {
+                        htmx.process(form);
+                    }, 50);
+                }
+
+                // Show modal
+                modal.classList.remove('hidden');
+                setTimeout(function () {
+                    modal.classList.remove('opacity-0');
+                    const modalContent = document.getElementById('edit-modal-content');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-95');
+                        modalContent.classList.add('scale-100');
+                    }
+                }, 10);
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+            }
+        }, 0);
+    };
+
+    window.closeEditModal = function () {
+        try {
+            const modal = document.getElementById('edit-modal');
+            if (!modal) return;
+
+            modal.classList.add('opacity-0');
+            const modalContent = document.getElementById('edit-modal-content');
+            if (modalContent) {
+                modalContent.classList.add('scale-95');
+                modalContent.classList.remove('scale-100');
+            }
+
+            setTimeout(function () {
+                modal.classList.add('hidden');
+            }, 300);
+        } catch (error) {
+            console.error('Error closing edit modal:', error);
+        }
+    };
+
+    window.handleEditExpenseSubmit = function (event) {
+        console.log('handleEditExpenseSubmit triggered', event);
+        try {
+            // Check if request was successful (HTMX sends this in detail)
+            const isSuccess = event.detail.successful ||
+                (event.detail.xhr && event.detail.xhr.status >= 200 && event.detail.xhr.status < 300);
+
+            if (isSuccess) {
+                console.log('Edit successful, closing modal');
+                window.closeEditModal();
+                if (typeof window.showToast === 'function') {
+                    window.showToast('✅ Qəbz uğurla yeniləndi', 'success');
+                }
+
+                // Trigger stats update
+                document.body.dispatchEvent(new Event('transactionUpdated'));
+
+                // Also trigger HTMX update-stats manually if needed
+                if (typeof htmx !== 'undefined') {
+                    htmx.trigger('body', 'update-stats');
+                }
+            } else {
+                console.error('Edit failed', event.detail);
+                const xhr = event.detail.xhr;
+                let errorMsg = 'Xəta baş verdi';
+
+                if (xhr) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.error) errorMsg = response.error;
+                    } catch (e) {
+                        if (xhr.responseText) errorMsg = xhr.responseText;
+                    }
+                }
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('❌ ' + errorMsg, 'error');
+                } else {
+                    alert('Xəta: ' + errorMsg);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling edit submit:', error);
+        }
+    };
+</script>
 <style>
     /* Premium Dashboard Styles */
     .dashboard-grid {
@@ -383,6 +588,10 @@
                     class="px-6 py-3 bg-white/10 rounded-xl text-white font-medium hover:bg-white/20 transition border border-white/20">
                     📸 Çek Skan
                 </a>
+                <button onclick="if(typeof window.openAddIncomeModal === 'function') { window.openAddIncomeModal(); } else { console.error('openAddIncomeModal not found'); }"
+                    class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg border border-white/20">
+                    💰 Gəlir
+                </button>
                 <button onclick="openFraudAlert()"
                     class="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg shadow-red-500/50 border-2 border-red-400 animate-pulse">
                     🚨 Fraud
@@ -490,74 +699,79 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
-            <!-- Total Spending -->
-            <div>
-                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
-                <div class="flex items-end gap-1 sm:gap-2">
-                    <span id="stat-total" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
-                        data-value="{{ total_spending }}" data-initial="{{ " %.2f"|format(total_spending) }}">{{
-                        "%.2f"|format(total_spending)
-                        }}</span>
-                    <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                        user.currency or '{{ currency_symbol }}' }}</span>
+        <!-- Stats Container - Auto-updates via HTMX -->
+        <div id="dashboard-stats-wrapper" hx-get="/api/dashboard-stats" hx-trigger="update-stats from:body"
+            hx-swap="innerHTML">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+                <!-- Total Spending -->
+                <div>
+                    <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
+                    <div class="flex items-end gap-1 sm:gap-2">
+                        <span id="stat-total" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
+                            data-value="{{ total_spending }}" data-initial="{{ " %.2f"|format(total_spending) }}">{{
+                            "%.2f"|format(total_spending)
+                            }}</span>
+                        <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                            user.currency or '{{ currency_symbol }}' }}</span>
+                    </div>
+                </div>
+
+                <!-- Budget -->
+                <div>
+                    <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
+                    <div class="flex items-end gap-1 sm:gap-2">
+                        <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
+                            data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}"
+                            data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined
+                            else user.monthly_budget) }}">{{ "%.2f"|format(monthly_budget_display if
+                            monthly_budget_display is
+                            defined else user.monthly_budget)
+                            }}</span>
+                        <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                            user.currency or '{{ currency_symbol }}' }}</span>
+                    </div>
+                </div>
+
+                <!-- Remaining -->
+                <div>
+                    <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
+                    <div class="flex items-end gap-1 sm:gap-2">
+                        <span id="stat-remaining"
+                            class="text-2xl sm:text-4xl font-bold {% if (remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
+                            data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}"
+                            data-initial="{{ " %.2f"|format(remaining_budget if remaining_budget is defined else
+                            (user.monthly_budget - total_spending)) }}">
+                            {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
+                            total_spending)) }}
+                        </span>
+                        <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
+                            user.currency or '{{ currency_symbol }}' }}</span>
+                    </div>
+                </div>
+
+                <!-- Eco Score -->
+                <div>
+                    <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
+                    <div class="flex items-end gap-1 sm:gap-2">
+                        <span class="eco-leaf text-lg sm:text-2xl">{{ eco_score.icon }}</span>
+                        <span class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ eco_score.value
+                            }}</span>
+                        <span class="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Budget -->
-            <div>
-                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
-                <div class="flex items-end gap-1 sm:gap-2">
-                    <span id="stat-budget" class="text-2xl sm:text-4xl font-bold text-white incognito-hidden"
-                        data-value="{{ monthly_budget_display if monthly_budget_display is defined else user.monthly_budget }}"
-                        data-initial="{{ " %.2f"|format(monthly_budget_display if monthly_budget_display is defined else
-                        user.monthly_budget) }}">{{ "%.2f"|format(monthly_budget_display if monthly_budget_display is
-                        defined else user.monthly_budget)
-                        }}</span>
-                    <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                        user.currency or '{{ currency_symbol }}' }}</span>
+            <!-- Progress Bar -->
+            <div class="mt-4 sm:mt-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs sm:text-sm text-white/70">Büdcə istifadəsi</span>
+                    <span class="text-xs sm:text-sm font-bold text-white incognito-hidden">{{
+                        "%.1f"|format(budget_percentage) }}%</span>
                 </div>
-            </div>
-
-            <!-- Remaining -->
-            <div>
-                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
-                <div class="flex items-end gap-1 sm:gap-2">
-                    <span id="stat-remaining"
-                        class="text-2xl sm:text-4xl font-bold {% if (remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending)) < 0 %}text-red-400{% else %}text-green-400{% endif %} incognito-hidden"
-                        data-value="{{ remaining_budget if remaining_budget is defined else (user.monthly_budget - total_spending) }}"
-                        data-initial="{{ " %.2f"|format(remaining_budget if remaining_budget is defined else
-                        (user.monthly_budget - total_spending)) }}">
-                        {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
-                        total_spending)) }}
-                    </span>
-                    <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                        user.currency or '{{ currency_symbol }}' }}</span>
+                <div class="w-full bg-white/20 rounded-full h-3 sm:h-4">
+                    <div class="h-3 sm:h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                        style="width: {{ min(budget_percentage, 100) }}%"></div>
                 </div>
-            </div>
-
-            <!-- Eco Score -->
-            <div>
-                <p class="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
-                <div class="flex items-end gap-1 sm:gap-2">
-                    <span class="eco-leaf text-lg sm:text-2xl">{{ eco_score.icon }}</span>
-                    <span class="text-2xl sm:text-4xl font-bold text-white incognito-hidden">{{ eco_score.value
-                        }}</span>
-                    <span class="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="mt-4 sm:mt-6">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs sm:text-sm text-white/70">Büdcə istifadəsi</span>
-                <span class="text-xs sm:text-sm font-bold text-white incognito-hidden">{{
-                    "%.1f"|format(budget_percentage) }}%</span>
-            </div>
-            <div class="w-full bg-white/20 rounded-full h-3 sm:h-4">
-                <div class="h-3 sm:h-4 rounded-full transition-all duration-500 {% if budget_percentage >= 100 %}bg-red-500{% elif budget_percentage >= 80 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
-                    style="width: {{ min(budget_percentage, 100) }}%"></div>
             </div>
         </div>
     </div>
@@ -858,7 +1072,9 @@
             id="edit-modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-white">Düzəliş et</h3>
-                <button onclick="closeEditModal()" class="text-white/50 hover:text-white">
+                <button
+                    onclick="if(typeof window.closeEditModal === 'function') { window.closeEditModal(); } else { console.error('closeEditModal not found'); }"
+                    class="text-white/50 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -866,7 +1082,8 @@
                 </button>
             </div>
 
-            <form id="edit-form" hx-put="" hx-target="" hx-swap="outerHTML" onsubmit="closeEditModal()">
+            <form id="edit-form" hx-put="" hx-target="" hx-swap="outerHTML"
+                hx-on:htmx:after-request="window.handleEditExpenseSubmit(event)">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm text-white/70 mb-1">Obyekt / Mağaza</label>
@@ -1122,39 +1339,8 @@
         });
     }
 
-    // Edit Modal Logic
-    function openEditModal(id, merchant, amount, category) {
-        const modal = document.getElementById('edit-modal');
-        const form = document.getElementById('edit-form');
+    // Edit Modal functions are already defined in extra_head block - no duplicate needed here
 
-        document.getElementById('edit-merchant').value = merchant;
-        document.getElementById('edit-amount').value = amount;
-        document.getElementById('edit-category').value = category;
-
-        // Set HTMX attributes
-        form.setAttribute('hx-put', `/api/expenses/${id}`);
-        form.setAttribute('hx-target', `#expense-${id}`);
-        htmx.process(form); // Re-process to pick up new attributes
-
-        modal.classList.remove('hidden');
-        // Small delay for animation
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            document.getElementById('edit-modal-content').classList.remove('scale-95');
-            document.getElementById('edit-modal-content').classList.add('scale-100');
-        }, 10);
-    }
-
-    function closeEditModal() {
-        const modal = document.getElementById('edit-modal');
-        modal.classList.add('opacity-0');
-        document.getElementById('edit-modal-content').classList.add('scale-95');
-        document.getElementById('edit-modal-content').classList.remove('scale-100');
-
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
     // Financial Pet Logic
     const FinancialPet = {
         states: {
@@ -1310,6 +1496,63 @@
 </script>
 
 {% endblock %}
+<!-- Add Income Modal -->
+<div id="add-income-modal"
+    class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="glass-card p-6 w-full max-w-md transform scale-95 transition-transform duration-300"
+            id="add-income-modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white">Gəlir Əlavə Et</h3>
+                <button onclick="if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } else { console.error('closeAddIncomeModal not found'); }" class="text-white/50 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <form hx-post="/api/add-income" hx-swap="none" 
+                hx-on::after-request="if(event.detail.successful) { if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } htmx.trigger('body', 'update-stats'); if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.message || 'Gəlir əlavə edildi', 'success'); } catch(e) { window.showToast('Gəlir əlavə edildi', 'success'); } } } else { if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.error || 'Xəta baş verdi', 'error'); } catch(e) { window.showToast('Xəta baş verdi', 'error'); } } }">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-white/70 mb-2">Məbləğ ({{ user.currency or 'AZN' }})</label>
+                        <input type="number" name="amount" step="0.01" min="0.01" required placeholder="100"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-2">Mənbə</label>
+                        <select name="source" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                            <option value="Maaş" class="text-black">Maaş</option>
+                            <option value="Bonus" class="text-black">Bonus</option>
+                            <option value="Freelance" class="text-black">Freelance</option>
+                            <option value="Hədiyyə" class="text-black">Hədiyyə</option>
+                            <option value="Digər" class="text-black">Digər</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-2">Tarix</label>
+                        <input type="date" name="date" required value="{{ now.strftime('%Y-%m-%d') }}"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-2">Təsvir (istəyə bağlı)</label>
+                        <input type="text" name="description" placeholder="Əlavə məlumat..."
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition transform hover:scale-[1.02]">
+                        + Əlavə Et
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Income modal functions are now defined in extra_head block -->
+
 {% block extra_scripts %}
 <script>
     // Dashboard welcome voice greeting - emotional and helpful
@@ -1369,6 +1612,17 @@
             });
         }
     })();
+
+    // Listen for settings updates and refresh dashboard stats
+    document.body.addEventListener('settingsUpdated', function () {
+        console.log('🔄 Settings updated, refreshing dashboard...');
+        // Trigger dashboard stats update
+        htmx.trigger('body', 'update-stats');
+        // Also reload the page after a short delay to ensure all changes are reflected
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.min.js"></script>
 
@@ -1606,6 +1860,15 @@
                 setTimeout(() => {
                     animateNumber('stat-total', {{ total_spending }});
                 animateNumber('stat-budget', {{ user.monthly_budget }});
+                {% if monthly_income_display %}
+                animateNumber('stat-salary', {{ monthly_income_display }});
+                {% endif %}
+                {% if total_income %}
+                animateNumber('stat-income', {{ total_income }});
+                {% endif %}
+                {% if total_available %}
+                animateNumber('stat-available', {{ total_available }});
+                {% endif %}
     animateNumber('stat-remaining', {{ user.monthly_budget - total_spending }});
                 }, 300);
             } else {
@@ -1651,21 +1914,48 @@
         startDashboardCounters();
     });
 
+    // Listen for HTMX stats updates
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+        // Check if stats wrapper was updated
+        if (event.detail.target && event.detail.target.id === 'dashboard-stats-wrapper') {
+            // Re-initialize counters after stats update
+            setTimeout(() => {
+                startDashboardCounters();
+            }, 100);
+        }
+    });
+
     // D. Notification Demo
     setTimeout(() => {
         const toastContainer = document.getElementById('toast-container');
         if (toastContainer) {
             const toast = document.createElement('div');
-            toast.className = 'pointer-events-auto backdrop-blur-md bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white px-6 py-4 rounded-xl shadow-2xl flex gap-3 transform transition-all duration-500 translate-x-full';
+            toast.className = 'pointer-events-auto backdrop-blur-md bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white px-6 py-4 rounded-xl shadow-2xl flex gap-3 items-center transform transition-all duration-500 translate-x-full';
             toast.innerHTML = `
-                    <span class="text-2xl">🔔</span>
-                    <div>
+                    <span class="text-2xl flex-shrink-0">🔔</span>
+                    <div class="flex-1">
                         <p class="font-bold">Abunəlik Xəbərdarlığı</p>
                         <p class="text-sm">Netflix sabah yenilənir (12 ₼).</p>
-                    </div>`;
+                    </div>
+                    <button class="toast-close-btn p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0" aria-label="Bağla" onclick="this.closest('div').style.transform='translateX(100%)'; this.closest('div').style.opacity='0'; setTimeout(() => this.closest('div').remove(), 500);">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>`;
             toastContainer.appendChild(toast);
             requestAnimationFrame(() => toast.classList.remove('translate-x-full'));
-            setTimeout(() => toast.remove(), 8000);
+            
+            // Auto-remove after 8 seconds
+            const autoRemoveTimeout = setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 8000);
+            
+            // Pause auto-remove on hover
+            toast.addEventListener('mouseenter', () => {
+                if (autoRemoveTimeout) clearTimeout(autoRemoveTimeout);
+            });
         }
     }, 5000);
     });

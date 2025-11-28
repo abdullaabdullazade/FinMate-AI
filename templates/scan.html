@@ -113,16 +113,23 @@
         return new Date(utc + (4 * 3600000)).toISOString();
     }
 
-    // Reset function - brings back upload UI
+    // Reset function - brings back upload UI or reload page
     function resetScan() {
+        // If receipt was just confirmed, reload page to show updated data
+        if (sessionStorage.getItem('reloadAfterReceipt') === 'true') {
+            sessionStorage.removeItem('reloadAfterReceipt');
+            window.location.reload();
+            return;
+        }
+        
         const initialState = document.getElementById('initial-state');
         const resultDiv = document.getElementById('scanResult');
 
         // Clear result
-        resultDiv.innerHTML = '';
+        if (resultDiv) resultDiv.innerHTML = '';
 
         // Show initial state
-        initialState.classList.remove('hidden');
+        if (initialState) initialState.classList.remove('hidden');
     }
 
     // Upload file function with state toggle

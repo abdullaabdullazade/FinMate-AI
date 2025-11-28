@@ -262,9 +262,6 @@
 
             document.body.classList.add('incognito-mode');
             localStorage.setItem('incognito-mode', 'enabled');
-            if (alertCounter) {
-                alertCounter.style.display = 'none';
-            }
 
             // INSTANT hide - no delays
             if (window.hideAllAmounts) {
@@ -274,9 +271,6 @@
         } else {
             document.body.classList.remove('incognito-mode');
             localStorage.removeItem('incognito-mode');
-            if (alertCounter) {
-                alertCounter.style.display = 'block';
-            }
             updateEyeIcons(false);
 
             // Show all amounts with counter animation
@@ -397,17 +391,10 @@
 
         if (isIncognitoEnabled) {
             document.body.classList.add('incognito-mode');
-            if (alertCounter) {
-                alertCounter.style.display = 'none';
-            }
             if (window.hideAllAmounts) {
                 window.hideAllAmounts();
             }
             updateEyeIcons(true);
-        } else {
-            if (alertCounter) {
-                alertCounter.style.display = 'block';
-            }
         }
 
         // Watch for dynamically added content (with debounce for performance)

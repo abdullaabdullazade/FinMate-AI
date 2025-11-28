@@ -18,6 +18,7 @@ class User(Base):
     # Gamification fields
     xp_points = Column(Integer, default=0)
     level_title = Column(String, default="Rookie")
+    last_rewarded_month = Column(String, nullable=True)  # Format: "YYYY-MM"
     
     # User preferences
     preferred_language = Column(String, default="az")  # az, en, ru
@@ -167,3 +168,22 @@ class Dream(Base):
     
     def __repr__(self):
         return f"<Dream(title='{self.title}', saved={self.saved_amount}/{self.target_amount})>"
+
+
+class Income(Base):
+    __tablename__ = "incomes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    source = Column(String, nullable=False)  # "Salary", "Freelance", "Bonus", "Other", etc.
+    description = Column(Text, nullable=True)  # Optional description
+    date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    is_recurring = Column(Boolean, default=False)  # Is this a recurring income (like salary)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", backref="incomes")
+    
+    def __repr__(self):
+        return f"<Income(source='{self.source}', amount={self.amount}, date={self.date})>"

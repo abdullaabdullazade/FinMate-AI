@@ -51,6 +51,21 @@
         }
     };
 
+    // Helper function to get current currency
+    window.getCurrentCurrency = function () {
+        const selector = document.getElementById('currency-selector');
+        if (selector && selector.value) {
+            return selector.value;
+        }
+        // Fallback: try to get from currency-symbol-min
+        const currencyEl = document.getElementById('currency-symbol-min');
+        if (currencyEl) {
+            return currencyEl.textContent.trim();
+        }
+        // Last fallback
+        return currentCurrency || 'AZN';
+    };
+
     // Budget Slider Logic
     window.updateBudgetFromSlider = function (val) {
         const input = document.getElementById('monthly-budget-input');
@@ -67,11 +82,9 @@
             input.value = numVal;
         }
 
-        // Update display unit
+        // Update display unit with current currency
         if (displayUnit) {
-            // Get currency from page
-            const currencyEl = document.getElementById('currency-symbol-min');
-            const currency = currencyEl ? currencyEl.textContent.trim() : 'AZN';
+            const currency = window.getCurrentCurrency();
             displayUnit.textContent = currency;
         }
 
@@ -103,7 +116,7 @@
         // Allow empty input - don't validate during typing
         if (!val || val === '') {
             if (displayUnit) {
-                displayUnit.textContent = 'AZN';
+                displayUnit.textContent = window.getCurrentCurrency();
             }
             if (progress && thumb) {
                 progress.style.width = '0%';
@@ -124,9 +137,9 @@
             return;
         }
 
-        // Update display unit
+        // Update display unit with current currency
         if (displayUnit) {
-            displayUnit.textContent = 'AZN';
+            displayUnit.textContent = window.getCurrentCurrency();
         }
 
         // Update slider and progress
@@ -236,43 +249,57 @@
 
     // Form Validation before submit
     window.validateSettingsForm = function (form) {
-        const dailyLimitInput = document.getElementById('daily-budget-limit-input');
-        if (dailyLimitInput && dailyLimitInput.value !== '') {
-            if (!window.validateDailyLimit(dailyLimitInput)) {
-                return false;
-            }
-        }
-
-        // Validate monthly budget input on form submit
-        const monthlyBudgetInput = document.getElementById('monthly-budget-input');
-        if (monthlyBudgetInput) {
-            const val = String(monthlyBudgetInput.value).toLowerCase().trim();
-            const isUnlimited = val === 'limitsiz' || val === 'unlimited' || val === '∞';
-
-            // If empty, set to minimum
-            if (!val || val === '') {
-                monthlyBudgetInput.value = '100';
-            } else if (isUnlimited) {
-                // Set to 50000 for unlimited
-                monthlyBudgetInput.value = '50000';
-            } else {
-                const budgetVal = parseFloat(monthlyBudgetInput.value);
-                if (isNaN(budgetVal) || budgetVal < 100) {
-                    monthlyBudgetInput.value = '100';
-                    window.showToast('Aylıq büdcə minimum 100 AZN olmalıdır', 'error');
+        try {
+            // Validate daily limit if provided
+            const dailyLimitInput = document.getElementById('daily-budget-limit-input');
+            if (dailyLimitInput && dailyLimitInput.value !== '' && dailyLimitInput.value !== null) {
+                const dailyVal = parseFloat(dailyLimitInput.value);
+                if (isNaN(dailyVal) || dailyVal < 0 || dailyVal > 1000) {
+                    window.showToast('Gündəlik limit 0-1000 arasında olmalıdır', 'error');
                     return false;
                 }
             }
-            // No maximum limit - unlimited allowed
-        }
 
-        return true;
+            // Validate monthly budget input on form submit
+            const monthlyBudgetInput = document.getElementById('monthly-budget-input');
+            if (monthlyBudgetInput) {
+                const val = String(monthlyBudgetInput.value).toLowerCase().trim();
+                const isUnlimited = val === 'limitsiz' || val === 'unlimited' || val === '∞';
+
+                // If empty, set to minimum
+                if (!val || val === '') {
+                    monthlyBudgetInput.value = '100';
+                } else if (isUnlimited) {
+                    // Set to 50000 for unlimited
+                    monthlyBudgetInput.value = '50000';
+                } else {
+                    const budgetVal = parseFloat(monthlyBudgetInput.value);
+                    if (isNaN(budgetVal) || budgetVal < 100) {
+                        monthlyBudgetInput.value = '100';
+                        window.showToast('Aylıq büdcə minimum 100 AZN olmalıdır', 'error');
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        } catch (e) {
+            console.error('Validation error:', e);
+            return true; // Allow submission if validation fails to avoid blocking
+        }
     };
 
-    // Toast Notification System
+    // Toast Notification System with close button and swipe
     window.showToast = function (message, type = 'success') {
         const container = document.getElementById('toast-container');
-        if (!container) return;
+        if (!container) {
+            // Create container if it doesn't exist
+            const newContainer = document.createElement('div');
+            newContainer.id = 'toast-container';
+            newContainer.className = 'fixed top-24 right-6 z-50 flex flex-col gap-2 pointer-events-none';
+            document.body.appendChild(newContainer);
+            container = newContainer;
+        }
 
         const toast = document.createElement('div');
 
@@ -284,11 +311,17 @@
 
         const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
 
-        toast.className = `pointer-events-auto backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full ${styles}`;
+        toast.className = `pointer-events-auto backdrop-blur-md text-white px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 transform transition-all duration-500 translate-x-full relative group ${styles}`;
         toast.innerHTML = `
             <span class="text-xl">${icon}</span>
-            <span class="font-medium">${message}</span>
+            <span class="font-medium flex-1">${message}</span>
+            <button onclick="this.closest('.toast-item').remove()" class="opacity-0 group-hover:opacity-100 transition-opacity ml-2 hover:bg-white/20 rounded-full p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         `;
+        toast.classList.add('toast-item');
 
         container.appendChild(toast);
 
@@ -297,55 +330,108 @@
             toast.classList.remove('translate-x-full');
         });
 
-        // Remove after 3 seconds
-        setTimeout(() => {
+        // Swipe to dismiss
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        toast.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        toast.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            if (diff > 0) {
+                toast.style.transform = `translateX(${diff}px)`;
+                toast.style.opacity = `${1 - Math.min(diff / 200, 1)}`;
+            }
+        });
+
+        toast.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentX - startX;
+            if (diff > 100) {
+                // Swiped enough to dismiss
+                toast.style.transform = 'translateX(400px)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            } else {
+                // Snap back
+                toast.style.transform = '';
+                toast.style.opacity = '';
+            }
+        });
+
+        // Auto remove after 5 seconds (increased from 3)
+        const autoRemoveTimeout = setTimeout(() => {
             toast.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => toast.remove(), 500);
-        }, 3000);
+        }, 5000);
+
+        // Clear timeout if manually closed
+        toast.querySelector('button')?.addEventListener('click', () => {
+            clearTimeout(autoRemoveTimeout);
+        });
     };
 
-    // HTMX Request Validation - Prevent refresh
+    // HTMX Request Validation - only for settings form
     document.body.addEventListener('htmx:configRequest', function (event) {
-        if (event.detail && event.detail.target && event.detail.target.tagName === 'FORM') {
-            // Prevent default form submission (HTMX will handle it)
-            event.preventDefault();
-            
-            // Validate form before submit
-            if (!window.validateSettingsForm(event.detail.target)) {
-                event.preventDefault();
-                return false;
+        if (event.detail && event.detail.target) {
+            const form = event.detail.target;
+            // Only validate settings form
+            if (form && form.id === 'settings-form') {
+                console.log('Validating settings form...');
+                const isValid = window.validateSettingsForm(form);
+                console.log('Validation result:', isValid);
+                if (!isValid) {
+                    console.log('Settings form validation failed - blocking request');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+                console.log('Settings form validation passed - allowing request');
             }
         }
     });
-    
-    // Prevent form refresh on submit
-    document.body.addEventListener('submit', function (event) {
-        const form = event.target;
-        if (form && (form.hasAttribute('hx-post') || form.hasAttribute('hx-get') || form.hasAttribute('hx-put'))) {
-            event.preventDefault();
-            event.stopPropagation();
-            return false;
-        }
-    }, true);
 
-    // HTMX Response Handling
+    // Don't prevent default - let HTMX handle it naturally
+    // The submit event handler is removed to avoid interfering with HTMX
+
+    // HTMX Response Handling - only for settings form
     document.body.addEventListener('htmx:afterRequest', function (event) {
-        if (event.detail && event.detail.target && event.detail.target.tagName === 'FORM') {
-            if (event.detail.successful) {
-                try {
-                    const response = JSON.parse(event.detail.xhr.response);
-                    if (response.success) {
-                        window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı');
-                        // Voice notification happens automatically via showToast override
-                    } else {
-                        window.showToast(response.error || 'Xəta baş verdi', 'error');
+        if (event.detail && event.detail.target) {
+            const form = event.detail.target;
+            // Only handle settings form responses
+            if (form && form.id === 'settings-form') {
+                if (event.detail.successful) {
+                    try {
+                        const responseText = event.detail.xhr.responseText;
+                        if (responseText) {
+                            const response = JSON.parse(responseText);
+                            if (response.success) {
+                                window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı');
+                                // Voice notification happens automatically via showToast override
+                            } else {
+                                window.showToast(response.error || 'Xəta baş verdi', 'error');
+                            }
+                        }
+                    } catch (e) {
+                        // JSON parse failed - likely non-JSON response, ignore
+                        console.log('Non-JSON response received:', e);
+                        // Still show success message if request was successful
+                        if (event.detail.xhr.status === 200) {
+                            window.showToast('Tənzimləmələr yadda saxlanıldı');
+                        }
                     }
-                } catch (e) {
-                    // JSON parse failed - likely non-JSON response, ignore
-                    console.log('Non-JSON response received');
+                } else {
+                    const status = event.detail.xhr ? event.detail.xhr.status : 'unknown';
+                    console.error('Settings save failed:', status, event.detail.xhr?.responseText);
+                    window.showToast('Server xətası baş verdi', 'error');
                 }
-            } else {
-                window.showToast('Server xətası baş verdi', 'error');
             }
         }
     });
@@ -357,7 +443,7 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         if (!confirm('Demo məlumatlarını sıfırlamaq istəyirsən? Bütün cari məlumatlar silinəcək.')) return;
         try {
             const res = await fetch('/api/reset-demo', { method: 'POST' });
@@ -422,7 +508,7 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         console.log('Settings: Applying theme:', theme);
 
         // Call global function if available
@@ -488,7 +574,7 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         if (typeof window.toggleIncognitoMode === 'function') {
             window.toggleIncognitoMode(enabled);
             if (enabled) {
@@ -522,6 +608,16 @@
         // If same currency, do nothing
         if (oldCurrency === newCurrency) {
             return;
+        }
+
+        // Update currency display elements immediately (before confirmation)
+        const currencySymbolMin = document.getElementById('currency-symbol-min');
+        const budgetDisplayUnit = document.getElementById('budget-display-unit');
+        if (currencySymbolMin) {
+            currencySymbolMin.textContent = newCurrency;
+        }
+        if (budgetDisplayUnit) {
+            budgetDisplayUnit.textContent = newCurrency;
         }
 
         // Get preview from server
@@ -656,7 +752,7 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         const modal = document.getElementById('currency-confirm-modal');
         const selector = document.getElementById('currency-selector');
 
@@ -678,7 +774,7 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        
+
         if (!pendingCurrencyChange) {
             window.closeCurrencyModal();
             return;
@@ -734,13 +830,16 @@
             try {
                 const data = JSON.parse(response.responseText);
                 if (data.success) {
-                    window.showToast('Tənzimləmələr yadda saxlanıldı', 'success');
+                    window.showToast(data.message || 'Tənzimləmələr yadda saxlanıldı', 'success');
+                    // Trigger settings updated event for dashboard refresh
+                    document.body.dispatchEvent(new CustomEvent('settingsUpdated'));
                 } else {
                     window.showToast(data.error || 'Xəta baş verdi', 'error');
                 }
             } catch (e) {
                 // If response is not JSON, assume success
                 window.showToast('Tənzimləmələr yadda saxlanıldı', 'success');
+                document.body.dispatchEvent(new CustomEvent('settingsUpdated'));
             }
         } else {
             window.showToast('Xəta baş verdi', 'error');

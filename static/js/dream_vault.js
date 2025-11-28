@@ -299,9 +299,11 @@ function openEditDreamModal(dreamId) {
                     form.setAttribute('hx-target', `#dream-${dreamId}`);
                     form.setAttribute('hx-swap', 'outerHTML');
 
-                    // Re-process HTMX attributes
+                    // Re-process HTMX attributes - use setTimeout to ensure DOM is ready
                     if (typeof htmx !== 'undefined') {
-                        htmx.process(form);
+                        setTimeout(() => {
+                            htmx.process(form);
+                        }, 50);
                     }
                 }
 
@@ -424,4 +426,6 @@ window.closeAddDreamModal = closeAddDreamModal;
 window.openEditDreamModal = openEditDreamModal;
 window.closeEditDreamModal = closeEditDreamModal;
 window.deleteDream = deleteDream;
+window.handleDreamSubmit = handleDreamSubmit;
+window.handleEditDreamSubmit = handleEditDreamSubmit;
 

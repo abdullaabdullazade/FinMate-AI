@@ -28,7 +28,7 @@ function showXPToast(amount, action) {
 }
 
 // Trigger level up animation with confetti
-function triggerLevelUp(newLevel, levelInfo) {
+function triggerLevelUp(newLevel, levelInfo, coinsAwarded = 0) {
     // Confetti explosion
     if (window.confetti) {
         confetti({
@@ -57,13 +57,15 @@ function triggerLevelUp(newLevel, levelInfo) {
     // Show level-up modal
     const modal = document.createElement('div');
     modal.className = 'level-up-modal';
+    const coinReward = coinsAwarded > 0 ? `<div class="level-up-reward">🎁 Hədiyyə: <strong>${coinsAwarded} Coin</strong></div>` : '';
     modal.innerHTML = `
         <div class="level-up-content">
             <div class="level-up-icon">${levelInfo.emoji}</div>
             <h2 class="level-up-title">Level Up!</h2>
-            <p class="level-up-text">You're now a <strong>${newLevel}</strong>!</p>
+            <p class="level-up-text">Sən indi <strong>${newLevel}</strong> oldun!</p>
+            ${coinReward}
             <button onclick="this.closest('.level-up-modal').remove()" class="level-up-button">
-                Awesome! 🎉
+                Əla! 🎉
             </button>
         </div>
     `;
@@ -107,7 +109,7 @@ document.addEventListener('htmx:afterSwap', function (event) {
             // Check for level up
             if (xpResult.level_up) {
                 setTimeout(() => {
-                    triggerLevelUp(xpResult.new_level, xpResult.level_info);
+                    triggerLevelUp(xpResult.new_level, xpResult.level_info, xpResult.coins_awarded || 0);
                 }, 500);
             }
         }
@@ -217,7 +219,17 @@ style.textContent = `
     .level-up-text {
         font-size: 18px;
         color: #666;
-        margin-bottom: 30px;
+        margin-bottom: 15px;
+    }
+    
+    .level-up-reward {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
     }
     
     .level-up-button {
