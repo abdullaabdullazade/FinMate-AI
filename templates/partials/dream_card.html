@@ -170,10 +170,11 @@
 
     <!-- Actions -->
     <div class="flex gap-1.5 sm:gap-2">
-        <button onclick="openAddSavingsModal({{ dream.id }}, '{{ dream.title }}')"
-            class="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg text-white font-medium hover:scale-105 transition text-xs sm:text-sm">
-            <span class="hidden sm:inline">💰 Qənaət Əlavə Et</span>
-            <span class="sm:hidden">💰 Əlavə Et</span>
+        <button onclick="animateMoneyIconOnClick(this); openAddSavingsModal({{ dream.id }}, '{{ dream.title }}')"
+            class="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg text-white font-medium hover:scale-105 transition text-xs sm:text-sm flex items-center justify-center gap-1.5">
+            <span class="money-icon text-base sm:text-lg leading-none inline-flex items-center">💰</span>
+            <span class="hidden sm:inline">Qənaət Əlavə Et</span>
+            <span class="sm:hidden">Əlavə Et</span>
         </button>
         <button onclick="openEditDreamModal({{ dream.id }})"
             class="px-2 sm:px-4 py-1.5 sm:py-2 bg-white/10 rounded-lg text-white hover:bg-white/20 transition text-xs sm:text-sm flex-shrink-0">
@@ -202,7 +203,7 @@
                 </button>
             </div>
             <form hx-post="/api/dreams/{{ dream.id }}/add-savings" hx-target="#dream-{{ dream.id }}" hx-swap="outerHTML"
-                onsubmit="closeAddSavingsModal({{ dream.id }}); return true;">
+                onsubmit="animateMoneyIcon(this); closeAddSavingsModal({{ dream.id }}); return true;">
                 <div class="space-y-3 sm:space-y-4">
                     <div>
                         <label class="block text-xs sm:text-sm text-white/70 mb-1.5 sm:mb-2">Məbləğ ({{ user.currency or
@@ -211,8 +212,9 @@
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-green-500 transition">
                     </div>
                     <button type="submit"
-                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm sm:text-base font-bold py-2.5 sm:py-3 rounded-xl hover:shadow-lg transition">
-                        💰 Əlavə Et
+                        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm sm:text-base font-bold py-2.5 sm:py-3 rounded-xl hover:shadow-lg transition flex items-center justify-center gap-2">
+                        <span class="money-icon text-lg sm:text-xl leading-none inline-flex items-center">💰</span>
+                        <span>Əlavə Et</span>
                     </button>
                 </div>
             </form>
@@ -244,6 +246,26 @@
                 const form = modal.querySelector('form');
                 if (form) form.reset();
             }, 300);
+        }
+    }
+
+    function animateMoneyIcon(form) {
+        const moneyIcon = form.querySelector('.money-icon');
+        if (moneyIcon) {
+            moneyIcon.classList.add('animate');
+            setTimeout(() => {
+                moneyIcon.classList.remove('animate');
+            }, 500);
+        }
+    }
+
+    function animateMoneyIconOnClick(button) {
+        const moneyIcon = button.querySelector('.money-icon');
+        if (moneyIcon) {
+            moneyIcon.classList.add('animate');
+            setTimeout(() => {
+                moneyIcon.classList.remove('animate');
+            }, 500);
         }
     }
 

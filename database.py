@@ -88,6 +88,14 @@ def ensure_schema():
         )
     """)
 
+    # Ensure incomes columns exist (for migration)
+    add_column_if_missing("incomes", "description TEXT")
+    add_column_if_missing("incomes", "is_recurring BOOLEAN DEFAULT 0")
+    add_column_if_missing("incomes", "date DATETIME")
+    add_column_if_missing("incomes", "source VARCHAR")
+    add_column_if_missing("incomes", "amount FLOAT")
+    add_column_if_missing("incomes", "user_id INTEGER")
+
     conn.commit()
     conn.close()
 

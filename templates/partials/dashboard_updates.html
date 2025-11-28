@@ -127,7 +127,8 @@
                 data-transaction-id="{{ txn_id }}" data-target="items-{{ txn_id }}" aria-expanded="false">
                 <div class="flex items-center gap-3">
                     <div class="merchant-logo
-                        {% if 'Market' in expense.category or 'Bravo' in expense.merchant or 'Araz' in expense.merchant %}category-market
+                        {% if 'Qənaət' in expense.category or 'qənaət' in expense.category.lower() or 'Arzu' in expense.merchant %}category-savings
+                        {% elif 'Market' in expense.category or 'Bravo' in expense.merchant or 'Araz' in expense.merchant %}category-market
                         {% elif 'Restoran' in expense.category or 'KFC' in expense.merchant or 'McDonald' in expense.merchant %}category-restoran
                         {% elif 'Kafe' in expense.category or 'Coffee' in expense.merchant or 'Starbucks' in expense.merchant %}category-kafe
                         {% elif 'Nəqliyyat' in expense.category or 'Bolt' in expense.merchant or 'Uber' in expense.merchant %}category-transport
@@ -139,7 +140,15 @@
                         {% elif 'Aptек' in expense.category or 'İdman' in expense.category %}category-health
                         {% elif 'Bank' in expense.category or 'E-ödəniş' in expense.category or 'Kapital' in expense.merchant %}category-bank
                         {% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %}">
-                        {{ expense.notes if expense.notes else '💰' }}
+                        {% if 'Qənaət' in expense.category or 'qənaət' in expense.category.lower() or 'Arzu' in expense.merchant %}
+                            <span class="money-icon-display">💰</span>
+                        {% elif expense.notes and expense.notes|length <= 2 %}
+                            {{ expense.notes }}
+                        {% elif expense.notes and expense.notes|length > 2 and expense.notes[0] in '💰💵💸💳💴💶💷💴🪙💎' %}
+                            {{ expense.notes[0] }}
+                        {% else %}
+                            💰
+                        {% endif %}
                     </div>
                     <div>
                         <p class="text-white font-medium">{{ expense.merchant }}</p>

@@ -129,3 +129,43 @@
     z-index: 20;
 }
 
+/* Money Icon Styling */
+.money-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transform-origin: center;
+}
+
+/* Smooth animation when button is clicked */
+button:active .money-icon,
+button:hover .money-icon {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Animation when money is being added */
+@keyframes moneyPulse {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.money-icon.animate {
+    animation: moneyPulse 0.5s ease-in-out;
+}
+
+/* Ensure proper alignment in buttons */
+button .money-icon {
+    vertical-align: middle;
+    line-height: 1;
+}
+

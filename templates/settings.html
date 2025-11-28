@@ -568,52 +568,21 @@
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('settings-form');
         if (form) {
+            // Toast mesajı settings.js-də göstərilir, burada yalnız reload edirik
             form.addEventListener('htmx:afterRequest', function (event) {
                 console.log('⚙️ Settings form response:', event.detail);
 
                 if (event.detail.successful) {
-                    try {
-                        const response = JSON.parse(event.detail.xhr.response);
-                        console.log('✅ Settings updated successfully:', response);
-
-                        if (typeof window.showToast === 'function') {
-                            window.showToast(response.message || 'Tənzimləmələr yadda saxlanıldı', 'success');
-                        }
-
-                        // Trigger stats update
-                        if (typeof htmx !== 'undefined') {
-                            htmx.trigger('body', 'update-stats');
-                        }
-
-                        // Reload page after a short delay to show updated settings
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } catch (e) {
-                        console.error('❌ Error parsing response:', e);
-                        console.error('   Raw response:', event.detail.xhr?.responseText);
-                        if (typeof window.showToast === 'function') {
-                            window.showToast('Tənzimləmələr yadda saxlanıldı', 'success');
-                        }
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
+                    // Trigger stats update
+                    if (typeof htmx !== 'undefined') {
+                        htmx.trigger('body', 'update-stats');
                     }
-                } else {
-                    console.error('❌ Settings form submission failed');
-                    console.error('   Status:', event.detail.xhr?.status);
-                    console.error('   Response:', event.detail.xhr?.responseText);
-                    try {
-                        const response = JSON.parse(event.detail.xhr.response);
-                        if (typeof window.showToast === 'function') {
-                            window.showToast(response.error || 'Xəta baş verdi', 'error');
-                        }
-                    } catch (e) {
-                        console.error('   Error parsing error response:', e);
-                        if (typeof window.showToast === 'function') {
-                            window.showToast('Xəta baş verdi', 'error');
-                        }
-                    }
+
+                    // Reload page after a short delay to show updated settings
+                    // Toast mesajı settings.js-də göstəriləcək
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 }
             });
 
