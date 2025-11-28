@@ -621,10 +621,9 @@
                     <span>Zamanı irəli çək:</span>
                     <span id="time-machine-label" class="font-bold text-white">İndi</span>
                 </label>
-                <input type="range" id="time-machine-slider" min="-12" max="12" value="0" step="1"
+                <input type="range" id="time-machine-slider" min="0" max="12" value="0" step="1"
                     class="w-full h-2 sm:h-3 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500">
                 <div class="flex justify-between text-xs text-white/40 mt-2">
-                    <span>1 il əvvəl</span>
                     <span>İndi</span>
                     <span>1 il sonra</span>
                 </div>
@@ -1165,6 +1164,11 @@
         slider.addEventListener('input', (e) => {
             const months = parseInt(e.target.value);
 
+            // Valyuta simvolunu dinamik olaraq yenidən götür (hər dəyişiklikdə)
+            if (remainingCurrencyEl && remainingCurrencyEl.textContent) {
+                currencySymbol = remainingCurrencyEl.textContent.trim();
+            }
+
             // A. Etiketləri və Başlıqları Yenilə
             if (months === 0) {
                 // İNDİ
@@ -1177,18 +1181,13 @@
                     remainingLabelEl.classList.remove('text-purple-300');
                 }
             } else {
-                // GƏLƏCƏK və ya KEÇMİŞ
-                const absMonths = Math.abs(months);
-                const suffix = months < 0 ? 'əvvəl' : 'sonra';
-                label.innerText = `${absMonths} ay ${suffix}`;
-
-                if (balanceLabel) balanceLabel.innerText = months < 0 ? 'O zamanın balansı' : 'Təxmini balans';
+                // GƏLƏCƏK (yalnız irəli, keçmiş yoxdur)
+                label.innerText = `${months} ay sonra`;
+                if (balanceLabel) balanceLabel.innerText = 'Təxmini balans';
 
                 // Yuxarıdakı karta "Proqnoz" olduğunu yazırıq
                 if (remainingLabelEl) {
-                    // Məsələn: Qalıq (Proqnoz: +2 ay)
-                    const direction = months > 0 ? '+' : '';
-                    remainingLabelEl.innerHTML = `Qalıq <span class="text-xs bg-purple-500/30 px-2 py-0.5 rounded text-purple-200 ml-2 border border-purple-500/50">Proqnoz: ${direction}${months} ay</span>`;
+                    remainingLabelEl.innerHTML = `Qalıq <span class="text-xs bg-purple-500/30 px-2 py-0.5 rounded text-purple-200 ml-2 border border-purple-500/50">Proqnoz: +${months} ay</span>`;
                 }
             }
 
