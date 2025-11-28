@@ -9,6 +9,19 @@ function getTodayDateString() {
 }
 
 function openAddDreamModal() {
+    // Check limit (max 5 active dreams)
+    const dreamsList = document.getElementById('dreams-list');
+    const dreamCards = dreamsList ? dreamsList.querySelectorAll('.dream-card') : [];
+
+    if (dreamCards.length >= 5) {
+        if (typeof window.showToast === 'function') {
+            window.showToast('⚠️ Maksimum 5 arzu yarada bilərsiniz!', 'warning');
+        } else {
+            alert('Maksimum 5 arzu yarada bilərsiniz!');
+        }
+        return;
+    }
+
     const modal = document.getElementById('add-dream-modal');
 
     // Set min date to today

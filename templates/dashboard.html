@@ -3,211 +3,7 @@
 {% block title %}Dashboard - FinMate AI{% endblock %}
 
 {% block extra_head %}
-<!-- Edit Modal Functions - Define early -->
-<script>
-    // Define income modal functions immediately (before DOM is ready)
-    window.openAddIncomeModal = function() {
-        console.log('💰 openAddIncomeModal called');
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(function() {
-            try {
-                const modal = document.getElementById('add-income-modal');
-                const content = document.getElementById('add-income-modal-content');
-                console.log('Modal elements:', { modal: !!modal, content: !!content });
-                
-                if (!modal) {
-                    console.error('❌ Income modal not found!');
-                    alert('Modal tapılmadı. Səhifəni yeniləyin.');
-                    return;
-                }
-                
-                if (!content) {
-                    console.error('❌ Income modal content not found!');
-                    return;
-                }
-                
-                console.log('✅ Opening income modal');
-                modal.classList.remove('hidden');
-                // Small delay for animation
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                }, 10);
-            } catch (error) {
-                console.error('❌ Error opening income modal:', error);
-                alert('Xəta: ' + error.message);
-            }
-        }, 0);
-    };
-
-    window.closeAddIncomeModal = function() {
-        console.log('💰 closeAddIncomeModal called');
-        try {
-            const modal = document.getElementById('add-income-modal');
-            const content = document.getElementById('add-income-modal-content');
-            if (!modal || !content) {
-                console.error('Income modal elements not found');
-                return;
-            }
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        } catch (error) {
-            console.error('Error closing income modal:', error);
-        }
-    };
-    
-    // Also add event listener when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ DOM loaded, setting up income button listener');
-        const incomeButton = document.querySelector('[onclick*="openAddIncomeModal"]');
-        if (incomeButton) {
-            console.log('✅ Income button found, adding click listener');
-            // Remove old onclick and add event listener
-            incomeButton.removeAttribute('onclick');
-            incomeButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('💰 Income button clicked!');
-                window.openAddIncomeModal();
-            });
-        } else {
-            console.warn('⚠️ Income button not found');
-        }
-    });
-
-    // Define edit modal functions immediately (before DOM is ready)
-    window.openEditModal = function (id, merchant, amount, category) {
-        console.log('openEditModal called with:', { id, merchant, amount, category });
-
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(function () {
-            try {
-                const modal = document.getElementById('edit-modal');
-                const form = document.getElementById('edit-form');
-
-                if (!modal) {
-                    console.error('Edit modal not found');
-                    return;
-                }
-
-                if (!form) {
-                    console.error('Edit form not found');
-                    return;
-                }
-
-                // Set form values
-                const merchantInput = document.getElementById('edit-merchant');
-                const amountInput = document.getElementById('edit-amount');
-                const categoryInput = document.getElementById('edit-category');
-
-                if (merchantInput) merchantInput.value = merchant || '';
-                if (amountInput) amountInput.value = amount || 0;
-                if (categoryInput) categoryInput.value = category || 'Digər';
-
-                // Remove old HTMX attributes first
-                form.removeAttribute('hx-put');
-                form.removeAttribute('hx-target');
-                form.removeAttribute('hx-swap');
-
-                // Set new HTMX attributes
-                form.setAttribute('hx-put', '/api/expenses/' + id);
-                form.setAttribute('hx-target', '#expense-' + id);
-                form.setAttribute('hx-swap', 'outerHTML');
-
-                // Re-process HTMX attributes
-                if (typeof htmx !== 'undefined') {
-                    setTimeout(function () {
-                        htmx.process(form);
-                    }, 50);
-                }
-
-                // Show modal
-                modal.classList.remove('hidden');
-                setTimeout(function () {
-                    modal.classList.remove('opacity-0');
-                    const modalContent = document.getElementById('edit-modal-content');
-                    if (modalContent) {
-                        modalContent.classList.remove('scale-95');
-                        modalContent.classList.add('scale-100');
-                    }
-                }, 10);
-            } catch (error) {
-                console.error('Error opening edit modal:', error);
-            }
-        }, 0);
-    };
-
-    window.closeEditModal = function () {
-        try {
-            const modal = document.getElementById('edit-modal');
-            if (!modal) return;
-
-            modal.classList.add('opacity-0');
-            const modalContent = document.getElementById('edit-modal-content');
-            if (modalContent) {
-                modalContent.classList.add('scale-95');
-                modalContent.classList.remove('scale-100');
-            }
-
-            setTimeout(function () {
-                modal.classList.add('hidden');
-            }, 300);
-        } catch (error) {
-            console.error('Error closing edit modal:', error);
-        }
-    };
-
-    window.handleEditExpenseSubmit = function (event) {
-        console.log('handleEditExpenseSubmit triggered', event);
-        try {
-            // Check if request was successful (HTMX sends this in detail)
-            const isSuccess = event.detail.successful ||
-                (event.detail.xhr && event.detail.xhr.status >= 200 && event.detail.xhr.status < 300);
-
-            if (isSuccess) {
-                console.log('Edit successful, closing modal');
-                window.closeEditModal();
-                if (typeof window.showToast === 'function') {
-                    window.showToast('✅ Qəbz uğurla yeniləndi', 'success');
-                }
-
-                // Trigger stats update
-                document.body.dispatchEvent(new Event('transactionUpdated'));
-
-                // Also trigger HTMX update-stats manually if needed
-                if (typeof htmx !== 'undefined') {
-                    htmx.trigger('body', 'update-stats');
-                }
-            } else {
-                console.error('Edit failed', event.detail);
-                const xhr = event.detail.xhr;
-                let errorMsg = 'Xəta baş verdi';
-
-                if (xhr) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.error) errorMsg = response.error;
-                    } catch (e) {
-                        if (xhr.responseText) errorMsg = xhr.responseText;
-                    }
-                }
-
-                if (typeof window.showToast === 'function') {
-                    window.showToast('❌ ' + errorMsg, 'error');
-                } else {
-                    alert('Xəta: ' + errorMsg);
-                }
-            }
-        } catch (error) {
-            console.error('Error handling edit submit:', error);
-        }
-    };
-</script>
+<!-- Edit Modal Functions moved to extra_scripts -->
 <style>
     /* Premium Dashboard Styles */
     .dashboard-grid {
@@ -588,7 +384,8 @@
                     class="px-6 py-3 bg-white/10 rounded-xl text-white font-medium hover:bg-white/20 transition border border-white/20">
                     📸 Çek Skan
                 </a>
-                <button onclick="if(typeof window.openAddIncomeModal === 'function') { window.openAddIncomeModal(); } else { console.error('openAddIncomeModal not found'); }"
+                <button id="income-button"
+                    onclick="if(typeof window.openAddIncomeModal === 'function') { window.openAddIncomeModal(); } else { console.error('openAddIncomeModal not found'); alert('Funksiya tapılmadı!'); }"
                     class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg border border-white/20">
                     💰 Gəlir
                 </button>
@@ -712,7 +509,7 @@
                             "%.2f"|format(total_spending)
                             }}</span>
                         <span id="stat-total-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                            user.currency or '{{ currency_symbol }}' }}</span>
+                            user.currency or currency_symbol }}</span>
                     </div>
                 </div>
 
@@ -728,7 +525,7 @@
                             defined else user.monthly_budget)
                             }}</span>
                         <span id="stat-budget-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                            user.currency or '{{ currency_symbol }}' }}</span>
+                            user.currency or currency_symbol }}</span>
                     </div>
                 </div>
 
@@ -745,7 +542,7 @@
                             total_spending)) }}
                         </span>
                         <span id="stat-remaining-currency" class="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">{{
-                            user.currency or '{{ currency_symbol }}' }}</span>
+                            user.currency or currency_symbol }}</span>
                     </div>
                 </div>
 
@@ -806,15 +603,14 @@
                 <p id="projected-balance"
                     class="text-2xl sm:text-4xl font-bold text-white transition-colors duration-300 incognito-hidden">
                     {{ "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
-                    total_spending)) }} <span id="projected-balance-currency">{{ user.currency or '{{ currency_symbol
-                        }}' }}</span>
+                    total_spending)) }} <span id="projected-balance-currency">{{ user.currency or currency_symbol
+                        }}</span>
                 </p>
                 <p class="text-xs text-white/40 mt-1">
                     Aylıq qənaət: <span id="monthly-savings" class="incognito-hidden">{{
                         "%.2f"|format(remaining_budget if remaining_budget is defined else (user.monthly_budget -
                         total_spending))
-                        }}</span> <span id="monthly-savings-currency">{{ user.currency or '{{ currency_symbol }}'
-                        }}</span>
+                        }}</span> <span id="monthly-savings-currency">{{ user.currency or currency_symbol }}</span>
                 </p>
             </div>
         </div>
@@ -1504,7 +1300,9 @@
             id="add-income-modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-white">Gəlir Əlavə Et</h3>
-                <button onclick="if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } else { console.error('closeAddIncomeModal not found'); }" class="text-white/50 hover:text-white">
+                <button
+                    onclick="if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } else { console.error('closeAddIncomeModal not found'); }"
+                    class="text-white/50 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -1512,7 +1310,7 @@
                 </button>
             </div>
 
-            <form hx-post="/api/add-income" hx-swap="none" 
+            <form hx-post="/api/add-income" hx-swap="none"
                 hx-on::after-request="if(event.detail.successful) { if(typeof window.closeAddIncomeModal === 'function') { window.closeAddIncomeModal(); } htmx.trigger('body', 'update-stats'); if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.message || 'Gəlir əlavə edildi', 'success'); } catch(e) { window.showToast('Gəlir əlavə edildi', 'success'); } } } else { if(typeof window.showToast === 'function') { try { const response = JSON.parse(event.detail.xhr.response); window.showToast(response.error || 'Xəta baş verdi', 'error'); } catch(e) { window.showToast('Xəta baş verdi', 'error'); } } }">
                 <div class="space-y-4">
                     <div>
@@ -1554,6 +1352,336 @@
 <!-- Income modal functions are now defined in extra_head block -->
 
 {% block extra_scripts %}
+<!-- Edit Modal Functions (Moved from head) -->
+<script>
+    // Define income modal functions - with retry logic to wait for modal to be in DOM
+    window.openEditModal = f unction(id, merchant, amount, category) {
+        console.log('✏️ Edit Modal açılır:', { id, merchant, amount, category });
+
+        const modal = document.getElementById('edit-modal');
+        const form = document.getElementById('edit-form');
+        const modalContent = document.getElementById('edit-modal-content');
+
+        if (!modal || !form) {
+            console.error('❌ Kritik Xəta: Edit  ta        alert('Səhifədə xəta var.Zəhmət olmasa yeniləyin.');
+            return;
+        }
+
+        // A. Form inputlarını doldururuq
+        const merchantInput = document.getElementById(;
+        const amoent.getElementById('edit-amount');
+        const categoryInput = document.getElementById('edit-category');
+
+        t) merchantInput.value = merchant | (amountInput) amountInput.value = amount || 0;
+        if (categoryInput) categoryInput.value = category || 'Digər';
+
+        // B. HTMX Atributlarını dinamik yeniləyirik
+        // Əvvəlcə köhnələri təmizləyirik
+        form.removeAttribute('hx-put');
+        form.removeAttribute('hx-target');
+
+        // Yeni URL və Target təyin edirik
+        // DİQQƏT: partials/transaction_row.html faylında sətrin ID-si "transaction-row-{{id}}" olmalıdır!
+        const targetId = '#transaction-row-' + id;
+
+        form.setAttribute('hx-put', '/api /expenses/' + id);
+        form.setAttribute('hx-t arget', targetId);
+        form.setAttribute('hx-swap', 'outerHTML');
+
+        console.log(`🔗 HTMX hədəflənir: ${targetId} -> /api/expenses/${id}`);
+
+        // C. HTMX-ə deyirik ki, "Bax, bu form dəyişdi, onu yenidən oxu"
+        if (typeof htmx !== 'undefined') {
+            htmx.process(form);
+        } else {
+            console.warn('⚠️ HTMX kitabxanası tapılmadı!');
+        }
+
+        // D. Modalı göstəririk (Animasiya ilə)
+        modal.classList.remove('hidden');
+
+        // Browserin render etməsi üçün kiçik fasilə (requestAnimationFrame)
+        requestAnimationFrame(() => {
+            modal.classList.remove('opacity-0');
+            if (moontent) {
+                modalContent.classList.re('scale-95');
+                modalContent.classList.add('scale-100');
+            }
+        });
+    };
+
+    // 2. Modalı bağlamaq
+    window.closeEditModal = function () {
+        const modalocument.getElementById('edit-modal');
+        const moontent = document.getElementById('edit-modal-content');
+
+        if (!modal) return;
+
+        // Bağlanma animasiyası
+        modal.classList.add('opacity-0');
+        if (modalContent) {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+        }
+
+        // Animasiya bitdikdən sonra gizlət (300ms)
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    };
+
+    // 3. Form submit olunduqdan sonrakı cavab (HTMX event)
+    window.handleEditExpenseSubmit = function (event) {
+        console.log('💾 Edit Submit cavabı:', event);
+
+        // Status yoxlanışı
+        const xhr = event.detail.xhr;
+        const isSuccess = xhr && xhr.status >= 200 && xhr.status < 300;
+
+        if (isSuccess) {
+            console.log('✅ Uğurla yeniləndi');
+            window.closeEditModal();
+
+            // Toast bildirişi
+            if (typeof window.showToast === 'function') {
+                window.showToast('✅ Əməliyyat uğurla yeniləndi', 'success');
+            }
+
+            // Dashboard statistikasını yenilə (vacib!)
+            if (typeof htmx !== 'undefined') {
+                htmx.trigger('body', 'update-stats');
+            }
+
+            // Event atırıq ki, digər komponentlər də bilsin
+            document.body.dispatchEvent(new Event('transactionUpdated'));
+        } else {
+            console.error('❌ Xəta baş verdi');
+            let errorMsg = 'Yadda saxlanılmadı';
+            try {
+                const response = JSON.parse(xhr.responseText);
+                errorMsg = response.error || errorMsg;
+            } catch (e) {
+                if (xhr.responseText) errorMsg = xhr.responseText;
+            }
+
+            if (typeof window.showToast === 'function') {
+                window.showToast('❌ ' + errorMsg, 'error');
+            } else {
+                alert('Xəta: ' + errorMsg);
+            }
+        }
+    };
+
+    // ESC düyməsi ilə bağlamaq üçün
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('edit-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                window.closeEditModal();
+            }
+        }
+    });
+    // Define income modal functions
+    window.openAddIncomeModal = function () {
+        console.log('💰 openAddIncomeModal called');
+        const modal = document.getElementById('add-income-modal');
+        const content = document.getElementById('add-income-modal-content');
+
+        if (!modal || !content) {
+            console.error('❌ Income modal elements not found', { modal: !!modal, content: !!content });
+            alert('Xəta: Modal tapılmadı. Səhifəni yeniləyin.');
+            return;
+        }
+
+        console.log('✅ Opening income modal');
+        modal.classList.remove('hidden');
+        // Small delay for animation
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    };
+
+    window.closeAddIncomeModal = function () {
+        console.log('💰 closeAddIncomeModal called');
+        try {
+            const modal = document.getElementById('add-income-modal');
+            const content = document.getElementById('add-income-modal-content');
+            if (!modal || !content) {
+                console.error('Income modal elements not found');
+                return;
+            }
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        } catch (error) {
+            console.error('Error closing income modal:', error);
+        }
+    };
+
+    // Also add event listener when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupIncomeButton);
+    } else {
+        // DOM already loaded
+        setupIncomeButton();
+    }
+
+    function setupIncomeButton() {
+        console.log('✅ Setting up income button listener');
+        const incomeButton = document.getElementById('income-button') || document.querySelector('[onclick*="openAddIncomeModal"]');
+        if (incomeButton) {
+            console.log('✅ Income button found:', incomeButton);
+            // Keep onclick but also add event listener as backup
+            incomeButton.addEventListener('click', function (e) {
+                console.log('💰 Income button clicked via event listener!');
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window.openAddIncomeModal === 'function') {
+                    window.openAddIncomeModal();
+                } else {
+                    console.error('❌ openAddIncomeModal function not found!');
+                    alert('Funksiya tapılmadı! Səhifəni yeniləyin.');
+                }
+                return false;
+            });
+        } else {
+            console.warn('⚠️ Income button not found');
+        }
+    }
+
+    // Define edit modal functions immediately (before DOM is ready)
+    window.openEditModal = function (id, merchant, amount, category) {
+        console.log('openEditModal called with:', { id, merchant, amount, category });
+
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(function () {
+            try {
+                const modal = document.getElementById('edit-modal');
+                const form = document.getElementById('edit-form');
+
+                if (!modal) {
+                    console.error('Edit modal not found');
+                    return;
+                }
+
+                if (!form) {
+                    console.error('Edit form not found');
+                    return;
+                }
+
+                // Set form values
+                const merchantInput = document.getElementById('edit-merchant');
+                const amountInput = document.getElementById('edit-amount');
+                const categoryInput = document.getElementById('edit-category');
+
+                if (merchantInput) merchantInput.value = merchant || '';
+                if (amountInput) amountInput.value = amount || 0;
+                if (categoryInput) categoryInput.value = category || 'Digər';
+
+                // Remove old HTMX attributes first
+                form.removeAttribute('hx-put');
+                form.removeAttribute('hx-target');
+                form.removeAttribute('hx-swap');
+
+                // Set new HTMX attributes
+                form.setAttribute('hx-put', '/api/expenses/' + id);
+                form.setAttribute('hx-target', '#expense-' + id);
+                form.setAttribute('hx-swap', 'outerHTML');
+
+                // Re-process HTMX attributes
+                if (typeof htmx !== 'undefined') {
+                    setTimeout(function () {
+                        htmx.process(form);
+                    }, 50);
+                }
+
+                // Show modal
+                modal.classList.remove('hidden');
+                setTimeout(function () {
+                    modal.classList.remove('opacity-0');
+                    const modalContent = document.getElementById('edit-modal-content');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-95');
+                        modalContent.classList.add('scale-100');
+                    }
+                }, 10);
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+            }
+        }, 0);
+    };
+
+    window.closeEditModal = function () {
+        try {
+            const modal = document.getElementById('edit-modal');
+            if (!modal) return;
+
+            modal.classList.add('opacity-0');
+            const modalContent = document.getElementById('edit-modal-content');
+            if (modalContent) {
+                modalContent.classList.add('scale-95');
+                modalContent.classList.remove('scale-100');
+            }
+
+            setTimeout(function () {
+                modal.classList.add('hidden');
+            }, 300);
+        } catch (error) {
+            console.error('Error closing edit modal:', error);
+        }
+    };
+
+    window.handleEditExpenseSubmit = function (event) {
+        console.log('handleEditExpenseSubmit triggered', event);
+        try {
+            // Check if request was successful (HTMX sends this in detail)
+            const isSuccess = event.detail.successful ||
+                (event.detail.xhr && event.detail.xhr.status >= 200 && event.detail.xhr.status < 300);
+
+            if (isSuccess) {
+                console.log('Edit successful, closing modal');
+                window.closeEditModal();
+                if (typeof window.showToast === 'function') {
+                    window.showToast('✅ Qəbz uğurla yeniləndi', 'success');
+                }
+
+                // Trigger stats update
+                document.body.dispatchEvent(new Event('transactionUpdated'));
+
+                // Also trigger HTMX update-stats manually if needed
+                if (typeof htmx !== 'undefined') {
+                    htmx.trigger('body', 'uats');
+                }
+            } else {
+                conor('Edit failed', event.detail);
+                const xhr = event.detail.xhr;
+                let errorMsg = 'Xəta baş verdi';
+
+                if (xhr) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.error) errorMsg = response.error;
+                    } catch (e) {
+                        if (xhr.responseText) errorMsg = xhr.responseText;
+                    }
+                }
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('❌ ' + errorMsg, 'error');
+                } else {
+                    alert('Xəta: ' + errorMsg);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling edit submit:', error);
+        }
+    };
+</script>
 <script>
     // Dashboard welcome voice greeting - emotional and helpful
     (async function () {
@@ -1786,21 +1914,20 @@
                 else {
                     el.innerText = finalValue.toFixed(2);
                     // Update data-initial after animation
-                    el.setAttribute('data-initial', finalValue.toFixed(2) + ' {{ currency_symbol }}');
+                    el.setAttribute('data-initial', finalValue.toFixed(2));
                 }
             } else {
-                // Kitabxana yoxdursa, sadəcə yaz
+                // Kitabxana yoxdursa
                 el.innerText = finalValue.toFixed(2);
-                el.setAttribute('data-initial', finalValue.toFixed(2) + ' {{ currency_symbol }}');
-                console.warn("CountUp not found, using fallback");
+                el.setAttribute('data-initial', finalValue.toFixed(2));
             }
         }
 
-        // Rəqəmləri işə salırıq - incognito mode yoxla
-        function startDashboardCounters() {
+        // Animasiyanı işə salırıq - incognito yoxlanışı ilə
+        function startDashboardAnimations() {
             const isIncognito = localStorage.getItem('incognito-mode') === 'enabled';
             if (!isIncognito) {
-                // First restore values from data attributes immediately
+         rst restore values from data attributes immediately
                 const totalEl = document.getElementById('stat-total');
                 const budgetEl = document.getElementById('stat-budget');
                 const remainingEl = document.getElementById('stat-remaining');
@@ -1860,44 +1987,43 @@
                 setTimeout(() => {
                     animateNumber('stat-total', {{ total_spending }});
                 animateNumber('stat-budget', {{ user.monthly_budget }});
-                {% if monthly_income_display %}
-                animateNumber('stat-salary', {{ monthly_income_display }});
-                {% endif %}
-                {% if total_income %}
-                animateNumber('stat-income', {{ total_income }});
-                {% endif %}
-                {% if total_available %}
-                animateNumber('stat-available', {{ total_available }});
-                {% endif %}
+    {% if monthly_income_display %}
+    animateNumber('stat-salary', {{ monthly_income_display }});
+    {% endif %}
+    {% if total_income %}
+    animateNumber('stat-income', {{ total_income }});
+    {% endif %}
+    {% if total_available %}
+    animateNumber('stat-available', {{ total_available }});
+    {% endif %}
     animateNumber('stat-remaining', {{ user.monthly_budget - total_spending }});
                 }, 300);
-            } else {
-        // Incognito mode-da sadəcə dəyərləri yaz, animasiya yox
-        const totalEl = document.getElementById('stat-total');
-        const budgetEl = document.getElementById('stat-budget');
-        const remainingEl = document.getElementById('stat-remaining');
-        if (totalEl) {
-            // Save current value before hiding
-            const currentText = totalEl.textContent;
-            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
-                totalEl.setAttribute('data-initial', currentText);
-            }
-            totalEl.textContent = '****';
+    // Incognito mode-da sadəcə dəyərləri yaz, animasiya yox
+    const totalEl = document.getElementById('stat-total');
+    const budgetEl = document.getElementById('stat-budget');
+    const remainingEl = document.getElementById('stat-remaining');
+    if (totalEl) {
+        // Save current value before hiding
+        const currentText = totalEl.textContent;
+        if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+            totalEl.setAttribute('data-initial', currentText);
         }
-        if (budgetEl) {
-            const currentText = budgetEl.textContent;
-            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
-                budgetEl.setAttribute('data-initial', currentText);
-            }
-            budgetEl.textContent = '****';
+        totalEl.textContent = '****';
+    }
+    if (budgetEl) {
+        const currentText = budgetEl.textContent;
+        if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+            budgetEl.setAttribute('data-initial', currentText);
         }
-        if (remainingEl) {
-            const currentText = remainingEl.textContent;
-            if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
-                remainingEl.setAttribute('data-initial', currentText);
-            }
-            remainingEl.textContent = '****';
+        budgetEl.textContent = '****';
+    }
+    if (remainingEl) {
+        const currentText = remainingEl.textContent;
+        if (currentText && currentText !== '****' && !currentText.includes('****') && currentText.match(/[\d,]+\.?\d*/)) {
+            remainingEl.setAttribute('data-initial', currentText);
         }
+        remainingEl.textContent = '****';
+    }
     }
         }
 
@@ -1944,14 +2070,14 @@
                     </button>`;
             toastContainer.appendChild(toast);
             requestAnimationFrame(() => toast.classList.remove('translate-x-full'));
-            
+
             // Auto-remove after 8 seconds
             const autoRemoveTimeout = setTimeout(() => {
                 toast.style.transform = 'translateX(100%)';
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 500);
             }, 8000);
-            
+
             // Pause auto-remove on hover
             toast.addEventListener('mouseenter', () => {
                 if (autoRemoveTimeout) clearTimeout(autoRemoveTimeout);
@@ -2147,11 +2273,11 @@
             // Extract numbers from text (handles comma separators and negative numbers like -1,153.16)
             const totalNum = extractNumber(totalText);
             const budgetNum = extractNumber(budgetText);
-            const remainingNum = extractNumber(remainingText);
+            const remainingNuber(remainingText);
             const ecoValNum = extractNumber(ecoValText);
 
             // Build summary with real values only (no greeting, no buttons, no extra text)
-            const summaryParts = [];
+            Parts = [];
 
             if (totalNum !== null && !isNaN(totalNum) && totalNum !== 0) {
                 summaryParts.push(`Ümumi xərc ${numberToAzerbaijani(totalNum)}dir`);

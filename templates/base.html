@@ -232,7 +232,7 @@
                 </button>
 
                 <!-- Alerts -->
-                <button id="alert-bell" onclick="document.getElementById('alert-panel').classList.toggle('hidden');" class="relative text-white/80 hover:text-white transition p-1">
+                <button id="alert-bell" class="relative text-white/80 hover:text-white transition p-1">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
@@ -242,7 +242,7 @@
                         class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"></span>
                 </button>
                 <div id="alert-panel"
-                    class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+                    class="hidden absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
                     <div class="px-4 py-3 border-b text-sm font-semibold">Bildirişlər (AI)</div>
                     <ul class="divide-y text-sm">
                         <li class="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
@@ -498,6 +498,28 @@
     <script src="/static/js/split_bill.js"></script>
     <script src="/static/js/theme.js"></script>
     <script src="/static/js/incognito.js"></script>
+    
+    <!-- Update alert counter function - MUST be defined before alerts.js -->
+    <script>
+        // Update alert counter function - MUST be global for inline onclick handlers
+        function updateAlertCounter() {
+            const alertPanel = document.getElementById('alert-panel');
+            const alertCounter = document.getElementById('alert-counter');
+            if (alertPanel && alertCounter) {
+                const alertCount = alertPanel.querySelectorAll('li').length;
+                if (alertCount > 0) {
+                    alertCounter.style.display = 'block';
+                } else {
+                    alertCounter.style.display = 'none';
+                    // Hide alert panel if no alerts
+                    if (!alertPanel.classList.contains('hidden')) {
+                        alertPanel.classList.add('hidden');
+                    }
+                }
+            }
+        }
+    </script>
+    
     <script src="/static/js/alerts.js"></script>
     <script src="/static/js/offline.js"></script>
     <script src="/static/js/readability.js"></script>
@@ -534,26 +556,10 @@
                     e.stopPropagation();
                 });
             }
+
+            // Initialize alert counter on page load
+            updateAlertCounter();
         });
-        
-        // Update alert counter function
-        function updateAlertCounter() {
-            const alertPanel = document.getElementById('alert-panel');
-            const alertCounter = document.getElementById('alert-counter');
-            if (alertPanel && alertCounter) {
-                const alertCount = alertPanel.querySelectorAll('li').length;
-                if (alertCount > 0) {
-                    alertCounter.style.display = 'block';
-                } else {
-                    alertCounter.style.display = 'none';
-                    // Hide alert panel if no alerts
-                    const alertBtn = document.querySelector('[onclick*="alert-panel"]');
-                    if (alertBtn && !alertPanel.classList.contains('hidden')) {
-                        alertPanel.classList.add('hidden');
-                    }
-                }
-            }
-        }
     </script>
 
     <!-- Toast Container (Global) -->
@@ -563,7 +569,5 @@
 
     {% block extra_scripts %}{% endblock %}
 </body>
-
-</html>
 
 </html>

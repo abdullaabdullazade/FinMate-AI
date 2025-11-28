@@ -141,13 +141,35 @@ Only return JSON, no other text.""",
             amount = expense_data.get("amount")
             if not amount or amount <= 0:
                 import re
-                m = re.search(r"([0-9]+(?:[\\.,][0-9]+)?)", text.replace("AZN", "").replace("manat", ""))
-                if m:
+                # Try to find number in text
+                # Matches: 100, 100.50, 100,50, 1.000,00
+                # Remove currency symbols first to avoid confusion
+                clean_text = text.replace("AZN", "").replace("manat", "").replace("qəpik", "")
+                
+                # Regex 1: Standard float (100.50) or integer (100)
+                m1 = re.search(r"(\d+[.]\d+)", clean_text)
+                # Regex 2: Comma decimal (100,50)
+                m2 = re.search(r"(\d+[,]\d+)", clean_text)
+                # Regex 3: Just digits (100)
+                m3 = re.search(r"(\d+)", clean_text)
+                
+                found_amount = None
+                if m1:
                     try:
-                        amount = float(m.group(1).replace(",", "."))
-                        expense_data["amount"] = amount
-                    except ValueError:
-                        amount = None
+                        found_amount = float(m1.group(1))
+                    except: pass
+                elif m2:
+                    try:
+                        found_amount = float(m2.group(1).replace(",", "."))
+                    except: pass
+                elif m3:
+                    try:
+                        found_amount = float(m3.group(1))
+                    except: pass
+                    
+                if found_amount:
+                    amount = found_amount
+                    expense_data["amount"] = amount
 
             # Try to capture item name as merchant/category if missing
             merchant = (expense_data.get("merchant") or "").strip()
