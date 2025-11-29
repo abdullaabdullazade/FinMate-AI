@@ -6,9 +6,11 @@
 import React, { useState, useEffect } from 'react'
 import { Mic, X, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { usePremiumModal } from '../../contexts/PremiumModalContext'
 import VoiceConfirmationModal from './VoiceConfirmationModal'
 
 const VoiceCommandButton = () => {
+  const { openModal: openPremiumModal } = usePremiumModal()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -100,9 +102,15 @@ const VoiceCommandButton = () => {
           setIsModalOpen(false)
           setShowConfirmation(true)
         } else {
-          setResult({ type: 'error', message: data.error || 'Xəta baş verdi' })
-          setStatus('Xəta baş verdi')
-        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
+          // Check if premium is required
+          if (data.requires_premium) {
+            openPremiumModal()
+            toast.error('AI tokenlarınız bitib. Premium alın', { autoClose: 5000 })
+          } else {
+            setResult({ type: 'error', message: data.error || 'Xəta baş verdi' })
+            setStatus('Xəta baş verdi')
+            toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
+          }
       }
     } catch (error) {
       console.error('Server xətası:', error)

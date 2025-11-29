@@ -6,8 +6,9 @@ import { api } from './index'
 
 export const dashboardAPI = {
   // Dashboard data
-  getDashboardData: async () => {
-    return api.get('/api/dashboard-data')
+  getDashboardData: async (date = null) => {
+    const params = date ? { date } : {}
+    return api.get('/api/dashboard-data', { params })
   },
 
   // Dashboard stats

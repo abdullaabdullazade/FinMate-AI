@@ -17,8 +17,8 @@ import XPProgress from '../components/dashboard/XPProgress'
 import DailyLimitAlert from '../components/dashboard/DailyLimitAlert'
 import BudgetOverview from '../components/dashboard/BudgetOverview'
 import TimeMachine from '../components/dashboard/TimeMachine'
-import EcoImpact from '../components/dashboard/EcoImpact'
 import CategoryBreakdown from '../components/dashboard/CategoryBreakdown'
+import CategoryPieChart from '../components/dashboard/CategoryPieChart'
 import LocalGems from '../components/dashboard/LocalGems'
 import RecentTransactions from '../components/dashboard/RecentTransactions'
 import FinancialPet from '../components/dashboard/FinancialPet'
@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [editingExpense, setEditingExpense] = useState(null)
   const [incomeModalOpen, setIncomeModalOpen] = useState(false)
   const [fraudModalOpen, setFraudModalOpen] = useState(false)
+  const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD'
 
   /**
    * Dashboard məlumatlarını yüklə
@@ -50,7 +51,7 @@ const Dashboard = () => {
         throw new Error('İnternet bağlantısı yoxdur. Zəhmət olmasa internet bağlantınızı yoxlayın.')
       }
       
-      const response = await dashboardAPI.getDashboardData()
+      const response = await dashboardAPI.getDashboardData(dateFilter)
       
       if (response && response.data) {
       setDashboardData(response.data)
@@ -82,7 +83,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData()
+  }, [dateFilter]) // Re-fetch when date filter changes
 
+  useEffect(() => {
     // Event listeners for refresh
     const handleExpenseUpdate = () => {
       console.log('🔄 Expense updated, refreshing dashboard...')
@@ -196,9 +199,7 @@ const Dashboard = () => {
   const budgetPercentage = monthlyBudget > 0 ? Math.min((totalSpending / monthlyBudget) * 100, 100) : 0
   const currency = context?.currency || '₼'
   const categoryData = context?.category_data || {}
-  const ecoScore = context?.eco_score || { icon: '🌍', value: 0 }
-  const ecoBreakdown = context?.eco_breakdown || {}
-  const ecoTip = context?.eco_tip || ''
+  const ecoScore = context?.eco_score || { icon: '🌍', value: 0 } // Still used in BudgetOverview
   const levelInfo = context?.level_info || null
   const xpPoints = context?.xp_points || 0
   const salaryIncreaseInfo = context?.salary_increase_info || null
@@ -266,6 +267,43 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-grid px-2 sm:px-4 pb-24 sm:pb-32">
+      {/* Date Filter */}
+      <div className="glass-card p-4 sm:p-6 slide-up" style={{ gridColumn: 'span 12' }}>
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-lg sm:text-xl font-bold text-white">Tarixə görə filter</h3>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateFilter || ''}
+              onChange={(e) => {
+                setDateFilter(e.target.value || null)
+              }}
+              className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderColor: 'var(--glass-border)',
+                color: 'var(--text-primary)'
+              }}
+            />
+            {dateFilter && (
+              <button
+                onClick={() => {
+                  setDateFilter(null)
+                }}
+                className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm transition"
+              >
+                Təmizlə
+              </button>
+            )}
+          </div>
+        </div>
+        {dateFilter && (
+          <p className="text-xs sm:text-sm text-white/60 mt-2">
+            Seçilmiş tarix: {new Date(dateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        )}
+      </div>
+
       {/* Budget Warning */}
       <BudgetWarning
         budgetPercentage={budgetPercentage}
@@ -358,11 +396,10 @@ const Dashboard = () => {
         incognitoMode={incognitoMode}
       />
 
-      {/* Eco Impact Score */}
-      <EcoImpact
-        ecoScore={ecoScore}
-        ecoBreakdown={ecoBreakdown}
-        ecoTip={ecoTip}
+      {/* Category Pie Chart */}
+      <CategoryPieChart
+        categoryData={categoryData}
+        currency={currency}
         incognitoMode={incognitoMode}
       />
 
