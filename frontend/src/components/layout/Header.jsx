@@ -72,13 +72,13 @@ const Header = ({ user }) => {
     <>
       {/* Top Bar - base.html-dən TAM KOPYALANMIŞ (sətir 184-301) */}
       <div className="glass fixed top-0 left-0 right-0 z-50 px-2 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-between max-w-md mx-auto">
+        <div className="flex items-center justify-between max-w-md mx-auto w-full">
           {/* Left Side - Hamburger + Logo - base.html strukturuna TAM UYĞUN */}
-          <div className="min-w-0 flex-1 flex items-center gap-2">
+          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-shrink">
             {/* Hamburger Menu Button - Navbar Integrated (Mobile Only) - base.html sətir 188-195 */}
             <button 
               id="hamburger-btn" 
-              className="hamburger-btn-navbar lg:hidden" 
+              className="hamburger-btn-navbar lg:hidden flex-shrink-0" 
               aria-label="Menu"
               aria-expanded="false"
               onClick={() => {
@@ -129,25 +129,25 @@ const Header = ({ user }) => {
             {/* Logo - base.html sətir 197-204 - TAM KOPYALANMIŞ */}
             <Link
               to="/"
-              className="min-w-0 flex-1 flex items-center gap-2 hover:opacity-90 transition-opacity"
+              className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 hover:opacity-90 transition-opacity overflow-hidden"
             >
               <img
                 src="/static/icons/icon-192.png"
                 alt="FinMate AI"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex-shrink-0"
+                className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg flex-shrink-0"
                 onError={(e) => {
                   e.target.style.display = 'none'
                 }}
               />
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold text-white truncate">FinMate AI</h1>
-                <p className="text-[9px] sm:text-[10px] text-white/70">Your Personal CFO</p>
+              <div className="min-w-0 overflow-hidden">
+                <h1 className="text-base sm:text-xl font-bold text-white truncate">FinMate AI</h1>
+                <p className="text-[8px] sm:text-[10px] text-white/70 truncate">Your Personal CFO</p>
               </div>
             </Link>
           </div>
 
           {/* Right Side - Theme, Alerts, Profile - base.html sətir 206-299 - TAM KOPYALANMIŞ */}
-          <div className="flex items-center gap-2 sm:gap-3 relative flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 relative flex-shrink-0">
             {/* Theme Toggle - base.html sətir 207-224 */}
             <ThemeToggle />
 
@@ -156,7 +156,7 @@ const Header = ({ user }) => {
               <button
                 ref={alertBellRef}
                 id="alert-bell"
-                className="relative text-white/80 hover:text-white transition p-1"
+                className="relative text-white/80 hover:text-white transition p-0.5 sm:p-1 flex-shrink-0"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -173,27 +173,27 @@ const Header = ({ user }) => {
                 </svg>
                 <span
                   id="alert-counter"
-                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-lg"
+                  className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-red-500 rounded-full shadow-lg"
                 ></span>
               </button>
-              {/* Alert Panel - base.html sətir 236-279 */}
+              {/* Alert Panel - base.html sətir 236-279 - TAM KOPYALANMIŞ */}
               {showAlertPanel && (
                 <div
                   ref={alertPanelRef}
                   id="alert-panel"
-                  className="absolute right-14 top-10 w-64 glass-card rounded-xl shadow-2xl overflow-hidden z-[60]"
+                  className="absolute right-0 sm:right-14 top-10 sm:top-10 w-[calc(100vw-1rem)] sm:w-64 max-w-[calc(100vw-1rem)] sm:max-w-none glass-card rounded-xl shadow-2xl overflow-hidden z-[60]"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-4 py-3 border-b border-white/20 text-sm font-semibold text-white">Bildirişlər (AI)</div>
-                  <ul className="divide-y divide-white/10 text-sm">
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
+                  <div className="px-4 py-3 border-b border-glass-border text-sm font-semibold text-text-primary">Bildirişlər (AI)</div>
+                  <ul className="divide-y divide-glass-border text-sm">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
                       <span className="text-amber-500 flex-shrink-0">⚠️</span>
                       <div className="flex-1 incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
                         Diqqət: Keçən aya görə 15% çox xərcləmisən.
                       </div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >
@@ -202,12 +202,12 @@ const Header = ({ user }) => {
                         </svg>
                       </button>
                     </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
                       <span className="text-purple-500 flex-shrink-0">🎬</span>
                       <div className="flex-1">Netflix abunəliyin sabah bitir.</div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >
@@ -216,12 +216,12 @@ const Header = ({ user }) => {
                         </svg>
                       </button>
                     </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
                       <span className="text-blue-500 flex-shrink-0">📈</span>
                       <div className="flex-1">28-ində büdcə limitini keçə bilərsən.</div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >
