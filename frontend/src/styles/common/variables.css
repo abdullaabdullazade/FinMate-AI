@@ -3,18 +3,32 @@
  * Professional Color System - Eye-Friendly
  */
 
-:root,
-[data-theme="dark"] {
-  /* Dark Mode - Açıq Bənövşəyi (Orijinal FinMate Rəngləri) */
-  --bg-primary: #667eea;   /* Royal Blue - Parlaq Bənövşəyi-Mavi */
-  --bg-secondary: #764ba2; /* Deep Violet - Dərin Bənövşəyi */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: rgba(31, 38, 135, 0.37);
+:root {
+  /* Default Dark Mode - Qaranlıq rənglər */
+  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
+  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.5);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --nav-border: rgba(255, 255, 255, 0.2);
-  --skeleton-bg: rgba(255, 255, 255, 0.15);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --skeleton-bg: rgba(255, 255, 255, 0.1);
+  --accent-primary: #ec4899;   /* Neon Pink */
+  --accent-secondary: #d81b60; /* Darker Pink */
+}
+
+[data-theme="dark"] {
+  /* Dark Mode - Qaranlıq rənglər */
+  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
+  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.5);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --skeleton-bg: rgba(255, 255, 255, 0.1);
   --accent-primary: #ec4899;   /* Neon Pink */
   --accent-secondary: #d81b60; /* Darker Pink */
 }
@@ -32,4 +46,19 @@
   --skeleton-bg: rgba(255, 255, 255, 0.15);
   --accent-primary: #ec407a;
   --accent-secondary: #d81b60;
+}
+
+/* Force dark mode for all elements when dark theme is active */
+[data-theme="dark"] * {
+  color-scheme: dark;
+}
+
+/* Ensure body background uses CSS variables */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0a0a14 100%) !important;
+  background-attachment: fixed;
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
 }

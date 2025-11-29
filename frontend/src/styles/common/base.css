@@ -48,6 +48,42 @@ body {
   overflow-x: hidden;
 }
 
+/* Ensure dark mode is applied by default */
+html:not([data-theme="light"]) {
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Force dark mode background for all pages */
+[data-theme="dark"] body,
+body:not([data-theme="light"]) {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0a0a14 100%) !important;
+  background-attachment: fixed;
+}
+
+/* Ensure all text is visible in dark mode */
+[data-theme="dark"] * {
+  color: inherit;
+}
+
+/* Fix any white backgrounds in dark mode */
+[data-theme="dark"] .bg-white {
+  background: var(--glass-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-black {
+  color: var(--text-primary) !important;
+}
+
 /* Desktop padding for sidebar */
 @media (min-width: 1024px) {
   body {

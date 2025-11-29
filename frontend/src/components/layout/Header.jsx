@@ -181,19 +181,19 @@ const Header = ({ user }) => {
                 <div
                   ref={alertPanelRef}
                   id="alert-panel"
-                  className="absolute right-14 top-10 w-64 bg-white text-gray-900 rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-[60]"
+                  className="absolute right-14 top-10 w-64 glass-card rounded-xl shadow-2xl overflow-hidden z-[60]"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="px-4 py-3 border-b text-sm font-semibold">Bildirişlər (AI)</div>
-                  <ul className="divide-y text-sm">
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                  <div className="px-4 py-3 border-b border-white/20 text-sm font-semibold text-white">Bildirişlər (AI)</div>
+                  <ul className="divide-y divide-white/10 text-sm">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
                       <span className="text-amber-500 flex-shrink-0">⚠️</span>
                       <div className="flex-1 incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
                         Diqqət: Keçən aya görə 15% çox xərcləmisən.
                       </div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >
@@ -202,12 +202,12 @@ const Header = ({ user }) => {
                         </svg>
                       </button>
                     </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
                       <span className="text-purple-500 flex-shrink-0">🎬</span>
                       <div className="flex-1">Netflix abunəliyin sabah bitir.</div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >
@@ -216,12 +216,12 @@ const Header = ({ user }) => {
                         </svg>
                       </button>
                     </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-gray-50 transition-colors">
+                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-white/10 transition-colors text-white">
                       <span className="text-blue-500 flex-shrink-0">📈</span>
                       <div className="flex-1">28-ində büdcə limitini keçə bilərsən.</div>
                       <button
                         onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 flex-shrink-0 p-1"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-white/60 hover:text-white flex-shrink-0 p-1"
                         aria-label="Bağla"
                         title="Ləğv et"
                       >

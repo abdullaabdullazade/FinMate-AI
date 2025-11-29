@@ -47,6 +47,8 @@ export const ThemeProvider = ({ children }) => {
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
     document.documentElement.setAttribute('data-theme', newTheme)
+    // Update color-scheme
+    document.documentElement.style.colorScheme = newTheme
   }
 
   /**
@@ -83,6 +85,8 @@ export const ThemeProvider = ({ children }) => {
     // Ensure theme attribute is set
     const currentTheme = localStorage.getItem('theme') || 'dark'
     document.documentElement.setAttribute('data-theme', currentTheme)
+    // Update color-scheme
+    document.documentElement.style.colorScheme = currentTheme
     
     // Apply saved premium theme
     if (premiumTheme) {
@@ -99,7 +103,7 @@ export const ThemeProvider = ({ children }) => {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [premiumTheme])
+  }, [premiumTheme, theme])
 
   const value = {
     theme,

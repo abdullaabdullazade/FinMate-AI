@@ -20,6 +20,12 @@ import './utils/readability' // Initialize readability mode
   // Get saved theme from localStorage or default to 'dark'
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
+  // Ensure color-scheme is set
+  if (savedTheme === 'dark') {
+    document.documentElement.style.colorScheme = 'dark';
+  } else {
+    document.documentElement.style.colorScheme = 'light';
+  }
   
   // Apply premium theme immediately (before page render)
   const savedPremiumTheme = localStorage.getItem('premium-theme');
