@@ -6,7 +6,7 @@ import { api } from './index'
 
 export const dashboardAPI = {
   // Dashboard data
-  getDashboardData: async (filterValue = null, filterType = null) => {
+  getDashboardData: async (filterValue = null, filterType = null, rangeStart = null, rangeEnd = null) => {
     const params = {}
     if (filterValue && filterType) {
       if (filterType === 'day') {
@@ -16,6 +16,11 @@ export const dashboardAPI = {
       } else if (filterType === 'year') {
         params.year = filterValue
       }
+    }
+    // Range filter
+    if (filterType === 'range' && rangeStart && rangeEnd) {
+      params.start_date = rangeStart
+      params.end_date = rangeEnd
     }
     return api.get('/api/dashboard-data', { params })
   },

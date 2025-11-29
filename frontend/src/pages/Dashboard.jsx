@@ -37,10 +37,12 @@ const Dashboard = () => {
   const [editingExpense, setEditingExpense] = useState(null)
   const [incomeModalOpen, setIncomeModalOpen] = useState(false)
   const [fraudModalOpen, setFraudModalOpen] = useState(false)
-  const [filterType, setFilterType] = useState('none') // 'none', 'day', 'month', 'year'
+  const [filterType, setFilterType] = useState('none') // 'none', 'day', 'month', 'year', 'range'
   const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for day
   const [monthFilter, setMonthFilter] = useState(null) // Format: 'YYYY-MM' for month
   const [yearFilter, setYearFilter] = useState(null) // Format: 'YYYY' for year
+  const [startDateFilter, setStartDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range start
+  const [endDateFilter, setEndDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range end
   const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   /**
@@ -58,15 +60,21 @@ const Dashboard = () => {
       
       // Build filter params based on filter type
       let filterParam = null
+      let rangeStart = null
+      let rangeEnd = null
+      
       if (filterType === 'day' && dateFilter) {
         filterParam = dateFilter
       } else if (filterType === 'month' && monthFilter) {
         filterParam = monthFilter
       } else if (filterType === 'year' && yearFilter) {
         filterParam = yearFilter
+      } else if (filterType === 'range' && startDateFilter && endDateFilter) {
+        rangeStart = startDateFilter
+        rangeEnd = endDateFilter
       }
       
-      const response = await dashboardAPI.getDashboardData(filterParam, filterType)
+      const response = await dashboardAPI.getDashboardData(filterParam, filterType, rangeStart, rangeEnd)
       
       if (response && response.data) {
       setDashboardData(response.data)
@@ -98,7 +106,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [filterType, dateFilter, monthFilter, yearFilter]) // Re-fetch when any filter changes
+  }, [filterType, dateFilter, monthFilter, yearFilter, startDateFilter, endDateFilter]) // Re-fetch when any filter changes
 
   // Show onboarding tour - yalnız bir dəfə, hesabdan çıxıb girəndə yenidən göstər
   useEffect(() => {
@@ -348,6 +356,8 @@ const Dashboard = () => {
                 setDateFilter(null)
                 setMonthFilter(null)
                 setYearFilter(null)
+                setStartDateFilter(null)
+                setEndDateFilter(null)
               }}
               className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{
@@ -360,6 +370,7 @@ const Dashboard = () => {
               <option value="day" className="bg-gray-900">Günə görə</option>
               <option value="month" className="bg-gray-900">Aya görə</option>
               <option value="year" className="bg-gray-900">İlə görə</option>
+              <option value="range" className="bg-gray-900">Aralığa görə</option>
             </select>
 
             {/* Day Filter */}
@@ -416,14 +427,52 @@ const Dashboard = () => {
               />
             )}
 
+            {/* Range Filter */}
+            {filterType === 'range' && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={startDateFilter || ''}
+                  onChange={(e) => {
+                    setStartDateFilter(e.target.value || null)
+                  }}
+                  placeholder="Başlanğıc tarix"
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'var(--glass-border)',
+                    color: 'var(--text-primary)'
+                  }}
+                />
+                <span className="text-white/60">-</span>
+                <input
+                  type="date"
+                  value={endDateFilter || ''}
+                  onChange={(e) => {
+                    setEndDateFilter(e.target.value || null)
+                  }}
+                  placeholder="Son tarix"
+                  min={startDateFilter || undefined}
+                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'var(--glass-border)',
+                    color: 'var(--text-primary)'
+                  }}
+                />
+              </div>
+            )}
+
             {/* Clear Button */}
-            {filterType !== 'none' && (dateFilter || monthFilter || yearFilter) && (
+            {filterType !== 'none' && (dateFilter || monthFilter || yearFilter || (startDateFilter && endDateFilter)) && (
               <button
                 onClick={() => {
                   setFilterType('none')
                   setDateFilter(null)
                   setMonthFilter(null)
                   setYearFilter(null)
+                  setStartDateFilter(null)
+                  setEndDateFilter(null)
                 }}
                 className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm transition"
               >
@@ -465,6 +514,18 @@ const Dashboard = () => {
               {dashboardData?.context && (
                 <p className="text-xs text-white/70">
                   Bu il ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
+                </p>
+              )}
+            </div>
+          )}
+          {filterType === 'range' && startDateFilter && endDateFilter && (
+            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
+              <p className="text-sm font-semibold text-white mb-1">
+                📊 Seçilmiş aralıq: {new Date(startDateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })} - {new Date(endDateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+              {dashboardData?.context && (
+                <p className="text-xs text-white/70">
+                  Bu aralıqda ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
                 </p>
               )}
             </div>

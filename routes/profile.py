@@ -187,6 +187,8 @@ async def get_dashboard_data(
     date: Optional[str] = Query(None, description="Day filter: YYYY-MM-DD"),
     month: Optional[str] = Query(None, description="Month filter: YYYY-MM"),
     year: Optional[str] = Query(None, description="Year filter: YYYY"),
+    start_date: Optional[str] = Query(None, description="Range start: YYYY-MM-DD"),
+    end_date: Optional[str] = Query(None, description="Range end: YYYY-MM-DD"),
     db: Session = Depends(get_db)
 ):
     """API endpoint for dashboard data - React frontend üçün"""
@@ -302,6 +304,38 @@ async def get_dashboard_data(
             ).all()
         except ValueError:
             # Invalid year format, fall back to current month
+            month_start = datetime(now.year, now.month, 1)
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= month_start
+            ).all()
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= month_start
+            ).all()
+    elif start_date and end_date:
+        # Filter by date range
+        try:
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            # Set start to beginning of day
+            start_dt = datetime.combine(start_dt.date(), datetime.min.time())
+            # Set end to end of day
+            end_dt = datetime.combine(end_dt.date(), datetime.max.time())
+            
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= start_dt,
+                Expense.date <= end_dt
+            ).all()
+            
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= start_dt,
+                Income.date <= end_dt
+            ).all()
+        except ValueError:
+            # Invalid date format, fall back to current month
             month_start = datetime(now.year, now.month, 1)
             expenses = db.query(Expense).filter(
                 Expense.user_id == user.id,
