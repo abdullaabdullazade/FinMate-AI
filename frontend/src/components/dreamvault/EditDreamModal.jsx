@@ -54,7 +54,7 @@ const EditDreamModal = ({ isOpen, onClose, dream, onSubmit }) => {
       const response = await dreamVaultAPI.updateDream(dream.id, formDataToSend)
 
       if (response.data && response.data.success) {
-        toast.success('✅ Arzu uğurla yeniləndi')
+        toast.success('✅ Arzu uğurla yeniləndi', { autoClose: 5000 })
         onSubmit(response.data.dream || formData)
         onClose()
       } else {
@@ -62,7 +62,7 @@ const EditDreamModal = ({ isOpen, onClose, dream, onSubmit }) => {
       }
     } catch (error) {
       console.error('Edit dream error:', error)
-      toast.error(error.response?.data?.error || error.message || 'Əlaqə xətası')
+      toast.error(error.response?.data?.error || error.message || 'Əlaqə xətası', { autoClose: 5000 })
     }
   }
 

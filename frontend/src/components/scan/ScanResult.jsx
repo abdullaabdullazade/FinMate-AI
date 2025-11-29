@@ -13,7 +13,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
 
   const handleDelete = async () => {
     if (!expenseId) {
-      toast.error('Qəbz ID tapılmadı')
+      toast.error('Qəbz ID tapılmadı', { autoClose: 5000 })
       return
     }
 
@@ -28,17 +28,17 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
       })
 
       if (response.ok) {
-        toast.success('✅ Qəbz uğurla silindi')
+        toast.success('✅ Qəbz uğurla silindi', { autoClose: 5000 })
         // Refresh dashboard
         window.dispatchEvent(new CustomEvent('expenseUpdated'))
         setShowDeleteModal(false)
         onReset()
       } else {
-        toast.error('Xəta baş verdi')
+        toast.error('Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Delete receipt error:', error)
-      toast.error('Əlaqə xətası')
+      toast.error('Əlaqə xətası', { autoClose: 5000 })
     }
   }
   return (
@@ -196,7 +196,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
               } else {
                 toast.info('Split bill funksiyası tezliklə əlavə olunacaq', {
                   position: 'top-right',
-                  autoClose: 3000,
+                  autoClose: 5000,
                 })
               }
             }}

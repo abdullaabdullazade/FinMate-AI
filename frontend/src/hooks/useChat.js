@@ -46,14 +46,9 @@ export const useChat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/chat-history', {
-          credentials: 'include',
-        })
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success && data.messages) {
-            setMessages(data.messages)
-          }
+        const response = await chatAPI.getChatHistory()
+        if (response.data.success && response.data.messages) {
+          setMessages(response.data.messages)
         }
       } catch (error) {
         console.error('Chat history fetch error:', error)
@@ -137,7 +132,7 @@ export const useChat = () => {
         setShowTyping(false)
         toast.error('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
           position: 'top-right',
-          autoClose: 3000,
+          autoClose: 5000,
         })
         const errorMessage = {
           id: Date.now() + 1,
@@ -151,7 +146,7 @@ export const useChat = () => {
       setShowTyping(false)
       toast.error('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
         position: 'top-right',
-        autoClose: 3000,
+        autoClose: 5000,
       })
       const errorMessage = {
         id: Date.now() + 1,

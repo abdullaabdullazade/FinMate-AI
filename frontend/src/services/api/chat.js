@@ -18,5 +18,10 @@ export const chatAPI = {
       },
     })
   },
+
+  // Get chat history
+  getChatHistory: async () => {
+    return api.get('/api/chat-history')
+  },
 }
 

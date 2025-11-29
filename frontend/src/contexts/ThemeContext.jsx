@@ -20,13 +20,16 @@ export const ThemeProvider = ({ children }) => {
   // Apply theme before render to prevent flash
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      // Add preload class
-      document.documentElement.classList.add('preload')
-      const savedTheme = localStorage.getItem('theme') || 'light'
-      document.documentElement.setAttribute('data-theme', savedTheme)
+      // Get saved theme from localStorage or default to 'dark' (matches CSS :root)
+      const savedTheme = localStorage.getItem('theme') || 'dark'
+      // Theme is already applied in main.jsx before React renders
+      // Just sync the state
+      if (document.documentElement.getAttribute('data-theme') !== savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme)
+      }
       return savedTheme
     }
-    return 'light'
+    return 'dark' // Default to dark mode (matches CSS :root)
   })
 
   const [premiumTheme, setPremiumTheme] = useState(() => {
@@ -77,6 +80,10 @@ export const ThemeProvider = ({ children }) => {
    * Component mount olduqda theme-i tətbiq et
    */
   useEffect(() => {
+    // Ensure theme attribute is set
+    const currentTheme = localStorage.getItem('theme') || 'dark'
+    document.documentElement.setAttribute('data-theme', currentTheme)
+    
     // Apply saved premium theme
     if (premiumTheme) {
       const validThemes = ['gold', 'midnight', 'ocean', 'forest', 'sunset', 'royal']
@@ -85,14 +92,14 @@ export const ThemeProvider = ({ children }) => {
       }
     }
 
-    // Remove preload class after render
+    // Remove preload class after render (if not already removed)
     const timer = setTimeout(() => {
       document.documentElement.classList.remove('preload')
       document.body.classList.remove('no-transition')
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [premiumTheme])
 
   const value = {
     theme,

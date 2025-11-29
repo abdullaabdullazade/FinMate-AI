@@ -22,49 +22,28 @@ const AddSavingsModal = ({ dream, isOpen, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error('Düzgün məbləğ daxil edin')
+      toast.error('Düzgün məbləğ daxil edin', { autoClose: 5000 })
       return
     }
 
     animateMoneyIcon()
     setSubmitting(true)
     try {
-      const formData = new FormData()
-      formData.append('amount', amount)
+      const response = await dreamVaultAPI.addSavings(dream.id, parseFloat(amount))
+      const data = response.data
 
-      const response = await fetch(`/api/dreams/${dream.id}/add-savings`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        try {
-          const errorData = JSON.parse(errorText)
-          throw new Error(errorData.error || 'Xəta baş verdi')
-        } catch (e) {
-          throw new Error('Xəta baş verdi')
-        }
-      }
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        toast.success(`✅ ${data.message || 'Qənaət uğurla əlavə edildi!'}`)
+      if (data.success) {
+        toast.success(`✅ ${data.message || 'Qənaət uğurla əlavə edildi!'}`, { autoClose: 5000 })
         onSuccess(parseFloat(amount))
         setAmount('')
         onClose()
       } else {
-        toast.error(data.error || 'Xəta baş verdi')
+        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Add savings error:', error)
-      toast.error('Əlaqə xətası')
+      const errorMessage = error.response?.data?.error || error.message || 'Əlaqə xətası'
+      toast.error(errorMessage, { autoClose: 5000 })
     } finally {
       setSubmitting(false)
     }

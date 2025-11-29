@@ -3,7 +3,8 @@
  * Single message bubble - chat.html-dəki struktur
  */
 
-import React from 'react'
+import React, { useMemo } from 'react'
+import { markdownToHtml } from '../../utils/markdown'
 import '../../styles/components/chat/message-bubbles.css'
 import '../../styles/components/chat/markdown-content.css'
 
@@ -21,6 +22,28 @@ const ChatMessage = ({ message }) => {
     }
   }
 
+  // Convert markdown to HTML for AI messages
+  const renderedContent = useMemo(() => {
+    try {
+      if (message.role === 'ai') {
+        // Check if content is already HTML (contains <strong>, <em>, etc.)
+        const isAlreadyHtml = /<[^>]+>/.test(message.content)
+        
+        if (isAlreadyHtml) {
+          // Already HTML, use as is
+          return message.content
+        } else {
+          // Convert markdown to HTML
+          return markdownToHtml(message.content || '')
+        }
+      }
+      return message.content || ''
+    } catch (error) {
+      console.error('Markdown rendering error:', error)
+      return message.content || ''
+    }
+  }, [message.content, message.role])
+
   if (message.role === 'user') {
     // User Message - chat.html-dəki struktur
     return (
@@ -35,7 +58,7 @@ const ChatMessage = ({ message }) => {
     return (
       <div className="flex justify-start group">
         <div className="message-bubble glass p-4 rounded-2xl rounded-tl-sm text-white shadow-lg relative markdown-content">
-          <div dangerouslySetInnerHTML={{ __html: message.content }} />
+          <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
           <button
             onClick={() => speakMessage(message.content.replace(/<[^>]*>/g, ''))}
             className="absolute -right-8 top-2 text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-white/20 rounded-full backdrop-blur-sm"

@@ -59,17 +59,17 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = '�
 
       const data = await response.json()
       if (data.success) {
-        toast.success('✅ Əməliyyat uğurla yeniləndi')
+        toast.success('✅ Əməliyyat uğurla yeniləndi', { autoClose: 5000 })
         // Dispatch event for dashboard refresh
         window.dispatchEvent(new CustomEvent('expenseUpdated'))
         onSave && onSave(data)
         onClose()
       } else {
-        toast.error(data.error || 'Xəta baş verdi')
+        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Edit expense error:', error)
-      toast.error('Əlaqə xətası')
+      toast.error('Əlaqə xətası', { autoClose: 5000 })
     } finally {
       setSubmitting(false)
     }
@@ -145,9 +145,8 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = '�
             <div>
               <label className="block text-sm text-white/70 mb-1">Kateqoriya</label>
               <select
-                value={formData.category}
+                value={formData.category || 'Digər'}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition"
               >
                 {categories.map((cat) => (

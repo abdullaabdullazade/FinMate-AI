@@ -3,7 +3,8 @@
  * Professional Color System - Eye-Friendly
  */
 
-:root {
+:root,
+[data-theme="dark"] {
   /* Dark Mode - Açıq Bənövşəyi (Orijinal FinMate Rəngləri) */
   --bg-primary: #667eea;   /* Royal Blue - Parlaq Bənövşəyi-Mavi */
   --bg-secondary: #764ba2; /* Deep Violet - Dərin Bənövşəyi */

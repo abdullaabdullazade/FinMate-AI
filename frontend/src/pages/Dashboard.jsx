@@ -43,13 +43,38 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
+      setError(null)
+      
+      // Check if online
+      if (!navigator.onLine) {
+        throw new Error('İnternet bağlantısı yoxdur. Zəhmət olmasa internet bağlantınızı yoxlayın.')
+      }
+      
       const response = await dashboardAPI.getDashboardData()
+      
+      if (response && response.data) {
       setDashboardData(response.data)
       setError(null)
+      } else {
+        throw new Error('Serverdən məlumat alına bilmədi')
+      }
     } catch (err) {
       console.error('Dashboard data fetch error:', err)
-      setError('Məlumat yüklənərkən xəta baş verdi')
-      toast.error('Məlumat yüklənərkən xəta baş verdi')
+      
+      let errorMessage = 'Məlumat yüklənərkən xəta baş verdi'
+      
+      if (err.message) {
+        errorMessage = err.message
+      } else if (err.response) {
+        // Server responded with error
+        errorMessage = err.response.data?.error || err.response.statusText || errorMessage
+      } else if (err.request) {
+        // Request made but no response (network error)
+        errorMessage = 'Serverlə əlaqə qurula bilmədi. İnternet bağlantınızı yoxlayın.'
+      }
+      
+      setError(errorMessage)
+      toast.error(errorMessage, { autoClose: 5000 })
     } finally {
       setLoading(false)
     }
@@ -127,18 +152,34 @@ const Dashboard = () => {
 
   // Error state
   if (error) {
+    const isNetworkError = error.includes('İnternet') || error.includes('əlaqə') || error.includes('network') || error.includes('Serverlə')
+    
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="glass-card p-8 text-center max-w-md">
-          <div className="text-red-400 text-4xl mb-4">⚠️</div>
-          <h3 className="text-xl font-bold text-white mb-2">Xəta baş verdi</h3>
+          <div className="text-red-400 text-4xl mb-4">
+            {isNetworkError ? '📡' : '⚠️'}
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">
+            {isNetworkError ? 'İnternet bağlantısı problemi' : 'Xəta baş verdi'}
+          </h3>
           <p className="text-white/70 mb-4">{error}</p>
+          <div className="flex gap-3 justify-center">
           <button
-            onClick={() => window.location.reload()}
+              onClick={() => fetchDashboardData()}
             className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:scale-105 transition"
           >
             Yenidən yoxla
           </button>
+            {isNetworkError && (
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-white/10 border border-white/20 rounded-xl text-white font-medium hover:bg-white/20 transition"
+              >
+                Səhifəni yenilə
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -192,15 +233,15 @@ const Dashboard = () => {
         })
 
         if (response.ok) {
-          toast.success('Əməliyyat silindi')
+          toast.success('Əməliyyat silindi', { autoClose: 5000 })
           // Refresh data
           await fetchDashboardData()
         } else {
-          toast.error('Xəta baş verdi')
+          toast.error('Xəta baş verdi', { autoClose: 5000 })
         }
       } catch (err) {
         console.error('Delete error:', err)
-        toast.error('Xəta baş verdi')
+        toast.error('Xəta baş verdi', { autoClose: 5000 })
       }
     }
   }
@@ -275,18 +316,7 @@ const Dashboard = () => {
         onToggleIncognito={toggleIncognito}
         onSpeak={async () => {
           try {
-            // Convert numbers to Azerbaijani words (manat/qəpik format)
-            let totalSpendingText = totalSpending.toFixed(2) + ' ' + currency
-            let monthlyBudgetText = monthlyBudget.toFixed(2) + ' ' + currency
-            let remainingBudgetText = remainingBudget.toFixed(2) + ' ' + currency
-            
-            if (typeof window.numberToAzerbaijani === 'function') {
-              totalSpendingText = window.numberToAzerbaijani(totalSpending)
-              monthlyBudgetText = window.numberToAzerbaijani(monthlyBudget)
-              remainingBudgetText = window.numberToAzerbaijani(remainingBudget)
-            }
-            
-            const message = `Bu ay ${totalSpendingText} xərclədiniz. Aylıq büdcəniz ${monthlyBudgetText}. Qalıq ${remainingBudgetText}. Büdcə istifadəsi ${budgetPercentage.toFixed(1)} faiz.`
+            const message = `Bu ay ${totalSpending.toFixed(2)} ${currency} xərclədiniz. Aylıq büdcəniz ${monthlyBudget.toFixed(2)} ${currency}. Qalıq ${remainingBudget.toFixed(2)} ${currency}. Büdcə istifadəsi ${budgetPercentage.toFixed(1)} faiz.`
             
             if (typeof window.queueVoiceNotification === 'function') {
               window.queueVoiceNotification(message, 1, 'az')
@@ -297,7 +327,7 @@ const Dashboard = () => {
             }
           } catch (error) {
             console.error('Speak error:', error)
-            toast.error('Səsləndirmə xətası')
+            toast.error('Səsləndirmə xətası', { autoClose: 5000 })
           }
         }}
       />

@@ -8,6 +8,7 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
+import { scanAPI } from '../services/api'
 
 // Components
 import ScanningModal from '../components/scan/ScanningModal'
@@ -17,6 +18,7 @@ import ScanInstructions from '../components/scan/ScanInstructions'
 import ScanResult from '../components/scan/ScanResult'
 import ScanError from '../components/scan/ScanError'
 import VoiceCommandButton from '../components/scan/VoiceCommandButton'
+import ManualExpenseModal from '../components/scan/ManualExpenseModal'
 
 const Scan = () => {
   const navigate = useNavigate()
@@ -24,6 +26,7 @@ const Scan = () => {
   const [scanResult, setScanResult] = useState(null)
   const [showInitialState, setShowInitialState] = useState(true)
   const [error, setError] = useState(null)
+  const [showManualExpenseModal, setShowManualExpenseModal] = useState(false)
 
   /**
    * Bakı vaxtını ISO formatında qaytaran funksiya
@@ -49,70 +52,10 @@ const Scan = () => {
     setScanning(true)
     setError(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-
     try {
-      const response = await fetch('http://localhost:8000/api/scan-receipt', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Client-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
-          'X-Client-Date': getAzTime(),
-          'Accept': 'application/json',
-          'X-Client-Appended': 'true',
-        },
-        credentials: 'include',
-      })
-
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type') || ''
-      if (!contentType.includes('application/json')) {
-        const text = await response.text()
-        console.error('Expected JSON but got HTML:', text.substring(0, 200))
-        setError({
-          error: 'Server HTML cavab qaytardı. Zəhmət olmasa backend-i yoxlayın.',
-          is_not_receipt: false,
-        })
-        setShowInitialState(false)
-        return
-      }
-
-      if (!response.ok) {
-        let errorMessage = `Server xətası: ${response.status}`
-        try {
-          const errorData = await response.json()
-          if (errorData.error || errorData.message) {
-            errorMessage = errorData.error || errorData.message
-          }
-        } catch {
-          // If not JSON, just use status
-        }
-
-        console.error('SERVER ERROR:', response.status, errorMessage)
-        setError({
-          error: errorMessage,
-          is_not_receipt: false,
-        })
-        setShowInitialState(false)
-        return
-      }
-
-      // Parse JSON response
-      let data
-      try {
-        data = await response.json()
-      } catch (jsonError) {
-        console.error('JSON Parse Error:', jsonError)
-        const text = await response.text()
-        console.error('Response was (first 500 chars):', text.substring(0, 500))
-        setError({
-          error: 'Server cavabını parse etmək mümkün olmadı. Zəhmət olmasa yenidən cəhd edin.',
-          is_not_receipt: false,
-        })
-        setShowInitialState(false)
-        return
-      }
+      // Use scanAPI service
+      const response = await scanAPI.scanReceipt(file)
+      const data = response.data
 
       if (data.success) {
         setScanResult({
@@ -149,7 +92,7 @@ const Scan = () => {
           setTimeout(() => {
             toast.success(`+${data.xp_result.xp_awarded} XP qazandınız!`, {
               position: 'top-right',
-              autoClose: 3000,
+              autoClose: 5000,
               className: 'xp-toast-success',
             })
           }, 500)
@@ -158,7 +101,7 @@ const Scan = () => {
           setTimeout(() => {
             toast.success(`+1 🪙 Coin qazandınız! Toplam: ${data.coins} coin`, {
               position: 'top-right',
-              autoClose: 3000,
+              autoClose: 5000,
               className: 'coin-toast-success',
             })
           }, 800)
@@ -188,7 +131,7 @@ const Scan = () => {
           setTimeout(() => {
             toast.warning(data.daily_limit_alert.message, {
               position: 'top-center',
-              autoClose: 6000,
+              autoClose: 5000,
               hideProgressBar: false,
             })
             if (typeof window.speakNotification === 'function') {
@@ -201,18 +144,22 @@ const Scan = () => {
         setShowInitialState(false)
         toast.error(data.receipt_data?.error || 'Qəbzi oxumaq alınmadı', {
           position: 'top-right',
-          autoClose: 4000,
+          autoClose: 5000,
         })
       }
     } catch (error) {
       console.error('Upload Error:', error)
-      toast.error('Xəta: İnternet bağlantısı və ya server çalışmır', {
+      const errorMessage = error.response?.data?.receipt_data?.error || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'İnternet bağlantısı və ya server çalışmır'
+      toast.error(`Xəta: ${errorMessage}`, {
         position: 'top-right',
-        autoClose: 4000,
+        autoClose: 5000,
       })
       setError({
-        error: 'İnternet bağlantısı və ya server çalışmır',
-        is_not_receipt: false,
+        error: errorMessage,
+        is_not_receipt: error.response?.data?.receipt_data?.is_not_receipt || false,
       })
       setShowInitialState(false)
     } finally {
@@ -255,10 +202,27 @@ const Scan = () => {
       {showInitialState && (
         <div id="initial-state">
           <ScanHeader />
-          <UploadButtons onFileSelect={uploadFile} />
+          <UploadButtons 
+            onFileSelect={uploadFile} 
+            onManualExpenseClick={() => setShowManualExpenseModal(true)}
+          />
           <ScanInstructions />
         </div>
       )}
+
+      {/* Manual Expense Modal */}
+      <ManualExpenseModal
+        isOpen={showManualExpenseModal}
+        onClose={() => setShowManualExpenseModal(false)}
+        onSuccess={(data) => {
+          setShowInitialState(false)
+          // Show success message
+          toast.success('✅ Xərc uğurla əlavə edildi!', {
+            position: 'top-right',
+            autoClose: 5000,
+          })
+        }}
+      />
 
       {/* Success Result */}
       {scanResult && !showInitialState && (

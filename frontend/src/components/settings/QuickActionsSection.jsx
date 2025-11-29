@@ -18,7 +18,7 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
       if (typeof window.openPremiumModal === 'function') {
         window.openPremiumModal()
       } else {
-        toast.error('Bu funksiya Premium üçündür')
+        toast.error('Bu funksiya Premium üçündür', { autoClose: 5000 })
       }
       return
     }
@@ -34,10 +34,10 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      toast.success('PDF uğurla yükləndi')
+      toast.success('PDF uğurla yükləndi', { autoClose: 5000 })
     } catch (error) {
       console.error('PDF export error:', error)
-      toast.error('PDF yüklənmədi')
+      toast.error('PDF yüklənmədi', { autoClose: 5000 })
     }
   }
 
@@ -47,7 +47,7 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
       if (typeof window.openPremiumModal === 'function') {
         window.openPremiumModal()
       } else {
-        toast.error('Bu funksiya Premium üçündür')
+        toast.error('Bu funksiya Premium üçündür', { autoClose: 5000 })
       }
       return
     }
@@ -65,10 +65,10 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      toast.success('Excel faylı uğurla yükləndi')
+      toast.success('Excel faylı uğurla yükləndi', { autoClose: 5000 })
     } catch (error) {
       console.error('Excel export error:', error)
-      toast.error('Excel faylı yüklənmədi')
+      toast.error('Excel faylı yüklənmədi', { autoClose: 5000 })
     }
   }
 
@@ -81,16 +81,16 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
       const response = await fetch('/api/reset-demo', { method: 'POST' })
       const data = await response.json()
       if (data.success) {
-        toast.success('Demo məlumatları yeniləndi, səhifəni yenilə!')
+        toast.success('Demo məlumatları yeniləndi, səhifəni yenilə!', { autoClose: 5000 })
         setTimeout(() => {
           window.location.reload()
         }, 2000)
       } else {
-        toast.error(data.error || 'Sıfırlama alınmadı')
+        toast.error(data.error || 'Sıfırlama alınmadı', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Reset demo error:', error)
-      toast.error('Şəbəkə xətası')
+      toast.error('Şəbəkə xətası', { autoClose: 5000 })
     }
   }
 

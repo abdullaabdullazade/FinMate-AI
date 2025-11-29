@@ -101,7 +101,7 @@ const DreamVault = () => {
         errorMessage = error.message
       }
       
-      toast.error(errorMessage)
+      toast.error(errorMessage, { autoClose: 5000 })
       setDreams([])
       setCompletedDreams([])
     } finally {
@@ -134,7 +134,7 @@ const DreamVault = () => {
     try {
       // Check limit (max 5 active dreams)
       if (dreams.length >= 5) {
-        toast.warning('⚠️ Maksimum 5 arzu yarada bilərsiniz!')
+        toast.warning('⚠️ Maksimum 5 arzu yarada bilərsiniz!', { autoClose: 5000 })
         return
       }
 
@@ -150,16 +150,17 @@ const DreamVault = () => {
       if (response.data && response.data.success) {
         toast.success('✅ Arzu uğurla yaradıldı! (+25 XP)', {
           className: 'coin-toast-success',
+          autoClose: 5000,
         })
         await fetchDreams()
         await fetchStats()
         window.dispatchEvent(new CustomEvent('dreamUpdated'))
       } else {
-        toast.error(response.data?.error || 'Xəta baş verdi')
+        toast.error(response.data?.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Create dream error:', error)
-      toast.error(error.response?.data?.error || 'Arzu yaradılarkən xəta baş verdi')
+      toast.error(error.response?.data?.error || 'Arzu yaradılarkən xəta baş verdi', { autoClose: 5000 })
     }
   }
 
@@ -178,17 +179,17 @@ const DreamVault = () => {
       const response = await dreamVaultAPI.updateDream(editingDream.id, dreamData)
       
       if (response.data && response.data.success) {
-        toast.success('✅ Arzu uğurla yeniləndi')
+        toast.success('✅ Arzu uğurla yeniləndi', { autoClose: 5000 })
         await fetchDreams()
         await fetchStats()
         setEditingDream(null)
         window.dispatchEvent(new CustomEvent('dreamUpdated'))
       } else {
-        toast.error(response.data?.error || 'Xəta baş verdi')
+        toast.error(response.data?.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Update dream error:', error)
-      toast.error(error.response?.data?.error || 'Arzu yenilənərkən xəta baş verdi')
+      toast.error(error.response?.data?.error || 'Arzu yenilənərkən xəta baş verdi', { autoClose: 5000 })
     }
   }
 
@@ -210,17 +211,17 @@ const DreamVault = () => {
       const response = await dreamVaultAPI.deleteDream(deletingDream.id)
       
       if (response.ok || (response.data && response.data.success)) {
-        toast.success('✅ Arzu uğurla silindi')
+        toast.success('✅ Arzu uğurla silindi', { autoClose: 5000 })
         setDeletingDream(null)
         await fetchDreams()
         await fetchStats()
         window.dispatchEvent(new CustomEvent('dreamUpdated'))
       } else {
-        toast.error('Arzu silinərkən xəta baş verdi')
+        toast.error('Arzu silinərkən xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Delete dream error:', error)
-      toast.error('Arzu silinərkən xəta baş verdi')
+      toast.error('Arzu silinərkən xəta baş verdi', { autoClose: 5000 })
     }
   }
 

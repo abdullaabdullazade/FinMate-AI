@@ -37,7 +37,7 @@ const Rewards = () => {
         }
       } catch (error) {
         console.error('Rewards data fetch error:', error)
-        toast.error('Məlumat yüklənərkən xəta baş verdi')
+        toast.error('Məlumat yüklənərkən xəta baş verdi', { autoClose: 5000 })
       } finally {
         setLoading(false)
       }
@@ -64,7 +64,7 @@ const Rewards = () => {
    */
   const openClaimModal = (rewardType, cost, icon, name) => {
     if (coins < cost) {
-      toast.error(`Kifayət qədər coin yoxdur. Lazım: ${cost}, Sizin: ${coins}`)
+      toast.error(`Kifayət qədər coin yoxdur. Lazım: ${cost}, Sizin: ${coins}`, { autoClose: 5000 })
       return
     }
     setCurrentReward({ rewardType, cost, icon, name })
@@ -100,7 +100,7 @@ const Rewards = () => {
 
         // Show success message
         const successMessage = `${currentReward.name} uğurla alındı!`
-        toast.success(successMessage)
+        toast.success(successMessage, { autoClose: 5000 })
 
         // Voice notification
         if (typeof window.queueVoiceNotification === 'function') {
@@ -121,11 +121,11 @@ const Rewards = () => {
           }, 1000)
         }
       } else {
-        toast.error(response.data.error || 'Xəta baş verdi')
+        toast.error(response.data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Claim reward error:', error)
-      toast.error('Xəta baş verdi')
+      toast.error('Xəta baş verdi', { autoClose: 5000 })
     }
   }
 

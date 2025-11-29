@@ -33,7 +33,7 @@ function App() {
         {/* React Toastify - Global toast notifications with Glassmorphism */}
         <ToastContainer
           position="top-right"
-          autoClose={3000}
+          autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick

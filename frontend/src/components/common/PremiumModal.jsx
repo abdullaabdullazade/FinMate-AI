@@ -39,7 +39,7 @@ const PremiumModal = ({ isOpen, onClose }) => {
         
         toast.success(`✨ ${data.message}`, {
           position: 'top-center',
-          autoClose: 3000,
+          autoClose: 5000,
           hideProgressBar: false,
           className: 'premium-success-toast',
         })
@@ -57,14 +57,14 @@ const PremiumModal = ({ isOpen, onClose }) => {
       } else {
         toast.error(data.error || 'Xəta baş verdi', {
           position: 'top-center',
-          autoClose: 4000,
+          autoClose: 5000,
         })
       }
     } catch (error) {
       console.error('Trial activation error:', error)
       toast.error('Əlaqə xətası. Zəhmət olmasa yenidən cəhd edin.', {
         position: 'top-center',
-        autoClose: 4000,
+        autoClose: 5000,
       })
     } finally {
       setActivating(false)

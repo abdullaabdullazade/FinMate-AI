@@ -6,12 +6,13 @@ import { api } from './index'
 
 export const voiceAPI = {
   // Voice command
-  sendVoiceCommand: async (audioFile) => {
+  sendVoiceCommand: async (audioFile, language = 'az') => {
     const formData = new FormData()
-    formData.append('audio', audioFile)
+    formData.append('file', audioFile, 'recording.webm')
+    formData.append('language', language)
     return api.post('/api/voice-command', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
       },
     })
   },

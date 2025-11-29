@@ -58,7 +58,7 @@ const IncomeModal = ({ isOpen, onClose, currency = 'AZN', onSuccess }) => {
       const data = await response.json()
       if (data.success) {
         setSuccess(true)
-        toast.success('✅ Gəlir uğurla əlavə edildi!')
+        toast.success('✅ Gəlir uğurla əlavə edildi!', { autoClose: 5000 })
         // Dispatch event for dashboard refresh
         window.dispatchEvent(new CustomEvent('incomeUpdated'))
         onSuccess && onSuccess(data)

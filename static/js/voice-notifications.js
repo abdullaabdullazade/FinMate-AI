@@ -58,9 +58,10 @@
 
         try {
             // Call backend TTS API with enhanced quality parameters
+            // Always use Azerbaijani to prevent dual language playback
             const formData = new FormData();
             formData.append('text', item.text);
-            formData.append('language', item.language);
+            formData.append('language', 'az');  // Force Azerbaijani, ignore item.language to prevent dual playback
             
             // Enhanced quality parameters for better TTS
             formData.append('rate', '1.0');      // Natural speed

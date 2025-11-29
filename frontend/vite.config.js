@@ -10,9 +10,15 @@ export default defineConfig({
     proxy: {
       // Backend API-yə proxy - CORS problemlərini həll edir
       '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true
-      }
+        target: 'http://localhost:8200',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/logout': {
+        target: 'http://localhost:8200',
+        changeOrigin: true,
+        secure: false,
+      },
     }
   },
   resolve: {

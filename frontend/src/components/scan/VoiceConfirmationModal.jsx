@@ -51,17 +51,17 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
 
       const data = await response.json()
       if (data.success) {
-        toast.success('✅ Səsli əmr uğurla təsdiqləndi!')
+        toast.success('✅ Səsli əmr uğurla təsdiqləndi!', { autoClose: 5000 })
         onConfirm && onConfirm(data)
         onClose()
         // Refresh dashboard
         window.dispatchEvent(new CustomEvent('expenseUpdated'))
       } else {
-        toast.error(data.error || 'Xəta baş verdi')
+        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Confirm voice error:', error)
-      toast.error('Əlaqə xətası')
+      toast.error('Əlaqə xətası', { autoClose: 5000 })
     }
   }
 

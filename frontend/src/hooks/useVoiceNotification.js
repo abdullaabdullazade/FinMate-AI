@@ -1,94 +1,75 @@
 /**
- * Voice Notification Hook
- * ReactJS-də səsləndirmə üçün hook
+ * useVoiceNotification Hook
+ * Voice notification sistemini React-də istifadə etmək üçün hook
  */
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
+import { voiceAPI } from '../services/api'
 
-/**
- * Voice notification hook
- * @returns {Function} speak - Səsləndirmə funksiyası
- */
 export const useVoiceNotification = () => {
+  const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(false)
+
+  /**
+   * Voice mode-u yoxla
+   */
+  useEffect(() => {
+    const checkVoiceMode = () => {
+      const voiceMode = localStorage.getItem('voice-mode') === 'enabled'
+      setIsVoiceModeEnabled(voiceMode)
+    }
+
+    checkVoiceMode()
+
+    // Listen for voice mode changes
+    const handleStorageChange = (e) => {
+      if (e.key === 'voice-mode') {
+        checkVoiceMode()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Custom event listener for voice mode changes
+    const handleVoiceModeChange = () => {
+      checkVoiceMode()
+    }
+    window.addEventListener('voiceModeChanged', handleVoiceModeChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('voiceModeChanged', handleVoiceModeChange)
+    }
+  }, [])
+
   /**
    * Səsləndirmə funksiyası
-   * @param {string} text - Danışılacaq mətn
-   * @param {number} priority - Prioritet (0=urgent, 1=normal, 2=low)
-   * @param {string} language - Dil kodu
    */
-  const speak = useCallback((text, priority = 1, language = 'az') => {
-    if (!text || !text.trim()) {
-      console.warn('🔇 Empty text provided to speak function')
-      return
-    }
+  const speak = useCallback(async (text, priority = 0, language = 'az') => {
+    try {
+      // Voice mode aktivdirsə
+      if (isVoiceModeEnabled || localStorage.getItem('voice-mode') === 'enabled') {
+        // window.queueVoiceNotification varsa istifadə et
+        if (typeof window.queueVoiceNotification === 'function') {
+          window.queueVoiceNotification(text, priority, language)
+          return
+        }
 
-    // Voice mode yoxla
-    const voiceMode = localStorage.getItem('voice-mode')
-    if (voiceMode !== 'enabled') {
-      console.log('🔇 Voice mode disabled, skipping:', text.substring(0, 50))
-      return
-    }
-
-    console.log('🔊 Speaking:', text.substring(0, 50), 'Priority:', priority)
-
-    // queueVoiceNotification funksiyası mövcuddursa istifadə et
-    if (typeof window.queueVoiceNotification === 'function') {
-      try {
-        window.queueVoiceNotification(text, priority, language)
-      } catch (error) {
-        console.error('❌ Error calling queueVoiceNotification:', error)
-        // Fallback to direct TTS
-        directTTS(text, language)
+        // Fallback: TTS API istifadə et
+        try {
+          await voiceAPI.textToSpeech(text, language)
+        } catch (error) {
+          console.error('TTS API error:', error)
+        }
       }
-    } else {
-      // Fallback - direkt TTS API çağır
-      console.warn('⚠️ queueVoiceNotification not available, using direct TTS')
-      directTTS(text, language)
+    } catch (error) {
+      console.error('Speak error:', error)
     }
-  }, [])
+  }, [isVoiceModeEnabled])
 
-  /**
-   * Direkt TTS API çağırışı (fallback)
-   */
-  const directTTS = useCallback((text, language) => {
-    const formData = new FormData()
-    formData.append('text', text)
-    formData.append('language', language)
-
-    fetch('/api/tts', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`TTS API error: ${response.status}`)
-        }
-        return response.json()
-      })
-      .then((data) => {
-        if (data.success && data.audio_response) {
-          const audio = new Audio(`data:audio/mp3;base64,${data.audio_response}`)
-          audio.play().catch((err) => {
-            console.error('❌ Audio play error:', err)
-          })
-        } else {
-          console.error('❌ TTS API returned error:', data.error)
-        }
-      })
-      .catch((error) => {
-        console.error('❌ TTS error:', error)
-      })
-  }, [])
-
-  /**
-   * Voice mode aktivdirmi yoxla
-   */
-  const isVoiceModeEnabled = useCallback(() => {
-    return localStorage.getItem('voice-mode') === 'enabled'
-  }, [])
-
-  return { speak, isVoiceModeEnabled }
+  return {
+    speak,
+    isVoiceModeEnabled,
+  }
 }
 
 export default useVoiceNotification
-

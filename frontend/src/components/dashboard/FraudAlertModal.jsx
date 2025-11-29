@@ -20,7 +20,7 @@ const FraudAlertModal = ({ isOpen, onClose, onConfirm, onBlock }) => {
 
   const handleConfirm = (isLegit) => {
     if (isLegit) {
-      toast.success('✅ Təşəkkürlər! Əməliyyat təsdiqləndi.')
+      toast.success('✅ Təşəkkürlər! Əməliyyat təsdiqləndi.', { autoClose: 5000 })
       onConfirm && onConfirm()
       onClose()
     } else {

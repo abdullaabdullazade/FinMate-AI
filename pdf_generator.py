@@ -6,7 +6,7 @@ Creates professional monthly financial reports
 from weasyprint import HTML, CSS
 from jinja2 import Template
 from sqlalchemy.orm import Session
-from models import User, Expense
+from models import User, Expense, Income
 from datetime import datetime, timedelta
 import calendar
 import matplotlib
@@ -213,10 +213,19 @@ class PDFGenerator:
         # Subscriptions
         subscriptions = [exp for exp in expenses if exp.is_subscription]
         
-        # Budget compliance
-        budget = user.monthly_budget
-        budget_used_pct = (total_spending / budget * 100) if budget > 0 else 0
-        budget_status_ok = total_spending <= budget
+        # Get additional income for the month
+        incomes = db_session.query(Income).filter(
+            Income.user_id == user_id,
+            Income.date >= month_start,
+            Income.date <= month_end
+        ).all()
+        total_additional_income = sum(inc.amount for inc in incomes)
+        
+        # Budget compliance - include monthly budget + additional income
+        base_budget = user.monthly_budget
+        total_budget = base_budget + total_additional_income  # Monthly budget + additional income
+        budget_used_pct = (total_spending / total_budget * 100) if total_budget > 0 else 0
+        budget_status_ok = total_spending <= total_budget
         
         # Generate charts
         display_category_data = {cat: PDFGenerator._convert_from_azn(val, currency) for cat, val in category_data.items()}
@@ -234,7 +243,7 @@ class PDFGenerator:
         
         # Convert amounts for göstərim valyutası
         display_total_spending = PDFGenerator._convert_from_azn(total_spending, currency)
-        display_budget = PDFGenerator._convert_from_azn(budget, currency)
+        display_budget = PDFGenerator._convert_from_azn(total_budget, currency)  # Show total budget (base + additional income)
         display_budget_used_pct = budget_used_pct
         display_top_merchants = [(m, PDFGenerator._convert_from_azn(a, currency)) for m, a in top_merchants]
         display_expenses = [

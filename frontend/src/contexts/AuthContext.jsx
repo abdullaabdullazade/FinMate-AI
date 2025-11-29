@@ -79,30 +79,30 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     try {
       // Get current user from stats API (it returns user data)
-      const response = await fetch('/api/stats', {
-        credentials: 'include',
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (data.user) {
+      const { api } = await import('../services/api')
+      const response = await api.get('/api/stats')
+      if (response.data?.user) {
           // Also get full user data from settings
-          const settingsResponse = await fetch('/api/settings', {
-            credentials: 'include',
-          })
-          if (settingsResponse.ok) {
-            const settingsData = await settingsResponse.json()
+        try {
+          const settingsResponse = await api.get('/api/settings')
+          if (settingsResponse.data?.user) {
             setUser({
-              ...data.user,
-              ...settingsData,
-              is_premium: data.user.is_premium || false,
+              ...response.data.user,
+              ...settingsResponse.data.user,
+              is_premium: response.data.user.is_premium || false,
             })
           } else {
-            setUser(data.user)
+            setUser(response.data.user)
           }
+        } catch (settingsError) {
+          // If settings fails, just use stats data
+          setUser(response.data.user)
         }
       }
     } catch (error) {
       console.error('User refresh error:', error)
+      // If error, clear user (not authenticated)
+      setUser(null)
     }
   }
 

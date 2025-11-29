@@ -69,7 +69,7 @@ const VoiceCommandButton = () => {
       setStatus('Dinləyirəm... Danışın 🎙️')
     } catch (error) {
       console.error('Mikrofon xətası:', error)
-      toast.error('Mikrofona icazə verilmədi')
+      toast.error('Mikrofona icazə verilmədi', { autoClose: 5000 })
       setStatus('Hazıram')
     }
   }
@@ -85,63 +85,30 @@ const VoiceCommandButton = () => {
 
   const sendAudioToServer = async (audioBlob) => {
     try {
-      const formData = new FormData()
-      formData.append('file', audioBlob, 'recording.webm')
-      formData.append('language', language)
+      const { voiceAPI } = await import('../../services/api')
+      const response = await voiceAPI.sendVoiceCommand(audioBlob, language)
+      const data = response.data
 
-      const response = await fetch('/api/voice-command', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      })
-
-      if (!response.ok) {
-        throw new Error(`Server xətası: ${response.status}`)
-      }
-
-      const contentType = response.headers.get('content-type')
-      if (contentType && contentType.includes('text/html')) {
-        const html = await response.text()
-        // Parse HTML to extract data
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(html, 'text/html')
-        const confirmationModal = doc.querySelector('[id*="voice-confirmation"]')
-        if (confirmationModal) {
-          // Extract data from HTML
-          const amountInput = confirmationModal.querySelector('input[name="amount"]')
-          const merchantInput = confirmationModal.querySelector('input[name="merchant"]')
-          const categoryInput = confirmationModal.querySelector('input[name="category"]')
-          const transcribedTextEl = confirmationModal.querySelector('p.text-white.italic')
-          
+      if (data.success) {
+        // Backend JSON qaytarır - confirmation data
           setConfirmationData({
-            amount: amountInput?.value || '',
-            merchant: merchantInput?.value || '',
-            category: categoryInput?.value || '',
-            transcribed_text: transcribedTextEl?.textContent?.replace(/[""]/g, '') || ''
+          amount: data.expense_data?.amount || '',
+          merchant: data.expense_data?.merchant || '',
+          category: data.expense_data?.category || '',
+          transcribed_text: data.transcribed_text || ''
           })
           setIsModalOpen(false)
           setShowConfirmation(true)
-        }
-      } else if (contentType && contentType.includes('application/json')) {
-        const data = await response.json()
-        if (data.success) {
-          setResult({ type: 'success', data })
-          setStatus('Əlavə edildi! ✅')
-          toast.success('Səsli əmr uğurla işləndi!')
-          setTimeout(() => {
-            setIsModalOpen(false)
-            window.location.reload()
-          }, 2000)
         } else {
           setResult({ type: 'error', message: data.error || 'Xəta baş verdi' })
           setStatus('Xəta baş verdi')
-        }
+        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Server xətası:', error)
       setResult({ type: 'error', message: 'Serverlə əlaqə kəsildi' })
       setStatus('Xəta baş verdi')
-      toast.error('Serverlə əlaqə kəsildi')
+      toast.error('Serverlə əlaqə kəsildi', { autoClose: 5000 })
     } finally {
       setIsProcessing(false)
       if (stream) {

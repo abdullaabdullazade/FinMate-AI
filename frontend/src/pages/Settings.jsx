@@ -95,7 +95,7 @@ const Settings = () => {
         }
       } catch (error) {
         console.error('Settings load error:', error)
-        toast.error('Ayarlar yüklənə bilmədi')
+        toast.error('Ayarlar yüklənə bilmədi', { autoClose: 5000 })
       } finally {
         setLoading(false)
       }
@@ -159,7 +159,7 @@ const Settings = () => {
       if (response && response.data && response.data.success) {
         const message = response.data.message || 'Tənzimləmələr yadda saxlanıldı'
         console.log('✅ Settings saved successfully:', message)
-        toast.success(message)
+        toast.success(message, { autoClose: 5000 })
         
         // Voice mode localStorage-da da saxla (backward compatibility)
         // Backend-də artıq saxlanır, amma localStorage-da da saxlayırıq
@@ -193,7 +193,7 @@ const Settings = () => {
       } else {
         const errorMsg = response?.data?.error || 'Xəta baş verdi'
         console.error('❌ Settings save failed:', errorMsg)
-        toast.error(errorMsg)
+        toast.error(errorMsg, { autoClose: 5000 })
       }
     } catch (error) {
       console.error('❌ Settings save error:', error)
@@ -204,7 +204,7 @@ const Settings = () => {
       })
       
       const errorMsg = error.response?.data?.error || error.message || 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.'
-      toast.error(errorMsg)
+      toast.error(errorMsg, { autoClose: 5000 })
     } finally {
       setSaving(false)
     }

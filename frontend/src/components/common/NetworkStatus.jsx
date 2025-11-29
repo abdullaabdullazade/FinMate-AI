@@ -60,7 +60,7 @@ const NetworkStatus = () => {
       // Offline mesajını göstər
       const offlineToastId = toast.error('İnternet bağlantısı yoxdur', {
         position: 'top-center',
-        autoClose: false,
+        autoClose: 5000,
         toastId: 'offline-toast',
       })
       
