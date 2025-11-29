@@ -11,3 +11,7 @@
 @import './components/toast.css';
 @import './components/readability.css';
 @import './components/header.css';
+
+/* Import Notification Styles */
+@import './components/notifications/online-status.css';
+@import './components/notifications/toast-queue.css';

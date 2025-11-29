@@ -8,5 +8,6 @@
 @import '../components/chat/typing-indicator.css';
 @import '../components/chat/chat-input-container.css';
 @import '../components/chat/chat-input-field.css';
+@import '../components/chat/chat-actions.css';
 @import '../components/chat/markdown-content.css';
 @import '../components/chat/send-button.css';

@@ -9,40 +9,19 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useAuth } from '../../contexts/AuthContext'
 import ThemeToggle from '../common/ThemeToggle'
-import AlertBell from '../common/AlertBell'
 import UserStats from '../common/UserStats'
 import ProfileDropdown from '../common/ProfileDropdown'
+import LogoutConfirmModal from '../common/LogoutConfirmModal'
 
 const Header = ({ user }) => {
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const { logout } = useAuth()
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const alertPanelRef = useRef(null)
-  const alertBellRef = useRef(null)
-  const [showAlertPanel, setShowAlertPanel] = useState(false)
-
-  // Alert panel toggle - base.html-dəki kimi
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showAlertPanel &&
-        alertPanelRef.current &&
-        !alertPanelRef.current.contains(event.target) &&
-        alertBellRef.current &&
-        !alertBellRef.current.contains(event.target)
-      ) {
-        setShowAlertPanel(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showAlertPanel])
-
-  // Hamburger menu açıq olduqda profil dropdown və alert panel bağla
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isOnline, setIsOnline] = useState(true)
+  const checkIntervalRef = useRef(null)
+  // Hamburger menu açıq olduqda profil dropdown bağla
   useEffect(() => {
     const menuPanel = document.getElementById('menu-panel')
     const checkMenuState = () => {
@@ -50,7 +29,6 @@ const Header = ({ user }) => {
         const isMenuOpen = menuPanel.classList.contains('active')
         if (isMenuOpen) {
           setShowProfileDropdown(false)
-          setShowAlertPanel(false)
         }
       }
     }
@@ -68,17 +46,133 @@ const Header = ({ user }) => {
     }
   }, [])
 
+  // Network status yoxlaması - Header-da görünən indikator üçün (real internet yoxlaması)
+  useEffect(() => {
+    const checkNetworkStatus = async () => {
+      try {
+        // Real internet yoxlaması - xarici server-ə request
+        // Image yükləməyə cəhd et (CORS problemi olmayacaq)
+        let isActuallyOnline = false
+        
+        // Bir neçə yoxlama et - ən azı biri uğurlu olsa, online say
+        const checkPromises = [
+          // Google favicon (kiçik və sürətli)
+          new Promise((resolve) => {
+            const img = new Image()
+            const timeoutId = setTimeout(() => {
+              img.onload = null
+              img.onerror = null
+              resolve(false)
+            }, 2000)
+            
+            img.onload = () => {
+              clearTimeout(timeoutId)
+              resolve(true)
+            }
+            img.onerror = () => {
+              clearTimeout(timeoutId)
+              resolve(false)
+            }
+            img.src = 'https://www.google.com/favicon.ico?t=' + Date.now() // Cache bypass
+          }),
+          
+          // Cloudflare favicon
+          new Promise((resolve) => {
+            const img = new Image()
+            const timeoutId = setTimeout(() => {
+              img.onload = null
+              img.onerror = null
+              resolve(false)
+            }, 2000)
+            
+            img.onload = () => {
+              clearTimeout(timeoutId)
+              resolve(true)
+            }
+            img.onerror = () => {
+              clearTimeout(timeoutId)
+              resolve(false)
+            }
+            img.src = 'https://www.cloudflare.com/favicon.ico?t=' + Date.now()
+          }),
+        ]
+        
+        // Ən azı biri uğurlu olsa, online say
+        const results = await Promise.allSettled(checkPromises)
+        isActuallyOnline = results.some(result => result.status === 'fulfilled' && result.value === true)
+        
+        // Əgər xarici yoxlama işləmədisə, local API-yə də yoxla (WiFi bağlı ola bilər, amma internet yoxdur)
+        if (!isActuallyOnline) {
+          try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 2000)
+            
+            const response = await fetch('/api/dashboard-data', {
+              method: 'GET',
+              cache: 'no-cache',
+              signal: controller.signal,
+              credentials: 'include',
+            })
+            
+            clearTimeout(timeoutId)
+            // Local API işləyirsə, amma xarici internet yoxdursa, hələ də offline say
+            // Çünki real internet yoxdur
+            isActuallyOnline = false
+          } catch (localError) {
+            // Local API də işləmir - tam offline
+            isActuallyOnline = false
+          }
+        }
+        
+        setIsOnline(isActuallyOnline)
+      } catch (error) {
+        // Network error - offline
+        setIsOnline(false)
+      }
+    }
+
+    // Browser events
+    const handleOnlineEvent = () => {
+      setTimeout(() => {
+        checkNetworkStatus()
+      }, 500)
+    }
+
+    const handleOfflineEvent = () => {
+      setIsOnline(false)
+    }
+
+    window.addEventListener('online', handleOnlineEvent)
+    window.addEventListener('offline', handleOfflineEvent)
+
+    // İlk yoxlama
+    checkNetworkStatus()
+
+    // Periodic check - hər 3 saniyədə bir
+    checkIntervalRef.current = setInterval(() => {
+      checkNetworkStatus()
+    }, 3000)
+
+    return () => {
+      window.removeEventListener('online', handleOnlineEvent)
+      window.removeEventListener('offline', handleOfflineEvent)
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current)
+      }
+    }
+  }, [])
+
   return (
     <>
-      {/* Top Bar - base.html-dən TAM KOPYALANMIŞ (sətir 184-301) */}
-      <div className="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-between max-w-md mx-auto w-full">
-          {/* Left Side - Hamburger + Logo - base.html strukturuna TAM UYĞUN */}
-          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-shrink">
-            {/* Hamburger Menu Button - Navbar Integrated (Mobile Only) - base.html sətir 188-195 */}
+      {/* Top Bar - Glass format dark mode */}
+      <div className="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-3 py-1.5 sm:py-2">
+        <div className="flex items-center justify-between max-w-md mx-auto w-full gap-1 sm:gap-2">
+          {/* Left Side - Hamburger + Logo - Mobile responsive */}
+          <div className="min-w-0 flex-1 flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-shrink-0">
+            {/* Hamburger Menu Button */}
             <button 
               id="hamburger-btn" 
-              className="hamburger-btn-navbar lg:hidden flex-shrink-0" 
+              className="hamburger-btn-navbar lg:hidden flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9" 
               aria-label="Menu"
               aria-expanded="false"
               onClick={(e) => {
@@ -111,7 +205,6 @@ const Header = ({ user }) => {
                     profileDropdown.classList.add('hidden')
                   }
                   setShowProfileDropdown(false)
-                  setShowAlertPanel(false)
                   
                   menuPanel.classList.add('active')
                   menuBackdrop.classList.add('active')
@@ -137,128 +230,84 @@ const Header = ({ user }) => {
               </div>
             </button>
 
-            {/* Logo - base.html sətir 197-204 - TAM KOPYALANMIŞ */}
+            {/* Logo */}
             <Link
               to="/"
-              className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 hover:opacity-90 transition-opacity overflow-hidden"
+              className="min-w-0 flex-1 flex items-center gap-1 sm:gap-1.5 hover:opacity-90 transition-opacity overflow-hidden"
             >
               <img
                 src="/static/icons/icon-192.png"
                 alt="FinMate AI"
-                className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg flex-shrink-0"
+                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-lg flex-shrink-0"
                 onError={(e) => {
                   e.target.style.display = 'none'
                 }}
               />
               <div className="min-w-0 overflow-hidden">
-                <h1 className="text-base sm:text-xl font-bold text-white truncate">FinMate AI</h1>
-                <p className="text-[8px] sm:text-[10px] text-white/70 truncate">Your Personal CFO</p>
+                <h1 className="text-xs sm:text-sm md:text-base font-bold text-white truncate">FinMate AI</h1>
+                <p className="text-[6px] sm:text-[8px] md:text-[9px] text-white/70 truncate hidden sm:block">Your Personal CFO</p>
               </div>
             </Link>
           </div>
 
-          {/* Right Side - Theme, Alerts, Profile - base.html sətir 206-299 - TAM KOPYALANMIŞ */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 relative flex-shrink-0">
-            {/* Theme Toggle - base.html sətir 207-224 */}
-            <ThemeToggle />
-
-            {/* Alerts - base.html sətir 226-279 - TAM KOPYALANMIŞ */}
-            <div className="relative">
-              <button
-                ref={alertBellRef}
-                id="alert-bell"
-                className="relative text-white/80 hover:text-white transition p-0.5 sm:p-1 flex-shrink-0"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setShowAlertPanel(!showAlertPanel)
-                }}
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-                <span
-                  id="alert-counter"
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-red-500 rounded-full shadow-lg"
-                ></span>
-              </button>
-              {/* Alert Panel - base.html sətir 236-279 - TAM KOPYALANMIŞ */}
-              {showAlertPanel && (
-                <div
-                  ref={alertPanelRef}
-                  id="alert-panel"
-                  className="absolute right-0 sm:right-14 top-10 sm:top-10 w-[calc(100vw-1rem)] sm:w-64 max-w-[calc(100vw-1rem)] sm:max-w-none glass-card rounded-xl shadow-2xl overflow-hidden z-[60]"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="px-4 py-3 border-b border-glass-border text-sm font-semibold text-text-primary">Bildirişlər (AI)</div>
-                  <ul className="divide-y divide-glass-border text-sm">
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
-                      <span className="text-amber-500 flex-shrink-0">⚠️</span>
-                      <div className="flex-1 incognito-hidden" data-original="Diqqət: Keçən aya görə 15% çox xərcləmisən.">
-                        Diqqət: Keçən aya görə 15% çox xərcləmisən.
-                      </div>
-                      <button
-                        onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
-                        aria-label="Bağla"
-                        title="Ləğv et"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                      </button>
-                    </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
-                      <span className="text-blue-500 flex-shrink-0">🎬</span>
-                      <div className="flex-1">Netflix abunəliyin sabah bitir.</div>
-                      <button
-                        onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
-                        aria-label="Bağla"
-                        title="Ləğv et"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                      </button>
-                    </li>
-                    <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
-                      <span className="text-blue-500 flex-shrink-0">📈</span>
-                      <div className="flex-1">28-ində büdcə limitini keçə bilərsən.</div>
-                      <button
-                        onClick={() => setShowAlertPanel(false)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary hover:text-text-primary flex-shrink-0 p-1"
-                        aria-label="Bağla"
-                        title="Ləğv et"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
+          {/* Right Side - Theme, Network Status, Profile */}
+          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-1.5 relative flex-shrink-0">
+            {/* Network Status Indicator */}
+            <div
+              className="relative flex-shrink-0 hidden sm:block"
+              title={isOnline ? 'İnternet bağlantısı mövcuddur' : 'İnternet bağlantısı yoxdur'}
+            >
+              <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${
+                isOnline ? 'bg-green-500' : 'bg-red-500 animate-pulse'
+              }`}></div>
             </div>
 
-            {/* User Stats - base.html sətir 281 - {% include "partials/user_stats.html" %} */}
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* User Stats */}
             <UserStats user={user} />
 
-            {/* Profile / Logout - base.html sətir 283-298 - TAM KOPYALANMIŞ */}
+            {/* Logout Button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                // Profile dropdown-u bağla
+                setShowProfileDropdown(false)
+                // Logout modal aç
+                setShowLogoutModal(true)
+              }}
+              className="relative text-white/80 hover:text-white transition p-1 sm:p-1.5 flex-shrink-0 touch-manipulation"
+              aria-label="Çıxış"
+              type="button"
+              title="Hesabdan çıx"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+
+            {/* Profile Dropdown */}
             <ProfileDropdown
               user={user}
               show={showProfileDropdown}
-              onToggle={() => setShowProfileDropdown(!showProfileDropdown)}
+              onToggle={() => {
+                // Profile dropdown-u toggle et
+                setShowProfileDropdown(prev => !prev)
+              }}
               onLogout={logout}
             />
           </div>
         </div>
       </div>
+
+      {/* Logout Confirm Modal */}
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={logout}
+      />
     </>
   )
 }

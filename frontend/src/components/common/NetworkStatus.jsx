@@ -1,99 +1,236 @@
 /**
  * Network Status Component
  * İnternet bağlantısını yoxlayır və offline/online status göstərir
+ * Yalnız toast bildirişləri istifadə edir
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
-import { WifiOff, Wifi } from 'lucide-react'
 
 const NetworkStatus = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [showOfflineToast, setShowOfflineToast] = useState(false)
-  const offlineToastIdRef = useRef(null)
-  const onlineTimeoutIdRef = useRef(null)
+  const lastStatusRef = useRef(null) // null ilə başla ki ilk dəfə mütləq bildiriş göstərsin
+  const checkIntervalRef = useRef(null)
+  const toastIdRef = useRef(null)
+
+  // Real network check - xarici server-ə request göndərir (real internet yoxlaması)
+  const checkNetworkStatus = async () => {
+    try {
+      // Real internet yoxlaması - xarici server-ə request
+      // Image yükləməyə cəhd et (CORS problemi olmayacaq)
+      let isActuallyOnline = false
+      
+      // Bir neçə yoxlama et - ən azı biri uğurlu olsa, online say
+      const checkPromises = [
+        // Google favicon (kiçik və sürətli)
+        new Promise((resolve) => {
+          const img = new Image()
+          const timeoutId = setTimeout(() => {
+            img.onload = null
+            img.onerror = null
+            resolve(false)
+          }, 2000)
+          
+          img.onload = () => {
+            clearTimeout(timeoutId)
+            resolve(true)
+          }
+          img.onerror = () => {
+            clearTimeout(timeoutId)
+            resolve(false)
+          }
+          img.src = 'https://www.google.com/favicon.ico?t=' + Date.now() // Cache bypass
+        }),
+        
+        // Cloudflare favicon
+        new Promise((resolve) => {
+          const img = new Image()
+          const timeoutId = setTimeout(() => {
+            img.onload = null
+            img.onerror = null
+            resolve(false)
+          }, 2000)
+          
+          img.onload = () => {
+            clearTimeout(timeoutId)
+            resolve(true)
+          }
+          img.onerror = () => {
+            clearTimeout(timeoutId)
+            resolve(false)
+          }
+          img.src = 'https://www.cloudflare.com/favicon.ico?t=' + Date.now()
+        }),
+      ]
+      
+      // Ən azı biri uğurlu olsa, online say
+      const results = await Promise.allSettled(checkPromises)
+      isActuallyOnline = results.some(result => result.status === 'fulfilled' && result.value === true)
+      
+      // Əgər xarici yoxlama işləmədisə, local API-yə də yoxla (WiFi bağlı ola bilər, amma internet yoxdur)
+      if (!isActuallyOnline) {
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 2000)
+          
+          const response = await fetch('/api/dashboard-data', {
+            method: 'GET',
+            cache: 'no-cache',
+            signal: controller.signal,
+            credentials: 'include',
+          })
+          
+          clearTimeout(timeoutId)
+          // Local API işləyirsə, amma xarici internet yoxdursa, hələ də offline say
+          // Çünki real internet yoxdur
+          isActuallyOnline = false
+        } catch (localError) {
+          // Local API də işləmir - tam offline
+          isActuallyOnline = false
+        }
+      }
+      
+      // Status dəyişibsə, bildiriş göstər
+      if (lastStatusRef.current === null) {
+        // İlk dəfə - status-u set et
+        lastStatusRef.current = isActuallyOnline
+        // İlk dəfə online-dursa, "Qoşulun" bildirişi göstər
+        if (isActuallyOnline) {
+          handleOnline()
+        }
+        // Yalnız offline-dursa bildiriş göstər
+        // Amma WiFi bağlı olsa belə, real internet yoxdursa bildiriş göstərmə
+        return
+      }
+      
+      // Status dəyişibsə, bildiriş göstər
+      if (isActuallyOnline !== lastStatusRef.current) {
+        lastStatusRef.current = isActuallyOnline
+        
+        if (isActuallyOnline) {
+          handleOnline()
+        } else {
+          handleOffline()
+        }
+      }
+    } catch (error) {
+      // Network error - offline (AbortError, NetworkError, və s.)
+      // navigator.onLine false-dursa, dərhal bildiriş göstər
+      if (!navigator.onLine) {
+        // İnternet bağlandıqda dərhal bildiriş göstər
+        if (lastStatusRef.current === null || lastStatusRef.current === true) {
+          lastStatusRef.current = false
+          handleOffline()
+        }
+      } else {
+        // WiFi bağlı olsa belə, real internet yoxdursa bildiriş göstərmə
+        // Amma yalnız əgər əvvəllər online idisə
+        if (lastStatusRef.current === null) {
+          // İlk dəfə - status-u set et, amma bildiriş göstərmə
+          // Çünki WiFi bağlı ola bilər, amma real internet yoxdur
+          lastStatusRef.current = false
+          return
+        }
+        
+        // Əgər əvvəllər online idisə, offline bildirişi göstər
+        if (lastStatusRef.current === true) {
+          lastStatusRef.current = false
+          handleOffline()
+        }
+      }
+    }
+  }
+
+  const handleOnline = () => {
+    // Köhnə toast-u sil
+    if (toastIdRef.current) {
+      toast.dismiss(toastIdRef.current)
+    }
+    
+    // Yeni toast göstər - 5 saniyə sonra avtomatik yox olacaq
+    toastIdRef.current = toast.success('✅ Qoşulun! İnternet bağlantısı mövcuddur.', {
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      position: 'top-right',
+      closeButton: true, // X buttonu göstər
+    })
+  }
+
+  const handleOffline = () => {
+    // Köhnə toast-u sil
+    if (toastIdRef.current) {
+      toast.dismiss(toastIdRef.current)
+    }
+    
+    // Yeni toast göstər - 5 saniyə sonra avtomatik yox olacaq
+    toastIdRef.current = toast.error('📡 İnternet bağlantısı kəsildi! Zəhmət olmasa interneti yoxlayın.', {
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      position: 'top-right',
+      closeButton: true, // X buttonu göstər
+    })
+  }
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true)
-      
-      // Offline toast-u mütləq bağla
-      toast.dismiss('offline-toast')
-      if (offlineToastIdRef.current) {
-        toast.dismiss(offlineToastIdRef.current)
-        offlineToastIdRef.current = null
+    // Browser events
+    const handleOnlineEvent = () => {
+      // Browser online event - real check edək
+      // İnternet bərpa olduqda bildiriş göstər
+      setTimeout(() => {
+        checkNetworkStatus()
+      }, 500)
+    }
+
+    const handleOfflineEvent = () => {
+      // İnternet bağlandıqda dərhal offline bildirişi göstər
+      // navigator.onLine false-dursa, dərhal bildiriş göstər
+      if (!navigator.onLine) {
+        // İnternet bağlandıqda dərhal bildiriş göstər (qəsdən bağlasa da)
+        // Təqdimat zamanı internet getsə, dərhal bildiriş göstər
+        if (lastStatusRef.current === null || lastStatusRef.current === true) {
+          lastStatusRef.current = false
+          handleOffline()
+        }
+      } else {
+        // WiFi bağlı olsa belə, real internet yoxdursa bildiriş göstərmə
+        // Real network check gözlə
+        setTimeout(() => {
+          checkNetworkStatus()
+        }, 500)
       }
-      
-      // Əvvəlki online toast-u və timeout-u bağla (əgər varsa)
-      toast.dismiss('online-toast')
-      if (onlineTimeoutIdRef.current) {
-        clearTimeout(onlineTimeoutIdRef.current)
-        onlineTimeoutIdRef.current = null
-      }
-      
-      setShowOfflineToast(false)
-      
-      // Online mesajını göstər - 5 saniyə sonra avtomatik bağlanacaq
-      toast.success('İnternet bağlantısı bərpa olundu', {
-        position: 'top-center',
-        autoClose: 5000, // 5 saniyə
-        toastId: 'online-toast',
-        closeOnClick: true,
-        pauseOnHover: false,
-        hideProgressBar: false,
-      })
-      
-      // 5 saniyə sonra toast-u mütləq bağla (əlavə təhlükəsizlik)
-      onlineTimeoutIdRef.current = setTimeout(() => {
-        toast.dismiss('online-toast')
-        onlineTimeoutIdRef.current = null
-      }, 5000)
     }
 
-    const handleOffline = () => {
-      setIsOnline(false)
-      setShowOfflineToast(true)
-      
-      // Online toast-u bağla
-      toast.dismiss('online-toast')
-      
-      // Offline mesajını göstər
-      const offlineToastId = toast.error('İnternet bağlantısı yoxdur', {
-        position: 'top-center',
-        autoClose: 5000,
-        toastId: 'offline-toast',
-      })
-      
-      offlineToastIdRef.current = offlineToastId
-    }
+    window.addEventListener('online', handleOnlineEvent)
+    window.addEventListener('offline', handleOfflineEvent)
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    // Real network check - təqdimat zamanı internet status-u yoxla
+    checkNetworkStatus()
 
-    // Initial check
-    if (!navigator.onLine) {
-      handleOffline()
-    }
+    // Periodic check - hər 3 saniyədə bir (daha tez aşkarlamaq üçün)
+    checkIntervalRef.current = setInterval(() => {
+      checkNetworkStatus()
+    }, 3000)
 
     return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      if (onlineTimeoutIdRef.current) {
-        clearTimeout(onlineTimeoutIdRef.current)
-        onlineTimeoutIdRef.current = null
+      window.removeEventListener('online', handleOnlineEvent)
+      window.removeEventListener('offline', handleOfflineEvent)
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current)
+      }
+      // Cleanup toast
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current)
       }
     }
   }, [])
 
-  // Visual indicator (optional - can be hidden if not needed)
-  if (isOnline) return null
-
-  return (
-    <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 glass-card p-3 rounded-xl flex items-center gap-2 animate-pulse">
-      <WifiOff className="w-5 h-5 text-red-400" />
-      <span className="text-white text-sm font-medium">Offline</span>
-    </div>
-  )
+  // Bu komponent heç bir UI render etmir, yalnız toast göstərir
+  return null
 }
 
 export default NetworkStatus

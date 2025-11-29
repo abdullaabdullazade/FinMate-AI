@@ -3,22 +3,34 @@
  * User profile dropdown menu
  */
 
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import LogoutConfirmModal from './LogoutConfirmModal'
 
 const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const dropdownRef = useRef(null)
 
   // Click outside to close
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      const profileBtn = document.getElementById('profile-dropdown-btn')
+      if (
+        show &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        profileBtn &&
+        !profileBtn.contains(event.target)
+      ) {
         onToggle()
       }
     }
 
     if (show) {
-      document.addEventListener('mousedown', handleClickOutside)
+      // setTimeout ilə əlavə et ki, click event-i düzgün işləsin
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside)
+      }, 0)
     }
 
     return () => {
@@ -57,8 +69,10 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
       <button
         type="button"
         id="profile-dropdown-btn"
-        className="relative focus:outline-none"
+        className="relative focus:outline-none touch-manipulation"
         onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
           // Hamburger menu açıq olduqda profil dropdown-u açma
           const menuPanel = document.getElementById('menu-panel')
           if (menuPanel && menuPanel.classList.contains('active')) {
@@ -69,7 +83,7 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
       >
         <div
           id="user-avatar"
-          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm transition-all duration-400 group-hover:scale-110 hover:scale-110"
+          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-white font-bold text-[10px] sm:text-xs transition-all duration-400 group-hover:scale-110 hover:scale-110"
           style={{
             background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
           }}
@@ -81,26 +95,48 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
         <div
           ref={dropdownRef}
           id="profile-dropdown"
-          className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-[60]"
+          className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl"
+          style={{
+            zIndex: 10001,
+            pointerEvents: 'auto',
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
           <Link
             to="/profile"
-            className="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition"
+            className="flex items-center gap-2 px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 transition"
             onClick={onToggle}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
             Profil
           </Link>
+          <div className="border-t border-white/10"></div>
           <button
-            onClick={() => {
-              onLogout()
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
               onToggle()
+              setShowLogoutModal(true)
             }}
-            className="block w-full text-left px-4 py-2 text-red-400 hover:text-red-300 hover:bg-white/10 transition"
+            className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition font-medium"
+            type="button"
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
             Çıxış
           </button>
         </div>
       )}
+
+      {/* Logout Confirm Modal */}
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={onLogout}
+      />
     </div>
   )
 }

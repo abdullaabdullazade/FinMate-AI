@@ -1,15 +1,56 @@
 /**
- * Chat Input Container Styles
+ * LIQUID CHAT INPUT CONTAINER - Maye Chat Input Konteyneri
+ * Böyük, Səliqəli, Gözəl Input Hissəsi
  */
 
 .chat-input-container {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border-top: 1.5px solid var(--glass-border);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: 
+        0 -4px 24px var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 0 30px var(--glass-glow);
+}
+
+/* Liquid Wave Effect */
+.chat-input-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    pointer-events: none;
+    animation: liquid-shimmer 4s ease-in-out infinite;
+}
+
+/* Desktop - Daha böyük input */
+@media (min-width: 1024px) {
+    .chat-input-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .chat-input-container {
+        padding: 1.75rem;
+    }
 }
 
 /* Premium Themes - Input Container */

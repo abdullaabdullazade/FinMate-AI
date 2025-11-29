@@ -1,0 +1,148 @@
+/**
+ * CHAT ACTIONS - Scan və Mikrofon Düymələri
+ * Ayarlardan aktiv edilə bilən funksiyalar
+ */
+
+/* Chat Actions Container */
+.chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+/* Action Button - Scan və Mikrofon */
+.chat-action-btn {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 2px 8px var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Liquid Wave Effect */
+.chat-action-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+    );
+    animation: liquid-morph 8s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.chat-action-btn:hover::before {
+    opacity: 1;
+}
+
+.chat-action-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    border-color: var(--accent-primary);
+    box-shadow: 
+        0 4px 16px var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+        0 0 30px var(--accent-glow);
+    background: var(--glass-bg);
+}
+
+.chat-action-btn:active {
+    transform: scale(0.95);
+}
+
+/* Active State - Recording/Scanning */
+.chat-action-btn.active {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-color: var(--accent-primary);
+    color: white;
+    animation: pulse-action 2s ease-in-out infinite;
+}
+
+@keyframes pulse-action {
+    0%, 100% {
+        box-shadow: 
+            0 4px 16px var(--glass-shadow),
+            0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+            0 0 30px var(--accent-glow);
+    }
+    50% {
+        box-shadow: 
+            0 6px 24px var(--glass-shadow),
+            0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+            0 0 50px var(--accent-glow);
+    }
+}
+
+/* Disabled State */
+.chat-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Icon Size */
+.chat-action-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.chat-action-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Desktop - Daha böyük düymələr */
+@media (min-width: 1024px) {
+    .chat-action-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+    }
+    
+    .chat-action-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .chat-actions {
+        gap: 0.5rem;
+        margin-left: 0.25rem;
+    }
+    
+    .chat-action-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0.625rem;
+    }
+    
+    .chat-action-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+

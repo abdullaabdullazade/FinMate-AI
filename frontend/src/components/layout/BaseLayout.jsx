@@ -19,8 +19,8 @@ const BaseLayout = () => {
       {/* Top Header */}
       <Header user={user} />
 
-      {/* Main Content Area */}
-      <div className="pt-20 sm:pt-24 pb-8 px-4">
+      {/* Main Content Area - Header-dan boşluq */}
+      <div className="pt-20 sm:pt-22 pb-8 px-4">
         <div className="w-full lg:max-w-7xl mx-auto">
           <Outlet />
         </div>

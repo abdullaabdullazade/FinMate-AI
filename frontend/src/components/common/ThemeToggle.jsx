@@ -24,15 +24,16 @@ const ThemeToggle = () => {
   return (
     <button
       id="theme-toggle"
-      className="relative text-white/80 hover:text-white transition p-1"
+      className="relative text-white/80 hover:text-white transition p-0.5 sm:p-1 flex-shrink-0"
       title="Tema dəyişdir"
       onClick={toggleTheme}
+      type="button"
     >
       {/* Sun icon (shown in dark mode) */}
       {theme === 'dark' ? (
-        <SunIcon id="sun-icon" className="w-4 h-4 sm:w-5 sm:h-5" />
+        <SunIcon id="sun-icon" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       ) : (
-        <MoonIcon id="moon-icon" className="w-4 h-4 sm:w-5 sm:h-5" />
+        <MoonIcon id="moon-icon" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
       )}
     </button>
   )

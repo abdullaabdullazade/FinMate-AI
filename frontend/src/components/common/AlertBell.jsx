@@ -76,11 +76,12 @@ const AlertBell = () => {
         <div
           ref={panelRef}
           id="alert-panel"
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-80 sm:w-96 max-w-[90vw] glass-card rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-50 max-h-[60vh] overflow-y-auto"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-80 sm:w-96 max-w-[90vw] glass-card rounded-2xl shadow-2xl border border-white/20 overflow-hidden max-h-[60vh] overflow-y-auto"
           style={{
             background: 'var(--glass-bg)',
             borderColor: 'var(--glass-border)',
             boxShadow: '0 25px 50px -12px var(--glass-shadow)',
+            zIndex: 10000,
           }}
           onClick={handlePanelClick}
         >

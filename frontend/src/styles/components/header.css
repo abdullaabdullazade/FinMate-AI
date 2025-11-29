@@ -1,218 +1,87 @@
 /**
- * Header Component Styles
- * Templates-dəki header strukturuna uyğun CSS
- * Mobile-first responsive design
+ * HEADER STYLES - Navbar Problemləri Düzəldildi
+ * Alert Bell və Profile Dropdown üçün z-index və click handling
  */
 
-/* Header Top Bar - Mobile optimizations */
-.glass.fixed.top-0 {
-  /* Mobile: Smaller padding */
-  @media (max-width: 640px) {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
+/* Header Container */
+.header-container {
+    position: relative;
+    z-index: 50;
 }
 
-/* Header container - Ensure proper width */
-.glass.fixed.top-0 > div {
-  @media (max-width: 640px) {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-/* Hamburger Button - Mobile adjustments */
-.hamburger-btn-navbar {
-  /* Mobile: Smaller size */
-  @media (max-width: 640px) {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
-    flex-shrink: 0;
-  }
-}
-
-.hamburger-icon {
-  @media (max-width: 640px) {
-    width: 18px;
-    height: 14px;
-  }
-}
-
-.hamburger-icon span {
-  @media (max-width: 640px) {
-    height: 2px;
-  }
-}
-
-/* Logo section - Mobile adjustments */
-.min-w-0.flex-1.flex.items-center {
-  @media (max-width: 640px) {
-    gap: 0.375rem !important;
-    min-width: 0;
-    overflow: hidden;
-  }
-}
-
-/* Logo image - Mobile size */
-.min-w-0.flex-1.flex.items-center img {
-  @media (max-width: 640px) {
-    width: 28px !important;
-    height: 28px !important;
-  }
-}
-
-/* Logo text - Mobile size */
-.min-w-0.flex-1.flex.items-center h1 {
-  @media (max-width: 640px) {
-    font-size: 0.875rem !important;
-    line-height: 1.2;
-  }
-}
-
-.min-w-0.flex-1.flex.items-center p {
-  @media (max-width: 640px) {
-    font-size: 0.5rem !important;
-    line-height: 1.2;
-  }
-}
-
-/* Right side icons container - Mobile spacing */
-.flex.items-center.gap-1 {
-  @media (max-width: 640px) {
-    gap: 0.25rem !important;
-    flex-shrink: 0;
-  }
-}
-
-/* Alert bell button - Mobile size */
+/* Alert Bell - Z-index düzəldildi */
 #alert-bell {
-  @media (max-width: 640px) {
-    padding: 0.125rem !important;
-    min-width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    position: relative;
+    z-index: 51;
 }
 
-#alert-bell svg {
-  @media (max-width: 640px) {
-    width: 16px !important;
-    height: 16px !important;
-  }
-}
-
-#alert-counter {
-  @media (max-width: 640px) {
-    width: 6px !important;
-    height: 6px !important;
-    top: 2px !important;
-    right: 2px !important;
-  }
-}
-
-/* Theme toggle button - Mobile size */
-#theme-toggle {
-  @media (max-width: 640px) {
-    padding: 0.125rem !important;
-    min-width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-#theme-toggle svg {
-  @media (max-width: 640px) {
-    width: 16px !important;
-    height: 16px !important;
-  }
-}
-
-/* User Stats - Mobile compact display */
-@media (max-width: 640px) {
-  /* User Stats komponentini mobil üçün kiçik və kompakt göstər */
-  #user-stats-container {
-    display: flex !important;
-    gap: 0.25rem !important;
-  }
-  
-  /* XP və Coin badge-ləri mobil üçün kiçildir */
-  #user-stats-container > div {
-    padding: 0.25rem 0.5rem !important;
-    gap: 0.25rem !important;
-    min-width: auto !important;
-  }
-  
-  /* Emoji və icon-lar mobil üçün kiçildir */
-  #user-stats-container span.text-base {
-    font-size: 0.75rem !important;
-    line-height: 1;
-  }
-  
-  /* XP və Coin rəqəmləri mobil üçün kiçildir */
-  #user-stats-container span.text-xs {
-    font-size: 0.625rem !important;
-    line-height: 1;
-  }
-}
-
-/* Profile avatar - Mobile size */
-#user-avatar {
-  @media (max-width: 640px) {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 0.625rem !important;
-    flex-shrink: 0;
-  }
-}
-
-/* Alert Panel - Mobile Responsive */
+/* Alert Panel - Mobile responsive, üst-üstə gəlməsin */
 #alert-panel {
-  /* Mobile: Full width with proper positioning */
-  @media (max-width: 640px) {
+    position: fixed !important;
+    z-index: 10002 !important;
+    pointer-events: auto !important;
+    /* Mobile-də header-dan aşağıda */
+    top: 3.5rem !important;
     right: 0.5rem !important;
-    left: auto !important;
-    width: calc(100vw - 1rem) !important;
-    max-width: calc(100vw - 1rem) !important;
-    top: 2.5rem !important;
-  }
-  
-  /* Tablet and up: Fixed width */
-  @media (min-width: 641px) {
-    right: 3.5rem !important; /* right-14 */
-    width: 16rem !important; /* w-64 */
-  }
+    /* Desktop-də daha yaxşı pozisiya */
+    max-height: calc(100vh - 5rem) !important;
+    overflow-y: auto !important;
+    /* Görünür olmalıdır */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    /* Animasiya */
+    animation: fadeInDown 0.3s ease-out !important;
 }
 
-/* Alert panel content - Mobile adjustments */
-#alert-panel .px-4 {
-  @media (max-width: 640px) {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-#alert-panel .py-3 {
-  @media (max-width: 640px) {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
+/* Profile Dropdown - Z-index düzəldildi */
+#profile-dropdown {
+    position: absolute !important;
+    right: 0 !important;
+    top: calc(100% + 0.5rem) !important;
+    z-index: 10001 !important;
+    pointer-events: auto !important;
 }
 
-/* Ensure header doesn't overflow on mobile */
+/* Profile Dropdown Button - Click handling */
+#profile-dropdown-btn {
+    position: relative;
+    z-index: 51;
+}
+
+/* Prevent overlap */
+#alert-panel.active ~ #profile-dropdown,
+#profile-dropdown.active ~ #alert-panel {
+    display: none;
+}
+
+/* Mobile - Alert panel responsive */
 @media (max-width: 640px) {
-  .glass.fixed.top-0 {
-    overflow: visible;
-  }
-  
-  .glass.fixed.top-0 > div {
-    overflow: visible;
-  }
+    #alert-panel {
+        top: 4rem !important;
+        right: 0.5rem !important;
+        left: 0.5rem !important;
+        width: calc(100vw - 1rem) !important;
+        max-width: calc(100vw - 1rem) !important;
+        max-height: calc(100vh - 5rem) !important;
+    }
+    
+    /* Profile dropdown mobile-də düzgün görünsün */
+    #profile-dropdown {
+        position: fixed !important;
+        top: 3.5rem !important;
+        right: 0.5rem !important;
+        z-index: 10001 !important;
+    }
 }
-
