@@ -33,8 +33,8 @@ const CategoryCard = ({ category, amount, totalSpending, currency = '₼' }) => 
       styles.progressBg = 'bg-amber-500'
       styles.icon = '🍽️'
     } else if (categoryName?.includes('Kafe')) {
-      styles.bg = 'bg-gradient-to-br from-purple-500/20 to-violet-600/30 border-purple-500/30'
-      styles.iconBg = 'bg-gradient-to-br from-purple-400 to-violet-600'
+      styles.bg = 'bg-gradient-to-br from-amber-500/20 to-yellow-600/30 border-amber-500/30'
+      styles.iconBg = 'bg-gradient-to-br from-amber-400 to-yellow-600'
       styles.progressBg = 'bg-amber-500'
       styles.icon = '☕'
     } else if (categoryName?.includes('Nəqliyyat')) {
@@ -43,9 +43,9 @@ const CategoryCard = ({ category, amount, totalSpending, currency = '₼' }) => 
       styles.progressBg = 'bg-blue-500'
       styles.icon = '🚗'
     } else if (categoryName?.includes('Mobil') || categoryName?.includes('İnternet')) {
-      styles.bg = 'bg-gradient-to-br from-pink-500/20 to-rose-600/30 border-pink-500/30'
-      styles.iconBg = 'bg-gradient-to-br from-pink-400 to-rose-600'
-      styles.progressBg = 'bg-pink-500'
+      styles.bg = 'bg-gradient-to-br from-cyan-500/20 to-blue-600/30 border-cyan-500/30'
+      styles.iconBg = 'bg-gradient-to-br from-cyan-400 to-blue-600'
+      styles.progressBg = 'bg-cyan-500'
       styles.icon = categoryName?.includes('Mobil') ? '📱' : '🌐'
     } else if (categoryName?.includes('Kommunal')) {
       styles.bg = 'bg-gradient-to-br from-orange-500/20 to-red-600/30 border-orange-500/30'
@@ -53,34 +53,34 @@ const CategoryCard = ({ category, amount, totalSpending, currency = '₼' }) => 
       styles.progressBg = 'bg-orange-500'
       styles.icon = '⚡'
     } else if (categoryName?.includes('Geyim') || categoryName?.includes('Alış-veriş')) {
-      styles.bg = 'bg-gradient-to-br from-indigo-500/20 to-purple-600/30 border-indigo-500/30'
-      styles.iconBg = 'bg-gradient-to-br from-indigo-400 to-purple-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.bg = 'bg-gradient-to-br from-indigo-500/20 to-blue-600/30 border-indigo-500/30'
+      styles.iconBg = 'bg-gradient-to-br from-indigo-400 to-blue-600'
+      styles.progressBg = 'bg-indigo-500'
       styles.icon = categoryName?.includes('Geyim') ? '👔' : '🏬'
     } else if (categoryName?.includes('Online')) {
       styles.bg = 'bg-gradient-to-br from-cyan-500/20 to-teal-600/30 border-cyan-500/30'
       styles.iconBg = 'bg-gradient-to-br from-cyan-400 to-teal-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.progressBg = 'bg-gray-500'
       styles.icon = '📦'
     } else if (categoryName?.includes('Əyləncə')) {
-      styles.bg = 'bg-gradient-to-br from-red-500/20 to-pink-600/30 border-red-500/30'
-      styles.iconBg = 'bg-gradient-to-br from-red-400 to-pink-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.bg = 'bg-gradient-to-br from-red-500/20 to-orange-600/30 border-red-500/30'
+      styles.iconBg = 'bg-gradient-to-br from-red-400 to-orange-600'
+      styles.progressBg = 'bg-red-500'
       styles.icon = '🎬'
     } else if (categoryName?.includes('Aptək') || categoryName?.includes('İdman')) {
       styles.bg = 'bg-gradient-to-br from-teal-500/20 to-green-600/30 border-teal-500/30'
       styles.iconBg = 'bg-gradient-to-br from-teal-400 to-green-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.progressBg = 'bg-gray-500'
       styles.icon = categoryName?.includes('Aptək') ? '💊' : '💪'
     } else if (categoryName?.includes('Bank') || categoryName?.includes('E-ödəniş')) {
       styles.bg = 'bg-gradient-to-br from-indigo-500/20 to-blue-600/30 border-indigo-500/30'
       styles.iconBg = 'bg-gradient-to-br from-indigo-400 to-blue-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.progressBg = 'bg-gray-500'
       styles.icon = categoryName?.includes('Bank') ? '🏦' : '💳'
     } else {
       styles.bg = 'bg-gradient-to-br from-gray-500/20 to-slate-600/30 border-gray-500/30'
       styles.iconBg = 'bg-gradient-to-br from-gray-400 to-slate-600'
-      styles.progressBg = 'bg-purple-500'
+      styles.progressBg = 'bg-gray-500'
     }
 
     // Badge rəngi

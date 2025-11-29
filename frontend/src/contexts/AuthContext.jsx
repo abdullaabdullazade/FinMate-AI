@@ -65,6 +65,13 @@ export const AuthProvider = ({ children }) => {
    */
   const logout = async () => {
     try {
+      // Logout zamanı onboarding completed qeydini sil
+      // ki, növbəti girişdə yenidən göstərilsin
+      if (user?.username) {
+        const onboardingKey = `onboarding_completed_${user.username}`
+        localStorage.removeItem(onboardingKey)
+      }
+      
       await authAPI.logout()
       setUser(null)
       window.location.href = '/login'

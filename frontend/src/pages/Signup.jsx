@@ -97,7 +97,7 @@ const Signup = () => {
           {/* Logo and Title - signup.html sətir 24-33 */}
           <div className="text-center mb-8">
             <div className="inline-block mb-6 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl"></div>
               <img
                 src="/static/icons/icon-192.png"
                 alt="FinMate AI"
@@ -107,7 +107,7 @@ const Signup = () => {
                 }}
               />
             </div>
-            <h1 className="text-4xl font-black text-white mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-black text-white mb-2 bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
               Yeni Hesab Yarat
             </h1>
             <p className="text-white/70 text-sm font-medium">FinMate AI ilə başla</p>
@@ -237,7 +237,7 @@ const Signup = () => {
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
               Artıq hesabın var?{' '}
-              <Link to="/login" className="glass-link text-purple-300 hover:text-purple-200 font-semibold transition inline-block">
+              <Link to="/login" className="glass-link text-blue-300 hover:text-blue-200 font-semibold transition inline-block">
                 Giriş et
               </Link>
             </p>

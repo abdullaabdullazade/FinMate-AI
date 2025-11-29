@@ -59,6 +59,7 @@ def ensure_schema():
     add_column_if_missing("users", "last_login_date DATE")
     add_column_if_missing("users", "last_rewarded_month VARCHAR")
     add_column_if_missing("users", "coins INTEGER DEFAULT 0")
+    add_column_if_missing("users", "ai_tokens INTEGER DEFAULT 10")
     add_column_if_missing("users", "created_at DATETIME DEFAULT CURRENT_TIMESTAMP")
     add_column_if_missing("users", "password_hash VARCHAR")
     add_column_if_missing("users", "password_hash VARCHAR")

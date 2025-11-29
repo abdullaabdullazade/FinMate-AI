@@ -46,9 +46,9 @@ const UploadButtons = ({ onFileSelect, onManualExpenseClick }) => {
         </label>
 
         {/* Kamera */}
-        <label className="group cursor-pointer border-2 border-dashed border-white/30 rounded-2xl p-6 sm:p-8 text-center hover:bg-white/5 hover:border-purple-500 transition-all duration-300 relative z-20 block bg-black/20">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all">
-            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <label className="group cursor-pointer border-2 border-dashed border-white/30 rounded-2xl p-6 sm:p-8 text-center hover:bg-white/5 hover:border-blue-500 transition-all duration-300 relative z-20 block bg-black/20">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all">
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

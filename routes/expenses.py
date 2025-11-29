@@ -74,6 +74,18 @@ async def voice_command_endpoint(
     if not user.voice_enabled:
         return JSONResponse({"success": False, "error": "Səsli əmrlər deaktiv edilib"}, status_code=403)
     
+    # Check AI tokens (premium users have unlimited tokens)
+    if not user.is_premium:
+        # Get current tokens (default to 10 if None)
+        current_tokens = user.ai_tokens if user.ai_tokens is not None else 10
+        if current_tokens <= 0:
+            return JSONResponse({
+                "success": False,
+                "error": "AI tokenlarınız bitib",
+                "requires_premium": True,
+                "message": "AI xüsusiyyətlərindən istifadə etmək üçün Premium alın"
+            }, status_code=403)
+    
     try:
         # Read file content
         audio_data = await file.read()
@@ -85,11 +97,18 @@ async def voice_command_endpoint(
         if not result.get("success"):
             return JSONResponse({"success": False, "error": result.get("error")}, status_code=400)
         
+        # Deduct token (only for non-premium users)
+        if not user.is_premium:
+            user.ai_tokens = max(0, (user.ai_tokens if user.ai_tokens is not None else 10) - 1)
+            db.commit()
+            db.refresh(user)
+        
         # Return confirmation data as JSON for React frontend
         return JSONResponse({
             "success": True,
             "transcribed_text": result["transcribed_text"],
-            "expense_data": result["expense_data"]
+            "expense_data": result["expense_data"],
+            "remaining_tokens": user.ai_tokens if not user.is_premium else None
         })
         
     except Exception as e:

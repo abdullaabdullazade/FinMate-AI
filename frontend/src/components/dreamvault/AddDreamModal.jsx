@@ -84,7 +84,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                   onChange={handleChange}
                   required 
                   placeholder="Məs: PS5, Yeni Maşın, Səyahət"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                 />
               </div>
 
@@ -112,7 +112,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                     min="0" 
                     required 
                     placeholder="2999"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                   />
                 </div>
 
@@ -125,7 +125,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                     onChange={handleChange}
                     min="1" 
                     max="5" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                   />
                 </div>
               </div>
@@ -136,7 +136,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                 >
                   <option value="Digər" className="text-black">Digər</option>
                   <option value="Səyahət" className="text-black">Səyahət</option>
@@ -156,7 +156,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                   value={formData.image_url}
                   onChange={handleChange}
                   placeholder="https://example.com/image.jpg"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                 />
               </div>
 
@@ -168,7 +168,7 @@ const AddDreamModal = ({ isOpen, onClose, onSubmit }) => {
                   value={formData.target_date}
                   onChange={handleChange}
                   min={today}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white focus:outline-none focus:border-blue-500 transition"
                 />
               </div>
 

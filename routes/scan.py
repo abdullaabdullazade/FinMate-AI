@@ -22,6 +22,19 @@ async def scan_receipt(
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
     
+    # Check AI tokens (premium users have unlimited tokens)
+    if not user.is_premium:
+        # Get current tokens (default to 10 if None)
+        current_tokens = user.ai_tokens if user.ai_tokens is not None else 10
+        if current_tokens <= 0:
+            return JSONResponse({
+                "success": False,
+                "receipt_data": {
+                    "error": "AI tokenlarınız bitib. Premium alın",
+                    "requires_premium": True
+                }
+            }, status_code=403)
+    
     # Always return JSON for React frontend
     
     try:
@@ -179,12 +192,36 @@ async def scan_receipt(
                             "limit": user.daily_budget_limit
                         }
 
+            # Deduct token (only for non-premium users)
+            if not user.is_premium:
+                user.ai_tokens = max(0, (user.ai_tokens if user.ai_tokens is not None else 10) - 1)
+                db.commit()
+                db.refresh(user)
+            
             scan_xp = gamification.award_xp(user, "scan_receipt", db)
             
-            # Award FinMate Coins
+            # Award FinMate Coins based on receipt amount
+            # 100 manata 10 coin, 1 manata 1 coin (minimum 1 coin)
             if user.coins is None:
                 user.coins = 0
-            user.coins += 1
+            
+            # Calculate coins based on total amount
+            total_amount = receipt_data.get("total", 0)
+            try:
+                total_amount = float(total_amount)
+            except (ValueError, TypeError):
+                total_amount = 0
+            
+            # Coin calculation: Premium users get more coins
+            # Normal users: 10 AZN = 1 coin (minimum 1 coin)
+            # Premium users: 5 AZN = 1 coin (minimum 2 coins) - 2x multiplier
+            if user.is_premium:
+                # Premium: every 5 AZN = 1 coin, minimum 2 coins
+                coins_to_award = max(2, int(total_amount / 5))
+            else:
+                # Normal: every 10 AZN = 1 coin, minimum 1 coin
+                coins_to_award = max(1, int(total_amount / 10))
+            user.coins += coins_to_award
             milestone_reached = None
             
             # Check for milestones
@@ -217,11 +254,12 @@ async def scan_receipt(
                         "level_up": scan_xp.get("level_up", False) if scan_xp else False,
                         "new_level": scan_xp.get("new_level") if scan_xp else None,
                         "level_info": scan_xp.get("level_info") if scan_xp else None,
-                        "coins_awarded": scan_xp.get("coins_awarded", 0) if scan_xp else 0,
+                        "coins_awarded": coins_to_award,
                     },
                     "coins": user.coins,
                     "milestone_reached": milestone_reached,
-                    "daily_limit_alert": daily_limit_alert
+                    "daily_limit_alert": daily_limit_alert,
+                    "remaining_tokens": user.ai_tokens if not user.is_premium else None
             })
         except Exception as save_err:
                 return JSONResponse({

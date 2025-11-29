@@ -44,9 +44,9 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, dreamTitle }) => {
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white py-3 rounded-xl font-bold shadow-lg transition"
+            className="flex-1 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white py-3 rounded-xl font-bold shadow-lg transition"
             style={{ 
-              background: 'linear-gradient(135deg, rgb(239, 68, 68) 0%, rgb(236, 72, 153) 100%)' 
+              background: 'linear-gradient(135deg, rgb(239, 68, 68) 0%, rgb(251, 146, 60) 100%)' 
             }}
           >
             Bəli, Sil

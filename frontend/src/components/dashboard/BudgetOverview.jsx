@@ -50,7 +50,7 @@ const BudgetOverview = ({
           <button
             type="button"
             onClick={onSpeak}
-            className="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/80 to-pink-500/80 text-white border border-white/20 hover:brightness-110 shadow-lg shadow-pink-500/30"
+            className="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/80 to-cyan-500/80 text-white border border-white/20 hover:brightness-110 shadow-lg shadow-blue-500/30"
             aria-label="Dashboard məlumatını səsləndir"
           >
             <Volume2 className="w-4 h-4" />

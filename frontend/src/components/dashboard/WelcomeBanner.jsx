@@ -8,13 +8,19 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MessageCircle, Camera, DollarSign, AlertTriangle } from 'lucide-react'
 
-const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, delay = 0.02 }) => {
+const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null, xpPoints = 0, delay = 0.02 }) => {
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Sabahın xeyir'
     if (hour < 18) return 'Günün aydın'
     return 'Axşamın xeyir'
   }
+
+  const progressPercentage = levelInfo?.progress_percentage || 0
+  const maxXP = levelInfo?.max_xp === Infinity ? '∞' : levelInfo?.max_xp
+  const currentLevelXP = levelInfo?.min_xp || 0
+  const xpInCurrentLevel = xpPoints - currentLevelXP
+  const xpNeededForNext = levelInfo?.max_xp && levelInfo.max_xp !== Infinity ? levelInfo.max_xp - currentLevelXP : null
 
   return (
     <motion.div
@@ -25,9 +31,9 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, delay = 0.02 }) 
       style={{ gridColumn: 'span 12' }}
     >
       {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 animate-gradient"></div>
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/30 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-pink-500/30 rounded-full blur-3xl"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-cyan-500/15 to-teal-500/15 animate-gradient"></div>
+      <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl"></div>
 
       <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
         <motion.div
@@ -45,10 +51,38 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, delay = 0.02 }) 
           👋
         </motion.div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
-            Salam, {username?.charAt(0).toUpperCase() + username?.slice(1)}!
-          </h2>
-          <p className="text-white/80 text-base sm:text-lg">Maliyyə azadlığına xoş gəldin</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">
+              Salam, {username?.charAt(0).toUpperCase() + username?.slice(1)}!
+            </h2>
+            {/* Level Badge - Kompakt */}
+            {levelInfo && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border border-yellow-400/30">
+                <span className="text-lg">{levelInfo.emoji}</span>
+                <span className="text-xs font-bold text-white">
+                  {levelInfo.title} {levelInfo.current_level || levelInfo.level || 1}
+                </span>
+              </div>
+            )}
+          </div>
+          <p className="text-white/80 text-base sm:text-lg mb-2">Maliyyə azadlığına xoş gəldin</p>
+          
+          {/* XP Progress - Kompakt */}
+          {levelInfo && (
+            <div className="mb-2">
+              <div className="flex items-center justify-between text-xs text-white/60 mb-1">
+                <span>{xpInCurrentLevel} / {xpNeededForNext || '∞'} XP</span>
+                <span className="font-semibold">{Math.round(progressPercentage)}%</span>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-1.5">
+                <div
+                  className="h-1.5 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          
           <p className="text-white/60 text-xs sm:text-sm mt-2">
             FinMate AI ilə xərclərinizi idarə edin, qənaət edin və arzularınıza çatın.
           </p>
@@ -56,7 +90,7 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, delay = 0.02 }) 
         <div className="flex items-center gap-3 flex-wrap">
           <Link
             to="/chat"
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg flex items-center gap-2"
           >
             <MessageCircle className="w-4 h-4" />
             <span>AI Məsləhəti</span>

@@ -30,6 +30,7 @@ class User(Base):
     is_premium = Column(Boolean, default=False)  # Premium subscription status
     readability_mode = Column(Boolean, default=False)  # Accessibility mode for vision-impaired users
     coins = Column(Integer, default=0)  # FinMate Coins for reward system
+    ai_tokens = Column(Integer, default=10)  # AI features tokens (voice command, receipt scan, etc.)
     
     # AI Persona fields (NEW)
     ai_name = Column(String, default="FinMate")  # Customizable AI name

@@ -64,7 +64,7 @@ html[data-theme="light"] {
 /* Force dark mode background for all pages */
 [data-theme="dark"] body,
 body:not([data-theme="light"]) {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0a0a14 100%) !important;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
   background-attachment: fixed;
 }
 

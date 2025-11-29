@@ -1,9 +1,10 @@
 """Route handlers"""
-from fastapi import Request, Depends, Form, UploadFile, File, HTTPException
+from fastapi import Request, Depends, Form, UploadFile, File, HTTPException, Query
 from fastapi.responses import JSONResponse, Response, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta, date as date_type, timezone
+from typing import Optional
 import math
 from config import app
 from database import get_db
@@ -181,7 +182,13 @@ async def get_profile_data(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/api/dashboard-data")
-async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
+async def get_dashboard_data(
+    request: Request,
+    date: Optional[str] = Query(None, description="Day filter: YYYY-MM-DD"),
+    month: Optional[str] = Query(None, description="Month filter: YYYY-MM"),
+    year: Optional[str] = Query(None, description="Year filter: YYYY"),
+    db: Session = Depends(get_db)
+):
     """API endpoint for dashboard data - React frontend üçün"""
     user = get_current_user(request, db)
     if not user:
@@ -200,20 +207,121 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
         except (ValueError, TypeError):
             return 0.0
     
-    # Get current month's expenses
+    # Get current month's expenses (or filtered by date/month/year)
     now = datetime.utcnow()
-    month_start = datetime(now.year, now.month, 1)
     
-    expenses = db.query(Expense).filter(
-        Expense.user_id == user.id,
-        Expense.date >= month_start
-    ).all()
+    # Initialize filter variables
+    day_start = None
+    day_end = None
+    month_start = datetime(now.year, now.month, 1)  # Default
+    month_end = None
+    year_start = None
+    year_end = None
     
-    # Get current month's incomes
-    incomes = db.query(Income).filter(
-        Income.user_id == user.id,
-        Income.date >= month_start
-    ).all()
+    # Filter by day, month, or year
+    if date:
+        # Filter by specific day
+        try:
+            filter_date = datetime.strptime(date, "%Y-%m-%d").date()
+            day_start = datetime.combine(filter_date, datetime.min.time())
+            day_end = datetime.combine(filter_date, datetime.max.time())
+            
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= day_start,
+                Expense.date <= day_end
+            ).all()
+            
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= day_start,
+                Income.date <= day_end
+            ).all()
+        except ValueError:
+            # Invalid date format, fall back to current month
+            month_start = datetime(now.year, now.month, 1)
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= month_start
+            ).all()
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= month_start
+            ).all()
+    elif month:
+        # Filter by specific month
+        try:
+            year, month_num = map(int, month.split('-'))
+            month_start = datetime(year, month_num, 1)
+            # Get last day of month
+            if month_num == 12:
+                month_end = datetime(year + 1, 1, 1) - timedelta(days=1)
+            else:
+                month_end = datetime(year, month_num + 1, 1) - timedelta(days=1)
+            month_end = datetime.combine(month_end, datetime.max.time())
+            
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= month_start,
+                Expense.date <= month_end
+            ).all()
+            
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= month_start,
+                Income.date <= month_end
+            ).all()
+        except (ValueError, IndexError):
+            # Invalid month format, fall back to current month
+            month_start = datetime(now.year, now.month, 1)
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= month_start
+            ).all()
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= month_start
+            ).all()
+    elif year:
+        # Filter by specific year
+        try:
+            year_num = int(year)
+            year_start = datetime(year_num, 1, 1)
+            year_end = datetime(year_num, 12, 31, 23, 59, 59)
+            
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= year_start,
+                Expense.date <= year_end
+            ).all()
+            
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= year_start,
+                Income.date <= year_end
+            ).all()
+        except ValueError:
+            # Invalid year format, fall back to current month
+            month_start = datetime(now.year, now.month, 1)
+            expenses = db.query(Expense).filter(
+                Expense.user_id == user.id,
+                Expense.date >= month_start
+            ).all()
+            incomes = db.query(Income).filter(
+                Income.user_id == user.id,
+                Income.date >= month_start
+            ).all()
+    else:
+        # Default: current month
+        month_start = datetime(now.year, now.month, 1)
+        expenses = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.date >= month_start
+        ).all()
+        incomes = db.query(Income).filter(
+            Income.user_id == user.id,
+            Income.date >= month_start
+        ).all()
     
     # Calculate stats (all amounts are stored in AZN)
     total_spending_azn = sum(exp.amount for exp in expenses)
@@ -266,12 +374,38 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
     ).all()
     last_week_total = sum(exp.amount for exp in last_week_expenses)
     
-    # Subscriptions total
-    subscriptions = db.query(Expense).filter(
-        Expense.user_id == user.id,
-        Expense.is_subscription == True,
-        Expense.date >= month_start
-    ).all()
+    # Subscriptions total - use the same filter as expenses
+    # For day filter, get subscriptions for that day
+    # For month filter, get subscriptions for that month
+    # For year filter, get subscriptions for that year
+    # For default, get subscriptions for current month
+    if date:
+        subscriptions = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.is_subscription == True,
+            Expense.date >= day_start,
+            Expense.date <= day_end
+        ).all()
+    elif month:
+        subscriptions = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.is_subscription == True,
+            Expense.date >= month_start,
+            Expense.date <= month_end
+        ).all()
+    elif year:
+        subscriptions = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.is_subscription == True,
+            Expense.date >= year_start,
+            Expense.date <= year_end
+        ).all()
+    else:
+        subscriptions = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.is_subscription == True,
+            Expense.date >= month_start
+        ).all()
     subscriptions_total = sum(sub.amount for sub in subscriptions)
     
     # Format recent expenses and incomes together

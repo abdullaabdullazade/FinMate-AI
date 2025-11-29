@@ -98,7 +98,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
 
         {/* Milestone Celebration */}
         {scanResult.milestone_reached && (
-          <div className="mx-4 sm:mx-6 mt-3 sm:mt-4 p-4 sm:p-6 bg-gradient-to-br from-purple-500/30 to-pink-500/30 border-2 border-yellow-400 rounded-xl text-center animate-pulse">
+          <div className="mx-4 sm:mx-6 mt-3 sm:mt-4 p-4 sm:p-6 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 border-2 border-yellow-400 rounded-xl text-center animate-pulse">
             <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">{scanResult.milestone_reached.name.split(' ')[0]}</div>
             <h4 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
               {scanResult.milestone_reached.name.split(' ')[1]} Mükafat!
@@ -155,7 +155,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
             </div>
             <div className="bg-white/5 rounded-xl p-2 sm:p-3 border border-white/10">
               <p className="text-xs text-white/50 mb-1">Kateqoriya</p>
-              <span className="inline-block px-2 py-0.5 bg-purple-500/30 text-purple-200 rounded text-xs font-medium truncate max-w-full">
+              <span className="inline-block px-2 py-0.5 bg-blue-500/30 text-blue-200 rounded text-xs font-medium truncate max-w-full">
                 {scanResult.receipt_data.suggested_category}
               </span>
             </div>
@@ -206,7 +206,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
           </button>
           <button
             onClick={onGoToDashboard}
-            className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-3 sm:py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-500/25 text-sm sm:text-base mb-3"
+            className="block w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-center py-3 sm:py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-blue-500/25 text-sm sm:text-base mb-3"
           >
             Lövhəyə qayıt
           </button>

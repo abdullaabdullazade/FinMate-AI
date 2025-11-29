@@ -31,7 +31,7 @@ const CategoryChart = ({ labels = [], values = [] }) => {
         backgroundColor: [
           '#60a5fa', // Blue
           '#22d3ee', // Cyan
-          '#c084fc', // Purple
+          '#60a5fa', // Blue
           '#34d399', // Green
           '#fca5a5', // Red
           '#facc15', // Yellow

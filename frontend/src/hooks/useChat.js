@@ -6,8 +6,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { chatAPI } from '../services/api'
 import { toast } from 'react-toastify'
+import { useAuth } from '../contexts/AuthContext'
 
 export const useChat = () => {
+  const { user } = useAuth()
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,9 +27,14 @@ export const useChat = () => {
   }
 
   /**
-   * TTS Function - chat.js-dən
+   * TTS Function - chat.js-dən - Premium yoxlaması ilə
    */
   const speakMessage = (text) => {
+    // Premium yoxlaması - səsləndirmə yalnız premium üçün
+    if (!user?.is_premium) {
+      return
+    }
+
     if (typeof window.queueVoiceNotification === 'function') {
       const cleanText = text
         .replace(/\u003c[^\u003e]*\u003e/g, '')
@@ -116,6 +123,14 @@ export const useChat = () => {
         // Remove typing indicator
         setShowTyping(false)
 
+        // Show coin deduction notification for non-premium users
+        if (response.data.coins_deducted && response.data.coins_deducted > 0) {
+          toast.info(`🪙 ${response.data.coins_deducted} coin istifadə edildi. Qalan: ${response.data.coins_remaining} coin`, {
+            position: 'top-right',
+            autoClose: 3000,
+          })
+        }
+
         const aiMessage = {
           id: Date.now() + 1,
           role: 'ai',
@@ -129,6 +144,13 @@ export const useChat = () => {
           speakMessage(text)
         }
       } else {
+        // Check if error is due to insufficient coins
+        if (response.data.error && response.data.error.includes('coin')) {
+          toast.error(response.data.error, {
+            position: 'top-right',
+            autoClose: 5000,
+          })
+        }
         setShowTyping(false)
         toast.error('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
           position: 'top-right',

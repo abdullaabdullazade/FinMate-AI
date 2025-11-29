@@ -25,6 +25,7 @@ import FinancialPet from '../components/dashboard/FinancialPet'
 import EditTransactionModal from '../components/dashboard/EditTransactionModal'
 import IncomeModal from '../components/dashboard/IncomeModal'
 import FraudAlertModal from '../components/dashboard/FraudAlertModal'
+import OnboardingTour from '../components/dashboard/OnboardingTour'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -36,7 +37,11 @@ const Dashboard = () => {
   const [editingExpense, setEditingExpense] = useState(null)
   const [incomeModalOpen, setIncomeModalOpen] = useState(false)
   const [fraudModalOpen, setFraudModalOpen] = useState(false)
-  const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD'
+  const [filterType, setFilterType] = useState('none') // 'none', 'day', 'month', 'year'
+  const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for day
+  const [monthFilter, setMonthFilter] = useState(null) // Format: 'YYYY-MM' for month
+  const [yearFilter, setYearFilter] = useState(null) // Format: 'YYYY' for year
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
 
   /**
    * Dashboard məlumatlarını yüklə
@@ -51,7 +56,17 @@ const Dashboard = () => {
         throw new Error('İnternet bağlantısı yoxdur. Zəhmət olmasa internet bağlantınızı yoxlayın.')
       }
       
-      const response = await dashboardAPI.getDashboardData(dateFilter)
+      // Build filter params based on filter type
+      let filterParam = null
+      if (filterType === 'day' && dateFilter) {
+        filterParam = dateFilter
+      } else if (filterType === 'month' && monthFilter) {
+        filterParam = monthFilter
+      } else if (filterType === 'year' && yearFilter) {
+        filterParam = yearFilter
+      }
+      
+      const response = await dashboardAPI.getDashboardData(filterParam, filterType)
       
       if (response && response.data) {
       setDashboardData(response.data)
@@ -83,7 +98,25 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [dateFilter]) // Re-fetch when date filter changes
+  }, [filterType, dateFilter, monthFilter, yearFilter]) // Re-fetch when any filter changes
+
+  // Show onboarding tour - yalnız bir dəfə, hesabdan çıxıb girəndə yenidən göstər
+  useEffect(() => {
+    if (!loading && dashboardData && user) {
+      // İstifadəçi adı ilə onboarding completed key yarat
+      const onboardingKey = `onboarding_completed_${user.username}`
+      const onboardingCompleted = localStorage.getItem(onboardingKey)
+      
+      // Əgər onboarding tamamlanmayıbsa, göstər
+      if (!onboardingCompleted) {
+        // Notification-lar göstərildikdən sonra onboarding tour göstər
+        // Delay to let notifications show first
+        setTimeout(() => {
+          setOnboardingOpen(true)
+        }, 3000) // 3 saniyə gözlə ki, notification-lar görünsün
+      }
+    }
+  }, [loading, dashboardData, user])
 
   useEffect(() => {
     // Event listeners for refresh
@@ -102,17 +135,25 @@ const Dashboard = () => {
       fetchDashboardData()
     }
 
+    // Onboarding tour bitdikdən sonra notification-ları göstər
+    const handleOnboardingCompleted = () => {
+      console.log('✅ Onboarding completed, showing notifications...')
+      // Notification-lar artıq useEffect-də avtomatik göstəriləcək
+    }
+
     // Listen for custom events
     window.addEventListener('expenseUpdated', handleExpenseUpdate)
     window.addEventListener('incomeUpdated', handleIncomeUpdate)
     window.addEventListener('scanCompleted', handleScanComplete)
     window.addEventListener('expensesUpdated', handleExpenseUpdate) // For HTMX compatibility
+    window.addEventListener('onboardingCompleted', handleOnboardingCompleted)
 
     return () => {
       window.removeEventListener('expenseUpdated', handleExpenseUpdate)
       window.removeEventListener('incomeUpdated', handleIncomeUpdate)
       window.removeEventListener('scanCompleted', handleScanComplete)
       window.removeEventListener('expensesUpdated', handleExpenseUpdate)
+      window.removeEventListener('onboardingCompleted', handleOnboardingCompleted)
     }
   }, [])
 
@@ -170,7 +211,7 @@ const Dashboard = () => {
           <div className="flex gap-3 justify-center">
           <button
               onClick={() => fetchDashboardData()}
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:scale-105 transition"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:scale-105 transition"
           >
             Yenidən yoxla
           </button>
@@ -267,44 +308,16 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-grid px-2 sm:px-4 pb-24 sm:pb-32">
-      {/* Date Filter */}
-      <div className="glass-card p-4 sm:p-6 slide-up" style={{ gridColumn: 'span 12' }}>
-        <div className="flex items-center justify-between gap-4">
-          <h3 className="text-lg sm:text-xl font-bold text-white">Tarixə görə filter</h3>
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={dateFilter || ''}
-              onChange={(e) => {
-                setDateFilter(e.target.value || null)
-              }}
-              className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'var(--glass-border)',
-                color: 'var(--text-primary)'
-              }}
-            />
-            {dateFilter && (
-              <button
-                onClick={() => {
-                  setDateFilter(null)
-                }}
-                className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm transition"
-              >
-                Təmizlə
-              </button>
-            )}
-          </div>
-        </div>
-        {dateFilter && (
-          <p className="text-xs sm:text-sm text-white/60 mt-2">
-            Seçilmiş tarix: {new Date(dateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-        )}
-      </div>
+      {/* Welcome Banner - Ən yuxarıda (Level məlumatı ilə) */}
+      <WelcomeBanner
+        username={user?.username || 'İstifadəçi'}
+        onIncomeClick={handleIncomeClick}
+        onFraudClick={handleFraudClick}
+        levelInfo={levelInfo}
+        xpPoints={xpPoints}
+      />
 
-      {/* Budget Warning */}
+      {/* Budget Warning - Notification (Yuxarıda, onboarding tour-dan əvvəl) */}
       <BudgetWarning
         budgetPercentage={budgetPercentage}
         totalSpending={totalSpending}
@@ -313,28 +326,162 @@ const Dashboard = () => {
         currency={currency}
       />
 
-      {/* Welcome Banner */}
-      <WelcomeBanner
-        username={user?.username || 'İstifadəçi'}
-        onIncomeClick={handleIncomeClick}
-        onFraudClick={handleFraudClick}
+      {/* Daily Limit Alert - Notification (Yuxarıda, onboarding tour-dan əvvəl) */}
+      <DailyLimitAlert
+        dailyLimitAlert={dailyLimitAlert}
+        currency={currency}
+        incognitoMode={incognitoMode}
+      />
+
+      {/* Date Filter - Premium Only */}
+      {user?.is_premium && (
+        <div className="glass-card p-4 sm:p-6 slide-up" style={{ gridColumn: 'span 12' }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h3 className="text-lg sm:text-xl font-bold text-white">Tarixə görə filter</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            {/* Filter Type Selector */}
+            <select
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value)
+                // Reset all filters when changing type
+                setDateFilter(null)
+                setMonthFilter(null)
+                setYearFilter(null)
+              }}
+              className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderColor: 'var(--glass-border)',
+                color: 'var(--text-primary)'
+              }}
+            >
+              <option value="none" className="bg-gray-900">Filter yoxdur</option>
+              <option value="day" className="bg-gray-900">Günə görə</option>
+              <option value="month" className="bg-gray-900">Aya görə</option>
+              <option value="year" className="bg-gray-900">İlə görə</option>
+            </select>
+
+            {/* Day Filter */}
+            {filterType === 'day' && (
+              <input
+                type="date"
+                value={dateFilter || ''}
+                onChange={(e) => {
+                  setDateFilter(e.target.value || null)
+                }}
+                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderColor: 'var(--glass-border)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            )}
+
+            {/* Month Filter */}
+            {filterType === 'month' && (
+              <input
+                type="month"
+                value={monthFilter || ''}
+                onChange={(e) => {
+                  setMonthFilter(e.target.value || null)
+                }}
+                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderColor: 'var(--glass-border)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            )}
+
+            {/* Year Filter */}
+            {filterType === 'year' && (
+              <input
+                type="number"
+                min="2020"
+                max="2030"
+                value={yearFilter || ''}
+                onChange={(e) => {
+                  setYearFilter(e.target.value || null)
+                }}
+                placeholder="İl (məs: 2025)"
+                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderColor: 'var(--glass-border)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            )}
+
+            {/* Clear Button */}
+            {filterType !== 'none' && (dateFilter || monthFilter || yearFilter) && (
+              <button
+                onClick={() => {
+                  setFilterType('none')
+                  setDateFilter(null)
+                  setMonthFilter(null)
+                  setYearFilter(null)
+                }}
+                className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm transition"
+              >
+                Təmizlə
+              </button>
+            )}
+          </div>
+          </div>
+          {/* Filter Info - Daha detallı məlumat */}
+          {filterType === 'day' && dateFilter && (
+            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
+              <p className="text-sm font-semibold text-white mb-1">
+                📅 Seçilmiş gün: {new Date(dateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
+              </p>
+              {dashboardData?.context && (
+                <p className="text-xs text-white/70">
+                  Bu gün ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
+                </p>
+              )}
+            </div>
+          )}
+          {filterType === 'month' && monthFilter && (
+            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
+              <p className="text-sm font-semibold text-white mb-1">
+                📆 Seçilmiş ay: {new Date(monthFilter + '-01').toLocaleDateString('az-AZ', { year: 'numeric', month: 'long' })}
+              </p>
+              {dashboardData?.context && (
+                <p className="text-xs text-white/70">
+                  Bu ay ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
+                </p>
+              )}
+            </div>
+          )}
+          {filterType === 'year' && yearFilter && (
+            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
+              <p className="text-sm font-semibold text-white mb-1">
+                📅 Seçilmiş il: {yearFilter}
+              </p>
+              {dashboardData?.context && (
+                <p className="text-xs text-white/70">
+                  Bu il ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Category Pie Chart - Ən qabaqda */}
+      <CategoryPieChart
+        categoryData={categoryData}
+        currency={currency}
+        incognitoMode={incognitoMode}
       />
 
       {/* Salary Increase Celebration Card */}
       <SalaryIncrease
         salaryIncreaseInfo={salaryIncreaseInfo}
-        currency={currency}
-        incognitoMode={incognitoMode}
-      />
-
-      {/* XP Progress */}
-      {levelInfo && (
-        <XPProgress levelInfo={levelInfo} xpPoints={xpPoints} />
-      )}
-
-      {/* Daily Limit Alert */}
-      <DailyLimitAlert
-        dailyLimitAlert={dailyLimitAlert}
         currency={currency}
         incognitoMode={incognitoMode}
       />
@@ -353,6 +500,15 @@ const Dashboard = () => {
         incognitoMode={incognitoMode}
         onToggleIncognito={toggleIncognito}
         onSpeak={async () => {
+          // Premium yoxlaması - səsləndirmə yalnız premium üçün
+          if (!user?.is_premium) {
+            toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır.', {
+              duration: 5000,
+              position: 'top-center',
+            })
+            return
+          }
+
           try {
             // Məbləğləri Azərbaycan dilində səsləndirmək üçün funksiya
             const formatAmount = (amount) => {
@@ -392,13 +548,6 @@ const Dashboard = () => {
       <TimeMachine
         currentBalance={totalAvailable}
         monthlySavings={monthlySavings}
-        currency={currency}
-        incognitoMode={incognitoMode}
-      />
-
-      {/* Category Pie Chart */}
-      <CategoryPieChart
-        categoryData={categoryData}
         currency={currency}
         incognitoMode={incognitoMode}
       />
@@ -460,6 +609,16 @@ const Dashboard = () => {
         onBlock={() => {
           // Fraud blocked - could trigger additional actions
         }}
+      />
+
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        isOpen={onboardingOpen}
+        onClose={() => setOnboardingOpen(false)}
+        onComplete={() => {
+          console.log('Onboarding completed')
+        }}
+        username={user?.username}
       />
     </div>
   )

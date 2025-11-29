@@ -240,7 +240,7 @@ const Rewards = () => {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/10 pl-4">
-          <p className="text-white/50 text-xs">💡 Hər qəbz scan = +1 coin</p>
+          <p className="text-white/50 text-xs">💡 Qəbz məbləğinə görə coin: 10 manata 1 coin (minimum 1 coin)</p>
         </div>
       </motion.div>
 
@@ -275,7 +275,7 @@ const Rewards = () => {
             className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-6 px-4 md:px-12"
             style={{ scrollBehavior: 'smooth', overflowY: 'visible !important' }}
           >
-            {/* 100 Coins - Bronze */}
+            {/* 150 Coins - Coffee Kuponu (Bronze) */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -300,7 +300,7 @@ const Rewards = () => {
                   )}
                 </div>
                 <div className="text-center mb-6">
-                  <div className="text-6xl sm:text-7xl mb-5 flex justify-center items-center leading-none">🥉</div>
+                  <div className="text-6xl sm:text-7xl mb-5 flex justify-center items-center leading-none">☕</div>
                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight leading-tight">Coffee Kuponu</h3>
                   <div className="h-0.5 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent mb-4 mx-auto max-w-[120px]"></div>
                   <p className="text-white/60 text-sm font-medium">1 ədəd pulsuz kofe</p>
@@ -308,20 +308,20 @@ const Rewards = () => {
                 <div className="bg-black/25 rounded-2xl p-4 mb-6 border border-amber-400/25 backdrop-blur-sm">
                   <div className="flex items-center justify-center gap-2.5">
                     <span className="text-yellow-400 text-xl sm:text-2xl leading-none">🪙</span>
-                    <span className="text-yellow-400 font-bold text-2xl sm:text-3xl leading-none tracking-tight">100</span>
+                    <span className="text-yellow-400 font-bold text-2xl sm:text-3xl leading-none tracking-tight">150</span>
                     <span className="text-white/40 text-xs sm:text-sm font-medium ml-0.5">coin</span>
                   </div>
                 </div>
                 <button
-                  onClick={() => openClaimModal('bronze', 100, '🥉', 'Coffee Kuponu')}
-                  disabled={currentCoins < 100}
+                  onClick={() => openClaimModal('bronze', 150, '☕', 'Coffee Kuponu')}
+                  disabled={currentCoins < 150}
                   className={`w-full px-5 py-3.5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${
-                    currentCoins >= 100
+                    currentCoins >= 150
                       ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black shadow-lg shadow-amber-500/50'
                       : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'
                   }`}
                 >
-                  {currentCoins >= 100 ? (
+                  {currentCoins >= 150 ? (
                     <>
                       <span>🛒</span>
                       <span>Al İndi</span>
@@ -336,7 +336,7 @@ const Rewards = () => {
               </div>
             </motion.div>
 
-            {/* 200 Coins - Silver */}
+            {/* 300 Coins - Coffee Paket (Silver) */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -366,20 +366,20 @@ const Rewards = () => {
                 <div className="bg-black/30 rounded-xl p-4 mb-5 border border-gray-300/20">
                   <div className="flex items-center justify-center gap-3">
                     <span className="text-yellow-400 text-2xl">🪙</span>
-                    <span className="text-yellow-400 font-bold text-3xl">200</span>
+                    <span className="text-yellow-400 font-bold text-3xl">300</span>
                     <span className="text-white/50 text-sm">coin</span>
                   </div>
                 </div>
                 <button
-                  onClick={() => openClaimModal('silver', 200, '🥈', 'Coffee Paket')}
-                  disabled={currentCoins < 200}
+                  onClick={() => openClaimModal('silver', 300, '🥈', 'Coffee Paket')}
+                  disabled={currentCoins < 300}
                   className={`w-full px-5 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 ${
-                    currentCoins >= 200
+                    currentCoins >= 300
                       ? 'bg-gradient-to-r from-gray-200 to-gray-300 hover:from-gray-300 hover:to-gray-400 text-black shadow-lg shadow-gray-300/40'
                       : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'
                   }`}
                 >
-                  {currentCoins >= 200 ? (
+                  {currentCoins >= 300 ? (
                     <>
                       <span>🛒</span>
                       <span>Al İndi</span>
@@ -394,7 +394,7 @@ const Rewards = () => {
               </div>
             </motion.div>
 
-            {/* 500 Coins - Gold */}
+            {/* 500 Coins - Pul Mükafatı (Gold) */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -417,7 +417,7 @@ const Rewards = () => {
                   <div className="text-7xl mb-4 flex justify-center items-center">🥇</div>
                   <h3 className="text-2xl font-semibold text-white mb-2 tracking-tight">Pul Mükafatı</h3>
                   <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent mb-3"></div>
-                  <p className="text-white/70 text-sm">5 AZN bank hesabınıza</p>
+                  <p className="text-white/70 text-sm">10 AZN bank hesabınıza</p>
                 </div>
                 <div className="bg-black/30 rounded-xl p-4 mb-5 border border-yellow-400/20">
                   <div className="flex items-center justify-center gap-3">
@@ -427,7 +427,7 @@ const Rewards = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => openClaimModal('gold', 500, '🥇', 'Pul Mükafatı - 5 AZN')}
+                  onClick={() => openClaimModal('gold', 500, '🥇', 'Pul Mükafatı - 10 AZN')}
                   disabled={currentCoins < 500}
                   className={`w-full px-5 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 ${
                     currentCoins >= 500
@@ -450,7 +450,7 @@ const Rewards = () => {
               </div>
             </motion.div>
 
-            {/* 5000 Coins - Platinum */}
+            {/* 2000 Coins - Premium Paket (Platinum) */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -458,53 +458,56 @@ const Rewards = () => {
               className="flex-shrink-0 w-72 sm:w-80 snap-center reward-card-wrapper"
             >
               <div
-                className="glass-card p-6 h-full border border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-2xl reward-card-hover"
+                className="glass-card p-6 h-full border border-blue-500/30 hover:border-blue-500/60 transition-all duration-300 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl reward-card-hover relative overflow-hidden"
                 style={{ boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)' }}
               >
-                <div className="flex justify-between items-start mb-4">
-                  <span className="px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-200 text-[10px] font-bold uppercase tracking-wide">
-                    Platin
-                  </span>
-                  {rewardCounts.platinum > 0 && (
-                    <span className="px-2 py-1 rounded-lg bg-green-500/20 text-green-300 text-xs">
-                      ✓ {rewardCounts.platinum}x
+                {/* Premium Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-blue-600/10 animate-pulse"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-200 text-[10px] font-bold uppercase tracking-wide border border-blue-400/40">
+                      Platin
                     </span>
-                  )}
-                </div>
-                <div className="text-center mb-5">
-                  <div className="text-7xl mb-4 flex justify-center items-center">💎</div>
-                  <h3 className="text-2xl font-semibold text-white mb-2 tracking-tight">Premium Paket</h3>
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-400/30 to-transparent mb-3"></div>
-                  <p className="text-white/70 text-sm">1 ay Premium + 20 AZN</p>
-                </div>
-                <div className="bg-black/30 rounded-xl p-4 mb-5 border border-purple-400/20">
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-yellow-400 text-2xl">🪙</span>
-                    <span className="text-yellow-400 font-bold text-3xl">5000</span>
-                    <span className="text-white/50 text-sm">coin</span>
+                    {rewardCounts.platinum > 0 && (
+                      <span className="px-2 py-1 rounded-lg bg-green-500/20 text-green-300 text-xs">✓ {rewardCounts.platinum}x</span>
+                    )}
                   </div>
+                  <div className="text-center mb-5">
+                    <div className="text-7xl mb-4 flex justify-center items-center">💎</div>
+                    <h3 className="text-2xl font-semibold text-white mb-2 tracking-tight">Premium Paket</h3>
+                    <div className="h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent mb-3"></div>
+                    <p className="text-white/70 text-sm">1 ay Premium + 30 AZN</p>
+                  </div>
+                  <div className="bg-black/30 rounded-xl p-4 mb-5 border border-blue-400/20">
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="text-yellow-400 text-2xl">🪙</span>
+                      <span className="text-yellow-400 font-bold text-3xl">2000</span>
+                      <span className="text-white/50 text-sm">coin</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openClaimModal('platinum', 2000, '💎', 'Premium Paket')}
+                    disabled={currentCoins < 2000}
+                    className={`w-full px-5 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 ${
+                      currentCoins >= 2000
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg shadow-blue-500/50'
+                        : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'
+                    }`}
+                  >
+                    {currentCoins >= 2000 ? (
+                      <>
+                        <span>🛒</span>
+                        <span>Al İndi</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🔒</span>
+                        <span>Kiliddə</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-                <button
-                  onClick={() => openClaimModal('platinum', 5000, '💎', 'Premium Paket')}
-                  disabled={currentCoins < 5000}
-                  className={`w-full px-5 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 ${
-                    currentCoins >= 5000
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/40'
-                      : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'
-                  }`}
-                >
-                  {currentCoins >= 5000 ? (
-                    <>
-                      <span>🛒</span>
-                      <span>Al İndi</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>🔒</span>
-                      <span>Kiliddə</span>
-                    </>
-                  )}
-                </button>
               </div>
             </motion.div>
           </div>
@@ -514,7 +517,7 @@ const Rewards = () => {
             <div className="w-2 h-2 rounded-full bg-amber-400"></div>
             <div className="w-2 h-2 rounded-full bg-gray-300"></div>
             <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-            <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+            <div className="w-2 h-2 rounded-full bg-blue-400"></div>
           </div>
         </div>
       </div>

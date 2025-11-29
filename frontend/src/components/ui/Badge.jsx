@@ -12,7 +12,7 @@ const Badge = ({
         warning: 'bg-yellow-500/20 text-yellow-200 border-yellow-500/30',
         error: 'bg-red-500/20 text-red-200 border-red-500/30',
         info: 'bg-blue-500/20 text-blue-200 border-blue-500/30',
-        purple: 'bg-purple-500/20 text-purple-200 border-purple-500/30'
+        purple: 'bg-blue-500/20 text-blue-200 border-blue-500/30'
     }
 
     const sizes = {

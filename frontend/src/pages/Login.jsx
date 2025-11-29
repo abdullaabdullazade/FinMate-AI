@@ -87,7 +87,7 @@ const Login = () => {
           {/* Logo and Title - login.html sətir 24-33 */}
           <div className="text-center mb-8">
             <div className="inline-block mb-6 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl"></div>
               <img
                 src="/static/icons/icon-192.png"
                 alt="FinMate AI"
@@ -97,7 +97,7 @@ const Login = () => {
                 }}
               />
             </div>
-            <h1 className="text-4xl font-black text-white mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-black text-white mb-2 bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
               FinMate AI
             </h1>
             <p className="text-white/70 text-sm font-medium">Şəxsi Maliyyə Köməkçiniz</p>
@@ -196,7 +196,7 @@ const Login = () => {
           {/* Demo User Info - login.html sətir 119-133 */}
           <div className="mt-6 info-glass p-4 rounded-xl animate-float" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -214,7 +214,7 @@ const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
               Hesabın yoxdur?{' '}
-              <Link to="/signup" className="glass-link text-purple-300 hover:text-purple-200 font-semibold transition inline-block">
+              <Link to="/signup" className="glass-link text-blue-300 hover:text-blue-200 font-semibold transition inline-block">
                 Qeydiyyatdan keç
               </Link>
             </p>

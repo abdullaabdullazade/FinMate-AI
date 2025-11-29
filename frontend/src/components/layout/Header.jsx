@@ -203,7 +203,7 @@ const Header = ({ user }) => {
                       </button>
                     </li>
                     <li className="px-4 py-3 flex gap-2 items-start group hover:bg-glass-bg transition-colors text-text-secondary">
-                      <span className="text-purple-500 flex-shrink-0">🎬</span>
+                      <span className="text-blue-500 flex-shrink-0">🎬</span>
                       <div className="flex-1">Netflix abunəliyin sabah bitir.</div>
                       <button
                         onClick={() => setShowAlertPanel(false)}

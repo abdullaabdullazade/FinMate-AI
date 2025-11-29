@@ -5,11 +5,24 @@
 
 import React, { useMemo } from 'react'
 import { markdownToHtml } from '../../utils/markdown'
+import { useAuth } from '../../contexts/AuthContext'
+import { toast } from 'react-toastify'
 import '../../styles/components/chat/message-bubbles.css'
 import '../../styles/components/chat/markdown-content.css'
 
 const ChatMessage = ({ message }) => {
+  const { user } = useAuth()
+
   const speakMessage = (text) => {
+    // Premium yoxlaması - səsləndirmə yalnız premium üçün
+    if (!user?.is_premium) {
+      toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır.', {
+        duration: 3000,
+        position: 'top-center',
+      })
+      return
+    }
+
     if (typeof window.queueVoiceNotification === 'function') {
       const cleanText = text
         .replace(/\u003c[^\u003e]*\u003e/g, '')
@@ -48,7 +61,7 @@ const ChatMessage = ({ message }) => {
     // User Message - chat.html-dəki struktur
     return (
       <div className="flex justify-end">
-        <div className="message-bubble bg-gradient-to-br from-purple-500 to-pink-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-lg">
+        <div className="message-bubble bg-gradient-to-br from-blue-500 to-cyan-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-lg">
           {message.content}
         </div>
       </div>

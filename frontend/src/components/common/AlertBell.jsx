@@ -11,7 +11,7 @@ const AlertBell = () => {
   const [showPanel, setShowPanel] = useState(false)
   const [alerts, setAlerts] = useState([
     { id: 1, type: 'warning', message: 'Diqqət: Keçən aya görə 15% çox xərcləmisən.', icon: '⚠️', color: 'text-amber-500' },
-    { id: 2, type: 'info', message: 'Netflix abunəliyin sabah bitir.', icon: '🎬', color: 'text-purple-500' },
+    { id: 2, type: 'info', message: 'Netflix abunəliyin sabah bitir.', icon: '🎬', color: 'text-blue-500' },
     { id: 3, type: 'forecast', message: '28-ində büdcə limitini keçə bilərsən.', icon: '📈', color: 'text-blue-500' },
   ])
   const panelRef = useRef(null)

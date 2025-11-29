@@ -7,6 +7,7 @@
 @import '../components/dashboard/welcome-banner.css';
 @import '../components/dashboard/stat-card.css';
 @import '../components/dashboard/category-card.css';
+@import '../components/dashboard/category-pie-chart.css';
 @import '../components/dashboard/transaction-row.css';
 @import '../components/dashboard/pet-animations.css';
 @import '../components/dashboard/chart-shell.css';

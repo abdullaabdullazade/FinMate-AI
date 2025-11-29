@@ -6,8 +6,17 @@ import { api } from './index'
 
 export const dashboardAPI = {
   // Dashboard data
-  getDashboardData: async (date = null) => {
-    const params = date ? { date } : {}
+  getDashboardData: async (filterValue = null, filterType = null) => {
+    const params = {}
+    if (filterValue && filterType) {
+      if (filterType === 'day') {
+        params.date = filterValue
+      } else if (filterType === 'month') {
+        params.month = filterValue
+      } else if (filterType === 'year') {
+        params.year = filterValue
+      }
+    }
     return api.get('/api/dashboard-data', { params })
   },
 

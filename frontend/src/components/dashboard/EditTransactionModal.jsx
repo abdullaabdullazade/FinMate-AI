@@ -126,7 +126,7 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = 'â‚
                 value={formData.merchant}
                 onChange={(e) => setFormData({ ...formData, merchant: e.target.value })}
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
               />
             </div>
 
@@ -138,7 +138,7 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = 'â‚
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
               />
             </div>
 
@@ -147,7 +147,7 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = 'â‚
               <select
                 value={formData.category || 'DigÉ™r'}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat} className="text-black">
@@ -160,7 +160,7 @@ const EditTransactionModal = ({ isOpen, onClose, expense, onSave, currency = 'â‚
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? 'Yadda saxlanÄ±lÄ±r...' : 'Yadda saxla'}
             </button>

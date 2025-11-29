@@ -86,7 +86,7 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
         {/* Header */}
         <div className="p-4 pb-0 text-center">
           <div
-            className="w-14 h-14 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-purple-500/30"
+            className="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-500/30"
             style={{
               background: 'rgba(138, 92, 246, 0.2)',
               borderColor: 'rgba(138, 92, 246, 0.3)'
@@ -129,7 +129,7 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
                   step="0.01"
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  className="text-4xl font-bold text-white bg-transparent border-b-2 border-purple-500/50 focus:border-purple-500 outline-none text-center w-40"
+                  className="text-4xl font-bold text-white bg-transparent border-b-2 border-blue-500/50 focus:border-blue-500 outline-none text-center w-40"
                   style={{
                     borderColor: 'rgba(138, 92, 246, 0.5)'
                   }}
@@ -154,7 +154,7 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
                 name="merchant"
                 value={formData.merchant}
                 onChange={(e) => setFormData({ ...formData, merchant: e.target.value })}
-                className="w-full text-white bg-transparent border-b border-white/20 focus:border-purple-500 outline-none py-2"
+                className="w-full text-white bg-transparent border-b border-white/20 focus:border-blue-500 outline-none py-2"
                 style={{
                   borderColor: 'var(--glass-border)'
                 }}
@@ -172,7 +172,7 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
             >
               <p className="text-xs text-white/50 mb-1">Kateqoriya</p>
               <span
-                className="inline-block px-2 py-0.5 bg-purple-500/30 text-purple-200 rounded text-xs font-medium"
+                className="inline-block px-2 py-0.5 bg-blue-500/30 text-blue-200 rounded text-xs font-medium"
                 style={{
                   background: 'rgba(138, 92, 246, 0.3)',
                   color: 'rgba(196, 181, 253, 1)'
@@ -187,7 +187,7 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
           <div className="p-4 pt-0 mt-auto space-y-2">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-purple-500/25"
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-blue-500/25"
               style={{
                 background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                 boxShadow: '0 4px 15px var(--glass-shadow)'

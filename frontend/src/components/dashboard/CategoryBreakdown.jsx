@@ -1,14 +1,23 @@
 /**
  * Category Breakdown Component
  * HTML-dən köçürülmüş - Kateqoriyalar üzrə xərc kartı
+ * "Daha çox göstər" funksiyası ilə
  */
 
-import React from 'react'
-import { motion } from 'framer-motion'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import CategoryCard from './CategoryCard'
 
 const CategoryBreakdown = ({ categoryData, totalSpending, currency = '₼' }) => {
+  const [showAll, setShowAll] = useState(false)
+  
   if (!categoryData || Object.keys(categoryData).length === 0) return null
+
+  const categories = Object.entries(categoryData)
+  const initialCount = 6
+  const hasMore = categories.length > initialCount
+  const displayedCategories = showAll ? categories : categories.slice(0, initialCount)
 
   return (
     <motion.div
@@ -26,17 +35,48 @@ const CategoryBreakdown = ({ categoryData, totalSpending, currency = '₼' }) =>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {Object.entries(categoryData).map(([category, amount], index) => (
-          <CategoryCard
-            key={category}
-            category={category}
-            amount={amount}
-            totalSpending={totalSpending}
-            currency={currency}
-            delay={index * 0.05}
-          />
-        ))}
+        <AnimatePresence mode="wait">
+          {displayedCategories.map(([category, amount], index) => (
+            <motion.div
+              key={category}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: index * 0.03 }}
+            >
+              <CategoryCard
+                category={category}
+                amount={amount}
+                totalSpending={totalSpending}
+                currency={currency}
+                delay={index * 0.05}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
+
+      {/* Show More/Less Button */}
+      {hasMore && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6 flex justify-center"
+        >
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-xl text-white font-medium transition-all duration-300 shadow-lg hover:shadow-purple-500/20"
+          >
+            <span>{showAll ? 'Daha az göstər' : `Daha çox göstər (+${categories.length - initialCount})`}</span>
+            {showAll ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+        </motion.div>
+      )}
     </motion.div>
   )
 }

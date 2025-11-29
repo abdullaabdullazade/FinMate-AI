@@ -1,12 +1,15 @@
 /**
  * useVoiceNotification Hook
  * Voice notification sistemini React-də istifadə etmək üçün hook
+ * Premium istifadəçilər üçün
  */
 
 import { useEffect, useCallback, useState } from 'react'
 import { voiceAPI } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
 export const useVoiceNotification = () => {
+  const { user } = useAuth()
   const [isVoiceModeEnabled, setIsVoiceModeEnabled] = useState(false)
 
   /**
@@ -42,9 +45,15 @@ export const useVoiceNotification = () => {
   }, [])
 
   /**
-   * Səsləndirmə funksiyası
+   * Səsləndirmə funksiyası - Premium yoxlaması ilə
    */
   const speak = useCallback(async (text, priority = 0, language = 'az') => {
+    // Premium yoxlaması
+    if (!user?.is_premium) {
+      console.warn('Voice notification requires premium subscription')
+      return
+    }
+
     try {
       // Voice mode aktivdirsə
       if (isVoiceModeEnabled || localStorage.getItem('voice-mode') === 'enabled') {
@@ -53,7 +62,7 @@ export const useVoiceNotification = () => {
           window.queueVoiceNotification(text, priority, language)
           return
         }
-
+        
         // Fallback: TTS API istifadə et
         try {
           await voiceAPI.textToSpeech(text, language)
@@ -64,7 +73,7 @@ export const useVoiceNotification = () => {
     } catch (error) {
       console.error('Speak error:', error)
     }
-  }, [isVoiceModeEnabled])
+  }, [isVoiceModeEnabled, user])
 
   return {
     speak,

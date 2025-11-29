@@ -127,7 +127,7 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
                 </span>
               )}
               {hasItems && (
-                <span className="text-xs bg-purple-500/30 text-purple-200 px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0">
+                <span className="text-xs bg-blue-500/30 text-blue-200 px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0">
                   {expense.items.length} məhsul
                 </span>
               )}

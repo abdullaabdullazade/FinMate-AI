@@ -36,7 +36,7 @@ const ExportButtons = () => {
     <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-center gap-3 slide-up" style={{ animationDelay: '0.2s' }}>
       <button
         onClick={handleExportPDF}
-        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl transition-all shadow-lg font-bold btn-theme text-sm sm:text-base"
+        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-cyan-600 hover:scale-105 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl transition-all shadow-lg font-bold btn-theme text-sm sm:text-base"
       >
         📄 Export Monthly Report (PDF)
       </button>

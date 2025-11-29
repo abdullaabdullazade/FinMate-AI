@@ -64,12 +64,12 @@ async def claim_reward(
     if not user:
         return JSONResponse({"success": False, "error": "Authentication required"}, status_code=401)
     
-    # Define rewards
+    # Define rewards - Coffee hədiyyələri saxlanıldı, qiymətlər artırıldı, yeni hədiyyələr əlavə edildi
     rewards = {
-        "bronze": {"name": "1 Coffee Kuponu", "cost": 100},
-        "silver": {"name": "3 Coffee Kuponu", "cost": 200},
-        "gold": {"name": "5 AZN pul mükafatı", "cost": 500},
-        "platinum": {"name": "Premium 1 ay + 20 AZN", "cost": 5000}
+        "bronze": {"name": "Coffee Kuponu", "cost": 150},
+        "silver": {"name": "Coffee Paket", "cost": 300},
+        "gold": {"name": "Pul Mükafatı - 10 AZN", "cost": 500},
+        "platinum": {"name": "Premium Paket", "cost": 2000}
     }
     
     if reward_type not in rewards:

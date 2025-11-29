@@ -4,39 +4,39 @@
  */
 
 :root {
-  /* Default Dark Mode - Qaranlıq rənglər */
-  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
-  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: rgba(0, 0, 0, 0.5);
+  /* Default Dark Mode - Daha Parlaq Bənövşəyi */
+  --bg-primary: #8b5cf6;   /* Daha Parlaq Bənövşəyi (Violet-500) */
+  --bg-secondary: #a855f7; /* Daha Parlaq Bənövşəyi (Violet-400) */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(31, 38, 135, 0.37);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --skeleton-bg: rgba(255, 255, 255, 0.1);
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --nav-border: rgba(255, 255, 255, 0.2);
+  --skeleton-bg: rgba(255, 255, 255, 0.15);
   --accent-primary: #ec4899;   /* Neon Pink */
   --accent-secondary: #d81b60; /* Darker Pink */
 }
 
 [data-theme="dark"] {
-  /* Dark Mode - Qaranlıq rənglər */
-  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
-  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: rgba(0, 0, 0, 0.5);
+  /* Dark Mode - Daha Parlaq Bənövşəyi */
+  --bg-primary: #8b5cf6;   /* Daha Parlaq Bənövşəyi (Violet-500) */
+  --bg-secondary: #a855f7; /* Daha Parlaq Bənövşəyi (Violet-400) */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(31, 38, 135, 0.37);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --skeleton-bg: rgba(255, 255, 255, 0.1);
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --nav-border: rgba(255, 255, 255, 0.2);
+  --skeleton-bg: rgba(255, 255, 255, 0.15);
   --accent-primary: #ec4899;   /* Neon Pink */
   --accent-secondary: #d81b60; /* Darker Pink */
 }
 
 [data-theme="light"] {
-  /* Light Mode - Rich Purple/Magenta Professional (Orijinal base.css-dən) */
-  --bg-primary: #5e35b1;
-  --bg-secondary: #7e57c2;
+  /* Light Mode - Daha Parlaq Bənövşəyi */
+  --bg-primary: #7c3aed;   /* Daha Parlaq Bənövşəyi (Violet-600) */
+  --bg-secondary: #9333ea; /* Daha Parlaq Bənövşəyi (Violet-500) */
   --glass-bg: rgba(255, 255, 255, 0.25);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-shadow: rgba(94, 53, 177, 0.35);
@@ -55,7 +55,7 @@
 
 /* Ensure body background uses CSS variables */
 [data-theme="dark"] body {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0a0a14 100%) !important;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
   background-attachment: fixed;
 }
 

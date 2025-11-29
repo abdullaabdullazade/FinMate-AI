@@ -83,7 +83,29 @@ async def send_chat_message(
     
     # Award XP for chat interaction
     xp_result = gamification.award_xp(user, "chat_message", db)
-    db.refresh(user)  # Refresh to get updated XP
+    
+    # Deduct coins for non-premium users (1-2 coins per message)
+    coins_deducted = 0
+    if not user.is_premium:
+        import random
+        coins_to_deduct = random.randint(1, 2)  # 1-2 coins randomly
+        if user.coins is None:
+            user.coins = 0
+        if user.coins >= coins_to_deduct:
+            user.coins -= coins_to_deduct
+            coins_deducted = coins_to_deduct
+        else:
+            # Not enough coins - return error
+            db.rollback()
+            return JSONResponse({
+                "success": False,
+                "error": f"Kifayət qədər coin yoxdur. Lazım: {coins_to_deduct}, Sizin: {user.coins}",
+                "coins_required": coins_to_deduct,
+                "coins_available": user.coins
+            }, status_code=400)
+    
+    db.commit()
+    db.refresh(user)  # Refresh to get updated XP and coins
     
     # Sanitize xp_result to handle inf values
     def sanitize_float(value):
@@ -128,7 +150,10 @@ async def send_chat_message(
         "response": ai_response,  # Raw markdown - frontend will convert to HTML
         "user_message": message,
         "xp_awarded": sanitized_xp_result.get("xp_awarded", 0) if sanitized_xp_result else 0,
-        "xp_result": sanitized_xp_result
+        "xp_result": sanitized_xp_result,
+        "coins_deducted": coins_deducted,
+        "coins_remaining": user.coins if user.coins is not None else 0,
+        "is_premium": user.is_premium
     })
 
 
