@@ -24,8 +24,8 @@ import RecentTransactions from '../components/dashboard/RecentTransactions'
 import FinancialPet from '../components/dashboard/FinancialPet'
 import EditTransactionModal from '../components/dashboard/EditTransactionModal'
 import IncomeModal from '../components/dashboard/IncomeModal'
-import FraudAlertModal from '../components/dashboard/FraudAlertModal'
 import OnboardingTour from '../components/dashboard/OnboardingTour'
+import SalarySetupModal from '../components/dashboard/SalarySetupModal'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -36,7 +36,6 @@ const Dashboard = () => {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
   const [incomeModalOpen, setIncomeModalOpen] = useState(false)
-  const [fraudModalOpen, setFraudModalOpen] = useState(false)
   const [filterType, setFilterType] = useState('none') // 'none', 'day', 'month', 'year', 'range'
   const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for day
   const [monthFilter, setMonthFilter] = useState(null) // Format: 'YYYY-MM' for month
@@ -44,6 +43,7 @@ const Dashboard = () => {
   const [startDateFilter, setStartDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range start
   const [endDateFilter, setEndDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range end
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const [salaryModalOpen, setSalaryModalOpen] = useState(false)
 
   /**
    * Dashboard məlumatlarını yüklə
@@ -108,9 +108,25 @@ const Dashboard = () => {
     fetchDashboardData()
   }, [filterType, dateFilter, monthFilter, yearFilter, startDateFilter, endDateFilter]) // Re-fetch when any filter changes
 
+  // Check if user needs to set salary (first time login) - yalnız bir dəfə
+  useEffect(() => {
+    if (!loading && user) {
+      // İstifadəçi adı ilə salary setup completed key yarat
+      const salarySetupKey = `salary_setup_completed_${user.username}`
+      const salarySetupCompleted = localStorage.getItem(salarySetupKey)
+      
+      // Əgər maaş yoxdursa VƏ hələ təyin edilməyibsə, göstər
+      if (!user.monthly_income && !salarySetupCompleted) {
+        setTimeout(() => {
+          setSalaryModalOpen(true)
+        }, 1000)
+      }
+    }
+  }, [loading, user])
+
   // Show onboarding tour - yalnız bir dəfə, hesabdan çıxıb girəndə yenidən göstər
   useEffect(() => {
-    if (!loading && dashboardData && user) {
+    if (!loading && dashboardData && user && user.monthly_income) {
       // İstifadəçi adı ilə onboarding completed key yarat
       const onboardingKey = `onboarding_completed_${user.username}`
       const onboardingCompleted = localStorage.getItem(onboardingKey)
@@ -309,10 +325,6 @@ const Dashboard = () => {
     window.dispatchEvent(new CustomEvent('incomeUpdated'))
   }
 
-  // Handle fraud alert
-  const handleFraudClick = () => {
-    setFraudModalOpen(true)
-  }
 
   return (
     <div className="dashboard-grid px-2 sm:px-4 pb-24 sm:pb-32">
@@ -320,7 +332,6 @@ const Dashboard = () => {
       <WelcomeBanner
         username={user?.username || 'İstifadəçi'}
         onIncomeClick={handleIncomeClick}
-        onFraudClick={handleFraudClick}
         levelInfo={levelInfo}
         xpPoints={xpPoints}
       />
@@ -659,15 +670,14 @@ const Dashboard = () => {
         onSuccess={handleIncomeSuccess}
       />
 
-      {/* Fraud Alert Modal */}
-      <FraudAlertModal
-        isOpen={fraudModalOpen}
-        onClose={() => setFraudModalOpen(false)}
-        onConfirm={() => {
-          setFraudModalOpen(false)
-        }}
-        onBlock={() => {
-          // Fraud blocked - could trigger additional actions
+
+      {/* Salary Setup Modal - First Time Login */}
+      <SalarySetupModal
+        isOpen={salaryModalOpen}
+        onClose={() => setSalaryModalOpen(false)}
+        onSalarySet={() => {
+          // Maaş təyin edildikdən sonra dashboard-u yenilə
+          fetchDashboardData()
         }}
       />
 

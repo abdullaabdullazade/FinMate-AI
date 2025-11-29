@@ -46,7 +46,9 @@ function App() {
           bodyClassName="glass-toast-body"
           progressClassName="glass-toast-progress"
           style={{
-            zIndex: 9999,
+            zIndex: 10000,
+            top: '5rem',
+            right: '1rem',
           }}
         />
 

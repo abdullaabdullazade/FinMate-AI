@@ -5,7 +5,10 @@
 
 /* React Toastify Custom Styles */
 .Toastify__toast-container {
-  z-index: 9999 !important;
+  z-index: 10000 !important;
+  top: 5rem !important;
+  right: 1rem !important;
+  left: auto !important;
 }
 
 .Toastify__toast {
@@ -160,20 +163,20 @@
 
 /* Mobile Optimizations - Telefon üçün optimallaşdırılmış */
 @media (max-width: 640px) {
-  /* Toast Container - mobil üçün mərkəzləşdirilmiş və yuxarıda */
+  /* Toast Container - mobil üçün sağda */
   .Toastify__toast-container {
     top: 5rem !important;
-    right: auto !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    right: 1rem !important;
+    left: auto !important;
+    transform: none !important;
     width: calc(100% - 2rem) !important;
     max-width: 400px !important;
-    padding: 0 1rem !important;
+    padding: 0 !important;
   }
 
   /* Menu açıq olduqda toast-u aşağıya sürüşdür */
   body.menu-open .Toastify__toast-container {
-    transform: translateX(-50%) translateY(60px) !important;
+    transform: translateY(60px) !important;
   }
 
   .Toastify__toast {

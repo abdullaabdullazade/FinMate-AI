@@ -40,23 +40,23 @@ const XPProgress = ({ levelInfo, xpPoints, delay = 0.05 }) => {
               <h3 className="text-sm sm:text-base font-bold text-white truncate">
                 {levelInfo.title} • Level {levelInfo.current_level || levelInfo.level || 1}
               </h3>
-            </div>
-            <div className="text-right flex-shrink-0">
+        </div>
+        <div className="text-right flex-shrink-0">
               <p className="text-xs sm:text-sm font-bold text-white">
-                <CountUp end={Math.round(progressPercentage)} duration={1} />%
-              </p>
-            </div>
-          </div>
+            <CountUp end={Math.round(progressPercentage)} duration={1} />%
+          </p>
+        </div>
+      </div>
           
           {/* Progress Bar */}
           <div className="w-full bg-white/10 rounded-full h-2 mb-1.5">
-            <motion.div
-              id="xp-progress-bar"
+        <motion.div
+          id="xp-progress-bar"
               className="h-2 rounded-full bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 shadow-lg"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercentage}%` }}
+          initial={{ width: 0 }}
+          animate={{ width: `${progressPercentage}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-            ></motion.div>
+        ></motion.div>
           </div>
 
           {/* XP Details */}

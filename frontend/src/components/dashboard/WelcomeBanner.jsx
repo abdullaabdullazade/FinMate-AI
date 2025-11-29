@@ -6,9 +6,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MessageCircle, Camera, DollarSign, AlertTriangle } from 'lucide-react'
+import { MessageCircle, Camera, DollarSign } from 'lucide-react'
 
-const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null, xpPoints = 0, delay = 0.02 }) => {
+const WelcomeBanner = ({ username, onIncomeClick, levelInfo = null, xpPoints = 0, delay = 0.02 }) => {
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Sabahın xeyir'
@@ -93,13 +93,6 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null
           >
             <DollarSign className="w-4 h-4" />
             <span>Gəlir</span>
-          </button>
-          <button
-            onClick={onFraudClick}
-            className="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium transition shadow-lg shadow-red-500/50 border border-red-400 animate-pulse flex items-center gap-2"
-          >
-            <AlertTriangle className="w-4 h-4" />
-            <span>Fraud</span>
           </button>
         </div>
       </div>
