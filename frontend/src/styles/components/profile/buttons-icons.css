@@ -1,0 +1,91 @@
+/**
+ * Profile Buttons & Icons Styles
+ * Profile page - Buttons, icons, and subscription styles
+ */
+
+/* Export and Subscription Cards Theme Colors */
+body.theme-gold .glass-card button,
+body.theme-gold button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+body.theme-midnight .glass-card button,
+body.theme-midnight button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+body.theme-ocean .glass-card button,
+body.theme-ocean button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+body.theme-forest .glass-card button,
+body.theme-forest button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+body.theme-sunset .glass-card button,
+body.theme-sunset button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+body.theme-royal .glass-card button,
+body.theme-royal button.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+/* Subscription Icon Theme Colors */
+body.theme-gold .sub-icon-theme {
+    background: linear-gradient(135deg, #ffd700, #ffed4e) !important;
+}
+
+body.theme-midnight .sub-icon-theme {
+    background: linear-gradient(135deg, #ffffff, #e0e0e0) !important;
+}
+
+body.theme-ocean .sub-icon-theme {
+    background: linear-gradient(135deg, #00bfff, #5dade2) !important;
+}
+
+body.theme-forest .sub-icon-theme {
+    background: linear-gradient(135deg, #4caf50, #81c784) !important;
+}
+
+body.theme-sunset .sub-icon-theme {
+    background: linear-gradient(135deg, #ff9800, #ffb74d) !important;
+}
+
+body.theme-royal .sub-icon-theme {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8) !important;
+}
+
+/* Button Theme Colors */
+body.theme-gold .btn-theme {
+    background: linear-gradient(135deg, #ffd700, #ffed4e) !important;
+    color: #1a0d00 !important;
+}
+
+body.theme-midnight .btn-theme {
+    background: linear-gradient(135deg, #ffffff, #e0e0e0) !important;
+    color: #000000 !important;
+}
+
+body.theme-ocean .btn-theme {
+    background: linear-gradient(135deg, #00bfff, #5dade2) !important;
+    color: #ffffff !important;
+}
+
+body.theme-forest .btn-theme {
+    background: linear-gradient(135deg, #4caf50, #81c784) !important;
+    color: #ffffff !important;
+}
+
+body.theme-sunset .btn-theme {
+    background: linear-gradient(135deg, #ff9800, #ffb74d) !important;
+    color: #ffffff !important;
+}
+
+body.theme-royal .btn-theme {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8) !important;
+    color: #ffffff !important;
+}

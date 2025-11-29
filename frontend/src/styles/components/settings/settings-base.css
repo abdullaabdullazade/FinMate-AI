@@ -1,0 +1,133 @@
+/**
+ * Settings Base Styles
+ * Bütün settings section-lar üçün əsas stillər
+ */
+
+.settings-section {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+}
+
+@media (min-width: 640px) {
+  .settings-section {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .settings-section {
+    padding: 2rem;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .section-header {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.section-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 640px) {
+  .section-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+  }
+}
+
+.budget-icon {
+  background: linear-gradient(to bottom right, rgb(74, 222, 128), rgb(5, 150, 105));
+  box-shadow: 0 10px 15px -3px rgba(74, 222, 128, 0.3);
+}
+
+.preferences-icon {
+  background: linear-gradient(to bottom right, rgb(168, 85, 247), rgb(99, 102, 241));
+  box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.3);
+}
+
+.ai-persona-icon {
+  background: linear-gradient(to bottom right, rgb(251, 113, 133), rgb(225, 29, 72));
+  box-shadow: 0 10px 15px -3px rgba(251, 113, 133, 0.3);
+}
+
+.premium-themes-icon {
+  background: linear-gradient(to bottom right, rgb(250, 204, 21), rgb(217, 119, 6));
+  box-shadow: 0 10px 15px -3px rgba(250, 204, 21, 0.3);
+}
+
+.incognito-icon {
+  background: linear-gradient(to bottom right, rgb(156, 163, 175), rgb(71, 85, 105));
+  box-shadow: 0 10px 15px -3px rgba(156, 163, 175, 0.3);
+}
+
+.quick-actions-icon {
+  background: linear-gradient(to bottom right, rgb(251, 146, 60), rgb(220, 38, 38));
+  box-shadow: 0 10px 15px -3px rgba(251, 146, 60, 0.3);
+}
+
+.section-title-group {
+  min-width: 0;
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: white;
+}
+
+@media (min-width: 640px) {
+  .section-title {
+    font-size: 1.25rem;
+  }
+}
+
+.section-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (min-width: 640px) {
+  .section-subtitle {
+    font-size: 0.875rem;
+  }
+}
+
+/* Slide up animation */
+.slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

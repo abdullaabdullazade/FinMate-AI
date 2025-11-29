@@ -1,0 +1,148 @@
+/**
+ * Chat Input Field Styles
+ */
+
+.chat-input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    color: var(--text-primary, #e8eaf6);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    min-height: 46px;
+}
+
+.chat-input-field:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-primary, #5c6bc0);
+    box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb, 92, 107, 192), 0.1);
+}
+
+.chat-input-field::placeholder {
+    color: var(--text-secondary, rgba(232, 234, 246, 0.75));
+}
+
+/* Light Mode Input */
+[data-theme="light"] .chat-input-field {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text-primary, #ffffff);
+}
+
+[data-theme="light"] .chat-input-field:focus {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: var(--accent-primary, #ec407a);
+    box-shadow: 0 0 0 3px rgba(236, 64, 122, 0.15);
+}
+
+[data-theme="light"] .chat-input-field::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Premium Themes - Input Field */
+body.theme-gold .chat-input-field {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+    color: #ffd700;
+}
+
+body.theme-gold .chat-input-field:focus {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #ffd700;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+}
+
+body.theme-gold .chat-input-field::placeholder {
+    color: rgba(255, 215, 0, 0.6);
+}
+
+body.theme-midnight .chat-input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+body.theme-midnight .chat-input-field:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+body.theme-midnight .chat-input-field::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+body.theme-ocean .chat-input-field {
+    background: rgba(0, 191, 255, 0.1);
+    border-color: rgba(0, 191, 255, 0.3);
+    color: #00bfff;
+}
+
+body.theme-ocean .chat-input-field:focus {
+    background: rgba(0, 191, 255, 0.15);
+    border-color: #00bfff;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2);
+}
+
+body.theme-ocean .chat-input-field::placeholder {
+    color: rgba(0, 191, 255, 0.6);
+}
+
+body.theme-forest .chat-input-field {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+}
+
+body.theme-forest .chat-input-field:focus {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+body.theme-forest .chat-input-field::placeholder {
+    color: rgba(76, 175, 80, 0.6);
+}
+
+body.theme-sunset .chat-input-field {
+    background: rgba(255, 152, 0, 0.1);
+    border-color: rgba(255, 152, 0, 0.3);
+    color: #ff9800;
+}
+
+body.theme-sunset .chat-input-field:focus {
+    background: rgba(255, 152, 0, 0.15);
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+}
+
+body.theme-sunset .chat-input-field::placeholder {
+    color: rgba(255, 152, 0, 0.6);
+}
+
+body.theme-royal .chat-input-field {
+    background: rgba(156, 39, 176, 0.1);
+    border-color: rgba(156, 39, 176, 0.3);
+    color: #ba68c8;
+}
+
+body.theme-royal .chat-input-field:focus {
+    background: rgba(156, 39, 176, 0.15);
+    border-color: #ba68c8;
+    box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.2);
+}
+
+body.theme-royal .chat-input-field::placeholder {
+    color: rgba(156, 39, 176, 0.6);
+}
+
+@media (max-width: 640px) {
+    .chat-input-field {
+        font-size: 0.875rem;
+        padding: 0.75rem 0.875rem;
+        min-height: 44px;
+    }
+}
+

@@ -1,0 +1,18 @@
+/**
+ * Chat Container Styles
+ */
+
+.chat-container {
+    height: calc(100vh - 250px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+@media (max-width: 640px) {
+    .chat-container {
+        height: calc(100vh - 280px);
+        padding: 0.5rem;
+    }
+}
+

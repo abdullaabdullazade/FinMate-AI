@@ -1,0 +1,41 @@
+/**
+ * Readability Mode
+ * Enhanced text visibility and readability
+ */
+
+.readability-mode {
+  font-size: 115%;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.readability-mode h1,
+.readability-mode h2,
+.readability-mode h3 {
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5em;
+}
+
+body.readability-mode {
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.95);
+}
+
+body.readability-mode .text-white,
+body.readability-mode .text-white\/70,
+body.readability-mode .text-white\/60,
+body.readability-mode .text-white\/50 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+body.readability-mode h1,
+body.readability-mode h2,
+body.readability-mode h3,
+body.readability-mode h4 {
+  font-weight: 700 !important;
+}
+
+body.readability-mode .glass-card {
+  border-width: 2px;
+}

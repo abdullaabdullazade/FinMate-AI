@@ -11,34 +11,32 @@
 
 /* Professional Color System - Eye-Friendly */
 :root {
-    /* Dark Mode - Deep Navy Professional */
-    --bg-primary: #0a0e27;
-    --bg-secondary: #141b3d;
-    --glass-bg: rgba(20, 27, 61, 0.7);
-    --glass-border: rgba(100, 116, 207, 0.15);
-    --glass-shadow: rgba(0, 0, 0, 0.6);
-    --text-primary: #e8eaf6;
-    --text-secondary: rgba(232, 234, 246, 0.75);
-    --nav-border: rgba(100, 116, 207, 0.2);
-    --skeleton-bg: rgba(100, 116, 207, 0.08);
-    --accent-primary: #5c6bc0;
-    --accent-secondary: #3f51b5;
+    /* Orijinal Parlaq FinMate Rəngləri */
+    --bg-primary: #667eea;   /* Parlaq Bənövşəyi-Mavi */
+    --bg-secondary: #764ba2; /* Dərin Bənövşəyi */
+    
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: rgba(31, 38, 135, 0.37);
+    
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    
+    --nav-border: rgba(255, 255, 255, 0.2);
+    --skeleton-bg: rgba(255, 255, 255, 0.15);
+    
+    --accent-primary: #ec4899;   /* Neon Pink */
+    --accent-secondary: #d81b60; /* Dark Pink */
 }
 
-[data-theme="light"] {
-    /* Light Mode - Rich Purple/Magenta Professional */
-    --bg-primary: #5e35b1;
-    --bg-secondary: #7e57c2;
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: rgba(94, 53, 177, 0.35);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.85);
-    --nav-border: rgba(255, 255, 255, 0.3);
-    --skeleton-bg: rgba(255, 255, 255, 0.15);
-    --accent-primary: #ec407a;
-    --accent-secondary: #d81b60;
+/* Əgər "Dark Mode" varsa, onu da uyğunlaşdıraq */
+[data-theme="dark"] {
+    /* Eyni parlaq rənglər qalsın, çünki sənin dizaynın budur */
+    --bg-primary: #667eea;
+    --bg-secondary: #764ba2;
 }
+
+
 
 * {
     font-family: 'Inter', sans-serif;
@@ -61,6 +59,7 @@ body {
 }
 
 body {
+    /* Bu qradient o "Wow" effektini verən qradientdir */
     background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
     min-height: 100vh;
     padding-bottom: 80px;

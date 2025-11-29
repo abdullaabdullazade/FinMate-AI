@@ -1,0 +1,54 @@
+/**
+ * Dashboard Grid Layout Styles
+ */
+
+.dashboard-grid {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr) !important;
+  gap: 0 !important;
+  row-gap: 0 !important;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Add spacing between cards - Using margin instead of gap */
+.dashboard-grid > * {
+  margin-bottom: 48px !important;
+}
+
+.dashboard-grid > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    row-gap: 0 !important;
+  }
+
+  .dashboard-grid > * {
+    margin-bottom: 40px !important;
+  }
+
+  .dashboard-grid > *:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-grid {
+    gap: 0 !important;
+    row-gap: 0 !important;
+    padding: 0 8px;
+  }
+
+  .dashboard-grid > * {
+    margin-bottom: 32px !important;
+  }
+
+  .dashboard-grid > *:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+

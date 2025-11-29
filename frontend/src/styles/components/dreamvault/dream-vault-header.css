@@ -1,0 +1,117 @@
+/**
+ * Dream Vault Header Styles
+ */
+
+.dream-vault-header {
+  /* Inherits from glass-card */
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .header-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.header-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .header-title {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .header-title {
+    font-size: 2.25rem;
+  }
+}
+
+.header-emoji {
+  font-size: 1.875rem;
+}
+
+@media (min-width: 640px) {
+  .header-emoji {
+    font-size: 2.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .header-emoji {
+    font-size: 2.5rem;
+  }
+}
+
+.header-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .header-subtitle {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .header-subtitle {
+    font-size: 1rem;
+  }
+}
+
+.add-dream-button {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  white-space: nowrap;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  border: none;
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .add-dream-button {
+    width: auto;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+.add-dream-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+

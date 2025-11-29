@@ -1,0 +1,221 @@
+/**
+ * Completed Dream Card Styles
+ */
+
+.completed-dream-card {
+  opacity: 0.7;
+  filter: grayscale(0.3);
+}
+
+.completed-dream-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05), transparent);
+}
+
+.completed-dream-image-container {
+  position: relative;
+  height: 10rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .completed-dream-image-container {
+    height: 12rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.completed-dream-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.completed-dream-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.completed-dream-image-content {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 20;
+}
+
+@media (min-width: 640px) {
+  .completed-dream-image-content {
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+  }
+}
+
+.completed-dream-icon-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .completed-dream-icon-container {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.completed-category-icon {
+  background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+}
+
+.completed-category-icon svg {
+  color: rgb(74, 222, 128);
+}
+
+.completed-dream-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.completed-dream-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .completed-dream-title {
+    font-size: 1.25rem;
+  }
+}
+
+.completed-dream-category {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (min-width: 640px) {
+  .completed-dream-category {
+    font-size: 0.875rem;
+  }
+}
+
+.completed-dream-achievement {
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  position: relative;
+  z-index: 20;
+}
+
+@media (min-width: 640px) {
+  .completed-dream-achievement {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.achievement-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.achievement-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (min-width: 640px) {
+  .achievement-label {
+    font-size: 0.875rem;
+  }
+}
+
+.achievement-badge {
+  font-size: 0.625rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.3);
+  color: rgb(187, 247, 208);
+}
+
+@media (min-width: 640px) {
+  .achievement-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+}
+
+.achievement-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: rgb(74, 222, 128);
+  margin-bottom: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .achievement-amount {
+    font-size: 1.875rem;
+  }
+}
+
+.achievement-date {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (min-width: 640px) {
+  .achievement-date {
+    font-size: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
+.achievement-date-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .achievement-date-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.completed-dream-message {
+  text-align: center;
+  position: relative;
+  z-index: 20;
+}
+
+.completed-message-text {
+  font-size: 0.75rem;
+  color: rgb(187, 247, 208);
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .completed-message-text {
+    font-size: 0.875rem;
+  }
+}
+

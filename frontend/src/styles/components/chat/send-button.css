@@ -1,0 +1,38 @@
+/**
+ * Send Button Styles
+ */
+
+#chat-form button[type="submit"] {
+    background: linear-gradient(135deg, var(--accent-primary, #5c6bc0) 0%, var(--accent-secondary, #3f51b5) 100%) !important;
+}
+
+[data-theme="light"] #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, var(--accent-primary, #ec407a) 0%, var(--accent-secondary, #d81b60) 100%) !important;
+}
+
+/* Premium Themes - Send Button */
+body.theme-gold #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+}
+
+body.theme-midnight #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%) !important;
+    color: #000000 !important;
+}
+
+body.theme-ocean #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #00bfff 0%, #5dade2 100%) !important;
+}
+
+body.theme-forest #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%) !important;
+}
+
+body.theme-sunset #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%) !important;
+}
+
+body.theme-royal #chat-form button[type="submit"] {
+    background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%) !important;
+}
+

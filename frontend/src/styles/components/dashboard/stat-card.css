@@ -1,0 +1,21 @@
+/**
+ * Stat Card Styles
+ */
+
+@media (max-width: 640px) {
+  /* Stats Grid Mobile */
+  .grid.grid-cols-2.sm\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Stat Numbers Mobile */
+  .text-4xl {
+    font-size: 1.75rem !important;
+  }
+
+  .text-lg {
+    font-size: 0.875rem !important;
+  }
+}
+

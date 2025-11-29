@@ -1,0 +1,95 @@
+/**
+ * Premium Themes
+ * All premium theme styles - ORIGINAL colors from base.css
+ * Only override necessary variables, rest inherit from :root
+ */
+
+/* Theme Gold - ORIGINAL */
+body.theme-gold,
+html.theme-gold {
+  --bg-primary: #1a0d00;
+  --bg-secondary: #2d1a00;
+  --glass-bg: rgba(45, 26, 0, 0.8);
+  --glass-border: rgba(255, 215, 0, 0.3);
+  --accent-primary: #ffd700;
+  --accent-secondary: #ffed4e;
+}
+
+body.theme-gold {
+  background: linear-gradient(135deg, #1a0d00 0%, #2d1a00 50%, #3d2a00 100%);
+}
+
+/* Theme Midnight - ORIGINAL */
+body.theme-midnight,
+html.theme-midnight {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --glass-bg: rgba(10, 10, 10, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --accent-primary: #ffffff;
+  --accent-secondary: #e0e0e0;
+}
+
+body.theme-midnight {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%);
+}
+
+/* Theme Ocean - ORIGINAL */
+body.theme-ocean,
+html.theme-ocean {
+  --bg-primary: #001a2e;
+  --bg-secondary: #003d5c;
+  --glass-bg: rgba(0, 61, 92, 0.8);
+  --glass-border: rgba(0, 191, 255, 0.3);
+  --accent-primary: #00bfff;
+  --accent-secondary: #5dade2;
+}
+
+body.theme-ocean {
+  background: linear-gradient(135deg, #001a2e 0%, #003d5c 50%, #005a8a 100%);
+}
+
+/* Theme Forest - ORIGINAL */
+body.theme-forest,
+html.theme-forest {
+  --bg-primary: #0d1f0d;
+  --bg-secondary: #1a3d1a;
+  --glass-bg: rgba(26, 61, 26, 0.8);
+  --glass-border: rgba(76, 175, 80, 0.3);
+  --accent-primary: #4caf50;
+  --accent-secondary: #81c784;
+}
+
+body.theme-forest {
+  background: linear-gradient(135deg, #0d1f0d 0%, #1a3d1a 50%, #2d5a2d 100%);
+}
+
+/* Theme Sunset - ORIGINAL */
+body.theme-sunset,
+html.theme-sunset {
+  --bg-primary: #2d1a00;
+  --bg-secondary: #5c2e00;
+  --glass-bg: rgba(92, 46, 0, 0.8);
+  --glass-border: rgba(255, 152, 0, 0.3);
+  --accent-primary: #ff9800;
+  --accent-secondary: #ffb74d;
+}
+
+body.theme-sunset {
+  background: linear-gradient(135deg, #2d1a00 0%, #5c2e00 50%, #8b4513 100%);
+}
+
+/* Theme Royal - ORIGINAL */
+body.theme-royal,
+html.theme-royal {
+  --bg-primary: #1a0d2e;
+  --bg-secondary: #2d1a4d;
+  --glass-bg: rgba(45, 26, 77, 0.8);
+  --glass-border: rgba(156, 39, 176, 0.3);
+  --accent-primary: #9c27b0;
+  --accent-secondary: #ba68c8;
+}
+
+body.theme-royal {
+  background: linear-gradient(135deg, #1a0d2e 0%, #2d1a4d 50%, #4a2c6b 100%);
+}

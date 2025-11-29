@@ -1,0 +1,31 @@
+/**
+ * Floating Scan Button
+ * Scan button styles and theme variants
+ */
+
+.scan-btn {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.scan-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-midnight .scan-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 20%, #000000 50%, #000000 80%, #ffffff 100%);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+}
+
+body.theme-midnight .scan-btn:hover {
+  box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
+}
+
+/* Scan button positioning adjustments */
+@media (max-width: 640px) {
+  .scan-button-float {
+    top: 18px;
+    right: 12px;
+  }
+}

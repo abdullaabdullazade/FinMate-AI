@@ -1,0 +1,9 @@
+/**
+ * Rewards Page Styles
+ * Modular imports - ORIGINAL from rewards.html
+ */
+
+/* Import Reward S3ub-Styles */
+@import '../components/rewards/animations.css';
+@import '../components/rewards/carousel.css';
+@import '../components/rewards/cards.css';

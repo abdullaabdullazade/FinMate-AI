@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, RedirectResp
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from datetime import datetime, timedelta, date as date_type, timezone
@@ -25,41 +26,63 @@ from voice_service import voice_service
 from pdf_generator import pdf_generator
 import hashlib
 
-# Currency conversion rates to AZN
-# Format: 1 CURRENCY = X AZN
-CURRENCY_RATES = {
-    "AZN": 1.0,
-    "USD": 1.7,      # 1 USD = 1.7 AZN
-    "EUR": 1.97,     # 1 EUR = 1.97 AZN
-    "TRY": 0.049,    # 1 TRY = 0.049 AZN (Fixed: was 0.055)
-    "RUB": 0.018,    # 1 RUB = 0.018 AZN
-    "GBP": 2.15      # 1 GBP = 2.15 AZN
-}
-
+# Only AZN supported - currency conversion removed
 CURRENCY_SYMBOLS = {
-    "AZN": "₼",
-    "USD": "$",
-    "EUR": "€",
-    "TRY": "₺",
-    "RUB": "₽"
+    "AZN": "₼"
 }
 
 # Initialize FastAPI app
 app = FastAPI(title="FinMate AI", description="Your Personal CFO Assistant")
+
+# Add CORS middleware for React frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",  # React dev server
+        "http://localhost:5173",  # Vite dev server (alternative port)
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Add session middleware
 app.add_middleware(SessionMiddleware, secret_key="finmate-secret-key-change-in-production")
 
 @app.get("/api/stats")
 async def get_user_stats(request: Request, db: Session = Depends(get_db)):
-    """Return updated user stats partial"""
+    """Return updated user stats - React frontend üçün JSON"""
     user = get_current_user(request, db)
     if not user:
-        return Response(status_code=200) # Return empty if no user
-        
-    return templates.TemplateResponse("partials/user_stats.html", {
-        "request": request,
-        "user": user
+        return JSONResponse({"user": None})
+    
+    # Get user stats
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    
+    expenses = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.date >= month_start
+    ).all()
+    
+    total_spent = sum(exp.amount for exp in expenses)
+    total_transactions = len(expenses)
+    
+    return JSONResponse({
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "xp": user.xp_points or 0,
+            "total_spent": total_spent,
+            "total_transactions": total_transactions,
+            "currency": user.currency or "AZN",
+            "is_premium": user.is_premium or False,
+            "monthly_budget": user.monthly_budget,
+            "login_streak": user.login_streak or 0,
+            "level_title": gamification.get_level_info(user.xp_points or 0).get("title", "")
+        }
     })
 
 # Templates
@@ -205,37 +228,7 @@ def build_db_context(db: Session, user_id: int) -> dict:
     }
 
 
-def convert_currency(amount: float, from_currency: str, to_currency: str) -> float:
-    """
-    Convert amount from one currency to another.
-    All rates in CURRENCY_RATES are defined as: 1 CURRENCY = X AZN
-    
-    Example: convert_currency(100, "USD", "EUR")
-    - 100 USD × 1.7 = 170 AZN
-    - 170 AZN ÷ 1.97 = 86.29 EUR
-    """
-    from_curr = from_currency.upper()
-    to_curr = to_currency.upper()
-    
-    # Same currency, no conversion needed
-    if from_curr == to_curr:
-        return round(amount, 2)
-    
-    # Get conversion rates (default to 1.0 if not found)
-    from_rate = CURRENCY_RATES.get(from_curr, 1.0)
-    to_rate = CURRENCY_RATES.get(to_curr, 1.0)
-    
-    # Step 1: Convert to AZN (base currency)
-    if from_curr == "AZN":
-        amount_in_azn = amount
-    else:
-        amount_in_azn = amount * from_rate
-    
-    # Step 2: Convert from AZN to target currency
-    if to_curr == "AZN":
-        return round(amount_in_azn, 2)
-    else:
-        return round(amount_in_azn / to_rate, 2)
+# Currency conversion removed - only AZN supported
 
 
 
@@ -608,10 +601,10 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                 increase_percentage = (increase_amount / prev_month_salary) * 100
                 
                 salary_increase_info = {
-                    "amount": convert_currency(increase_amount, "AZN", user_currency),
+                    "amount": increase_amount,
                     "percentage": increase_percentage,
-                    "current": convert_currency(current_month_salary, "AZN", user_currency),
-                    "previous": convert_currency(prev_month_salary, "AZN", user_currency)
+                    "current": current_month_salary,
+                    "previous": prev_month_salary
                 }
 
     
@@ -623,21 +616,20 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     total_available_azn = user.monthly_budget + total_income_azn - total_spending_azn
     effective_budget_azn = user.monthly_budget + total_income_azn  # Base budget + Extra income
     
-    # Convert to user's preferred currency for display
-    user_currency = user.currency or "AZN"
-    total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
-    total_income = convert_currency(total_income_azn, "AZN", user_currency)
-    monthly_budget_display = convert_currency(effective_budget_azn, "AZN", user_currency)  # Show effective budget
-    monthly_income_display = convert_currency(user.monthly_income or 0, "AZN", user_currency) if user.monthly_income else 0
-    remaining_budget = convert_currency(effective_budget_azn - total_spending_azn, "AZN", user_currency)
-    total_available = convert_currency(total_available_azn, "AZN", user_currency)
+    # All amounts are in AZN (only AZN supported)
+    total_spending = total_spending_azn
+    total_income = total_income_azn
+    monthly_budget_display = effective_budget_azn  # Show effective budget
+    monthly_income_display = user.monthly_income or 0 if user.monthly_income else 0
+    remaining_budget = effective_budget_azn - total_spending_azn
+    total_available = total_available_azn
     
-    # Category breakdown (convert for display)
+    # Category breakdown
     category_data = {}
     for exp in expenses:
         if exp.category not in category_data:
             category_data[exp.category] = 0
-        category_data[exp.category] += convert_currency(exp.amount, "AZN", user_currency)
+        category_data[exp.category] += exp.amount
     
     # Recent expenses (last 10 by creation time so freshly scanned items appear)
     recent_expenses = db.query(Expense).filter(
@@ -659,9 +651,9 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         ).all()
         today_total = sum(exp.amount for exp in today_expenses)
         
-        # Convert daily limit values for display
-        today_total_display = convert_currency(today_total, "AZN", user_currency)
-        daily_limit_display = convert_currency(user.daily_budget_limit, "AZN", user_currency)
+        # Daily limit values (all in AZN)
+        today_total_display = today_total
+        daily_limit_display = user.daily_budget_limit
         
         # Round for comparison to avoid floating point issues
         today_total_rounded = round(today_total, 2)
@@ -672,7 +664,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                 "exceeded": True,
                 "today_spending": today_total_display,
                 "limit": daily_limit_display,
-                "over_by": convert_currency(today_total - user.daily_budget_limit, "AZN", user_currency)
+                "over_by": today_total - user.daily_budget_limit
             }
         elif today_total >= user.daily_budget_limit * 0.9:
             daily_limit_alert = {
@@ -680,7 +672,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                 "warning": True,
                 "today_spending": today_total_display,
                 "limit": daily_limit_display,
-                "remaining": convert_currency(user.daily_budget_limit - today_total, "AZN", user_currency)
+                "remaining": user.daily_budget_limit - today_total
             }
     
     # Get level info for gamification
@@ -737,14 +729,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Get forecast data
     forecast = forecast_service.get_forecast(user.id, db)
     
-    # Convert forecast values to user currency
-    if forecast and "current_spending" in forecast:
-        forecast["current_spending"] = convert_currency(forecast["current_spending"], "AZN", user_currency)
-        forecast["projected_total"] = convert_currency(forecast["projected_total"], "AZN", user_currency)
-        forecast["budget"] = convert_currency(forecast["budget"], "AZN", user_currency)
-        forecast["daily_average"] = convert_currency(forecast["daily_average"], "AZN", user_currency)
-        forecast["overspend_amount"] = convert_currency(forecast["overspend_amount"], "AZN", user_currency)
-        forecast["suggested_daily_limit"] = convert_currency(forecast["suggested_daily_limit"], "AZN", user_currency)
+    # Forecast values (all in AZN)
+    # No conversion needed - all values are already in AZN
     # Wishlist items
     wishes = db.query(Wish).filter(Wish.user_id == user.id).order_by(Wish.created_at.desc()).limit(10).all()
 
@@ -791,7 +777,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     local_gems_suggestions = local_gems_suggestions[:3]
 
     # Get currency symbol
-    currency_symbol = CURRENCY_SYMBOLS.get(user_currency, "₼")
+    currency_symbol = "₼"  # Only AZN supported
 
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
@@ -919,15 +905,43 @@ async def send_chat_message(
     xp_result = gamification.award_xp(user, "chat_message", db)
     db.refresh(user)  # Refresh to get updated XP
     
-    # If client already appended user message, only return AI bubble
-    client_appended = request.headers.get("X-Client-Appended") == "true"
-    outgoing_messages = [ai_msg] if client_appended else [user_msg, ai_msg]
-    
-    # Return HTML for HTMX
-    return templates.TemplateResponse("partials/chat_messages.html", {
-        "request": request,
-        "messages": outgoing_messages,
+    # Return JSON for React frontend
+    return JSONResponse({
+        "success": True,
+        "response": ai_response_formatted,
+        "message": ai_response_formatted,  # Alias for compatibility
+        "user_message": message,
+        "xp_awarded": xp_result.get("xp", 0) if xp_result else 0,
         "xp_result": xp_result
+    })
+
+
+@app.get("/api/chat-history")
+async def get_chat_history(request: Request, db: Session = Depends(get_db)):
+    """Get chat history for current user"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    # Get chat history
+    messages = db.query(ChatMessage).filter(
+        ChatMessage.user_id == user.id
+    ).order_by(ChatMessage.timestamp.asc()).all()
+    
+    # Format messages for React
+    formatted_messages = [
+        {
+            "id": msg.id,
+            "role": msg.role,
+            "content": msg.content,
+            "timestamp": msg.timestamp.isoformat() if msg.timestamp else None
+        }
+        for msg in messages
+    ]
+    
+    return JSONResponse({
+        "success": True,
+        "messages": formatted_messages
     })
 
 
@@ -953,6 +967,26 @@ async def scan_receipt(
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
+    
+    # Check if client wants JSON response (React frontend)
+    accept_header = request.headers.get("Accept", "")
+    x_client = request.headers.get("X-Client-Appended", "")
+    origin = request.headers.get("Origin", "")
+    
+    # More robust detection: check Accept header, X-Client-Appended, or if request comes from React dev server
+    wants_json = (
+        "application/json" in accept_header 
+        or x_client == "true"
+        or "react" in accept_header.lower()
+        or "localhost:5173" in origin  # Vite dev server
+        or "localhost:3000" in origin  # React dev server
+    )
+    
+    # Debug logging
+    if not wants_json:
+        print(f"⚠️ Scan API: HTML response requested. Accept: {accept_header}, X-Client: {x_client}, Origin: {origin}")
+    else:
+        print(f"✅ Scan API: JSON response requested. Accept: {accept_header}, X-Client: {x_client}, Origin: {origin}")
     
     try:
         # Save uploaded file
@@ -981,6 +1015,14 @@ async def scan_receipt(
     
         # Check if this is actually a receipt
         if not receipt_data.get("is_receipt", True):
+            if wants_json:
+                return JSONResponse({
+                    "success": False,
+                    "receipt_data": {
+                        "error": "Bu qəbz deyil. Xahiş edirik qəbz şəkli yükləyin.",
+                        "is_not_receipt": True
+                    }
+                })
             return templates.TemplateResponse("partials/receipt_result.html", {
                 "request": request,
                 "receipt_data": {
@@ -990,28 +1032,9 @@ async def scan_receipt(
                 "success": False
             })
         
-        original_currency = receipt_data.get("currency", "AZN").upper() if isinstance(receipt_data, dict) else "AZN"
+        # Only AZN supported - no currency conversion
+        receipt_data["currency"] = "AZN"
         conversion_note = None
-        if original_currency != "AZN" and original_currency in CURRENCY_RATES:
-            rate = CURRENCY_RATES[original_currency]
-            try:
-                original_total = float(receipt_data.get("total", 0.0))
-                converted_total = convert_currency(original_total, original_currency, "AZN")
-                receipt_data["total_original"] = original_total
-                receipt_data["total"] = round(converted_total, 2)
-                receipt_data["original_currency"] = original_currency
-                receipt_data["currency"] = "AZN"
-                conversion_note = f"{original_currency} → AZN (məzənnə {rate})"
-
-                # Convert items too
-                items = receipt_data.get("items", [])
-                for item in items:
-                    price = float(item.get("price", 0.0))
-                    item["price_original"] = price
-                    item["price"] = round(convert_currency(price, original_currency, "AZN"), 2)
-                receipt_data["items"] = items
-            except Exception as conv_err:
-                print(f"Currency conversion failed: {conv_err}")
 
         # Surface non-blocking AI warnings (offline/fallback mode)
         if not conversion_note and isinstance(receipt_data, dict):
@@ -1019,6 +1042,11 @@ async def scan_receipt(
     
         # Check if error occurred
         if "error" in receipt_data:
+            if wants_json:
+                return JSONResponse({
+                    "success": False,
+                    "receipt_data": receipt_data
+                })
             return templates.TemplateResponse("partials/receipt_result.html", {
                 "request": request,
                 "receipt_data": receipt_data,
@@ -1156,6 +1184,26 @@ async def scan_receipt(
             db.commit()
             db.refresh(user)
 
+            # Return JSON for React frontend if requested
+            if wants_json:
+                return JSONResponse({
+                    "success": True,
+                    "receipt_data": receipt_data,
+                    "conversion_note": conversion_note,
+                    "xp_result": {
+                        "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
+                        "new_total": user.xp_points,
+                        "level_up": scan_xp.get("level_up", False) if scan_xp else False,
+                        "new_level": scan_xp.get("new_level") if scan_xp else None,
+                        "level_info": scan_xp.get("level_info") if scan_xp else None,
+                        "coins_awarded": scan_xp.get("coins_awarded", 0) if scan_xp else 0,
+                    },
+                    "coins": user.coins,
+                    "milestone_reached": milestone_reached,
+                    "daily_limit_alert": daily_limit_alert
+                }, headers={"HX-Trigger": "update-stats"})
+            
+            # Return HTML for HTMX frontend
             return templates.TemplateResponse("partials/receipt_result.html", {
                 "request": request,
                 "receipt_data": receipt_data,
@@ -1170,6 +1218,13 @@ async def scan_receipt(
                 "daily_limit_alert": daily_limit_alert
             }, headers={"HX-Trigger": "update-stats"})
         except Exception as save_err:
+            if wants_json:
+                return JSONResponse({
+                    "success": False,
+                    "receipt_data": {
+                        "error": f"Yadda saxlama xətası: {save_err}"
+                    }
+                })
             return templates.TemplateResponse("partials/receipt_result.html", {
                 "request": request,
                 "receipt_data": {
@@ -1179,6 +1234,18 @@ async def scan_receipt(
             })
         
     except Exception as e:
+        if wants_json:
+            return JSONResponse({
+                "success": False,
+                "receipt_data": {
+                    "error": f"Xəta baş verdi: {str(e)}",
+                    "items": [],
+                    "merchant": "Error",
+                    "total": 0.0,
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "suggested_category": "Error"
+                }
+            })
         return templates.TemplateResponse("partials/receipt_result.html", {
             "request": request,
             "receipt_data": {
@@ -1331,7 +1398,7 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     total_spent_all_time = db.query(func.sum(Expense.amount)).filter(
         Expense.user_id == user.id
     ).scalar() or 0
-    total_spent_display = convert_currency(total_spent_all_time, "AZN", user.currency or "AZN")
+    total_spent_display = total_spent_all_time
     
     subscriptions = db.query(Expense).filter(
         Expense.user_id == user.id,
@@ -1374,9 +1441,103 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     })
 
 
+@app.get("/api/profile-data")
+async def get_profile_data(request: Request, db: Session = Depends(get_db)):
+    """API endpoint for profile data - React frontend üçün"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    # Calculate stats
+    total_expenses = db.query(Expense).filter(Expense.user_id == user.id).count()
+    total_spent_all_time = db.query(func.sum(Expense.amount)).filter(
+        Expense.user_id == user.id
+    ).scalar() or 0
+    total_spent_display = total_spent_all_time
+    
+    subscriptions = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.is_subscription == True
+    ).all()
+    
+    # Get gamification info
+    level_info = gamification.get_level_info(user.xp_points)
+    next_level = gamification.get_next_level_info(user.xp_points)
+    
+    # Get XP Logs
+    xp_logs = db.query(XPLog).filter(XPLog.user_id == user.id).order_by(XPLog.created_at.desc()).limit(20).all()
+    
+    # Calculate breakdown
+    xp_breakdown = db.query(
+        XPLog.action_type, 
+        func.sum(XPLog.amount)
+    ).filter(
+        XPLog.user_id == user.id
+    ).group_by(
+        XPLog.action_type
+    ).all()
+    
+    xp_breakdown_dict = {action: float(amount) for action, amount in xp_breakdown}
+    
+    # Financial personality detection
+    personality = detect_financial_personality(user.id, db)
+    
+    # Serialize subscriptions
+    subscriptions_list = [
+        {
+            "id": sub.id,
+            "merchant": sub.merchant,
+            "category": sub.category,
+            "amount": float(sub.amount),
+            "date": sub.date.isoformat() if sub.date else None
+        }
+        for sub in subscriptions
+    ]
+    
+    # Serialize XP logs
+    xp_logs_list = [
+        {
+            "id": log.id,
+            "action_type": log.action_type,
+            "amount": log.amount,
+            "created_at": log.created_at.isoformat() if log.created_at else None
+        }
+        for log in xp_logs
+    ]
+    
+    return JSONResponse({
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "xp_points": user.xp_points,
+            "currency": user.currency or "AZN",
+            "monthly_budget": float(user.monthly_budget) if user.monthly_budget else 0.0
+        },
+        "total_expenses": total_expenses,
+        "total_spent_all_time": float(total_spent_display),
+        "subscriptions": subscriptions_list,
+        "level_info": {
+            "title": level_info.get("title"),
+            "emoji": level_info.get("emoji"),
+            "progress_percentage": float(level_info.get("progress_percentage", 0)),
+            "current_level": level_info.get("current_level"),
+            "min_xp": level_info.get("min_xp"),
+            "max_xp": level_info.get("max_xp")
+        },
+        "next_level": {
+            "next_level_title": next_level.get("next_level_title"),
+            "next_level_emoji": next_level.get("next_level_emoji"),
+            "xp_needed": int(next_level.get("xp_needed", 0))
+        },
+        "xp_logs": xp_logs_list,
+        "xp_breakdown": xp_breakdown_dict,
+        "personality": personality
+    })
+
+
 @app.get("/api/dashboard-data")
 async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
-    """API endpoint for dashboard chart data"""
+    """API endpoint for dashboard data - React frontend üçün"""
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -1390,6 +1551,24 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
         Expense.date >= month_start
     ).all()
     
+    # Get current month's incomes
+    incomes = db.query(Income).filter(
+        Income.user_id == user.id,
+        Income.date >= month_start
+    ).all()
+    
+    # Calculate stats (all amounts are stored in AZN)
+    total_spending_azn = sum(exp.amount for exp in expenses)
+    total_income_azn = sum(inc.amount for inc in incomes)
+    total_available_azn = user.monthly_budget + total_income_azn - total_spending_azn
+    effective_budget_azn = user.monthly_budget + total_income_azn
+    
+    # All amounts in AZN (only AZN supported)
+    total_spending = total_spending_azn
+    total_income = total_income_azn
+    monthly_budget_display = effective_budget_azn
+    remaining_budget = effective_budget_azn - total_spending_azn
+    
     # Category breakdown
     category_data = {}
     for exp in expenses:
@@ -1397,24 +1576,66 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
             category_data[exp.category] = 0
         category_data[exp.category] += exp.amount
     
-    # Daily spending for line chart (last 30 days)
-    daily_spending = {}
-    for i in range(30):
-        day = now - timedelta(days=i)
-        day_key = day.strftime("%Y-%m-%d")
-        daily_spending[day_key] = 0
+    # Chart data
+    chart_labels = list(category_data.keys())
+    chart_values = list(category_data.values())
     
-    for exp in db.query(Expense).filter(
+    # Top category
+    top_category = None
+    if category_data:
+        top_category_name = max(category_data, key=category_data.get)
+        top_category = {
+            "name": top_category_name,
+            "total": category_data[top_category_name]
+        }
+    
+    # Recent expenses (last 10)
+    recent_expenses = db.query(Expense).filter(
+        Expense.user_id == user.id
+    ).order_by(Expense.created_at.desc()).limit(10).all()
+    
+    # Last week total
+    week_ago = now - timedelta(days=7)
+    last_week_expenses = db.query(Expense).filter(
         Expense.user_id == user.id,
-        Expense.date >= now - timedelta(days=30)
-    ).all():
-        day_key = exp.date.strftime("%Y-%m-%d")
-        if day_key in daily_spending:
-            daily_spending[day_key] += exp.amount
+        Expense.date >= week_ago
+    ).all()
+    last_week_total = sum(exp.amount for exp in last_week_expenses)
+    
+    # Subscriptions total
+    subscriptions = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.is_subscription == True,
+        Expense.date >= month_start
+    ).all()
+    subscriptions_total = sum(sub.amount for sub in subscriptions)
+    
+    # Format recent expenses
+    recents = []
+    for exp in recent_expenses:
+        category_name = exp.category or "General"
+        recents.append({
+            "id": exp.id,
+            "merchant": exp.merchant,
+            "amount": exp.amount,
+            "date": exp.date.isoformat() if exp.date else None,
+            "category_name": category_name,
+            "is_subscription": exp.is_subscription or False
+        })
     
     return JSONResponse({
-        "category_data": category_data,
-        "daily_spending": dict(sorted(daily_spending.items()))
+        "context": {
+            "total_spend": total_spending,
+            "budget": monthly_budget_display,
+            "currency": "AZN",
+            "last_week_total": last_week_total,
+            "subscriptions": subscriptions_total,
+            "categories": list(category_data.keys())
+        },
+        "recents": recents,
+        "chart_labels": chart_labels,
+        "chart_values": chart_values,
+        "top_category": top_category
     })
 
 
@@ -1457,14 +1678,13 @@ async def get_dashboard_stats(request: Request, db: Session = Depends(get_db)):
     total_available_azn = user.monthly_budget + total_income_azn - total_spending_azn
     effective_budget_azn = user.monthly_budget + total_income_azn  # Base budget + Extra income
     
-    # Convert to user's preferred currency for display
-    user_currency = user.currency or "AZN"
-    total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
-    total_income = convert_currency(total_income_azn, "AZN", user_currency)
-    monthly_income_display = convert_currency(user.monthly_income or 0, "AZN", user_currency) if user.monthly_income else 0
-    monthly_budget_display = convert_currency(effective_budget_azn, "AZN", user_currency)  # Show effective budget
-    remaining_budget = convert_currency(effective_budget_azn - total_spending_azn, "AZN", user_currency)
-    total_available = convert_currency(total_available_azn, "AZN", user_currency)
+    # All amounts in AZN (only AZN supported)
+    total_spending = total_spending_azn
+    total_income = total_income_azn
+    monthly_income_display = user.monthly_income or 0 if user.monthly_income else 0
+    monthly_budget_display = effective_budget_azn  # Show effective budget
+    remaining_budget = effective_budget_azn - total_spending_azn
+    total_available = total_available_azn
     
     # Budget percentage (use AZN values for calculation to maintain accuracy)
     # Use effective budget as the denominator
@@ -1473,9 +1693,8 @@ async def get_dashboard_stats(request: Request, db: Session = Depends(get_db)):
     # Recalculate eco_score for the partial
     eco_score = calculate_eco_score(expenses)
     
-    return templates.TemplateResponse("partials/dashboard_stats.html", {
-        "request": request,
-        "user": user,
+    # Return JSON for React frontend
+    return JSONResponse({
         "total_spending": total_spending,
         "total_income": total_income,
         "monthly_income_display": monthly_income_display,
@@ -1484,13 +1703,59 @@ async def get_dashboard_stats(request: Request, db: Session = Depends(get_db)):
         "total_available": total_available,
         "budget_percentage": budget_percentage,
         "eco_score": eco_score,
-        "now": now
+        "currency": "AZN"
+    })
+
+
+@app.get("/heatmap", response_class=HTMLResponse)
+@app.get("/api/heatmap")
+async def get_heatmap_data(request: Request, db: Session = Depends(get_db)):
+    """Get heatmap data - JSON for React frontend"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    expenses = db.query(Expense).filter(Expense.user_id == user.id).all()
+    points = []
+    for exp in expenses:
+        lat, lon = pseudo_coords_for_merchant(exp.merchant)
+        points.append({
+            "merchant": exp.merchant,
+            "amount": float(exp.amount),
+            "category": exp.category,
+            "lat": lat,
+            "lon": lon
+        })
+    
+    # Calculate stats
+    total_amount = sum(p["amount"] for p in points)
+    categories = list(set(p["category"] for p in points))
+    average = total_amount / len(points) if points else 0
+    
+    # Check if request wants JSON (React frontend)
+    accept_header = request.headers.get("accept", "")
+    if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JSONResponse({
+            "points": points,
+            "stats": {
+                "total_amount": total_amount,
+                "total_points": len(points),
+                "total_categories": len(categories),
+                "average": average
+            }
+        })
+    
+    # Return HTML for HTMX requests
+    return templates.TemplateResponse("heatmap.html", {
+        "request": request,
+        "user": user,
+        "points": points
     })
 
 
 @app.get("/heatmap", response_class=HTMLResponse)
 async def heatmap_page(request: Request, db: Session = Depends(get_db)):
-    """Spending heatmap page (Leaflet)"""
+    """Spending heatmap page (HTMX)"""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse(url="/login", status_code=303)
@@ -2153,6 +2418,51 @@ async def add_wishlist_item(
 
 # ==================== DREAM VAULT API ENDPOINTS ====================
 
+@app.get("/api/dreams")
+async def get_dreams_api(request: Request, db: Session = Depends(get_db)):
+    """Get all dreams for current user - JSON for React frontend"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    try:
+        # Get all active dreams
+        active_dreams = db.query(Dream).filter(
+            Dream.user_id == user.id,
+            Dream.is_completed == False
+        ).order_by(Dream.priority.desc(), Dream.created_at.desc()).all()
+        
+        # Get completed dreams
+        completed_dreams = db.query(Dream).filter(
+            Dream.user_id == user.id,
+            Dream.is_completed == True
+        ).order_by(Dream.updated_at.desc()).limit(5).all()
+        
+        # Serialize dreams
+        def serialize_dream(dream):
+            return {
+                "id": dream.id,
+                "title": dream.title,
+                "description": dream.description,
+                "target_amount": float(dream.target_amount),
+                "saved_amount": float(dream.saved_amount),
+                "image_url": dream.image_url,
+                "category": dream.category,
+                "target_date": dream.target_date.isoformat() if dream.target_date else None,
+                "priority": dream.priority,
+                "created_at": dream.created_at.isoformat() if dream.created_at else None,
+                "updated_at": dream.updated_at.isoformat() if dream.updated_at else None,
+                "is_completed": dream.is_completed,
+            }
+        
+        return JSONResponse({
+            "success": True,
+            "dreams": [serialize_dream(d) for d in active_dreams] + [serialize_dream(d) for d in completed_dreams],
+        })
+    except Exception as e:
+        print(f"❌ Get Dreams API Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
 @app.get("/dream-vault", response_class=HTMLResponse)
 async def dream_vault_page(request: Request, db: Session = Depends(get_db)):
     """Dream Vault page - visualize and track savings goals"""
@@ -2241,13 +2551,37 @@ async def create_dream(
         db.commit()
         db.refresh(dream)
         
+        # Check if request wants JSON (React frontend)
+        accept_header = request.headers.get("accept", "")
+        if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            # Serialize dream
+            dream_data = {
+                "id": dream.id,
+                "title": dream.title,
+                "description": dream.description,
+                "target_amount": float(dream.target_amount),
+                "saved_amount": float(dream.saved_amount),
+                "image_url": dream.image_url,
+                "category": dream.category,
+                "target_date": dream.target_date.isoformat() if dream.target_date else None,
+                "priority": dream.priority,
+                "created_at": dream.created_at.isoformat() if dream.created_at else None,
+                "updated_at": dream.updated_at.isoformat() if dream.updated_at else None,
+                "is_completed": dream.is_completed,
+            }
+            return JSONResponse({
+                "success": True,
+                "dream": dream_data,
+                "message": "Arzu uğurla yaradıldı"
+            })
+        
         # Get all active dreams for the list refresh
         active_dreams = db.query(Dream).filter(
             Dream.user_id == user.id, 
             Dream.saved_amount < Dream.target_amount
         ).order_by(Dream.priority.desc(), Dream.created_at.desc()).all()
         
-        # Return the updated list partial
+        # Return HTML for HTMX requests
         response = templates.TemplateResponse("partials/dream_list.html", {
             "request": request,
             "dreams": active_dreams,
@@ -2310,7 +2644,31 @@ async def update_dream(
         db.commit()
         db.refresh(dream)
         
-        # Return updated dream card
+        # Check if request wants JSON (React frontend)
+        accept_header = request.headers.get("accept", "")
+        if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            # Serialize dream
+            dream_data = {
+                "id": dream.id,
+                "title": dream.title,
+                "description": dream.description,
+                "target_amount": float(dream.target_amount),
+                "saved_amount": float(dream.saved_amount),
+                "image_url": dream.image_url,
+                "category": dream.category,
+                "target_date": dream.target_date.isoformat() if dream.target_date else None,
+                "priority": dream.priority,
+                "created_at": dream.created_at.isoformat() if dream.created_at else None,
+                "updated_at": dream.updated_at.isoformat() if dream.updated_at else None,
+                "is_completed": dream.is_completed,
+            }
+            return JSONResponse({
+                "success": True,
+                "dream": dream_data,
+                "message": "Arzu uğurla yeniləndi"
+            })
+        
+        # Return HTML for HTMX requests
         response = templates.TemplateResponse("partials/dream_card.html", {
             "request": request,
             "dream": dream,
@@ -2363,16 +2721,13 @@ async def add_dream_savings(
         total_income_azn = sum(inc.amount for inc in incomes)
         current_balance_azn = user.monthly_budget + total_income_azn - total_spending_azn
         
-        # Convert amount to AZN for comparison (assuming amount is in user's currency)
-        user_currency = user.currency or "AZN"
-        amount_azn = convert_currency(amount, user_currency, "AZN")
+        # Amount is already in AZN (only AZN supported)
+        amount_azn = amount
         
         if current_balance_azn < amount_azn:
-            # Convert balance back to user's currency for display
-            current_balance_display = convert_currency(current_balance_azn, "AZN", user_currency)
             return JSONResponse({
                 "success": False,
-                "error": f"Kifayət qədər balansınız yoxdur. Cari balans: {current_balance_display:.2f} {user_currency}"
+                "error": f"Kifayət qədər balansınız yoxdur. Cari balans: {current_balance_azn:.2f} AZN"
             }, status_code=400)
         
         # Create expense record for the savings (this will reduce the balance)
@@ -2387,7 +2742,7 @@ async def add_dream_savings(
         )
         db.add(expense)
         
-        dream.saved_amount += amount
+        dream.saved_amount += amount_azn
         
         # Award XP for funding a dream
         gamification.award_xp(user, "add_savings", db)
@@ -2405,7 +2760,32 @@ async def add_dream_savings(
         db.commit()
         db.refresh(dream)
         
-        # Return updated dream card
+        # Check if request wants JSON (React frontend)
+        accept_header = request.headers.get("accept", "")
+        if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            # Serialize dream
+            dream_data = {
+                "id": dream.id,
+                "title": dream.title,
+                "description": dream.description,
+                "target_amount": float(dream.target_amount),
+                "saved_amount": float(dream.saved_amount),
+                "image_url": dream.image_url,
+                "category": dream.category,
+                "target_date": dream.target_date.isoformat() if dream.target_date else None,
+                "priority": dream.priority,
+                "created_at": dream.created_at.isoformat() if dream.created_at else None,
+                "updated_at": dream.updated_at.isoformat() if dream.updated_at else None,
+                "is_completed": dream.is_completed,
+            }
+            return JSONResponse({
+                "success": True,
+                "dream": dream_data,
+                "message": f"Qənaət uğurla əlavə edildi! {dream.saved_amount:.2f} / {dream.target_amount:.2f} AZN",
+                "was_completed": dream_was_completed
+            })
+        
+        # Return HTML for HTMX requests
         response = templates.TemplateResponse("partials/dream_card.html", {
             "request": request,
             "dream": dream,
@@ -2443,7 +2823,16 @@ async def delete_dream(request: Request, dream_id: int, db: Session = Depends(ge
     try:
         db.delete(dream)
         db.commit()
-        # Return empty response and trigger updates
+        
+        # Check if request wants JSON (React frontend)
+        accept_header = request.headers.get("accept", "")
+        if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JSONResponse({
+                "success": True,
+                "message": "Arzu uğurla silindi"
+            })
+        
+        # Return empty response and trigger updates for HTMX
         return Response(
             status_code=200,
             headers={
@@ -2458,7 +2847,7 @@ async def delete_dream(request: Request, dream_id: int, db: Session = Depends(ge
 
 @app.get("/api/dream-stats")
 async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
-    """Get dynamic dream statistics"""
+    """Get dynamic dream statistics - JSON for React frontend"""
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
@@ -2472,7 +2861,18 @@ async def get_dream_stats(request: Request, db: Session = Depends(get_db)):
     # Calculate totals
     total_saved = sum(dream.saved_amount for dream in dreams)
     total_target = sum(dream.target_amount for dream in dreams)
+    total_progress = (total_saved / total_target * 100) if total_target > 0 else 0
     
+    # Check if request wants JSON (React frontend)
+    accept_header = request.headers.get("accept", "")
+    if "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JSONResponse({
+            "total_saved": float(total_saved),
+            "total_target": float(total_target),
+            "total_progress": float(total_progress),
+        })
+    
+    # Return HTML for HTMX requests
     return templates.TemplateResponse("partials/dream_stats.html", {
         "request": request,
         "user": user,
@@ -2837,14 +3237,15 @@ async def get_dashboard_updates(request: Request, db: Session = Depends(get_db))
     
     # Convert to user's preferred currency for display
     user_currency = user.currency or "AZN"
-    total_spending = convert_currency(total_spending_azn, "AZN", user_currency)
-    monthly_budget_display = convert_currency(user.monthly_budget, "AZN", user_currency)
-    remaining_budget = convert_currency(user.monthly_budget - total_spending_azn, "AZN", user_currency)
+    # All amounts in AZN (only AZN supported)
+    total_spending = total_spending_azn
+    monthly_budget_display = user.monthly_budget
+    remaining_budget = user.monthly_budget - total_spending_azn
     
     # Category breakdown for live updates (matches main dashboard view)
     category_data = {}
     for exp in expenses:
-        category_data[exp.category] = category_data.get(exp.category, 0) + convert_currency(exp.amount, "AZN", user_currency)
+        category_data[exp.category] = category_data.get(exp.category, 0) + exp.amount
     
     # Calculate budget percentage (use AZN values for calculation to maintain accuracy)
     budget_percentage = 0
@@ -2868,7 +3269,7 @@ async def get_dashboard_updates(request: Request, db: Session = Depends(get_db))
         "now": now,
         "min": min,
         "float": float,
-        "currency_symbol": CURRENCY_SYMBOLS.get(user_currency, "₼")
+        "currency_symbol": "₼"
     })
 
 
@@ -2892,6 +3293,44 @@ def rewards_page(request: Request, db: Session = Depends(get_db)):
         "request": request,
         "user": user,
         "claimed_rewards": claimed_rewards,
+        "reward_counts": reward_counts
+    })
+
+
+@app.get("/api/rewards-data")
+async def get_rewards_data(request: Request, db: Session = Depends(get_db)):
+    """Get rewards data for React frontend"""
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    # Get user's claimed rewards
+    from models import UserReward
+    claimed_rewards = db.query(UserReward).filter(UserReward.user_id == user.id).order_by(UserReward.claimed_at.desc()).all()
+    
+    # Count by type
+    reward_counts = {}
+    for reward in claimed_rewards:
+        reward_counts[reward.reward_type] = reward_counts.get(reward.reward_type, 0) + 1
+    
+    # Format claimed rewards
+    formatted_rewards = [
+        {
+            "id": reward.id,
+            "reward_type": reward.reward_type,
+            "reward_name": reward.reward_name,
+            "coins_spent": reward.coins_spent,
+            "claimed_at": reward.claimed_at.isoformat() if reward.claimed_at else None
+        }
+        for reward in claimed_rewards
+    ]
+    
+    return JSONResponse({
+        "success": True,
+        "user": {
+            "coins": user.coins if hasattr(user, 'coins') and user.coins is not None else 0,
+        },
+        "claimed_rewards": formatted_rewards,
         "reward_counts": reward_counts
     })
 
@@ -2962,7 +3401,7 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
     
     # Get currency symbol
     user_currency = user.currency or "AZN"
-    currency_symbol = CURRENCY_SYMBOLS.get(user_currency, "₼")
+    currency_symbol = "₼"  # Only AZN supported
     
     return templates.TemplateResponse("settings.html", {
         "request": request,

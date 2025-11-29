@@ -1,0 +1,128 @@
+/**
+ * Profile Charts & Progress Styles
+ * Profile page - Charts, progress bars, and XP amounts
+ */
+
+/* Progress Bar Theme Colors */
+body.theme-gold .progress-bar-theme {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+}
+
+body.theme-midnight .progress-bar-theme {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+}
+
+body.theme-ocean .progress-bar-theme {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+}
+
+body.theme-forest .progress-bar-theme {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-primary)) !important;
+}
+
+body.theme-sunset .progress-bar-theme {
+    background: linear-gradient(to right, #ff9800, #ffb74d, #ff9800) !important;
+}
+
+body.theme-royal .progress-bar-theme {
+    background: linear-gradient(to right, #9c27b0, #ba68c8, #9c27b0) !important;
+}
+
+/* Chart Colors Theme */
+body.theme-gold .chart-theme {
+    --chart-color-1: #ffd700;
+    --chart-color-2: #ffed4e;
+    --chart-color-3: #ffb300;
+    --chart-color-4: #ffc107;
+    --chart-color-5: #ffa000;
+}
+
+body.theme-midnight .chart-theme {
+    --chart-color-1: #ffffff;
+    --chart-color-2: #e0e0e0;
+    --chart-color-3: #bdbdbd;
+    --chart-color-4: #9e9e9e;
+    --chart-color-5: #757575;
+}
+
+body.theme-ocean .chart-theme {
+    --chart-color-1: #00bfff;
+    --chart-color-2: #5dade2;
+    --chart-color-3: #3498db;
+    --chart-color-4: #2980b9;
+    --chart-color-5: #1e88e5;
+}
+
+body.theme-forest .chart-theme {
+    --chart-color-1: #4caf50;
+    --chart-color-2: #81c784;
+    --chart-color-3: #66bb6a;
+    --chart-color-4: #43a047;
+    --chart-color-5: #388e3c;
+}
+
+body.theme-sunset .chart-theme {
+    --chart-color-1: #ff9800;
+    --chart-color-2: #ffb74d;
+    --chart-color-3: #ffa726;
+    --chart-color-4: #fb8c00;
+    --chart-color-5: #f57c00;
+}
+
+body.theme-royal .chart-theme {
+    --chart-color-1: #9c27b0;
+    --chart-color-2: #ba68c8;
+    --chart-color-3: #ab47bc;
+    --chart-color-4: #8e24aa;
+    --chart-color-5: #7b1fa2;
+}
+
+/* XP Amount Theme Colors */
+body.theme-gold .xp-amount-theme {
+    color: #ffd700 !important;
+}
+
+body.theme-midnight .xp-amount-theme {
+    color: #ffffff !important;
+}
+
+body.theme-ocean .xp-amount-theme {
+    color: #00bfff !important;
+}
+
+body.theme-forest .xp-amount-theme {
+    color: #4caf50 !important;
+}
+
+body.theme-sunset .xp-amount-theme {
+    color: #ff9800 !important;
+}
+
+body.theme-royal .xp-amount-theme {
+    color: #ba68c8 !important;
+}
+
+/* Next Level XP Text Theme */
+body.theme-gold .text-yellow-200 {
+    color: #ffd700 !important;
+}
+
+body.theme-midnight .text-yellow-200 {
+    color: #ffffff !important;
+}
+
+body.theme-ocean .text-yellow-200 {
+    color: #00bfff !important;
+}
+
+body.theme-forest .text-yellow-200 {
+    color: #4caf50 !important;
+}
+
+body.theme-sunset .text-yellow-200 {
+    color: #ff9800 !important;
+}
+
+body.theme-royal .text-yellow-200 {
+    color: #ba68c8 !important;
+}

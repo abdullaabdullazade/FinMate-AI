@@ -1,0 +1,79 @@
+/**
+ * Rewards Animations
+ * Animations from rewards.html
+ */
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+@keyframes coin-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1);
+  }
+}
+
+.coin-animate {
+  animation: coin-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes reward-card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reward-card-entrance {
+  animation: reward-card-entrance 0.5s ease-out forwards;
+}
+
+/* Stagger animation delays for multiple cards */
+.reward-card-entrance:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.reward-card-entrance:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.reward-card-entrance:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.reward-card-entrance:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.reward-modal-entrance {
+  animation: slide-in-right 0.3s ease-out forwards;
+}

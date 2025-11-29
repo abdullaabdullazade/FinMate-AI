@@ -1,0 +1,48 @@
+/**
+ * Dream Vault Main Styles
+ * Bütün dream vault komponentlərinin CSS-lərini import edir
+ */
+
+@import '../components/dreamvault/dream-vault-header.css';
+@import '../components/dreamvault/dream-stats.css';
+@import '../components/dreamvault/dream-card.css';
+@import '../components/dreamvault/dream-empty-state.css';
+@import '../components/dreamvault/completed-dream-card.css';
+
+/* Money Icon Animation - HTML/CSS-dən */
+.money-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transform-origin: center;
+}
+
+button:active .money-icon,
+button:hover .money-icon {
+  transform: scale(1.1) rotate(5deg);
+  filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes moneyPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.money-icon.animate {
+  animation: moneyPulse 0.5s ease-in-out;
+}
+
+button .money-icon {
+  vertical-align: middle;
+  line-height: 1;
+}
+

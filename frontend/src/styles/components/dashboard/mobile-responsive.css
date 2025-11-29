@@ -1,0 +1,55 @@
+/**
+ * Dashboard Mobile Responsive Styles
+ */
+
+@media (max-width: 640px) {
+  /* Time Machine Mobile */
+  .flex.flex-col.md\:flex-row {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* Eco Impact Mobile */
+  .lg\:grid.lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Text Sizes Mobile */
+  h2.text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  h3.text-xl {
+    font-size: 1.125rem !important;
+  }
+
+  .text-sm {
+    font-size: 0.75rem !important;
+  }
+
+  /* XP Progress Mobile */
+  .text-4xl {
+    font-size: 1.5rem !important;
+  }
+
+  /* Budget Warning Mobile */
+  .text-5xl {
+    font-size: 2.5rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  /* Buttons Mobile */
+  .px-6.py-3 {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Hidden desktop buttons on mobile */
+  .hidden.md\:flex {
+    display: none !important;
+  }
+}
+

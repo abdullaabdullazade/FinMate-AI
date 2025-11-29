@@ -1,0 +1,12 @@
+/**
+ * Chat Page Main Styles
+ * Bütün chat komponentlərinin CSS-lərini import edir
+ */
+
+@import '../components/chat/chat-container.css';
+@import '../components/chat/message-bubbles.css';
+@import '../components/chat/typing-indicator.css';
+@import '../components/chat/chat-input-container.css';
+@import '../components/chat/chat-input-field.css';
+@import '../components/chat/markdown-content.css';
+@import '../components/chat/send-button.css';

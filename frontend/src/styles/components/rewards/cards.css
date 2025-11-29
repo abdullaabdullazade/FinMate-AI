@@ -1,0 +1,48 @@
+/**
+ * Reward Cards Styles
+ * Card hover effects and improvements from rewards.html
+ */
+
+/* Reward Card Improvements */
+.reward-card-badge {
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+}
+
+.reward-card-emoji {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.reward-card-title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.reward-coin-display {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* NO SCALE - Only translateY to prevent overflow */
+.reward-card-hover {
+  transform-origin: center;
+  will-change: transform, box-shadow;
+}
+
+/* Desktop hover - NO SCALE, only translateY */
+@media (min-width: 640px) {
+  .reward-card-hover:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 6px 16px rgba(251, 191, 36, 0.2) !important;
+    z-index: 15 !important;
+    position: relative;
+  }
+}
+
+/* Mobile hover - NO SCALE */
+@media (max-width: 639px) {
+  .reward-card-hover:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(251, 191, 36, 0.15) !important;
+    z-index: 15 !important;
+    position: relative;
+  }
+}

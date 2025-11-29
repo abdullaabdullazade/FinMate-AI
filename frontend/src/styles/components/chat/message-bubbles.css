@@ -1,0 +1,127 @@
+/**
+ * Message Bubbles Styles
+ */
+
+.message-bubble {
+    max-width: 70%;
+    word-wrap: break-word;
+    word-break: break-word;
+    animation: slideIn 0.3s ease-out;
+    line-height: 1.6;
+    font-size: 1rem;
+    padding: 0.875rem 1rem !important;
+}
+
+/* AI Message Bubbles - Theme Aware */
+.message-bubble.glass {
+    background: var(--glass-bg, rgba(20, 27, 61, 0.7));
+    border: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
+    color: var(--text-primary, #e8eaf6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Light Mode AI Messages */
+[data-theme="light"] .message-bubble.glass {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: var(--text-primary, #ffffff);
+}
+
+/* Premium Themes - AI Message Bubbles */
+body.theme-gold .message-bubble.glass {
+    background: rgba(45, 26, 0, 0.8);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: #ffd700;
+}
+
+body.theme-midnight .message-bubble.glass {
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+body.theme-ocean .message-bubble.glass {
+    background: rgba(0, 61, 92, 0.8);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    color: #00bfff;
+}
+
+body.theme-forest .message-bubble.glass {
+    background: rgba(26, 61, 26, 0.8);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+}
+
+body.theme-sunset .message-bubble.glass {
+    background: rgba(92, 46, 0, 0.8);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    color: #ff9800;
+}
+
+body.theme-royal .message-bubble.glass {
+    background: rgba(45, 26, 77, 0.8);
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    color: #ba68c8;
+}
+
+/* User Message Bubbles - Theme Aware */
+.message-bubble.bg-gradient-to-br {
+    /* Keep purple-pink gradient but make it theme-aware */
+    background: linear-gradient(135deg, var(--accent-primary, #5c6bc0) 0%, var(--accent-secondary, #3f51b5) 100%) !important;
+}
+
+[data-theme="light"] .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--accent-primary, #ec407a) 0%, var(--accent-secondary, #d81b60) 100%) !important;
+}
+
+/* Premium Themes - User Messages */
+body.theme-gold .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+}
+
+body.theme-midnight .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%) !important;
+    color: #000000 !important;
+}
+
+body.theme-ocean .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #00bfff 0%, #5dade2 100%) !important;
+}
+
+body.theme-forest .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%) !important;
+}
+
+body.theme-sunset .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%) !important;
+}
+
+body.theme-royal .message-bubble.bg-gradient-to-br {
+    background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%) !important;
+}
+
+@media (max-width: 640px) {
+    .message-bubble {
+        max-width: 85%;
+        font-size: 0.875rem;
+        padding: 0.625rem 0.875rem !important;
+    }
+
+    .chat-container .space-y-6 {
+        gap: 0.875rem;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

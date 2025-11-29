@@ -1,0 +1,103 @@
+/**
+ * Quick Actions Section Styles
+ */
+
+.quick-actions-section {
+  /* Inherits from settings-section base styles */
+}
+
+.quick-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  width: 100%;
+}
+
+.quick-action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.heatmap-button {
+  margin-top: 1rem;
+}
+
+.action-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgb(251, 146, 60);
+  transition: transform 0.2s;
+}
+
+.heatmap-button:hover .action-icon {
+  transform: scale(1.1);
+}
+
+.action-text {
+  flex: 1;
+  text-align: left;
+}
+
+.action-arrow {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.2s;
+}
+
+.quick-action-button:hover .action-arrow {
+  transform: translateX(0.25rem);
+}
+
+.action-emoji {
+  font-size: 1.5rem;
+  transition: transform 0.2s;
+}
+
+.quick-action-button:hover .action-emoji {
+  transform: scale(1.1);
+}
+
+.export-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.premium-badge {
+  font-size: 0.75rem;
+  background: linear-gradient(to right, rgb(168, 85, 247), rgb(236, 72, 153));
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+}
+
+.reset-demo-container {
+  margin-top: 1rem;
+}
+
+.reset-button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.reset-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+@media (min-width: 768px) {
+  .export-buttons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

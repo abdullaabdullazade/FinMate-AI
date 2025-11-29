@@ -1,0 +1,26 @@
+/**
+ * Navigation Styles
+ * Nav items, active states, scrollbars
+ */
+
+.nav-item.active {
+  color: var(--accent-primary);
+}
+
+.nav-item.active .relative span {
+  opacity: 1 !important;
+}
+
+/* Custom Scrollbar (for specific components) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}

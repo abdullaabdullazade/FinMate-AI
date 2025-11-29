@@ -1,0 +1,37 @@
+/**
+ * Rewards Carousel Styles
+ * Carousel and scrollbar styles from rewards.html
+ */
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Fix overflow issue on hover for reward cards */
+#rewards-carousel {
+  overflow-y: visible !important;
+  overflow-x: auto;
+  padding: 12px 0 !important;
+}
+
+/* Card wrapper with padding to prevent overflow */
+.reward-card-wrapper {
+  padding: 12px !important;
+  margin: -12px !important;
+  overflow: visible !important;
+}
+
+#rewards-carousel > div {
+  overflow: visible !important;
+}
+
+#rewards-carousel > div > .glass-card {
+  will-change: transform, box-shadow;
+  transform-origin: center;
+  overflow: visible !important;
+}

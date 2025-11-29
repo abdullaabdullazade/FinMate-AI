@@ -1,0 +1,89 @@
+/**
+ * Premium Upgrade Card Styles
+ */
+
+.premium-upgrade-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.7s;
+}
+
+.premium-upgrade-card:hover {
+  transform: scale(1.02);
+}
+
+.premium-upgrade-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgb(168, 85, 247), rgb(236, 72, 153));
+  opacity: 0.9;
+  transition: transform 0.7s;
+}
+
+.premium-upgrade-card:hover .premium-upgrade-background {
+  transform: scale(1.05);
+}
+
+.premium-upgrade-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+  opacity: 0.2;
+  mix-blend-mode: overlay;
+}
+
+.premium-upgrade-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.premium-upgrade-info {
+  flex: 1;
+}
+
+.premium-upgrade-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.premium-upgrade-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+}
+
+.premium-upgrade-price {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.premium-price-amount {
+  display: block;
+  font-size: 1.875rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.premium-price-period {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+

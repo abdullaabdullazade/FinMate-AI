@@ -1,0 +1,81 @@
+/**
+ * Markdown Content Styles in Chat Messages
+ */
+
+.markdown-content strong,
+.message-bubble strong {
+    font-weight: 700;
+    color: var(--text-primary, #e8eaf6);
+}
+
+.message-bubble em,
+.markdown-content em {
+    font-style: italic;
+}
+
+.markdown-content code,
+.message-bubble code {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: var(--text-primary, #e8eaf6);
+}
+
+[data-theme="light"] .markdown-content code,
+[data-theme="light"] .message-bubble code {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary, #ffffff);
+}
+
+/* Premium Themes - Code blocks */
+body.theme-gold .markdown-content code,
+body.theme-gold .message-bubble code {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+body.theme-midnight .markdown-content code,
+body.theme-midnight .message-bubble code {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+body.theme-ocean .markdown-content code,
+body.theme-ocean .message-bubble code {
+    background: rgba(0, 191, 255, 0.2);
+    color: #00bfff;
+}
+
+body.theme-forest .markdown-content code,
+body.theme-forest .message-bubble code {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+body.theme-sunset .markdown-content code,
+body.theme-sunset .message-bubble code {
+    background: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+}
+
+body.theme-royal .markdown-content code,
+body.theme-royal .message-bubble code {
+    background: rgba(156, 39, 176, 0.2);
+    color: #ba68c8;
+}
+
+/* Bullet points and lists */
+.chat-bullet {
+    color: var(--accent-primary, #a855f7);
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.message-bubble br+.chat-bullet,
+.markdown-content br+.chat-bullet {
+    display: inline-block;
+    margin-top: 8px;
+}
+

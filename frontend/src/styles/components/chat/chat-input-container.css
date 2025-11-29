@@ -1,0 +1,57 @@
+/**
+ * Chat Input Container Styles
+ */
+
+.chat-input-container {
+    background: var(--glass-bg, rgba(20, 27, 61, 0.7));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
+}
+
+/* Premium Themes - Input Container */
+body.theme-gold .chat-input-container {
+    background: rgba(45, 26, 0, 0.8);
+    border-top: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+body.theme-midnight .chat-input-container {
+    background: rgba(10, 10, 10, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.theme-ocean .chat-input-container {
+    background: rgba(0, 61, 92, 0.8);
+    border-top: 1px solid rgba(0, 191, 255, 0.3);
+}
+
+body.theme-forest .chat-input-container {
+    background: rgba(26, 61, 26, 0.8);
+    border-top: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+body.theme-sunset .chat-input-container {
+    background: rgba(92, 46, 0, 0.8);
+    border-top: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+body.theme-royal .chat-input-container {
+    background: rgba(45, 26, 77, 0.8);
+    border-top: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+@media (max-width: 640px) {
+    .chat-input-container {
+        padding-bottom: env(safe-area-inset-bottom);
+        bottom: 84px !important;
+        /* Improved spacing - moved slightly lower for comfort */
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+    .chat-input-container {
+        bottom: 20px !important;
+        /* Better spacing on tablets */
+    }
+}
+

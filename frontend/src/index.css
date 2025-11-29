@@ -1,0 +1,42 @@
+/**
+ * Global CSS Styles - Professional Design System
+ * Bütün CSS-lər HTML template-lərdən köçürülmüşdür
+ * Tailwind CSS və custom styles
+ */
+
+/* Import CSS Variables FIRST - MUST be before @tailwind */
+@import './styles/common/variables.css';
+
+/* Import Base Styles */
+@import './styles/common/base.css';
+
+/* Import Component Styles */
+@import './styles/components.css';
+
+/* Import Animation Styles */
+@import './styles/common/animations.css';
+
+/* Import Theme Styles */
+@import './styles/common/themes.css';
+
+/* Import Toast Styles */
+@import './styles/common/toast.css';
+@import './styles/components/notifications/enhanced-toast.css';
+
+/* Import Common Styles - MUST be before @tailwind */
+@import './styles/common/hamburger-menu.css';
+
+/* Import Page-Specific Styles - MUST be before @tailwind */
+@import './styles/pages/chat.css';
+@import './styles/pages/dashboard.css';
+@import './styles/pages/auth.css';
+@import './styles/pages/profile.css';
+@import './styles/pages/rewards.css';
+@import './styles/pages/scan.css';
+@import './styles/pages/settings.css';
+@import './styles/pages/dreamvault.css';
+
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

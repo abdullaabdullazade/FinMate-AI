@@ -1,0 +1,22 @@
+/**
+ * Buttons & Interactive Elements
+ * Button styles and interactive components
+ */
+
+.btn {
+  @apply px-6 py-3 rounded-lg font-semibold transition-all duration-300;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white;
+  @apply hover:from-purple-600 hover:to-pink-600;
+  @apply shadow-lg shadow-purple-500/40;
+  @apply hover:shadow-xl hover:shadow-purple-500/50;
+  @apply transform hover:scale-105 active:scale-95;
+}
+
+.btn-outline {
+  @apply border-2 border-white/20 text-white;
+  @apply hover:bg-white/10 hover:border-white/30;
+  @apply backdrop-blur-sm;
+}

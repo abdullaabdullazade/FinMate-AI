@@ -1,0 +1,121 @@
+/**
+ * Financial Pet Animations
+ */
+
+.pet-container {
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .pet-container {
+    bottom: 100px;
+    right: 8px;
+    max-width: 150px;
+  }
+
+  #petEmoji {
+    font-size: 2.5rem !important;
+  }
+
+  .speech-bubble p {
+    font-size: 0.6rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .pet-container .glass-card {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Pet Animations */
+.pet-bounce {
+  animation: petBounce 2s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes petBounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+.pet-shake {
+  animation: petShake 0.5s ease-in-out;
+}
+
+@keyframes petShake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateX(-5px) rotate(-5deg);
+  }
+
+  75% {
+    transform: translateX(5px) rotate(5deg);
+  }
+}
+
+/* Floating Hearts */
+.floating-heart {
+  position: absolute;
+  font-size: 24px;
+  animation: floatUp 2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(1.2);
+  }
+}
+
+/* Falling Tears */
+.falling-tear {
+  position: absolute;
+  font-size: 20px;
+  animation: fallDown 1.5s ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes fallDown {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(60px) rotate(20deg);
+  }
+}
+
+/* Speech Bubble Pulse */
+.speech-pulse {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+

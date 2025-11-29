@@ -1,0 +1,96 @@
+/**
+ * Heatmap Styles
+ * HTML/CSS-dən bir-bir köçürülmüş versiya
+ */
+
+.heatmap-container {
+  height: 60vh;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .heatmap-container {
+    height: 50vh;
+    border-radius: 16px;
+  }
+  
+  .glass-card {
+    padding: 1rem !important;
+  }
+  
+  .merchant-label {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+  }
+  
+  .leaflet-popup-content {
+    font-size: 12px !important;
+    margin: 8px !important;
+  }
+}
+
+.merchant-marker {
+  background-color: #ef4444;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+}
+
+.merchant-label {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile optimizations for markers */
+@media (max-width: 768px) {
+  .merchant-marker {
+    width: 16px;
+    height: 16px;
+    border-width: 3px;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.6);
+  }
+
+  .merchant-label {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  /* Better touch targets for mobile */
+  .leaflet-marker-icon {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* Larger popup on mobile */
+  .leaflet-popup-content-wrapper {
+    min-width: 180px;
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(30, 30, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-popup-content {
+  color: white;
+  margin: 12px;
+}
+
+.leaflet-popup-tip {
+  background: rgba(30, 30, 46, 0.95);
+}
+

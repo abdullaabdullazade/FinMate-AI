@@ -1,0 +1,14 @@
+/**
+ * Dashboard Main Styles
+ * Bütün dashboard komponentlərinin CSS-lərini import edir
+ */
+
+@import '../components/dashboard/dashboard-grid.css';
+@import '../components/dashboard/welcome-banner.css';
+@import '../components/dashboard/stat-card.css';
+@import '../components/dashboard/category-card.css';
+@import '../components/dashboard/transaction-row.css';
+@import '../components/dashboard/pet-animations.css';
+@import '../components/dashboard/chart-shell.css';
+@import '../components/dashboard/animations.css';
+@import '../components/dashboard/mobile-responsive.css';
