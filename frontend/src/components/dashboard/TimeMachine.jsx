@@ -40,15 +40,27 @@ const TimeMachine = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className="glass-card p-4 sm:p-6 slide-up"
+      className="glass-card p-4 sm:p-6 slide-up relative overflow-hidden"
       style={{ gridColumn: 'span 12' }}
     >
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-        <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-          ⏳ Maliyyə Zaman Maşını
-        </h3>
-        <span className="text-xs sm:text-sm text-white/60">Keçmiş və gələcək proqnoz</span>
-      </div>
+      {/* Background gradient decoration */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl -z-0"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-2xl -z-0"></div>
+      
+      <div className="relative z-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center backdrop-blur-sm border border-white/20">
+              <span className="text-xl sm:text-2xl">⏳</span>
+            </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">
+                Maliyyə Zaman Maşını
+              </h3>
+              <p className="text-xs sm:text-sm text-white/60 mt-0.5">Keçmiş və gələcək proqnoz</p>
+            </div>
+          </div>
+        </div>
 
       <div className="flex flex-col md:flex-row gap-4 sm:gap-8 items-stretch md:items-center">
         <div className="flex-1 w-full">
@@ -97,40 +109,47 @@ const TimeMachine = ({
           </div>
         </div>
 
-        <div className="text-center md:text-right w-full md:w-auto md:min-w-[200px]">
-          <p id="balance-label" className="text-xs sm:text-sm text-white/60 mb-1">
+        <div className="text-center md:text-right w-full md:w-auto md:min-w-[220px]">
+          <p id="balance-label" className="text-xs sm:text-sm text-white/60 mb-2 font-medium">
             {getBalanceLabel()}
           </p>
-          <p
-            id="projected-balance"
-            className={`text-2xl sm:text-4xl font-bold transition-colors duration-300 ${
-              incognitoMode ? 'incognito-hidden' : ''
-            } ${projectedBalance < 0 ? 'text-red-400' : 'text-green-400'}`}
-          >
-            {incognitoMode ? (
-              '****'
-            ) : (
-              <>
-                <CountUp
-                  end={projectedBalance}
-                  duration={0.5}
-                  decimals={2}
-                  separator=","
-                />{' '}
-                <span id="projected-balance-currency">{currency}</span>
-              </>
-            )}
-          </p>
-          <p className="text-xs text-white/40 mt-1">
-            Aylıq qənaət:{' '}
-            <span id="monthly-savings" className={incognitoMode ? 'incognito-hidden' : ''}>
-              {incognitoMode ? '****' : (
-                <CountUp end={monthlySavings} duration={1} decimals={2} separator="," />
+          <div className="inline-block p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20">
+            <p
+              id="projected-balance"
+              className={`text-2xl sm:text-4xl font-bold transition-colors duration-300 ${
+                incognitoMode ? 'incognito-hidden' : ''
+              } ${projectedBalance < 0 ? 'text-red-400' : 'text-green-400'}`}
+            >
+              {incognitoMode ? (
+                '****'
+              ) : (
+                <>
+                  <CountUp
+                    end={projectedBalance}
+                    duration={0.5}
+                    decimals={2}
+                    separator=","
+                  />{' '}
+                  <span id="projected-balance-currency" className="text-lg sm:text-2xl">{currency}</span>
+                </>
               )}
-            </span>{' '}
-            <span id="monthly-savings-currency">{currency}</span>
-          </p>
+            </p>
+          </div>
+          <div className="mt-3 p-2 rounded-lg bg-white/5 border border-white/10">
+            <p className="text-xs sm:text-sm text-white/70">
+              <span className="text-white/50">Aylıq qənaət:</span>{' '}
+              <span id="monthly-savings" className={`font-semibold ${incognitoMode ? 'incognito-hidden' : ''}`}>
+                {incognitoMode ? '****' : (
+                  <>
+                    <CountUp end={monthlySavings} duration={1} decimals={2} separator="," />
+                  </>
+                )}
+              </span>{' '}
+              <span id="monthly-savings-currency" className="text-white/70">{currency}</span>
+            </p>
+          </div>
         </div>
+      </div>
       </div>
     </motion.div>
   )

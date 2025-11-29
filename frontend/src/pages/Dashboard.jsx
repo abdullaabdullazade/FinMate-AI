@@ -316,7 +316,25 @@ const Dashboard = () => {
         onToggleIncognito={toggleIncognito}
         onSpeak={async () => {
           try {
-            const message = `Bu ay ${totalSpending.toFixed(2)} ${currency} xərclədiniz. Aylıq büdcəniz ${monthlyBudget.toFixed(2)} ${currency}. Qalıq ${remainingBudget.toFixed(2)} ${currency}. Büdcə istifadəsi ${budgetPercentage.toFixed(1)} faiz.`
+            // Məbləğləri Azərbaycan dilində səsləndirmək üçün funksiya
+            const formatAmount = (amount) => {
+              if (typeof window.numberToAzerbaijani === 'function') {
+                return window.numberToAzerbaijani(amount)
+              }
+              // Fallback: sadə format
+              const wholePart = Math.floor(amount)
+              const decimalPart = Math.round((amount - wholePart) * 100)
+              if (decimalPart > 0) {
+                return `${wholePart} manat ${decimalPart} qəpik`
+              }
+              return `${wholePart} manat`
+            }
+            
+            const totalSpendingText = formatAmount(totalSpending)
+            const monthlyBudgetText = formatAmount(monthlyBudget)
+            const remainingBudgetText = formatAmount(remainingBudget)
+            
+            const message = `Bu ay ${totalSpendingText} xərclədiniz. Aylıq büdcəniz ${monthlyBudgetText}. Qalıq ${remainingBudgetText}. Büdcə istifadəsi ${budgetPercentage.toFixed(1)} faiz.`
             
             if (typeof window.queueVoiceNotification === 'function') {
               window.queueVoiceNotification(message, 1, 'az')
