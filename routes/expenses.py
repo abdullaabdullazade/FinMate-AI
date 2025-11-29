@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, date as date_type
 from typing import Optional
 import base64
+import math
 from database import get_db
 from models import User, Expense, Wish, Dream, Income
 from config import app
@@ -128,6 +129,43 @@ async def confirm_voice_expense(
         # Always award 15 XP for voice commands
         xp_awarded = 15
         
+        # Sanitize xp_result to handle inf values
+        def sanitize_float(value):
+            """Convert inf/nan to None, ensure value is float"""
+            if value is None:
+                return None
+            try:
+                val = float(value)
+                if math.isinf(val) or math.isnan(val):
+                    return None
+                return val
+            except (ValueError, TypeError):
+                return None
+        
+        # Sanitize xp_result
+        sanitized_xp_result = {}
+        if xp_result:
+            for key, value in xp_result.items():
+                if key == "level_info" and isinstance(value, dict):
+                    # Sanitize level_info dict
+                    sanitized_level_info = {}
+                    for level_key, level_value in value.items():
+                        if level_key == "max_xp":
+                            # Replace inf with None
+                            if isinstance(level_value, float) and math.isinf(level_value):
+                                sanitized_level_info[level_key] = None
+                            else:
+                                sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                        elif level_key == "progress_percentage":
+                            sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                        else:
+                            sanitized_level_info[level_key] = level_value
+                    sanitized_xp_result[key] = sanitized_level_info
+                elif isinstance(value, (int, float)):
+                    sanitized_xp_result[key] = sanitize_float(value)
+                else:
+                    sanitized_xp_result[key] = value
+        
         # Return success response - JSON for React
         return JSONResponse({
             "success": True,
@@ -139,7 +177,7 @@ async def confirm_voice_expense(
                 "category": category,
                 "date": expense.date.isoformat() if expense.date else None
             },
-            "xp_result": xp_result
+            "xp_result": sanitized_xp_result
         })
         
     except Exception as e:
@@ -234,53 +272,131 @@ async def add_manual_expense(
         raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
+        # Validate amount
+        if amount <= 0:
+            return JSONResponse({"success": False, "error": "Məbləğ 0-dan böyük olmalıdır"}, status_code=400)
+        
+        # Validate merchant
+        if not merchant or not merchant.strip():
+            return JSONResponse({"success": False, "error": "Obyekt/Mağaza adı daxil edilməyib"}, status_code=400)
+        
         expense = Expense(
             user_id=user.id,
             amount=amount,
-            merchant=merchant,
-            category=category,
-            notes=notes,
+            merchant=merchant.strip(),
+            category=category if category else "Digər",
+            notes=notes.strip() if notes else None,
             date=datetime.utcnow()
         )
         db.add(expense)
         db.commit()
+        db.refresh(expense)
         
         # Check daily budget limit
         daily_limit_alert = None
-        if user.daily_budget_limit:
-            today = date_type.today()
-            today_expenses = db.query(Expense).filter(
-                Expense.user_id == user.id,
-                Expense.date >= today,
-                Expense.date < today + timedelta(days=1)
-            ).all()
-            today_total = sum(exp.amount for exp in today_expenses)
-            
-            if today_total > user.daily_budget_limit:
-                daily_limit_alert = {
-                    "type": "daily_limit_exceeded",
-                    "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
-                    "today_spending": today_total,
-                    "limit": user.daily_budget_limit
-                }
+        try:
+            if user.daily_budget_limit:
+                today = date_type.today()
+                today_expenses = db.query(Expense).filter(
+                    Expense.user_id == user.id,
+                    Expense.date >= today,
+                    Expense.date < today + timedelta(days=1)
+                ).all()
+                today_total = sum(exp.amount for exp in today_expenses)
+                
+                if today_total > user.daily_budget_limit:
+                    daily_limit_alert = {
+                        "type": "daily_limit_exceeded",
+                        "message": f"⚠️ Gündəlik limit keçildi! Bu gün {today_total:.2f} AZN xərclədiniz (Limit: {user.daily_budget_limit:.2f} AZN)",
+                        "today_spending": today_total,
+                        "limit": user.daily_budget_limit
+                    }
+        except Exception as e:
+            print(f"⚠️ Daily limit check error: {e}")
+            # Don't fail the request if daily limit check fails
         
         # Award XP
-        xp_result = gamification.award_xp(user, "manual_expense", db)
+        xp_result = None
+        try:
+            xp_result = gamification.award_xp(user, "manual_expense", db)
+            db.refresh(user)
+        except Exception as e:
+            print(f"⚠️ XP award error: {e}")
+            import traceback
+            traceback.print_exc()
+            # Don't fail the request if XP award fails
+        
+        # Sanitize xp_result to handle inf values
+        def sanitize_float(value):
+            """Convert inf/nan to None, ensure value is float"""
+            if value is None:
+                return None
+            try:
+                val = float(value)
+                if math.isinf(val) or math.isnan(val):
+                    return None
+                return val
+            except (ValueError, TypeError):
+                return None
+        
+        # Sanitize xp_result
+        sanitized_xp_result = None
+        if xp_result:
+            sanitized_xp_result = {}
+            for key, value in xp_result.items():
+                if key == "level_info" and isinstance(value, dict):
+                    # Sanitize level_info dict
+                    sanitized_level_info = {}
+                    for level_key, level_value in value.items():
+                        if level_key == "max_xp":
+                            # Replace inf with None
+                            if isinstance(level_value, float) and math.isinf(level_value):
+                                sanitized_level_info[level_key] = None
+                            else:
+                                sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                        elif level_key == "progress_percentage":
+                            sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                        else:
+                            sanitized_level_info[level_key] = level_value
+                    sanitized_xp_result[key] = sanitized_level_info
+                elif isinstance(value, (int, float)):
+                    sanitized_xp_result[key] = sanitize_float(value)
+                else:
+                    sanitized_xp_result[key] = value
         
         response_data = {
             "success": True,
             "expense_id": expense.id,
-            "xp_result": xp_result
+            "message": f"Xərc uğurla əlavə edildi: {amount:.2f} AZN - {merchant}",
+            "expense": {
+                "id": expense.id,
+                "merchant": expense.merchant,
+                "amount": expense.amount,
+                "category": expense.category,
+                "date": expense.date.isoformat() if expense.date else None
+            }
         }
+        
+        if sanitized_xp_result:
+            response_data["xp_result"] = sanitized_xp_result
+            if sanitized_xp_result.get("xp_awarded"):
+                response_data["xp_awarded"] = sanitized_xp_result["xp_awarded"]
         
         if daily_limit_alert:
             response_data["daily_limit_alert"] = daily_limit_alert
         
         return JSONResponse(response_data)
         
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Add Expense Error: {e}")
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({
+            "success": False, 
+            "error": f"Xəta baş verdi: {str(e)}"
+        }, status_code=500)
 
 
 @app.delete("/api/expenses/{expense_id}")

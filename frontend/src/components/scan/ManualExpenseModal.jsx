@@ -6,8 +6,10 @@
 import React, { useState } from 'react'
 import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currency = 'AZN' }) => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     amount: '',
     merchant: '',
@@ -54,18 +56,42 @@ const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currency = 'AZN' }) =>
       })
 
       if (!response.ok) {
-        const errorText = await response.text()
+        let errorMessage = 'Xəta baş verdi'
         try {
-          const errorData = JSON.parse(errorText)
-          throw new Error(errorData.error || 'Xəta baş verdi')
+          const errorText = await response.text()
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText)
+              errorMessage = errorData.error || errorData.message || errorMessage
+            } catch (e) {
+              // If not JSON, use the text as error message
+              if (errorText.length < 200) {
+                errorMessage = errorText
+              }
+            }
+          }
         } catch (e) {
-          throw new Error('Xəta baş verdi')
+          // Network error or other issues
+          if (response.status === 500) {
+            errorMessage = 'Server xətası. Zəhmət olmasa yenidən cəhd edin.'
+          } else if (response.status === 401) {
+            errorMessage = 'Giriş tələb olunur. Zəhmət olmasa yenidən giriş edin.'
+          } else if (response.status === 400) {
+            errorMessage = 'Yanlış məlumat. Zəhmət olmasa yoxlayın.'
+          }
         }
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
       if (data.success) {
-        toast.success('✅ Xərc uğurla əlavə edildi', { autoClose: 5000 })
+        // Show success message with XP if available
+        let successMessage = '✅ Əlavə olundu'
+        if (data.xp_result && data.xp_result.xp_awarded) {
+          successMessage += ` (+${data.xp_result.xp_awarded} XP)`
+        }
+        toast.success(successMessage, { autoClose: 5000 })
+        
         // Reset form
         setFormData({
           amount: '',
@@ -73,16 +99,34 @@ const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currency = 'AZN' }) =>
           category: 'Digər',
           notes: ''
         })
+        
         // Dispatch event for dashboard refresh
         window.dispatchEvent(new CustomEvent('expenseUpdated'))
-        onSuccess && onSuccess(data)
+        window.dispatchEvent(new CustomEvent('scanCompleted'))
+        
+        // Close modal first
         onClose()
+        
+        // Call onSuccess callback if provided
+        onSuccess && onSuccess(data)
+        
+        // Navigate to scan page and refresh
+        setTimeout(() => {
+          navigate('/scan', { replace: true })
+          // Refresh the page to ensure all data is updated
+          window.location.reload()
+        }, 300) // Small delay to allow modal to close smoothly
       } else {
         toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Add manual expense error:', error)
-      toast.error(error.message || 'Əlaqə xətası', { autoClose: 5000 })
+      // More specific error messages
+      let errorMessage = error.message || 'Əlaqə xətası'
+      if (errorMessage.includes('Network') || errorMessage.includes('Failed to fetch')) {
+        errorMessage = 'İnternet bağlantısı yoxdur. Zəhmət olmasa yoxlayın.'
+      }
+      toast.error(errorMessage, { autoClose: 5000 })
     } finally {
       setSubmitting(false)
     }

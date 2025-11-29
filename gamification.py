@@ -35,26 +35,44 @@ class GamificationService:
     @staticmethod
     def get_level_info(xp_points: int) -> dict:
         """Get level information based on XP points"""
+        # Ensure xp_points is valid
+        if xp_points < 0:
+            xp_points = 0
+        
         for level in GamificationService.LEVELS:
-            if level["min_xp"] <= xp_points <= level["max_xp"]:
+            # Handle inf max_xp
+            if level["max_xp"] == float('inf'):
+                if xp_points >= level["min_xp"]:
+                    return {
+                        "title": level["title"],
+                        "emoji": level["emoji"],
+                        "min_xp": level["min_xp"],
+                        "max_xp": None,  # Replace inf with None for JSON serialization
+                        "current_xp": xp_points,
+                        "progress_percentage": 100.0,
+                        "current_level": GamificationService.LEVELS.index(level) + 1
+                    }
+            elif level["min_xp"] <= xp_points <= level["max_xp"]:
                 return {
                     "title": level["title"],
                     "emoji": level["emoji"],
                     "min_xp": level["min_xp"],
                     "max_xp": level["max_xp"],
                     "current_xp": xp_points,
-                    "progress_percentage": GamificationService._calculate_progress(xp_points, level)
+                    "progress_percentage": GamificationService._calculate_progress(xp_points, level),
+                    "current_level": GamificationService.LEVELS.index(level) + 1
                 }
         
-        # Max level
+        # Max level (shouldn't reach here, but fallback)
         last_level = GamificationService.LEVELS[-1]
         return {
             "title": last_level["title"],
             "emoji": last_level["emoji"],
             "min_xp": last_level["min_xp"],
-            "max_xp": last_level["max_xp"],
+            "max_xp": None,  # Replace inf with None
             "current_xp": xp_points,
-            "progress_percentage": 100
+            "progress_percentage": 100.0,
+            "current_level": len(GamificationService.LEVELS)
         }
     
     @staticmethod
@@ -64,8 +82,13 @@ class GamificationService:
             return 100.0
         
         level_range = level["max_xp"] - level["min_xp"] + 1
+        if level_range <= 0:
+            return 0.0
+        
         progress = xp - level["min_xp"]
-        return (progress / level_range) * 100
+        progress = max(0, min(progress, level_range))  # Clamp between 0 and level_range
+        result = (progress / level_range) * 100
+        return min(100.0, max(0.0, result))  # Clamp between 0 and 100
     
     @staticmethod
     def award_xp(user, action: str, db_session) -> dict:

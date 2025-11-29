@@ -3,6 +3,7 @@ from fastapi import Request, Depends, Form, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
+import math
 from database import get_db
 from models import User, ChatMessage
 from config import app
@@ -84,13 +85,50 @@ async def send_chat_message(
     xp_result = gamification.award_xp(user, "chat_message", db)
     db.refresh(user)  # Refresh to get updated XP
     
+    # Sanitize xp_result to handle inf values
+    def sanitize_float(value):
+        """Convert inf/nan to None or 0, ensure value is float"""
+        if value is None:
+            return None
+        try:
+            val = float(value)
+            if math.isinf(val) or math.isnan(val):
+                return None  # Return None for inf/nan instead of 0
+            return val
+        except (ValueError, TypeError):
+            return None
+    
+    # Sanitize xp_result
+    sanitized_xp_result = {}
+    if xp_result:
+        for key, value in xp_result.items():
+            if key == "level_info" and isinstance(value, dict):
+                # Sanitize level_info dict
+                sanitized_level_info = {}
+                for level_key, level_value in value.items():
+                    if level_key == "max_xp":
+                        # Replace inf with None or a large number
+                        if isinstance(level_value, float) and math.isinf(level_value):
+                            sanitized_level_info[level_key] = None  # or 999999
+                        else:
+                            sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                    elif level_key == "progress_percentage":
+                        sanitized_level_info[level_key] = sanitize_float(level_value) if isinstance(level_value, (int, float)) else level_value
+                    else:
+                        sanitized_level_info[level_key] = level_value
+                sanitized_xp_result[key] = sanitized_level_info
+            elif isinstance(value, (int, float)):
+                sanitized_xp_result[key] = sanitize_float(value)
+            else:
+                sanitized_xp_result[key] = value
+    
     # Return JSON for React frontend - return raw AI response (frontend will handle markdown rendering)
     return JSONResponse({
         "success": True,
         "response": ai_response,  # Raw markdown - frontend will convert to HTML
         "user_message": message,
-        "xp_awarded": xp_result.get("xp", 0) if xp_result else 0,
-        "xp_result": xp_result
+        "xp_awarded": sanitized_xp_result.get("xp_awarded", 0) if sanitized_xp_result else 0,
+        "xp_result": sanitized_xp_result
     })
 
 
