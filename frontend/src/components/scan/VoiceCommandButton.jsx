@@ -6,9 +6,13 @@
 import React, { useState, useEffect } from 'react'
 import { Mic, X, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAuth } from '../../contexts/AuthContext'
+import { usePremiumModal } from '../../contexts/PremiumModalContext'
 import VoiceConfirmationModal from './VoiceConfirmationModal'
 
 const VoiceCommandButton = () => {
+  const { user } = useAuth()
+  const { openModal } = usePremiumModal()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -34,6 +38,19 @@ const VoiceCommandButton = () => {
   }, [stream, mediaRecorder])
 
   const startRecording = async () => {
+    // Premium yoxlaması - səsli əmr premium funksiyadır
+    if (!user?.is_premium) {
+      toast.error('Səsli əmr funksiyası Premium üçündür', { autoClose: 5000 })
+      openModal()
+      return
+    }
+
+    // Voice enabled yoxlaması - səsli əmrlər bağlı olsa mikrofon açılmamalıdır
+    if (!user?.voice_enabled) {
+      toast.error('Səsli əmrlər bağlıdır. Zəhmət olmasa Ayarlar səhifəsindən aktivləşdirin', { autoClose: 5000 })
+      return
+    }
+
     if (isRecording) {
       stopRecording()
       return
@@ -135,21 +152,28 @@ const VoiceCommandButton = () => {
     setResult(null)
   }
 
+  // Voice enabled yoxlaması - əgər bağlı olsa düyməni disabled et
+  const isVoiceEnabled = user?.voice_enabled === true
+  const isPremium = user?.is_premium === true
+  const canUseVoice = isPremium && isVoiceEnabled
+
   return (
     <>
       {/* Floating Voice Button */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass-card bg-gradient-to-br from-purple-500 to-pink-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:bottom-20 md:right-8 group"
-        style={{
-          background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-          borderColor: 'var(--glass-border)',
-          boxShadow: '0 10px 30px var(--glass-shadow)'
-        }}
-        title="Səsli Əmr"
-      >
-        <Mic className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
-      </button>
+      {canUseVoice && (
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass-card bg-gradient-to-br from-purple-500 to-pink-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:bottom-20 md:right-8 group"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+            borderColor: 'var(--glass-border)',
+            boxShadow: '0 10px 30px var(--glass-shadow)'
+          }}
+          title="Səsli Əmr"
+        >
+          <Mic className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
+        </button>
+      )}
 
       {/* Voice Confirmation Modal */}
       {showConfirmation && confirmationData && (
@@ -171,7 +195,7 @@ const VoiceCommandButton = () => {
       )}
 
       {/* Voice Modal */}
-      {isModalOpen && (
+      {isModalOpen && canUseVoice && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
           onClick={(e) => e.target === e.currentTarget && closeModal()}

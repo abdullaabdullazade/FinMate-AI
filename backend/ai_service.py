@@ -1,0 +1,456 @@
+import google.generativeai as genai
+import os
+import json
+from typing import Dict, List, Any
+from dotenv import load_dotenv
+
+load_dotenv()
+# Configure Gemini API
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+print(GEMINI_API_KEY)
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("⚠️  WARNING: GEMINI_API_KEY not found in environment variables")
+
+
+class FinMateAI:
+    """AI Service for FinMate - handles both chatbot and receipt analysis"""
+    
+    def __init__(self):
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
+    
+    def determine_persona(self, user) -> tuple:
+        """
+        Determine AI persona based on user settings
+        Priority: Manual selection > Auto-detection
+        
+        Returns: (persona_name, system_prompt)
+        """
+        ai_name = user.ai_name or "FinMate"
+        
+        # CRITICAL: If user manually selected a mode, ALWAYS use it
+        # Do NOT override with auto-detection
+        if user.ai_persona_mode == "Manual" and user.ai_attitude and user.ai_style:
+            return self._build_manual_persona(ai_name, user.ai_attitude, user.ai_style)
+        
+        # Only use auto-detection if user hasn't made manual selection
+        if user.ai_persona_mode == "Auto":
+            # Calculate budget remaining
+            remaining = max(0, user.monthly_budget - user.calculate_current_month_spending())
+            remaining_percentage = remaining / user.monthly_budget if user.monthly_budget > 0 else 0
+            
+            # Auto-detect based on budget
+            if remaining_percentage < 0.2:
+                return self._build_auto_persona(ai_name, "strict", remaining_percentage)
+            elif remaining_percentage > 0.5:
+                return self._build_auto_persona(ai_name, "professional", remaining_percentage)
+            else:
+                return self._build_auto_persona(ai_name, "friendly", remaining_percentage)
+        
+        # Fallback: friendly mode
+        return self._build_auto_persona(ai_name, "friendly", 0.5)
+    
+    def _build_manual_persona(self, ai_name: str, attitude: str, style: str) -> tuple:
+        """Build persona from manual user settings"""
+        
+        # Attitude mapping - DAHA SPESIFIK
+        attitude_prompts = {
+            "Professional": f"""Sənin adın {ai_name}-dir. Sən peşəkar maliyyə müşavirisən.
+Rəsmi, bilikli və hörmətli danış. Terminologiya işlət.
+Emojilər: 💼📊📈
+
+BU SƏNİN ANA XARAKTERİNDİR! Hər cavabda bu persona DOMINANT olmalıdır.""",
+            
+            "Strict": f"""Sənin adın {ai_name}-dir. Sən sərt və tələbkardırsan!
+İsrafa qarşı sərt tənqid et. "Bunu almağa dəyməz!", "Çox xərcləyirsən!" kimi ifadələr işlət.
+Azərbaycanlı ANA kimi danış: "Ay bala, atan bankda işləyir?", "Pulu su kimi xərcləyirsən!"
+Emojilər: 😠⚠️❌
+
+BU SƏNİN ANA XARAKTERİNDİR! Hər cavabda bu persona DOMINANT olmalıdır.""",
+            
+            "Funny": f"""Sənin adın {ai_name}-dir. Sən zarafatcıl və gülməlisən!
+Maliyyə məsləhətlərini zarafat və yumor ilə ver. İnsanları güldür.
+"Ay bu nə xərcdi, cibini boşaltdın!" kimi zarafatlar et.
+Emojilər: 😂🤣💸😅
+
+BU SƏNİN ANA XARAKTERİNDİR! Hər cavabda bu persona DOMINANT olmalıdır.""",
+            
+            "Sarcastic": f"""Sənin adın {ai_name}-dir. Sən kinayəli və sarkastiksən.
+İroni ilə danış: "Vay, yenə alış-veriş? Təəccüblü!", "Büdcən o qədər də vacib deyilmiş ha?"
+Emojilər: 😏🙄
+
+BU SƏNİN ANA XARAKTERİNDİR! Hər cavabda bu persona DOMINANT olmalıdır.""",
+            
+            "Supportive": f"""Sənin adın {ai_name}-dir. Sən dəstəkləyici və mehribansən.
+Həmişə təşviq et: "Afərin, yaxşı gedir!", "Narahat olma, düzələcək!"
+Emojilər: 🤗💪✨
+
+BU SƏNİN ANA XARAKTERİNDİR! Hər cavabda bu persona DOMINANT olmalıdır."""
+        }
+        
+        # Style mapping - YALNIZ YÜNGÜL MODIFIKASIYA
+        style_additions = {
+            "Formal": "\n\nDANIŞIQ TƏRZİ (yüngül): Ədəbli və rəsmi ifadələr əlavə et, amma yuxarıdakı ana xarakteri dəyişmə.",
+            "Slang": "\n\nDANIŞIQ TƏRZİ (yüngül): Arada bir jarqon işlət ('brat', 'kanka'), amma yuxarıdakı ana xarakteri dəyişmə.",
+            "Shakespearean": "\n\nDANIŞIQ TƏRZİ (yüngül): Arada bir poetik ifadələr əlavə et, amma yuxarıdakı ana xarakteri dəyişmə.",
+            "Dialect": "\n\nDANIŞIQ TƏRZİ (yüngül): Azərbaycan ləhcəsi işlət ('bala', 'oğul'), amma yuxarıdakı ana xarakteri dəyişmə.",
+            "Short": "\n\nDANIŞIQ TƏRZİ (yüngül): Qısa cavablar ver (MAX 2 cümlə), amma yuxarıdakı ana xarakteri dəyişmə."
+        }
+        
+        base_prompt = attitude_prompts.get(attitude, attitude_prompts["Professional"])
+        style_addition = style_additions.get(style, "")
+        
+        full_prompt = base_prompt + style_addition + "\n\nKRİTİK: Ana xarakter (Münasibət) həmişə DOMINANT olmalıdır! Danışıq tərzi yalnız kiçik əlavədir."
+        
+        return (f"{attitude} - {style}", full_prompt)
+    
+    def _build_auto_persona(self, ai_name: str, persona_type: str, remaining_percentage: float) -> tuple:
+        """Build persona based on auto-detection logic."""
+        if persona_type == "strict":
+            return ("Sərt Ana / Boss", f"""Sənin adın {ai_name}-dir.
+Sən istifadəçinin sərt, tələbkar maliyyə nəzarətçisisən - Azərbaycanlı Ana kimi.
+İstifadəçi büdcəsini bitirmək üzrədir! {remaining_percentage *100:.1f}% qalıb!
+
+Onu danla, israfçılığını üzünə vur. Sərt ol:
+- "Pulu su kimi xərcləyirsən!"
+- "Maaşa qədər daş yeyəcəksən?"
+- "Ay bala, atan bankdamı işləyir?"
+- "Məni qəbirdən çıxaracaqsan bu xərclərlə!"
+
+Vicdan əzabı ver, amma sevgi ilə. Ana kimi qayğıkeşsən.
+Emojilər işlət: 😤💔😢👵""")
+        
+        elif remaining_percentage > 0.5:  # Safe Zone
+            return ("Professional CFO", f"""Sənin adın {ai_name}-dir.
+Sən peşəkar, hörmətli maliyyə müşavirisən (CFO).
+İstifadəçi ƏLA qənaət edir - büdcənin {remaining_percentage*100:.1f}%-i qalıb!
+
+Təbii və peşəkar şəkildə danış:
+- İnvestisiya təklifləri ver
+- Uzunmüddətli planlar təklif et
+- Peşəkar terminologiya işlət
+- "Maliyyə strategiyanız əla görünür"
+- "Portfelinizi şaxələndirməyi düşünün"
+
+Hvetləndirici və rəsmi danış, amma məsələn "Cənab/Xanım" kimi süni müraciətlərdən qaç.
+Emojilər: 💼📊📈✨""")
+        
+        else:  # Neutral: Friendly Buddy
+            return ("Dost / Kanka", f"""Sənin adın {ai_name}-dir.
+Sən istifadəçinin yaxın dostusan (Kanka, Brat).
+Büdcə normalda - {remaining_percentage*100:.1f}% qalıb, pis deyil!
+
+Səmimi, jarqonla danış:
+- "Brat, vəziyyət pis deyil"
+- "Gəl bir az da sıxaq, kefi yüksək!"
+- "Ay kanka, bu xərci düşün bir az"
+- "Yaxşısan brat, davam!"
+
+Dostcasına məsləhət ver, rahat ol. Emojilər: 😎🤙💪🔥""")
+    
+    def _build_manual_persona(self, ai_name: str, attitude: str, style: str) -> tuple:
+        """Build persona from manual user settings"""
+        
+        # Attitude mapping
+        attitude_prompts = {
+            "Professional": "Sən peşəkar, bilikli maliyyə müşavirisən. Rəsmi və hörmətli danış.",
+            "Strict": "Sən sərt və tələbkardırsan. İsrafçılığa qarşı sərt tənqid et.",
+            "Funny": "Sən zarafatcıl və gülməlisən. Maliyyə məsləhətlərini zarafatla ver.",
+            "Sarcastic": "Sən sarkastik və kinayəlisən. İroni ilə həqiqətləri de.",
+            "Supportive": "Sən dəstəkləyici və mülayimsən. Həmişə təşviq edici ol."
+        }
+        
+        # Style mapping
+        style_prompts = {
+            "Formal": "Rəsmi dillə danış, ifadələr ədəb-ərkan daxilində olsun.",
+            "Slang": "Jarqon işlət: 'brat', 'kanka', 'ay dayı' kimi sözlər.",
+            "Shakespearean": "Poeziya və şair dili ilə danış, lirik ifadələr işlət.",
+            "Dialect": "Azərbaycan ləhcəsi ilə: 'bala', 'oğul', 'ay görəsən' kimi.",
+            "Short": "Qısa və dəqiq cavablar ver. Maksimum 2-3 cümlə."
+        }
+        
+        attitude_text = attitude_prompts.get(attitude, attitude_prompts["Professional"])
+        style_text = style_prompts.get(style, style_prompts["Formal"])
+        
+        prompt = f"""Sənin adın {ai_name}-dir.
+Sən istifadəçinin maliyyə köməkçisisən.
+
+XARAKTER: {attitude_text}
+DANIŞIQ TƏRZİ: {style_text}
+
+Bu rola TAM uyğun şəkildə danış. Heç vaxt roldan çıxma.
+İstifadəçinin maliyyə məlumatlarına əsasən dəqiq məsləhət ver."""
+        
+        return (f"{attitude} - {style}", prompt)
+    
+    def chat_with_cfo(
+        self, 
+        user_message: str, 
+        db_context: Dict[str, Any],
+        chat_history: List[Dict[str, str]] = None,
+        language: str = "az",
+        user = None  # NEW: User model object for persona
+    ) -> str:
+        """
+        Context-aware financial advisor chatbot with dynamic persona
+        
+        Args:
+            user_message: The user's question
+            db_context: Financial data from database (spending, budget, etc.)
+            chat_history: Previous chat messages for context
+            language: Preferred language
+            user: User model object for AI persona settings and username
+            
+        Returns:
+            AI response as string
+        """
+        
+        # Build context string from database
+        context_parts = []
+        
+        total_spending = db_context.get("total_spending", 0)
+        budget = db_context.get("budget", 1000)
+        
+        if "total_spending" in db_context:
+            context_parts.append(f"Total spending this month: {db_context['total_spending']:.2f} AZN")
+        
+        if "budget" in db_context:
+            context_parts.append(f"Monthly budget: {db_context['budget']:.2f} AZN")
+            if "total_spending" in db_context:
+                budget_used = (db_context['total_spending'] / db_context['budget']) * 100
+                remaining = budget - total_spending
+                context_parts.append(f"Budget utilization: {budget_used:.1f}%")
+                context_parts.append(f"Remaining budget: {remaining:.2f} AZN")
+        
+        if "category_breakdown" in db_context and db_context["category_breakdown"]:
+            breakdown = ", ".join([f"{cat}: {amt:.2f} AZN" for cat, amt in db_context["category_breakdown"].items()])
+            context_parts.append(f"Spending by category: {breakdown}")
+        
+        if "subscription_count" in db_context:
+            context_parts.append(f"Active subscriptions: {db_context['subscription_count']}")
+        
+        if "recent_expenses" in db_context and db_context["recent_expenses"]:
+            recent = ", ".join([f"{exp['merchant']} ({exp['amount']:.2f} AZN)" 
+                               for exp in db_context["recent_expenses"][:3]])
+            context_parts.append(f"Recent expenses: {recent}")
+        
+        if "largest_expense" in db_context and db_context["largest_expense"]:
+            exp = db_context["largest_expense"]
+            context_parts.append(f"Largest expense: {exp['merchant']} - {exp['amount']:.2f} AZN ({exp['category']})")
+        
+        context_str = "\n".join(context_parts)
+        
+        # Build conversation history
+        history_str = ""
+        if chat_history:
+            history_messages = []
+            for msg in chat_history[-6:]:  # Last 6 messages for context
+                role = "User" if msg["role"] == "user" else "Assistant"
+                history_messages.append(f"{role}: {msg['content']}")
+            history_str = "\n".join(history_messages)
+        
+        # Language guard
+        language = (language or "az").lower()
+        language_instruction = {
+            "az": "Cavabı yalnız Azərbaycan dilində yaz. İngilis dilinə keçmə.",
+            "en": "Answer strictly in English.",
+            "ru": "Отвечай строго на русском языке."
+        }.get(language, "Cavabı yalnız Azərbaycan dilində yaz.")
+        
+        # Get username for personalization
+        username = user.username if user else "İstifadəçi"
+        
+        # Get dynamic persona
+        if user:
+            persona_name, base_personality = self.determine_persona(user)
+        else:
+            # Fallback if no user object
+            base_personality = "Sən FinMate AI, dostcasına maliyyə köməkçisisən."
+        
+        # Import local gems for suggestions
+        try:
+            from local_gems import find_local_gems, format_gem_suggestion
+            
+            # Check if user is complaining about expensive places or asking for alternatives
+            user_message_lower = user_message.lower()
+            expensive_keywords = ["bahadır", "bahalı", "çox pul", "ucuz", "alternativ", "daha ucuz", "qənaət", "starbucks", "kino", "mcdonald"]
+            is_expense_related = any(keyword in user_message_lower for keyword in expensive_keywords)
+            
+            # Try to extract merchant name from message or recent expenses
+            gem_suggestion = ""
+            if is_expense_related:
+                # First, try to extract merchant from user message
+                merchant_from_message = None
+                for key in ["starbucks", "mcdonald", "kfc", "kino", "cinema", "papa john", "entree", "coffeeshop"]:
+                    if key in user_message_lower:
+                        merchant_from_message = key.title()
+                        break
+                
+                # Try to find merchant in recent expenses
+                recent_expenses = db_context.get("recent_expenses", [])
+                merchant = merchant_from_message
+                amount = 0
+                category = ""
+                
+                if recent_expenses and isinstance(recent_expenses, list) and len(recent_expenses) > 0:
+                    latest_expense = recent_expenses[0]
+                    if isinstance(latest_expense, dict):
+                        if not merchant:
+                            merchant = latest_expense.get("merchant", "")
+                        amount = latest_expense.get("amount", 0)
+                        category = latest_expense.get("category", "")
+                
+                if merchant:
+                    alternatives = find_local_gems(merchant, amount, category)
+                    if alternatives:
+                        gem_suggestion = format_gem_suggestion(merchant, amount, alternatives)
+        except ImportError:
+            gem_suggestion = ""
+        
+        # System prompt
+        system_prompt = f"""{base_personality}
+
+**User Information:**
+- Username: {username}
+
+**User's Financial Data:**
+{context_str}
+
+**Previous Conversation:**
+{history_str if history_str else "No previous conversation"}
+
+**Instructions:**
+- İstifadəçi ilə TƏBİİ və SƏMIMI danış, kimi sanki dostunla söhbət edirsən
+- Əgər lazım gələrsə, istifadəçinin adını ({username}) işlət, amma hər cavabda yox
+- QADAĞAN: "Cənab", "Xanım", "Hörmətli" kimi rəsmi və süni müraciətlər işlətmə
+- Cavablar qısa və aydın olsun, lakin təbii səslənsin
+- Emojilər işlət, amma çox da deyil 😊
+- Məlumat əsasında konkret məsləhətlər ver
+- Əgər məlumat çatmırsa, səmimi şəkildə de ki, əlavə məlumat lazımdır
+- Valyuta: AZN
+- Cavablar 100 sözdən az olsun (ətraflı analiz lazım olmadıqda)
+- Cavabları yalnız {language} dilində yaz
+- {language_instruction}
+
+**IMPORTANT - Local Gem Discovery:**
+- If user mentions expensive places (Starbucks, Kino, McDonald's, etc.) or asks for cheaper alternatives, ALWAYS suggest local cheaper alternatives
+- Use the local gems database to provide specific recommendations with prices and savings
+- Format: "📍 [Name] - [Price] AZN ([Savings] AZN qənaət)"
+- If user complains about prices, proactively suggest alternatives even if not explicitly asked
+- ALWAYS include the gem suggestions below in your response if they are provided
+
+{gem_suggestion if gem_suggestion else ""}
+
+**User Question:** {user_message}
+
+**Your Response:**"""
+
+        try:
+            response = self.model.generate_content(system_prompt)
+            response_text = response.text.strip()
+            
+            # If we have gem suggestions but AI didn't include them, append them
+            if gem_suggestion and gem_suggestion not in response_text:
+                response_text += "\n\n" + gem_suggestion
+            
+            return response_text
+        except Exception as e:
+            print(f"❌ Gemini API Error: {e}")
+            return f"AI-də problem var 🤔 Gemini API açarını yoxla. Xəta: {str(e)}"
+    
+    def analyze_receipt(self, image_path: str) -> Dict[str, Any]:
+        """
+        Analyze receipt image and extract itemized data
+        
+        Args:
+            image_path: Path to receipt image file
+            
+        Returns:
+            Dictionary with merchant, date, items, total
+        """
+
+        # If API key missing, avoid remote call and return graceful fallback
+        if not GEMINI_API_KEY:
+            return self._fallback_receipt(
+                image_path,
+                "Gemini API açarı tapılmadı, sadə offline nəticə göstərildi."
+            )
+        
+        prompt = """Analyze this image. First, determine if this is a valid receipt, bill, or invoice.
+If it is NOT a receipt/bill/invoice, return ONLY: {"is_receipt": false}
+
+If it IS a receipt, extract the following information in JSON format:
+
+{
+    "is_receipt": true,
+    "merchant": "name of the store/restaurant",
+    "date": "date in YYYY-MM-DD format (if available on receipt, otherwise use null)",
+    "time": "time in HH:MM format (if available on receipt, otherwise use null)",
+    "currency": "AZN or currency code (USD, EUR, TRY, RUB, GBP)",
+    "items": [
+        {"name": "item name", "price": 0.00},
+        ...
+    ],
+    "total": 0.00,
+    "suggested_category": "one of: Food, Transport, Shopping, Bills, Entertainment, Health, Other"
+}
+
+IMPORTANT: 
+- Extract the date and time from the receipt if they are visible
+- If date/time is NOT visible on the receipt, set "date" and "time" to null
+- Be accurate with numbers. If you can't read something clearly, use your best judgment.
+- If the currency appears to be foreign, set the correct currency code.
+Return ONLY the JSON, no additional text."""
+
+        try:
+            # Upload image to Gemini
+            uploaded_file = genai.upload_file(image_path)
+            
+            # Generate content with image
+            response = self.model.generate_content([prompt, uploaded_file])
+            
+            # Parse JSON response
+            response_text = response.text.strip()
+            # Remove markdown code blocks if present
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.startswith("```"):
+                response_text = response_text[3:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            
+            receipt_data = json.loads(response_text.strip())
+            
+            # Ensure items key exists
+            if "items" not in receipt_data:
+                receipt_data["items"] = []
+            
+            return receipt_data
+            
+        except Exception as e:
+            print(f"❌ Receipt Analysis Error: {e}")
+            return self._fallback_receipt(
+                image_path,
+                f"AI xidməti çatmadı ({str(e)}) - əl ilə təsdiq üçün sadə nəticə."
+            )
+
+    def _fallback_receipt(self, image_path: str, reason: str) -> Dict[str, Any]:
+        """Offline/failed AI fallback so UX doesn't break."""
+        merchant_guess = os.path.splitext(os.path.basename(image_path))[0] or "Unknown Merchant"
+        merchant_guess = merchant_guess.replace("_", " ").replace("-", " ").title()[:30]
+        return {
+            "is_receipt": True,
+            "merchant": merchant_guess or "Qəbz",
+            "date": None,  # Will use current date/time from browser or UTC+4
+            "time": None,
+            "currency": "AZN",
+            "items": [],
+            "total": 0.0,
+            "suggested_category": "Other",
+            "note": reason
+        }
+
+
+# Singleton instance
+ai_service = FinMateAI()

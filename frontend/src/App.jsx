@@ -45,6 +45,8 @@ function App() {
           toastClassName="glass-toast"
           bodyClassName="glass-toast-body"
           progressClassName="glass-toast-progress"
+          limit={10}
+          enableMultiContainer={false}
           style={{
             zIndex: 10000,
             top: '5rem',

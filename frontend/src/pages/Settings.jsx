@@ -265,8 +265,23 @@ const Settings = () => {
           voiceEnabled={formData.voice_enabled}
           voiceMode={formData.voice_mode}
           readabilityMode={formData.readability_mode}
-          onVoiceEnabledChange={(value) => updateFormData('voice_enabled', value)}
+          isPremium={user?.is_premium || false}
+          onVoiceEnabledChange={(value) => {
+            // Səsli əmrlər premium funksiyadır
+            if (!user?.is_premium) {
+              toast.error('Səsli əmrlər Premium üçündür', { autoClose: 5000 })
+              openModal()
+              return
+            }
+            updateFormData('voice_enabled', value)
+          }}
           onVoiceModeChange={(value) => {
+            // TTS mode premium funksiyadır
+            if (!user?.is_premium) {
+              toast.error('Səsləndirmə rejimi Premium üçündür', { autoClose: 5000 })
+              openModal()
+              return
+            }
             updateFormData('voice_mode', value)
             localStorage.setItem('voice-mode', value ? 'enabled' : 'disabled')
             

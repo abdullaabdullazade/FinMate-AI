@@ -12,7 +12,8 @@ const PreferencesSection = ({
   readabilityMode,
   onVoiceEnabledChange,
   onVoiceModeChange,
-  onReadabilityModeChange
+  onReadabilityModeChange,
+  isPremium = false
 }) => {
   return (
     <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.2s' }}>
@@ -27,11 +28,11 @@ const PreferencesSection = ({
       </div>
 
       <div className="preferences-grid">
-        {/* Voice Commands Toggle */}
+        {/* Voice Commands Toggle - Premium */}
         <div className="preference-card">
           <div className="preference-content">
             <div className="preference-info">
-              <label className="preference-label">Səsli Əmrlər</label>
+              <label className="preference-label">Səsli Əmrlər {!isPremium && <span className="text-xs text-pink-400">(Premium)</span>}</label>
               <p className="preference-description">Mikrofon ilə xərc əlavə et</p>
             </div>
             <label className="toggle-switch">
@@ -39,7 +40,13 @@ const PreferencesSection = ({
                 type="checkbox"
                 name="voice_enabled"
                 checked={voiceEnabled}
-                onChange={(e) => onVoiceEnabledChange(e.target.checked)}
+                disabled={!isPremium}
+                onChange={(e) => {
+                  if (!isPremium) {
+                    return
+                  }
+                  onVoiceEnabledChange(e.target.checked)
+                }}
                 className="toggle-input"
               />
               <span className="toggle-slider"></span>
@@ -47,11 +54,11 @@ const PreferencesSection = ({
           </div>
         </div>
 
-        {/* Voice Mode Toggle (TTS) */}
+        {/* Voice Mode Toggle (TTS) - Premium */}
         <div className="preference-card">
           <div className="preference-content">
             <div className="preference-info">
-              <label className="preference-label">🔊 Səsləndirmə</label>
+              <label className="preference-label">🔊 Səsləndirmə {!isPremium && <span className="text-xs text-pink-400">(Premium)</span>}</label>
               <p className="preference-description">Mətnləri səsli oxumaq</p>
             </div>
             <label className="toggle-switch">
@@ -59,7 +66,13 @@ const PreferencesSection = ({
                 type="checkbox"
                 id="voice-mode-toggle"
                 checked={voiceMode}
-                onChange={(e) => onVoiceModeChange(e.target.checked)}
+                disabled={!isPremium}
+                onChange={(e) => {
+                  if (!isPremium) {
+                    return
+                  }
+                  onVoiceModeChange(e.target.checked)
+                }}
                 className="toggle-input"
               />
               <span className="toggle-slider voice-mode-slider"></span>

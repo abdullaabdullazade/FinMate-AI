@@ -1,0 +1,450 @@
+"""
+Voice Command Service for FinMate AI
+Handles voice-to-text, NLP parsing, and text-to-speech
+"""
+
+import os
+import base64
+import tempfile
+import asyncio
+from typing import Dict, Any, Optional
+from openai import OpenAI
+import edge_tts
+from ai_service import ai_service
+from models import Expense
+from datetime import datetime
+
+# API clients (prefer Groq Whisper, fallback to OpenAI)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+groq_client = OpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1") if GROQ_API_KEY else None
+openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+
+class VoiceService:
+    """Manages voice command processing"""
+    
+    # Voice names for different languages (Female voices)
+    VOICE_MAP = {
+        "az": "az-AZ-BanuNeural",      # Azerbaijani female voice
+        "en": "en-US-JennyNeural",     # English female voice
+        "ru": "ru-RU-SvetlanaNeural"   # Russian female voice
+    }
+    
+    @staticmethod
+    async def transcribe_audio(audio_file_path: str, language: str = "az") -> Dict[str, Any]:
+        """
+        Convert audio to text using Groq Whisper (preferred) or OpenAI Whisper
+        """
+        if not groq_client and not openai_client:
+            return {"success": False, "error": "Groq/OpenAI API key not configured", "text": ""}
+
+        try:
+            with open(audio_file_path, "rb") as audio_file:
+                # Map language codes to Whisper format
+                lang_map = {"az": "az", "en": "en", "ru": "ru"}
+                whisper_lang = lang_map.get(language, "az")
+
+                if groq_client:
+                    transcript = groq_client.audio.transcriptions.create(
+                        model="whisper-large-v3",
+                        file=audio_file,
+                        language=whisper_lang
+                    )
+                else:
+                    transcript = openai_client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file,
+                        language=whisper_lang
+                    )
+
+                return {"success": True, "text": transcript.text}
+        except Exception as e:
+            print(f"❌ Whisper Transcription Error: {e}")
+            return {"success": False, "error": str(e), "text": ""}
+    
+    @staticmethod
+    def parse_expense_from_text(text: str, user_language: str = "az") -> Dict[str, Any]:
+        """
+        Use Gemini to extract expense data from natural language
+        
+        Args:
+            text: Transcribed text from user
+            user_language: User's preferred language
+            
+        Returns:
+            dict with amount, merchant, category, or error
+        """
+        
+        # Multilingual prompts
+        prompts = {
+            "az": """Azərbaycan dilində bu cümlədən xərc məlumatını çıxart:
+"{text}"
+
+JSON formatında cavab ver:
+{{
+    "amount": 0.0,
+    "merchant": "mağaza və ya xidmət adı",
+    "category": "Market/Nəqliyyat/Kafe/Restoran/Geyim/Əyləncə/Kommunal/Aptек/Bank Xidməti/Digər"
+}}
+
+Yalnız JSON cavab ver, başqa mətn yox.""",
+            
+            "en": """Extract expense information from this English sentence:
+"{text}"
+
+Return JSON format:
+{{
+    "amount": 0.0,
+    "merchant": "store or service name",
+    "category": "Market/Transport/Cafe/Restaurant/Shopping/Entertainment/Bills/Health/Bank/Other"
+}}
+
+Only return JSON, no other text.""",
+            
+            "ru": """Извлеки информацию о расходе из этого русского предложения:
+"{text}"
+
+Верни в JSON формате:
+{{
+    "amount": 0.0,
+    "merchant": "название магазина или услуги",
+    "category": "Market/Transport/Cafe/Restaurant/Shopping/Entertainment/Bills/Health/Bank/Other"
+}}
+
+Только JSON, без другого текста."""
+        }
+        
+        prompt = prompts.get(user_language, prompts["az"]).format(text=text)
+        
+        try:
+            response = ai_service.model.generate_content(prompt)
+            response_text = response.text.strip()
+            
+            # Clean JSON response
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.startswith("```"):
+                response_text = response_text[3:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            
+            import json
+            expense_data = json.loads(response_text.strip())
+            # If model returned a list, pick the first dict
+            if isinstance(expense_data, list):
+                expense_data = expense_data[0] if expense_data else {}
+            if not isinstance(expense_data, dict):
+                return {"error": "Invalid response format"}
+
+            # Validate amount; fallback to regex if AI didn't return a valid number
+            amount = expense_data.get("amount")
+            if not amount or amount <= 0:
+                import re
+                # Try to find number in text
+                # Matches: 100, 100.50, 100,50, 1.000,00
+                # Remove currency symbols first to avoid confusion
+                clean_text = text.replace("AZN", "").replace("manat", "").replace("qəpik", "")
+                
+                # Regex 1: Standard float (100.50) or integer (100)
+                m1 = re.search(r"(\d+[.]\d+)", clean_text)
+                # Regex 2: Comma decimal (100,50)
+                m2 = re.search(r"(\d+[,]\d+)", clean_text)
+                # Regex 3: Just digits (100)
+                m3 = re.search(r"(\d+)", clean_text)
+                
+                found_amount = None
+                if m1:
+                    try:
+                        found_amount = float(m1.group(1))
+                    except: pass
+                elif m2:
+                    try:
+                        found_amount = float(m2.group(1).replace(",", "."))
+                    except: pass
+                elif m3:
+                    try:
+                        found_amount = float(m3.group(1))
+                    except: pass
+                    
+                if found_amount:
+                    amount = found_amount
+                    expense_data["amount"] = amount
+
+            # Try to capture item name as merchant/category if missing
+            merchant = (expense_data.get("merchant") or "").strip()
+            category = (expense_data.get("category") or "").strip()
+            # If user said what they bought, keep that as item name; otherwise just merchant
+            item_name = merchant
+            if not merchant:
+                tokens = text.split()
+                if tokens:
+                    merchant = tokens[0].strip(",.")
+                    item_name = merchant
+            if not category:
+                category = "Digər"
+
+            # Build item payload if we have amount
+            items = []
+            if amount and amount > 0:
+                items.append({
+                    "name": item_name or "Məhsul",
+                    "price": float(amount)
+                })
+
+            if not amount or amount <= 0:
+                return {"error": "Invalid amount extracted"}
+
+            return {
+                "success": True,
+                "amount": float(amount),
+                "merchant": merchant or "Səslə Əlavə",  # Ensure never NULL
+                "category": category,
+                "items": items
+            }
+            
+        except Exception as e:
+            print(f"❌ NLP Parsing Error: {e}")
+            return {
+                "success": False,
+                "error": f"Could not parse expense: {str(e)}"
+            }
+    
+    @staticmethod
+    async def generate_voice_response(
+        text: str, 
+        language: str = "az",
+        rate: str = "+0%",
+        pitch: str = "+0Hz",
+        volume: str = "+0%"
+    ) -> Optional[bytes]:
+        """
+        Convert text to speech using edge-tts with female voices
+        Enhanced with quality parameters for better audio output
+        """
+        if not text or not text.strip():
+            print("❌ TTS Error: Empty text")
+            return None
+        
+        try:
+            voice = VoiceService.VOICE_MAP.get(language, VoiceService.VOICE_MAP["az"])
+            print(f"🔊 TTS: Generating with voice {voice}, rate={rate}, pitch={pitch}, text: {text[:50]}...")
+            
+            # Create temp file
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp_file:
+                tmp_path = tmp_file.name
+            
+            # Load all proxies if available
+            all_proxies = []
+            proxies_file = "proxies.txt"
+            if os.path.exists(proxies_file):
+                try:
+                    with open(proxies_file, "r") as f:
+                        raw_proxies = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+                    
+                    # Randomly select up to 100 proxies
+                    import random
+                    if len(raw_proxies) > 100:
+                        all_proxies = random.sample(raw_proxies, 100)
+                    else:
+                        all_proxies = raw_proxies.copy()
+                    
+                    # Shuffle them for random order
+                    random.shuffle(all_proxies)
+                    print(f"📋 Loaded {len(all_proxies)} random proxies")
+                except Exception as e:
+                    print(f"⚠️ Proxy Error: {e}")
+
+            # Try up to 3 different proxies before giving up
+            max_retries = min(3, len(all_proxies)) if all_proxies else 3
+            for attempt in range(max_retries):
+                proxy = None
+                if all_proxies and attempt < len(all_proxies):
+                    # Use shuffled list - each attempt gets next proxy
+                    raw_proxy = all_proxies[attempt]
+                    # Convert IP:PORT:USER:PASS to http://USER:PASS@IP:PORT
+                    parts = raw_proxy.split(':')
+                    if len(parts) == 4:
+                        proxy = f"http://{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
+                    else:
+                        if not raw_proxy.startswith("http"):
+                            proxy = f"http://{raw_proxy}"
+                        else:
+                            proxy = raw_proxy
+                    print(f"🔄 TTS Attempt {attempt + 1}/{max_retries}: Using proxy: {proxy}")
+                else:
+                    print(f"🔄 TTS Attempt {attempt + 1}/{max_retries}: No proxy")
+
+                try:
+                    # Generate audio using edge-tts with enhanced quality parameters
+                    # Format: rate (speed), pitch (tone), volume
+                    communicate = edge_tts.Communicate(
+                        text, 
+                        voice, 
+                        proxy=proxy,
+                        rate=rate,      # Speech rate: -50% to +100% (default: +0%)
+                        pitch=pitch,     # Pitch: -50Hz to +50Hz (default: +0Hz)
+                        volume=volume   # Volume: -50% to +100% (default: +0%)
+                    )
+                    await communicate.save(tmp_path)
+                    
+                    # Wait a bit to ensure file is written
+                    await asyncio.sleep(0.2)
+                    
+                    # Check file exists and has content
+                    if not os.path.exists(tmp_path):
+                        raise Exception("Audio file not created")
+                    
+                    file_size = os.path.getsize(tmp_path)
+                    if file_size == 0:
+                        raise Exception("Audio file is empty")
+                    
+                    print(f"✅ TTS: Generated {file_size} bytes")
+                    
+                    # Read and return audio
+                    with open(tmp_path, "rb") as f:
+                        audio_data = f.read()
+                    
+                    if not audio_data or len(audio_data) == 0:
+                        raise Exception("No audio data read from file")
+                    
+                    return audio_data
+                    
+                except Exception as e:
+                    print(f"❌ TTS Attempt {attempt + 1} failed: {e}")
+                    if attempt < max_retries - 1:
+                        print(f"⏳ Retrying with different proxy...")
+                        await asyncio.sleep(0.5)  # Small delay before retry
+                        continue
+                    else:
+                        print(f"❌ All {max_retries} attempts failed")
+                        raise
+            
+        except Exception as e:
+            print(f"❌ TTS Error: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+        finally:
+                # Clean up temp file
+                if os.path.exists(tmp_path):
+                    try:
+                        os.unlink(tmp_path)
+                    except:
+                        pass
+            
+    
+    
+    @staticmethod
+    async def process_voice_command(
+        audio_data: bytes, 
+        user, 
+        db_session,
+        language: str = "az",
+        mime_type: Optional[str] = None,
+        save_to_db: bool = True
+    ) -> Dict[str, Any]:
+        """
+        End-to-end voice command processing
+        
+        Args:
+            audio_data: Raw audio bytes from client
+            user: User model instance
+            db_session: Database session
+            language: User's preferred language
+            save_to_db: If False, only transcribe and parse without saving
+            
+        Returns:
+            dict with expense_data, ai_response_audio, success
+        """
+        
+        # Pick file suffix based on mime
+        suffix_map = {
+            "audio/webm": ".webm",
+            "audio/mp4": ".mp4",
+            "audio/mpeg": ".mp3",
+            "audio/ogg": ".ogg",
+            "audio/wav": ".wav"
+        }
+        suffix = suffix_map.get(mime_type or "", ".webm")
+        
+        # Save audio temporarily
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp_audio:
+            tmp_audio.write(audio_data)
+            audio_path = tmp_audio.name
+        
+        try:
+            # Step 1: Transcribe audio
+            transcription = await VoiceService.transcribe_audio(audio_path, language)
+            
+            if not transcription["success"]:
+                return {
+                    "success": False,
+                    "error": transcription.get("error", "Could not transcribe audio")
+                }
+            
+            transcribed_text = transcription["text"]
+            
+            # Step 2: Parse expense from text
+            expense_info = VoiceService.parse_expense_from_text(transcribed_text, language)
+            
+            if not expense_info.get("success"):
+                return {
+                    "success": False,
+                    "error": expense_info.get("error", "Could not parse expense")
+                }
+            
+            # If not saving to DB, return parsed data for confirmation
+            if not save_to_db:
+                return {
+                    "success": True,
+                    "transcribed_text": transcribed_text,
+                    "expense_data": expense_info
+                }
+            
+            # Step 3: Save expense to database (use local time now)
+            expense = Expense(
+                user_id=user.id,
+                amount=expense_info["amount"],
+                merchant=expense_info["merchant"],
+                category=expense_info["category"],
+                date=datetime.now()
+            )
+            db_session.add(expense)
+            db_session.commit()
+            
+            # Step 4: Generate AI response
+            response_texts = {
+                "az": f"{expense_info['amount']:.2f} manat {expense_info['category']} kateqoriyasında saxlandı.",
+                "en": f"{expense_info['amount']:.2f} AZN saved in {expense_info['category']} category.",
+                "ru": f"{expense_info['amount']:.2f} манат сохранено в категории {expense_info['category']}."
+            }
+            
+            response_text = response_texts.get(language, response_texts["az"])
+            
+            # Step 5: Generate voice response
+            audio_response = await VoiceService.generate_voice_response(response_text, language)
+            
+            return {
+                "success": True,
+                "transcribed_text": transcribed_text,
+                "expense_data": expense_info,
+                "response_text": response_text,
+                "audio_response": base64.b64encode(audio_response).decode() if audio_response else None,
+                "expense_id": expense.id
+            }
+            
+        except Exception as e:
+            print(f"❌ Voice Command Error: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+        finally:
+            # Clean up temp file
+            if os.path.exists(audio_path):
+                os.unlink(audio_path)
+
+
+# Singleton instance
+voice_service = VoiceService()

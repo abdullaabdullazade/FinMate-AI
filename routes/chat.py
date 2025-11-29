@@ -24,7 +24,32 @@ async def send_chat_message(
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required")
     
-    # Save user message
+    # Premium olmayan istifadəçilər üçün gündəlik 30 mesaj limiti
+    if not user.is_premium:
+        from datetime import date, time
+        today = date.today()
+        
+        # Bu gün göndərilən mesajları say (cari mesaj daxil olmadan)
+        today_start = datetime.combine(today, time.min)
+        today_messages = db.query(ChatMessage).filter(
+            ChatMessage.user_id == user.id,
+            ChatMessage.role == "user",
+            ChatMessage.timestamp >= today_start
+        ).count()
+        
+        # Limit: 30 mesaj (30 mesaj göndərə bilər)
+        DAILY_MESSAGE_LIMIT = 30
+        # Əgər 30 mesaj varsa, 31-ci mesajı blokla
+        if today_messages >= DAILY_MESSAGE_LIMIT:
+            return JSONResponse({
+                "success": False,
+                "error": f"Gündəlik mesaj limitinə çatdınız ({DAILY_MESSAGE_LIMIT} mesaj). Premium üzvlük alaraq limitsiz mesaj göndərə bilərsiniz.",
+                "daily_messages": today_messages,
+                "daily_limit": DAILY_MESSAGE_LIMIT,
+                "is_premium": False
+            }, status_code=429)
+    
+    # Save user message (limit yoxlamasından sonra)
     user_msg = ChatMessage(
         user_id=user.id,
         role="user",
@@ -84,28 +109,11 @@ async def send_chat_message(
     # Award XP for chat interaction
     xp_result = gamification.award_xp(user, "chat_message", db)
     
-    # Deduct coins for non-premium users (1-2 coins per message)
-    coins_deducted = 0
-    if not user.is_premium:
-        import random
-        coins_to_deduct = random.randint(1, 2)  # 1-2 coins randomly
-        if user.coins is None:
-            user.coins = 0
-        if user.coins >= coins_to_deduct:
-            user.coins -= coins_to_deduct
-            coins_deducted = coins_to_deduct
-        else:
-            # Not enough coins - return error
-            db.rollback()
-            return JSONResponse({
-                "success": False,
-                "error": f"Kifayət qədər coin yoxdur. Lazım: {coins_to_deduct}, Sizin: {user.coins}",
-                "coins_required": coins_to_deduct,
-                "coins_available": user.coins
-            }, status_code=400)
+    # Coin sistemi silindi - yalnız gündəlik mesaj limiti var
+    # Premium olmayan istifadəçilər üçün gündəlik 30 mesaj limiti kifayətdir
     
     db.commit()
-    db.refresh(user)  # Refresh to get updated XP and coins
+    db.refresh(user)  # Refresh to get updated XP
     
     # Sanitize xp_result to handle inf values
     def sanitize_float(value):
@@ -144,6 +152,22 @@ async def send_chat_message(
             else:
                 sanitized_xp_result[key] = value
     
+    # Premium olmayan istifadəçilər üçün gündəlik mesaj sayını qaytar
+    # Hər mesaj yazıldıqca limit azalır və gündəlik yenilənir
+    daily_messages = None
+    daily_limit = None
+    if not user.is_premium:
+        from datetime import date, time
+        today = date.today()
+        today_start = datetime.combine(today, time.min)
+        # Bu gün göndərilən mesajları say (cari mesaj daxil olmaqla)
+        daily_messages = db.query(ChatMessage).filter(
+            ChatMessage.user_id == user.id,
+            ChatMessage.role == "user",
+            ChatMessage.timestamp >= today_start
+        ).count()
+        daily_limit = 30
+    
     # Return JSON for React frontend - return raw AI response (frontend will handle markdown rendering)
     return JSONResponse({
         "success": True,
@@ -151,9 +175,9 @@ async def send_chat_message(
         "user_message": message,
         "xp_awarded": sanitized_xp_result.get("xp_awarded", 0) if sanitized_xp_result else 0,
         "xp_result": sanitized_xp_result,
-        "coins_deducted": coins_deducted,
-        "coins_remaining": user.coins if user.coins is not None else 0,
-        "is_premium": user.is_premium
+        "is_premium": user.is_premium,
+        "daily_messages": daily_messages,  # Gündəlik mesaj sayı (hər mesaj yazıldıqca artır)
+        "daily_limit": daily_limit  # Gündəlik limit (30 mesaj)
     })
 
 

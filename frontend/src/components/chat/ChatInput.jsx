@@ -8,7 +8,7 @@ import '../../styles/components/chat/chat-input-container.css'
 import '../../styles/components/chat/chat-input-field.css'
 import '../../styles/components/chat/send-button.css'
 
-const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, inputRef }) => {
+const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, inputRef, disabled = false }) => {
   return (
     <div className="chat-input-container fixed left-0 right-0 px-4 sm:px-6 transition-all duration-300 z-50" style={{ bottom: '16px' }}>
       <div className="w-full max-w-4xl mx-auto">
@@ -24,16 +24,16 @@ const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, 
             name="message"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="AI CFO-dan nə öyrənmək istəyirsən?"
+            placeholder={disabled ? "Gündəlik mesaj limitinə çatdınız. Premium üzvlük alın." : "AI CFO-dan nə öyrənmək istəyirsən?"}
             required
             className="chat-input-field flex-1"
             autoComplete="off"
             id="chat-input"
-            disabled={loading}
+            disabled={loading || disabled}
           />
           <button
             type="submit"
-            disabled={loading || !inputMessage.trim()}
+            disabled={loading || !inputMessage.trim() || disabled}
             className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center hover:scale-110 transition shadow-lg group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg

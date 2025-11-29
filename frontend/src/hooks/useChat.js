@@ -14,6 +14,8 @@ export const useChat = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [showTyping, setShowTyping] = useState(false)
+  const [dailyMessages, setDailyMessages] = useState(null)
+  const [dailyLimit, setDailyLimit] = useState(null)
   const chatContainerRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -48,7 +50,7 @@ export const useChat = () => {
   }
 
   /**
-   * Component mount olduqda əvvəlki mesajları yüklə
+   * Component mount olduqda əvvəlki mesajları yüklə və gündəlik limiti yoxla
    */
   useEffect(() => {
     const fetchMessages = async () => {
@@ -57,13 +59,20 @@ export const useChat = () => {
         if (response.data.success && response.data.messages) {
           setMessages(response.data.messages)
         }
+        
+        // Premium olmayan istifadəçilər üçün gündəlik mesaj sayını yüklə
+        if (!user?.is_premium) {
+          // İlk mesaj göndərmədən əvvəl gündəlik limiti yoxla
+          // Bu, backend-dən gündəlik mesaj sayını alır
+          // Həqiqi say backend-də mesaj göndərildikdə yenilənir
+        }
       } catch (error) {
         console.error('Chat history fetch error:', error)
       }
     }
 
     fetchMessages()
-  }, [])
+  }, [user])
 
   /**
    * Component mount olduqda scroll to bottom və focus input - chat.js-dəki kimi
@@ -123,12 +132,19 @@ export const useChat = () => {
         // Remove typing indicator
         setShowTyping(false)
 
-        // Show coin deduction notification for non-premium users
-        if (response.data.coins_deducted && response.data.coins_deducted > 0) {
-          toast.info(`🪙 ${response.data.coins_deducted} coin istifadə edildi. Qalan: ${response.data.coins_remaining} coin`, {
-            position: 'top-right',
-            autoClose: 3000,
-          })
+        // Update daily message count for non-premium users (hər mesaj yazıldıqca azalır)
+        if (!user?.is_premium && response.data.daily_messages !== undefined && response.data.daily_limit) {
+          setDailyMessages(response.data.daily_messages)
+          setDailyLimit(response.data.daily_limit)
+          const remaining = response.data.daily_limit - response.data.daily_messages
+          
+          // Qalan mesaj sayı 5 və ya daha az olduqda xəbərdarlıq
+          if (remaining <= 5 && remaining > 0) {
+            toast.warning(`⚠️ Gündəlik mesaj limiti: ${response.data.daily_messages}/${response.data.daily_limit}. Qalan: ${remaining} mesaj`, {
+              position: 'top-right',
+              autoClose: 4000,
+            })
+          }
         }
 
         const aiMessage = {
@@ -144,14 +160,48 @@ export const useChat = () => {
           speakMessage(text)
         }
       } else {
-        // Check if error is due to insufficient coins
-        if (response.data.error && response.data.error.includes('coin')) {
+        // Check if error is due to daily message limit
+        if (response.data.error && response.data.error.includes('limit')) {
           toast.error(response.data.error, {
             position: 'top-right',
             autoClose: 5000,
           })
+          // Remove the user message that was added
+          setMessages((prev) => prev.slice(0, -1))
+          // Update daily message count
+          if (response.data.daily_messages !== undefined && response.data.daily_limit) {
+            setDailyMessages(response.data.daily_messages)
+            setDailyLimit(response.data.daily_limit)
+          }
+        } else {
+          setShowTyping(false)
+          toast.error(response.data.error || 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
+            position: 'top-right',
+            autoClose: 5000,
+          })
+          const errorMessage = {
+            id: Date.now() + 1,
+            role: 'ai',
+            content: response.data.error || 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.',
+          }
+          setMessages((prev) => [...prev, errorMessage])
         }
-        setShowTyping(false)
+      }
+    } catch (error) {
+      console.error('Chat error:', error)
+      setShowTyping(false)
+      
+      // Remove the user message that was added
+      setMessages((prev) => prev.slice(0, -1))
+      
+      // Check if it's a 400 or 429 error (limit reached)
+      if (error.response?.status === 400 || error.response?.status === 429) {
+        const errorMsg = error.response?.data?.error || 'Gündəlik mesaj limitinə çatdınız'
+        toast.error(errorMsg, {
+          position: 'top-right',
+          autoClose: 5000,
+        })
+      } else {
         toast.error('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
           position: 'top-right',
           autoClose: 5000,
@@ -163,19 +213,6 @@ export const useChat = () => {
         }
         setMessages((prev) => [...prev, errorMessage])
       }
-    } catch (error) {
-      console.error('Chat error:', error)
-      setShowTyping(false)
-      toast.error('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', {
-        position: 'top-right',
-        autoClose: 5000,
-      })
-      const errorMessage = {
-        id: Date.now() + 1,
-        role: 'ai',
-        content: 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.',
-      }
-      setMessages((prev) => [...prev, errorMessage])
     } finally {
       setLoading(false)
       inputRef.current?.focus()
@@ -187,6 +224,8 @@ export const useChat = () => {
     inputMessage,
     loading,
     showTyping,
+    dailyMessages,
+    dailyLimit,
     chatContainerRef,
     inputRef,
     setInputMessage,
