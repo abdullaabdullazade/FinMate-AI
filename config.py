@@ -21,6 +21,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:8200",  # Backend port (for development)
         "http://127.0.0.1:8200",  # Backend port (alternative)
+        "http://185.207.251.177:3000"
     ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
