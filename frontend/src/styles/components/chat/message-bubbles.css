@@ -12,7 +12,7 @@
     padding: 0.875rem 1rem !important;
 }
 
-/* Premium AI Message Bubbles - Theme Aware */
+/* LIQUID AI Message Bubbles - Maye Mesaj Balonları */
 .message-bubble.glass {
     background: var(--glass-bg);
     border: 1.5px solid var(--glass-border);
@@ -25,9 +25,30 @@
         0 2px 8px rgba(0, 0, 0, 0.05) inset,
         0 0 30px var(--glass-glow);
     position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 20px;
 }
 
+/* Liquid Wave Effect */
 .message-bubble.glass::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+    );
+    animation: liquid-bubble 10s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.message-bubble.glass::after {
     content: '';
     position: absolute;
     top: 0;
@@ -41,6 +62,39 @@
         transparent
     );
     pointer-events: none;
+    animation: liquid-shine 3s ease-in-out infinite;
+}
+
+@keyframes liquid-bubble {
+    0%, 100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        border-radius: 50% 40% 60% 30%;
+    }
+    50% {
+        transform: translate(15%, -15%) scale(1.2) rotate(180deg);
+        border-radius: 40% 60% 30% 70%;
+    }
+}
+
+@keyframes liquid-shine {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translateX(-100%);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(100%);
+    }
+}
+
+.message-bubble.glass:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 
+        0 6px 28px var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+        0 4px 12px rgba(0, 0, 0, 0.08) inset,
+        0 0 40px var(--accent-glow);
+    border-radius: 24px;
 }
 
 /* Premium Themes - AI Message Bubbles */

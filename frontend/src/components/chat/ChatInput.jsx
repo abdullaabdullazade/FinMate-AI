@@ -10,7 +10,6 @@ import '../../styles/components/chat/send-button.css'
 
 const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, inputRef, disabled = false }) => {
   return (
-    <div className="chat-input-container fixed left-0 right-0 px-4 sm:px-6 transition-all duration-300 z-50" style={{ bottom: '16px' }}>
       <div className="w-full max-w-4xl mx-auto">
         <form
           onSubmit={handleSendMessage}
@@ -52,7 +51,6 @@ const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, 
           </button>
         </form>
       </div>
-    </div>
   )
 }
 

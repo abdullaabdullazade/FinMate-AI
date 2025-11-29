@@ -1,9 +1,13 @@
 /**
- * Premium Glassmorphism Effects
- * WOW Factor - Premium User Experience
+ * LIQUID DESIGN - Premium Glassmorphism
+ * Fluid, Dynamic, WOW Effect
+ * Axıcı, Dinamik, Premium Dizayn
  */
 
-/* Premium Glass Effect */
+/* ============================================
+   LIQUID GLASS BASE - Maye Şüşə Əsası
+   ============================================ */
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(24px) saturate(200%);
@@ -15,9 +19,29 @@
     0 2px 8px rgba(0, 0, 0, 0.05) inset,
     0 0 40px var(--glass-glow);
   position: relative;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Liquid Wave Effect - Maye Dalğa Effekti */
 .glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: liquid-wave 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.glass::after {
   content: '';
   position: absolute;
   top: 0;
@@ -31,135 +55,71 @@
     transparent
   );
   pointer-events: none;
+  animation: shimmer-flow 3s ease-in-out infinite;
 }
 
-/* Premium Glass Card */
+@keyframes liquid-wave {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(50%) translateY(-10px) rotate(5deg);
+    opacity: 0.6;
+  }
+}
+
+@keyframes shimmer-flow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scaleX(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* ============================================
+   LIQUID GLASS CARD - Maye Şüşə Kart
+   ============================================ */
+
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(200%);
   -webkit-backdrop-filter: blur(20px) saturate(200%);
-  border-radius: 24px;
+  border-radius: 28px;
   border: 1.5px solid var(--glass-border);
   box-shadow: 
     0 8px 32px 0 var(--glass-shadow),
     0 0 0 1px rgba(255, 255, 255, 0.15) inset,
     0 2px 12px rgba(0, 0, 0, 0.06) inset,
     0 0 50px var(--glass-glow);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
 }
 
+/* Liquid Morphing Background - Maye Dəyişən Fon */
 .glass-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.7),
-    transparent
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%
   );
+  animation: liquid-morph 12s ease-in-out infinite;
   pointer-events: none;
-  opacity: 0.8;
+  border-radius: 50%;
 }
 
-.glass-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 
-    0 16px 48px 0 var(--glass-shadow),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-    0 4px 16px rgba(0, 0, 0, 0.08) inset,
-    0 0 60px var(--accent-glow);
-  border-color: var(--accent-primary);
-}
-
-.glass-card:hover::before {
-  opacity: 1;
-}
-
-/* Premium Bottom Nav */
-.bottom-nav {
-  background: var(--glass-bg);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border-top: 1.5px solid var(--nav-border);
-  box-shadow: 
-    0 -4px 24px 0 var(--glass-shadow),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-    0 0 30px var(--glass-glow);
-  position: relative;
-}
-
-.bottom-nav::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-  pointer-events: none;
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--glass-border),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-/* Hover effekti deaktiv edildi - statik rənglər */
-/* .glass-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 16px 48px 0 rgba(139, 92, 246, 0.4),
-              0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-              0 4px 16px rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.glass-card:hover::before {
-  opacity: 1;
-} */
-
-/* Ultra Premium Glass Card Enhanced */
-.glass-card-enhanced {
-  background: var(--glass-bg);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border-radius: 28px;
-  border: 2px solid var(--glass-border);
-  box-shadow: 
-    0 12px 48px 0 var(--glass-shadow),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-    0 4px 16px rgba(0, 0, 0, 0.08) inset,
-    0 0 60px var(--glass-glow),
-    0 0 100px var(--accent-glow);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.glass-card-enhanced::before {
+.glass-card::after {
   content: '';
   position: absolute;
   top: 0;
@@ -173,46 +133,389 @@
     transparent
   );
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.8;
+  animation: liquid-shimmer 4s ease-in-out infinite;
 }
 
-.glass-card-enhanced:hover {
-  transform: translateY(-12px) scale(1.03);
+@keyframes liquid-morph {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    border-radius: 50% 40% 60% 30%;
+  }
+  25% {
+    transform: translate(10%, -10%) scale(1.1) rotate(90deg);
+    border-radius: 40% 60% 30% 70%;
+  }
+  50% {
+    transform: translate(-10%, 10%) scale(0.9) rotate(180deg);
+    border-radius: 60% 30% 70% 40%;
+  }
+  75% {
+    transform: translate(10%, 10%) scale(1.05) rotate(270deg);
+    border-radius: 30% 70% 40% 60%;
+  }
+}
+
+@keyframes liquid-shimmer {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(100%);
+  }
+}
+
+/* Liquid Hover Effect - Maye Hover Effekti */
+.glass-card:hover {
+  transform: translateY(-10px) scale(1.02) rotateX(2deg);
   box-shadow: 
-    0 20px 64px 0 var(--glass-shadow),
-    0 0 0 2px rgba(255, 255, 255, 0.3) inset,
-    0 6px 24px rgba(0, 0, 0, 0.1) inset,
+    0 20px 60px 0 var(--glass-shadow),
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+    0 4px 20px rgba(0, 0, 0, 0.1) inset,
     0 0 80px var(--accent-glow),
     0 0 120px var(--accent-glow);
   border-color: var(--accent-primary);
+  border-radius: 32px;
 }
 
-/* Hover effekti deaktiv edildi - statik rənglər */
-/* .glass-card-enhanced:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 20px 60px 0 rgba(139, 92, 246, 0.45),
-              0 0 0 1px rgba(255, 255, 255, 0.25) inset,
-              0 4px 20px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-} */
+.glass-card:hover::before {
+  animation: liquid-morph-hover 6s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.25) 0%,
+    transparent 60%
+  );
+}
 
-/* Shimmer effect for loading states */
-@keyframes shimmer {
+.glass-card:hover::after {
+  opacity: 1;
+  animation: liquid-shimmer-fast 2s ease-in-out infinite;
+}
+
+@keyframes liquid-morph-hover {
+  0%, 100% {
+    transform: translate(0, 0) scale(1.2) rotate(0deg);
+    border-radius: 50% 40% 60% 30%;
+  }
+  33% {
+    transform: translate(15%, -15%) scale(1.3) rotate(120deg);
+    border-radius: 40% 60% 30% 70%;
+  }
+  66% {
+    transform: translate(-15%, 15%) scale(1.1) rotate(240deg);
+    border-radius: 60% 30% 70% 40%;
+  }
+}
+
+@keyframes liquid-shimmer-fast {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================
+   LIQUID BOTTOM NAV - Maye Alt Naviqasiya
+   ============================================ */
+
+.bottom-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-top: 1.5px solid var(--nav-border);
+  box-shadow: 
+    0 -4px 24px 0 var(--glass-shadow),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 30px var(--glass-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  pointer-events: none;
+  animation: liquid-flow 4s ease-in-out infinite;
+}
+
+@keyframes liquid-flow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scaleX(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* ============================================
+   ULTRA LIQUID GLASS CARD - Ultra Maye Kart
+   ============================================ */
+
+.glass-card-enhanced {
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-radius: 32px;
+  border: 2px solid var(--glass-border);
+  box-shadow: 
+    0 12px 48px 0 var(--glass-shadow),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    0 4px 16px rgba(0, 0, 0, 0.08) inset,
+    0 0 60px var(--glass-glow),
+    0 0 100px var(--accent-glow);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Multiple Liquid Layers - Çoxlaylı Maye Qatlar */
+.glass-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 40%);
+  animation: liquid-blob 15s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.glass-card-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.9),
+    transparent
+  );
+  pointer-events: none;
+  opacity: 0.9;
+  animation: liquid-glow 3s ease-in-out infinite;
+}
+
+@keyframes liquid-blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    border-radius: 50% 40% 60% 30% / 60% 30% 70% 40%;
+  }
+  20% {
+    transform: translate(20%, -20%) scale(1.2) rotate(72deg);
+    border-radius: 40% 60% 30% 70% / 30% 70% 40% 60%;
+  }
+  40% {
+    transform: translate(-20%, 20%) scale(0.8) rotate(144deg);
+    border-radius: 60% 30% 70% 40% / 70% 40% 60% 30%;
+  }
+  60% {
+    transform: translate(20%, 20%) scale(1.1) rotate(216deg);
+    border-radius: 30% 70% 40% 60% / 40% 60% 30% 70%;
+  }
+  80% {
+    transform: translate(-20%, -20%) scale(0.9) rotate(288deg);
+    border-radius: 70% 40% 60% 30% / 60% 30% 70% 40%;
+  }
+}
+
+@keyframes liquid-glow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: translateX(-100%) scaleX(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(100%) scaleX(1.5);
+  }
+}
+
+.glass-card-enhanced:hover {
+  transform: translateY(-15px) scale(1.04) rotateX(3deg) rotateY(1deg);
+  box-shadow: 
+    0 24px 80px 0 var(--glass-shadow),
+    0 0 0 2px rgba(255, 255, 255, 0.3) inset,
+    0 6px 30px rgba(0, 0, 0, 0.12) inset,
+    0 0 100px var(--accent-glow),
+    0 0 150px var(--accent-glow);
+  border-color: var(--accent-primary);
+  border-radius: 36px;
+}
+
+.glass-card-enhanced:hover::before {
+  animation: liquid-blob-hover 8s ease-in-out infinite;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
+}
+
+.glass-card-enhanced:hover::after {
+  opacity: 1;
+  animation: liquid-glow-fast 1.5s ease-in-out infinite;
+}
+
+@keyframes liquid-blob-hover {
+  0%, 100% {
+    transform: translate(0, 0) scale(1.3) rotate(0deg);
+    border-radius: 50% 40% 60% 30% / 60% 30% 70% 40%;
+  }
+  25% {
+    transform: translate(25%, -25%) scale(1.5) rotate(90deg);
+    border-radius: 40% 60% 30% 70% / 30% 70% 40% 60%;
+  }
+  50% {
+    transform: translate(-25%, 25%) scale(1.1) rotate(180deg);
+    border-radius: 60% 30% 70% 40% / 70% 40% 60% 30%;
+  }
+  75% {
+    transform: translate(25%, 25%) scale(1.4) rotate(270deg);
+    border-radius: 30% 70% 40% 60% / 40% 60% 30% 70%;
+  }
+}
+
+@keyframes liquid-glow-fast {
+  0%, 100% {
+    opacity: 0.9;
+    transform: translateX(-100%) scaleX(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(100%) scaleX(1.8);
+  }
+}
+
+/* ============================================
+   LIQUID SHIMMER - Maye Parıltı
+   ============================================ */
+
+@keyframes liquid-shimmer {
   0% {
-    background-position: -1000px 0;
+    background-position: -200% 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
   }
   100% {
-    background-position: 1000px 0;
+    background-position: 200% 0;
+    opacity: 0.3;
   }
 }
 
 .glass-card-shimmer {
   background: linear-gradient(
-    90deg,
+    120deg,
     var(--glass-bg) 0%,
+    rgba(255, 255, 255, 0.3) 25%,
     var(--glass-border) 50%,
+    rgba(255, 255, 255, 0.3) 75%,
     var(--glass-bg) 100%
   );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
+  background-size: 200% 100%;
+  animation: liquid-shimmer 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: liquid-shine 2s ease-in-out infinite;
+}
+
+@keyframes liquid-shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ============================================
+   LIQUID RESPONSIVE - Responsiv Maye
+   ============================================ */
+
+@media (max-width: 640px) {
+  .glass-card,
+  .glass-card-enhanced {
+    border-radius: 20px;
+  }
+  
+  .glass-card:hover,
+  .glass-card-enhanced:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-radius: 24px;
+  }
+  
+  .glass-card::before,
+  .glass-card-enhanced::before {
+    animation-duration: 10s;
+  }
+}
+
+/* ============================================
+   LIQUID PERFORMANCE - Performans Optimallaşdırması
+   ============================================ */
+
+.glass,
+.glass-card,
+.glass-card-enhanced {
+  will-change: transform, box-shadow, border-radius;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .glass::before,
+  .glass::after,
+  .glass-card::before,
+  .glass-card::after,
+  .glass-card-enhanced::before,
+  .glass-card-enhanced::after {
+    animation: none;
+  }
+  
+  .glass-card:hover,
+  .glass-card-enhanced:hover {
+    transform: translateY(-4px);
+  }
 }

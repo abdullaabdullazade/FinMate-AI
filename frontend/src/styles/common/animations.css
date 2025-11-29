@@ -1,52 +1,82 @@
 /**
- * Animations
- * All animation keyframes and animation classes
+ * LIQUID ANIMATIONS - Maye Animasiyalar
+ * Fluid, Dynamic, Smooth Animations
  */
 
-@keyframes slideUp {
+/* ============================================
+   LIQUID SLIDE UP - Maye Yuxarı Sürüşmə
+   ============================================ */
+
+@keyframes liquid-slide-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.95);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
 .slide-up {
-  animation: slideUp 0.5s ease-out forwards;
+  animation: liquid-slide-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   opacity: 0;
 }
 
-@keyframes fadeIn {
+/* ============================================
+   LIQUID FADE IN - Maye Yavaş Görünmə
+   ============================================ */
+
+@keyframes liquid-fade-in {
   from {
     opacity: 0;
+    transform: scale(0.98);
+    filter: blur(2px);
   }
   to {
     opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
   }
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: liquid-fade-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-@keyframes shimmer {
+/* ============================================
+   LIQUID SHIMMER - Maye Parıltı
+   ============================================ */
+
+@keyframes liquid-shimmer {
   0% {
-    background-position: 100% 0;
+    background-position: -200% 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
   }
   100% {
-    background-position: -100% 0;
+    background-position: 200% 0;
+    opacity: 0.3;
   }
 }
 
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--skeleton-bg);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
+  background: linear-gradient(
+    120deg,
+    var(--skeleton-bg) 0%,
+    rgba(255, 255, 255, 0.2) 25%,
+    var(--skeleton-bg) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    var(--skeleton-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: liquid-shimmer 2s ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -63,73 +93,197 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes scaleIn {
+/* ============================================
+   LIQUID SCALE IN - Maye Ölçülənmə
+   ============================================ */
+
+@keyframes liquid-scale-in {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(20px);
+    transform: scale(0.85) translateY(20px) rotateX(10deg);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1) translateY(0) rotateX(0deg);
+    filter: blur(0);
   }
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: liquid-scale-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
-@keyframes slideInRight {
+/* ============================================
+   LIQUID SLIDE IN RIGHT - Maye Sağdan Gəlmə
+   ============================================ */
+
+@keyframes liquid-slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(40px) scale(0.95);
+    filter: blur(4px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+    filter: blur(0);
   }
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: liquid-slide-in-right 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-@keyframes pulse-glow-subtle {
-  0%,
-  100% {
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3), 0 2px 8px rgba(255, 165, 0, 0.2);
+/* ============================================
+   LIQUID PULSE GLOW - Maye Nəbz Parıltı
+   ============================================ */
+
+@keyframes liquid-pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      0 4px 16px rgba(255, 140, 0, 0.3), 
+      0 2px 8px rgba(255, 165, 0, 0.2),
+      0 0 20px rgba(255, 140, 0, 0.1);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 4px 16px rgba(255, 140, 0, 0.4), 0 2px 8px rgba(255, 165, 0, 0.25);
+    box-shadow: 
+      0 6px 24px rgba(255, 140, 0, 0.5), 
+      0 3px 12px rgba(255, 165, 0, 0.35),
+      0 0 40px rgba(255, 140, 0, 0.2);
+    transform: scale(1.02);
   }
 }
 
 .scan-button-float {
-  animation: pulse-glow-subtle 3s ease-in-out infinite;
+  animation: liquid-pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .scan-button-float:hover {
   animation: none;
-  box-shadow: 0 6px 24px rgba(255, 140, 0, 0.4), 0 3px 12px rgba(255, 165, 0, 0.3) !important;
+  transform: scale(1.05);
+  box-shadow: 
+    0 8px 32px rgba(255, 140, 0, 0.5), 
+    0 4px 16px rgba(255, 165, 0, 0.4),
+    0 0 60px rgba(255, 140, 0, 0.3) !important;
 }
 
-@keyframes scale-in {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
+/* ============================================
+   LIQUID FLOAT - Maye Üzmə
+   ============================================ */
+
+@keyframes liquid-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
   }
-  to {
-    transform: scale(1);
-    opacity: 1;
+  25% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(-1deg);
   }
 }
 
-.animate-scale-in {
-  animation: scale-in 0.2s ease-out;
+.liquid-float {
+  animation: liquid-float 4s ease-in-out infinite;
+}
+
+/* ============================================
+   LIQUID MORPH - Maye Dəyişmə
+   ============================================ */
+
+@keyframes liquid-morph {
+  0%, 100% {
+    border-radius: 50% 40% 60% 30% / 60% 30% 70% 40%;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    border-radius: 40% 60% 30% 70% / 30% 70% 40% 60%;
+    transform: scale(1.05) rotate(90deg);
+  }
+  50% {
+    border-radius: 60% 30% 70% 40% / 70% 40% 60% 30%;
+    transform: scale(0.95) rotate(180deg);
+  }
+  75% {
+    border-radius: 30% 70% 40% 60% / 40% 60% 30% 70%;
+    transform: scale(1.02) rotate(270deg);
+  }
+}
+
+.liquid-morph {
+  animation: liquid-morph 8s ease-in-out infinite;
+}
+
+/* ============================================
+   LIQUID WAVE - Maye Dalğa
+   ============================================ */
+
+@keyframes liquid-wave {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scaleY(1);
+  }
+  25% {
+    transform: translateX(10%) translateY(-5px) scaleY(1.1);
+  }
+  50% {
+    transform: translateX(0) translateY(-10px) scaleY(0.9);
+  }
+  75% {
+    transform: translateX(-10%) translateY(-5px) scaleY(1.05);
+  }
+}
+
+.liquid-wave {
+  animation: liquid-wave 6s ease-in-out infinite;
 }
 
 /* Responsive animations */
 @media (max-width: 640px) {
   .slide-up {
-    animation: slideUp 0.3s ease-out forwards;
+    animation: liquid-slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  
+  .liquid-float,
+  .liquid-morph,
+  .liquid-wave {
+    animation-duration: 6s;
+  }
+}
+
+/* Performance optimization */
+.liquid-float,
+.liquid-morph,
+.liquid-wave,
+.slide-up,
+.fade-in,
+.animate-scale-in,
+.animate-slide-in-right {
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-float,
+  .liquid-morph,
+  .liquid-wave {
+    animation: none;
+  }
+  
+  .slide-up,
+  .fade-in,
+  .animate-scale-in,
+  .animate-slide-in-right {
+    animation-duration: 0.2s;
+    filter: none;
   }
 }
