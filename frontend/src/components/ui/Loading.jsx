@@ -3,7 +3,13 @@ import React from 'react'
 const Loading = ({ fullScreen = false, text = 'Yüklənir...' }) => {
     if (fullScreen) {
         return (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+            <div
+              className="fixed inset-0 backdrop-blur-sm z-50 flex flex-col items-center justify-center"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                background: 'var(--glass-shadow)'
+              }}
+            >
                 <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-4"></div>
                 <p className="text-white/80 font-medium animate-pulse">{text}</p>
             </div>

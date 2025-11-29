@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { settingsAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
+import { useVoiceNotification } from '../hooks/useVoiceNotification'
 
 // Settings Components
 import BudgetSection from '../components/settings/BudgetSection'
@@ -30,6 +31,7 @@ const Settings = () => {
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { openModal } = usePremiumModal()
+  const { speak, isVoiceModeEnabled } = useVoiceNotification()
   
   // Form state
   const [formData, setFormData] = useState({
@@ -67,11 +69,14 @@ const Settings = () => {
             localStorage.setItem('readability-mode', 'disabled')
           }
           
+          // Voice mode - backend-dən götür, yoxdursa localStorage-dan
+          const voiceModeFromBackend = userData.voice_mode !== undefined ? userData.voice_mode : (localStorage.getItem('voice-mode') === 'enabled')
+          
           setFormData({
             monthly_budget: userData.monthly_budget || 1000,
             daily_budget_limit: userData.daily_budget_limit || null,
             voice_enabled: userData.voice_enabled || false,
-            voice_mode: localStorage.getItem('voice-mode') === 'enabled',
+            voice_mode: voiceModeFromBackend,
             readability_mode: readabilityMode,
             ai_persona_mode: userData.ai_persona_mode || 'Auto',
             ai_name: userData.ai_name || 'FinMate',
@@ -80,6 +85,13 @@ const Settings = () => {
             incognito_mode: userData.incognito_mode || false,
             premium_theme: localStorage.getItem('premium-theme') || 'default',
           })
+          
+          // Voice mode-u localStorage-da da saxla (backward compatibility)
+          if (voiceModeFromBackend) {
+            localStorage.setItem('voice-mode', 'enabled')
+          } else {
+            localStorage.removeItem('voice-mode')
+          }
         }
       } catch (error) {
         console.error('Settings load error:', error)
@@ -104,38 +116,53 @@ const Settings = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault()
+    e.stopPropagation()
+    
+    console.log('💾 Settings form submitting...', formData)
     setSaving(true)
 
     try {
       // FormData yaradırıq (backend FormData gözləyir)
       const formDataToSend = new FormData()
       
-      formDataToSend.append('monthly_budget', formData.monthly_budget)
+      formDataToSend.append('monthly_budget', String(formData.monthly_budget || 1000))
       
       if (formData.daily_budget_limit !== null && formData.daily_budget_limit !== '') {
-        formDataToSend.append('daily_budget_limit', formData.daily_budget_limit)
+        formDataToSend.append('daily_budget_limit', String(formData.daily_budget_limit))
       }
       
       formDataToSend.append('voice_enabled', formData.voice_enabled ? 'true' : 'false')
+      formDataToSend.append('voice_mode', formData.voice_mode ? 'true' : 'false') // TTS mode - backend-ə göndəririk
       formDataToSend.append('readability_mode', formData.readability_mode ? 'true' : 'false')
-      formDataToSend.append('ai_persona_mode', formData.ai_persona_mode)
-      formDataToSend.append('ai_name', formData.ai_name)
+      formDataToSend.append('ai_persona_mode', formData.ai_persona_mode || 'Auto')
+      formDataToSend.append('ai_name', formData.ai_name || 'FinMate')
       
       if (formData.ai_persona_mode === 'Manual') {
-        formDataToSend.append('ai_attitude', formData.ai_attitude)
-        formDataToSend.append('ai_style', formData.ai_style)
+        formDataToSend.append('ai_attitude', formData.ai_attitude || 'Professional')
+        formDataToSend.append('ai_style', formData.ai_style || 'Formal')
       }
       
       if (user?.is_premium) {
-        formDataToSend.append('incognito_mode', formData.incognito_mode)
+        formDataToSend.append('incognito_mode', formData.incognito_mode ? 'true' : 'false')
+      }
+
+      // Debug: FormData məzmununu yoxla
+      console.log('📤 Sending FormData:')
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`   ${key}: ${value}`)
       }
 
       const response = await settingsAPI.updateSettings(formDataToSend)
       
-      if (response.data.success) {
-        toast.success(response.data.message || 'Tənzimləmələr yadda saxlanıldı')
+      console.log('📥 Settings API response:', response)
+      
+      if (response && response.data && response.data.success) {
+        const message = response.data.message || 'Tənzimləmələr yadda saxlanıldı'
+        console.log('✅ Settings saved successfully:', message)
+        toast.success(message)
         
-        // Voice mode localStorage-da saxlanır
+        // Voice mode localStorage-da da saxla (backward compatibility)
+        // Backend-də artıq saxlanır, amma localStorage-da da saxlayırıq
         if (formData.voice_mode) {
           localStorage.setItem('voice-mode', 'enabled')
         } else {
@@ -159,16 +186,25 @@ const Settings = () => {
         // Stats update trigger
         window.dispatchEvent(new CustomEvent('settingsUpdated'))
         
-        // Short delay sonra reload (optional)
-        setTimeout(() => {
-          // window.location.reload() // İstəsəniz reload edə bilərsiniz
-        }, 1500)
+        // User context-i yenilə (əgər varsa)
+        if (window.dispatchEvent) {
+          window.dispatchEvent(new CustomEvent('userUpdated'))
+        }
       } else {
-        toast.error(response.data.error || 'Xəta baş verdi')
+        const errorMsg = response?.data?.error || 'Xəta baş verdi'
+        console.error('❌ Settings save failed:', errorMsg)
+        toast.error(errorMsg)
       }
     } catch (error) {
-      console.error('Settings save error:', error)
-      toast.error(error.response?.data?.error || 'Xəta baş verdi')
+      console.error('❌ Settings save error:', error)
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      })
+      
+      const errorMsg = error.response?.data?.error || error.message || 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.'
+      toast.error(errorMsg)
     } finally {
       setSaving(false)
     }
@@ -229,6 +265,22 @@ const Settings = () => {
           onVoiceModeChange={(value) => {
             updateFormData('voice_mode', value)
             localStorage.setItem('voice-mode', value ? 'enabled' : 'disabled')
+            
+            // Voice mode aktiv edildikdə test səsləndirməsi
+            if (value) {
+              // Kiçik gecikmə - localStorage dəyişikliyi tətbiq olunsun
+              setTimeout(() => {
+                speak('Səsləndirmə aktivləşdirildi. Artıq bütün bildirişlər səslə oxunacaq.', 0, 'az')
+              }, 300)
+            } else {
+              // Voice mode deaktiv edildikdə
+              setTimeout(() => {
+                if (typeof window.queueVoiceNotification !== 'undefined') {
+                  // Queue-nu təmizlə
+                  console.log('🔇 Voice mode disabled')
+                }
+              }, 100)
+            }
           }}
           onReadabilityModeChange={(value) => updateFormData('readability_mode', value)}
         />
@@ -287,6 +339,15 @@ const Settings = () => {
             type="submit"
             disabled={saving}
             className="settings-submit-button"
+            onClick={(e) => {
+              // Ensure form submission
+              const form = e.currentTarget.closest('form')
+              if (form && !form.checkValidity()) {
+                e.preventDefault()
+                form.reportValidity()
+                return
+              }
+            }}
           >
             <span>{saving ? 'Saxlanılır...' : 'Yadda Saxla'}</span>
             {!saving && (

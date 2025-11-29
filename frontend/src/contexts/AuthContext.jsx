@@ -28,13 +28,15 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login(username, password)
       if (response.data.success) {
         setUser(response.data.user)
+        // Refresh user data
+        await refreshUser()
         return { success: true }
       }
       return { success: false, error: response.data.error || 'Login failed' }
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Login failed',
+        error: error.response?.data?.error || error.response?.data?.message || 'Login failed',
       }
     }
   }
@@ -46,14 +48,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.signup(username, password, email)
       if (response.data.success) {
-        setUser(response.data.user)
+        // Don't set user here - redirect to login
         return { success: true }
       }
       return { success: false, error: response.data.error || 'Signup failed' }
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Signup failed',
+        error: error.response?.data?.error || error.response?.data?.message || 'Signup failed',
       }
     }
   }

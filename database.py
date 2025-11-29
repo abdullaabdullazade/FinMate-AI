@@ -45,6 +45,7 @@ def ensure_schema():
     add_column_if_missing("users", "level_title VARCHAR DEFAULT 'Rookie'")
     add_column_if_missing("users", "preferred_language VARCHAR DEFAULT 'az'")
     add_column_if_missing("users", "voice_enabled BOOLEAN DEFAULT 1")
+    add_column_if_missing("users", "voice_mode BOOLEAN DEFAULT 0")  # TTS mode
     add_column_if_missing("users", "daily_budget_limit FLOAT")
     add_column_if_missing("users", "currency VARCHAR DEFAULT 'AZN'")
     add_column_if_missing("users", "personality_mode VARCHAR DEFAULT 'normal'")

@@ -55,40 +55,11 @@
 
             <!-- Actions -->
             <div class="p-4 pt-0 mt-auto space-y-2">
-                <button type="button" onclick="
-                    const form = this.closest('form');
-                    const formData = new FormData(form);
-                    
-                    fetch('/api/confirm-voice', {
-                        method: 'POST',
-                        body: formData
-                    }).then(response => response.text())
-                    .then(html => {
-                        document.getElementById('voice-confirmation').remove();
-                        // Insert HTML
-                        document.body.insertAdjacentHTML('beforeend', html);
-                        // Extract and execute scripts manually (scripts don't auto-execute in insertAdjacentHTML)
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = html;
-                        const scripts = tempDiv.querySelectorAll('script');
-                        scripts.forEach(oldScript => {
-                            const newScript = document.createElement('script');
-                            Array.from(oldScript.attributes).forEach(attr => {
-                                newScript.setAttribute(attr.name, attr.value);
-                            });
-                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                            document.body.appendChild(newScript);
-                        });
-                    }).catch(error => {
-                        console.error('Error:', error);
-                        alert('Xəta baş verdi');
-                    });
-                "
+                <button type="button" id="confirm-voice-btn"
                     class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-purple-500/25">
                     ✅ Düzdür, saxla
                 </button>
-                <button type="button"
-                    onclick="this.closest('.fixed').remove(); document.getElementById('voice-modal').classList.remove('hidden');"
+                <button type="button" id="retry-voice-btn"
                     class="w-full bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl font-medium transition">
                     ← Yenidən cəhd et
                 </button>
@@ -143,9 +114,63 @@
 </style>
 
 <script>
-    // Trigger audio when voice confirmation modal opens
+    // Setup button event listeners (safer than inline onclick)
     (function() {
         'use strict';
+        
+        // Confirm button handler
+        const confirmBtn = document.getElementById('confirm-voice-btn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                const form = this.closest('form');
+                if (!form) return;
+                
+                const formData = new FormData(form);
+                
+                fetch('/api/confirm-voice', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.text())
+                .then(html => {
+                    const confirmationModal = document.getElementById('voice-confirmation');
+                    if (confirmationModal) {
+                        confirmationModal.remove();
+                    }
+                    // Insert HTML
+                    document.body.insertAdjacentHTML('beforeend', html);
+                    // Extract and execute scripts manually (scripts don't auto-execute in insertAdjacentHTML)
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const scripts = tempDiv.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        document.body.appendChild(newScript);
+                    });
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('Xəta baş verdi');
+                });
+            });
+        }
+        
+        // Retry button handler
+        const retryBtn = document.getElementById('retry-voice-btn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', function() {
+                const confirmationModal = this.closest('.fixed');
+                if (confirmationModal) {
+                    confirmationModal.remove();
+                }
+                const voiceModal = document.getElementById('voice-modal');
+                if (voiceModal) {
+                    voiceModal.classList.remove('hidden');
+                }
+            });
+        }
         
         function triggerVoiceConfirmationAudio() {
             const modal = document.getElementById('voice-confirmation');

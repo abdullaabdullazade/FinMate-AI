@@ -430,7 +430,11 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Handle login"""
+    """Handle login - React frontend üçün JSON qaytarır"""
+    # Check if client wants JSON response (React frontend)
+    accept_header = request.headers.get("Accept", "")
+    is_json_request = "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    
     user = db.query(User).filter(User.username == username).first()
     
     # Check for demo user (password: "demo")
@@ -443,22 +447,58 @@ async def login(
             db.commit()
             db.refresh(user)
         request.session["user_id"] = user.id
+        
+        if is_json_request:
+            return JSONResponse({
+                "success": True,
+                "message": "Login successful",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "xp_points": user.xp_points or 0,
+                    "coins": user.coins or 0,
+                    "is_premium": user.is_premium or False
+                }
+            })
         return RedirectResponse(url="/", status_code=303)
     
     # Check for regular users
     if not user or not user.password_hash:
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "İstifadəçi adı və ya şifrə yanlışdır"
+            }, status_code=401)
         return templates.TemplateResponse("login.html", {
             "request": request,
             "error": "İstifadəçi adı və ya şifrə yanlışdır"
         })
     
     if not verify_password(password, user.password_hash):
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "İstifadəçi adı və ya şifrə yanlışdır"
+            }, status_code=401)
         return templates.TemplateResponse("login.html", {
             "request": request,
             "error": "İstifadəçi adı və ya şifrə yanlışdır"
         })
     
     request.session["user_id"] = user.id
+    
+    if is_json_request:
+        return JSONResponse({
+            "success": True,
+            "message": "Login successful",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "xp_points": user.xp_points or 0,
+                "coins": user.coins or 0,
+                "is_premium": user.is_premium or False
+            }
+        })
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/signup", response_class=HTMLResponse)
@@ -478,21 +518,40 @@ async def signup(
     confirm_password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Handle signup"""
+    """Handle signup - React frontend üçün JSON qaytarır"""
+    # Check if client wants JSON response (React frontend)
+    accept_header = request.headers.get("Accept", "")
+    is_json_request = "application/json" in accept_header or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    
     # Validation
     if password != confirm_password:
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "Şifrələr uyğun gəlmir"
+            }, status_code=400)
         return templates.TemplateResponse("signup.html", {
             "request": request,
             "error": "Şifrələr uyğun gəlmir"
         })
     
     if len(password) < 4:
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "Şifrə ən azı 4 simvol olmalıdır"
+            }, status_code=400)
         return templates.TemplateResponse("signup.html", {
             "request": request,
             "error": "Şifrə ən azı 4 simvol olmalıdır"
         })
     
     if len(username) < 3:
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "İstifadəçi adı ən azı 3 simvol olmalıdır"
+            }, status_code=400)
         return templates.TemplateResponse("signup.html", {
             "request": request,
             "error": "İstifadəçi adı ən azı 3 simvol olmalıdır"
@@ -501,6 +560,11 @@ async def signup(
     # Check if user exists
     existing_user = db.query(User).filter(User.username == username).first()
     if existing_user:
+        if is_json_request:
+            return JSONResponse({
+                "success": False,
+                "error": "Bu istifadəçi adı artıq mövcuddur"
+            }, status_code=400)
         return templates.TemplateResponse("signup.html", {
             "request": request,
             "error": "Bu istifadəçi adı artıq mövcuddur"
@@ -517,6 +581,15 @@ async def signup(
     db.commit()
     db.refresh(new_user)
     
+    if is_json_request:
+        return JSONResponse({
+            "success": True,
+            "message": "Qeydiyyat uğurla tamamlandı",
+            "user": {
+                "id": new_user.id,
+                "username": new_user.username
+            }
+        })
     # Redirect to login page with success message
     return RedirectResponse(url="/login?registered=1", status_code=303)
 
@@ -1190,6 +1263,7 @@ async def scan_receipt(
                     "success": True,
                     "receipt_data": receipt_data,
                     "conversion_note": conversion_note,
+                    "expense_id": expense.id,  # Include expense ID for delete functionality
                     "xp_result": {
                         "xp_awarded": scan_xp["xp_awarded"] if scan_xp else 0,
                         "new_total": user.xp_points,
@@ -1589,10 +1663,16 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
             "total": category_data[top_category_name]
         }
     
-    # Recent expenses (last 10)
+    # Recent expenses (last 10) - includes both expenses and incomes
     recent_expenses = db.query(Expense).filter(
         Expense.user_id == user.id
     ).order_by(Expense.created_at.desc()).limit(10).all()
+    
+    # Recent incomes (last 10) - to show in recent activity
+    # Sort by created_at first, then by date if created_at is None
+    recent_incomes = db.query(Income).filter(
+        Income.user_id == user.id
+    ).order_by(Income.created_at.desc(), Income.date.desc()).limit(10).all()
     
     # Last week total
     week_ago = now - timedelta(days=7)
@@ -1610,18 +1690,173 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
     ).all()
     subscriptions_total = sum(sub.amount for sub in subscriptions)
     
-    # Format recent expenses
+    # Format recent expenses and incomes together
     recents = []
+    
+    # Add expenses
     for exp in recent_expenses:
         category_name = exp.category or "General"
+        # Parse items from JSON if exists
+        items_list = []
+        if exp.items:
+            try:
+                if isinstance(exp.items, str):
+                    import json
+                    items_list = json.loads(exp.items)
+                elif isinstance(exp.items, list):
+                    items_list = exp.items
+            except:
+                items_list = []
+        
+        # Use created_at for sorting if available, otherwise use date
+        sort_date = exp.created_at if exp.created_at else (exp.date if exp.date else datetime.utcnow())
         recents.append({
             "id": exp.id,
             "merchant": exp.merchant,
             "amount": exp.amount,
             "date": exp.date.isoformat() if exp.date else None,
+            "created_at": sort_date.isoformat() if hasattr(sort_date, 'isoformat') else sort_date,
+            "category": category_name,
             "category_name": category_name,
-            "is_subscription": exp.is_subscription or False
+            "is_subscription": exp.is_subscription or False,
+            "items": items_list,
+            "notes": exp.notes,
+            "type": "expense"  # Mark as expense
         })
+    
+    # Add incomes as recent activity
+    for inc in recent_incomes:
+        # Use created_at for sorting if available, otherwise use date
+        sort_date = inc.created_at if inc.created_at else (inc.date if inc.date else datetime.utcnow())
+        recents.append({
+            "id": f"income_{inc.id}",
+            "merchant": inc.source,
+            "amount": inc.amount,
+            "date": inc.date.isoformat() if inc.date else None,
+            "created_at": sort_date.isoformat() if hasattr(sort_date, 'isoformat') else sort_date,
+            "category": "Gəlir",
+            "category_name": "Gəlir",
+            "is_subscription": False,
+            "items": [],
+            "notes": inc.description,  # Income description
+            "type": "income",  # Mark as income
+            "description": inc.description  # Include description
+        })
+    
+    # Sort by created_at first (most recent first), then by date
+    # Convert to datetime objects for proper sorting
+    def get_sort_key(item):
+        created_at = item.get("created_at")
+        date = item.get("date")
+        
+        # Try to parse created_at first
+        if created_at:
+            try:
+                if isinstance(created_at, str):
+                    return datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                return created_at
+            except:
+                pass
+        
+        # Fallback to date
+        if date:
+            try:
+                if isinstance(date, str):
+                    return datetime.fromisoformat(date.replace('Z', '+00:00'))
+                return date
+            except:
+                pass
+        
+        # Fallback to current time (shouldn't happen)
+        return datetime.utcnow()
+    
+    recents.sort(key=get_sort_key, reverse=True)
+    # Limit to 10 most recent
+    recents = recents[:10]
+    
+    # Calculate eco score
+    eco_score = calculate_eco_score(expenses)
+    eco_breakdown = calculate_eco_breakdown(category_data)
+    eco_tip = get_eco_tip(eco_breakdown)
+    
+    # Get level info
+    level_info = gamification.get_level_info(user.xp_points)
+    
+    # Calculate salary increase (compare to previous month)
+    salary_increase_info = None
+    current_month_salary = None
+    current_salary_incomes = [inc for inc in incomes if inc.source.lower() in ["maaş", "salary", "maas"]]
+    if current_salary_incomes:
+        current_month_salary = sum(inc.amount for inc in current_salary_incomes)
+        prev_month = month_start - timedelta(days=1)
+        prev_month_start = datetime(prev_month.year, prev_month.month, 1)
+        prev_month_end = month_start
+        prev_salary_incomes = db.query(Income).filter(
+            Income.user_id == user.id,
+            Income.date >= prev_month_start,
+            Income.date < prev_month_end
+        ).all()
+        prev_salary_list = [inc for inc in prev_salary_incomes if inc.source.lower() in ["maaş", "salary", "maas"]]
+        if prev_salary_list:
+            prev_month_salary = sum(inc.amount for inc in prev_salary_list)
+            if prev_month_salary > 0 and current_month_salary > prev_month_salary:
+                increase_amount = current_month_salary - prev_month_salary
+                increase_percentage = (increase_amount / prev_month_salary) * 100
+                salary_increase_info = {
+                    "amount": increase_amount,
+                    "percentage": increase_percentage,
+                    "current": current_month_salary,
+                    "previous": prev_month_salary
+                }
+    
+    # Check daily budget limit
+    daily_limit_alert = None
+    if user.daily_budget_limit:
+        today = date_type.today()
+        today_expenses = db.query(Expense).filter(
+            Expense.user_id == user.id,
+            Expense.date >= today,
+            Expense.date < today + timedelta(days=1)
+        ).all()
+        today_total = sum(exp.amount for exp in today_expenses)
+        today_total_rounded = round(today_total, 2)
+        limit_rounded = round(user.daily_budget_limit, 2)
+        if today_total_rounded > limit_rounded:
+            daily_limit_alert = {
+                "exceeded": True,
+                "today_spending": today_total,
+                "limit": user.daily_budget_limit,
+                "over_by": today_total - user.daily_budget_limit
+            }
+        elif today_total >= user.daily_budget_limit * 0.9:
+            daily_limit_alert = {
+                "exceeded": False,
+                "warning": True,
+                "today_spending": today_total,
+                "limit": user.daily_budget_limit,
+                "remaining": user.daily_budget_limit - today_total
+            }
+    
+    # Local gems
+    from local_gems import find_local_gems
+    local_gems_suggestions = []
+    expensive_merchants = ["Starbucks", "McDonald's", "KFC", "Papa John's", "Kino", "Cinema"]
+    for expense in recent_expenses[:5]:
+        merchant = expense.merchant
+        amount = expense.amount
+        is_expensive = any(exp_merchant.lower() in merchant.lower() for exp_merchant in expensive_merchants)
+        avg_amount = total_spending_azn / len(expenses) if expenses else 0
+        is_above_avg = amount > avg_amount * 1.5 if avg_amount > 0 else False
+        if is_expensive or is_above_avg:
+            alternatives = find_local_gems(merchant, amount, expense.category)
+            if alternatives:
+                local_gems_suggestions.append({
+                    "merchant": merchant,
+                    "amount": amount,
+                    "category": expense.category,
+                    "alternatives": alternatives[:2]
+                })
+    local_gems_suggestions = local_gems_suggestions[:3]
     
     return JSONResponse({
         "context": {
@@ -1630,7 +1865,24 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
             "currency": "AZN",
             "last_week_total": last_week_total,
             "subscriptions": subscriptions_total,
-            "categories": list(category_data.keys())
+            "categories": list(category_data.keys()),
+            "category_data": category_data,
+            "remaining_budget": remaining_budget,
+            "total_available": total_available_azn,
+            "eco_score": eco_score,
+            "eco_breakdown": eco_breakdown,
+            "eco_tip": eco_tip,
+            "level_info": {
+                "title": level_info.get("title"),
+                "emoji": level_info.get("emoji"),
+                "progress_percentage": float(level_info.get("progress_percentage", 0)),
+                "level": level_info.get("current_level"),
+                "max_xp": level_info.get("max_xp")
+            },
+            "xp_points": user.xp_points or 0,
+            "salary_increase_info": salary_increase_info,
+            "daily_limit_alert": daily_limit_alert,
+            "local_gems": local_gems_suggestions
         },
         "recents": recents,
         "chart_labels": chart_labels,
@@ -1834,11 +2086,30 @@ async def update_expense(
         db.commit()
         db.refresh(expense)
         
-        return templates.TemplateResponse("partials/transaction_row.html", {
-            "request": request,
-            "expense": expense,
-            "user": user
-        }, headers={"HX-Trigger": "update-stats"})
+        # Check if request is from React (JSON) or HTMX (HTML)
+        accept_header = request.headers.get("Accept", "")
+        x_requested_with = request.headers.get("X-Requested-With", "")
+        
+        if "application/json" in accept_header or x_requested_with == "XMLHttpRequest":
+            # React frontend - return JSON
+            return JSONResponse({
+                "success": True,
+                "message": "Əməliyyat uğurla yeniləndi",
+                "expense": {
+                    "id": expense.id,
+                    "merchant": expense.merchant,
+                    "amount": expense.amount,
+                    "category": expense.category,
+                    "date": expense.date.isoformat() if expense.date else None
+                }
+            }, headers={"HX-Trigger": "update-stats"})
+        else:
+            # HTMX frontend - return HTML
+            return templates.TemplateResponse("partials/transaction_row.html", {
+                "request": request,
+                "expense": expense,
+                "user": user
+            }, headers={"HX-Trigger": "update-stats"})
     except Exception as e:
         print(f"❌ Update Expense Error: {e}")
         import traceback
@@ -2918,17 +3189,21 @@ async def get_settings(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Authentication required")
     
     return JSONResponse({
-        "monthly_budget": user.monthly_budget,
-        "daily_budget_limit": user.daily_budget_limit,
-        "preferred_language": user.preferred_language,
-        "voice_enabled": user.voice_enabled,
-        "readability_mode": user.readability_mode,
-        "currency": user.currency,
-        "login_streak": user.login_streak,
-        "ai_name": user.ai_name,
-        "ai_persona_mode": user.ai_persona_mode,
-        "ai_attitude": user.ai_attitude,
-        "ai_style": user.ai_style
+        "user": {
+            "monthly_budget": user.monthly_budget,
+            "daily_budget_limit": user.daily_budget_limit,
+            "preferred_language": user.preferred_language,
+            "voice_enabled": user.voice_enabled,
+            "voice_mode": user.voice_mode if hasattr(user, 'voice_mode') else False,
+            "readability_mode": user.readability_mode,
+            "currency": user.currency,
+            "login_streak": user.login_streak,
+            "ai_name": user.ai_name,
+            "ai_persona_mode": user.ai_persona_mode,
+            "ai_attitude": user.ai_attitude,
+            "ai_style": user.ai_style,
+            "incognito_mode": user.incognito_mode if hasattr(user, 'incognito_mode') else False
+        }
     })
 
 
@@ -2961,6 +3236,7 @@ async def update_settings(
         daily_budget_limit = last_value("daily_budget_limit")
         preferred_language = last_value("preferred_language")
         voice_enabled = parse_bool(form.getlist("voice_enabled"))
+        voice_mode = parse_bool(form.getlist("voice_mode"))  # TTS mode
         readability_mode = parse_bool(form.getlist("readability_mode"))
         # currency = last_value("currency")  # Removed: User requested only AZN
         ai_name = last_value("ai_name")
@@ -3019,6 +3295,8 @@ async def update_settings(
             user.preferred_language = preferred_language
         if voice_enabled is not None:
             user.voice_enabled = voice_enabled
+        if voice_mode is not None:
+            user.voice_mode = voice_mode
         if readability_mode is not None:
             user.readability_mode = readability_mode
         
@@ -3047,7 +3325,15 @@ async def update_settings(
         print(f"✅ Settings updated successfully for user {user.id}")
         
         return JSONResponse(
-            {"success": True, "message": "Tənzimləmələr yadda saxlanıldı"},
+            {
+                "success": True, 
+                "message": "Tənzimləmələr yadda saxlanıldı",
+                "user": {
+                    "voice_mode": user.voice_mode if hasattr(user, 'voice_mode') else False,
+                    "voice_enabled": user.voice_enabled,
+                    "readability_mode": user.readability_mode
+                }
+            },
             headers={"HX-Trigger": "update-stats,settingsUpdated"}
         )
     except Exception as e:

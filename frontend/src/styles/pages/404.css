@@ -1,0 +1,121 @@
+/**
+ * 404 Page Styles
+ * static/css/404.css-dən bir-bir köçürülmüş
+ */
+
+/* Crying Pet Tears Animation - static/css/404.css-dən */
+.tear {
+  position: absolute;
+  font-size: 32px;
+  animation: fallTear 2s ease-in infinite;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tear-1 {
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.tear-2 {
+  left: 50%;
+  animation-delay: 0.7s;
+}
+
+.tear-3 {
+  left: 70%;
+  animation-delay: 1.4s;
+}
+
+@keyframes fallTear {
+  0% {
+    top: 60%;
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 0.5;
+  }
+
+  100% {
+    top: 150%;
+    opacity: 0;
+    transform: translateY(100px) rotate(20deg);
+  }
+}
+
+/* Shake animation for error text - static/css/404.css-dən */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+/* 404 h1 shake animation */
+h1.text-8xl {
+  animation: shake 2s ease-in-out infinite;
+}
+
+/* Bounce animation for pet emoji */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+/* 404 Text Drop Shadow */
+.drop-shadow-2xl {
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.5));
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .text-9xl {
+    font-size: 6rem;
+  }
+
+  .text-8xl {
+    font-size: 5rem;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  .glass-card {
+    padding: 1.5rem !important;
+  }
+
+  .tear {
+    font-size: 24px;
+  }
+}
+

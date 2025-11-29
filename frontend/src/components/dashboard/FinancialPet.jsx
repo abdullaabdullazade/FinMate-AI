@@ -11,6 +11,7 @@ const FinancialPet = ({ budgetPercentage, delay = 0 }) => {
   const [petState, setPetState] = useState('happy')
   const [message, setMessage] = useState('')
   const [showParticles, setShowParticles] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
     let newState = 'happy'
@@ -38,6 +39,13 @@ const FinancialPet = ({ budgetPercentage, delay = 0 }) => {
     setPetState(newState)
     setMessage(newMessage)
     setShowParticles(particles)
+    
+    // Pet-i 7 saniyə sonra gizlət
+    const timer = setTimeout(() => {
+      setIsVisible(false)
+    }, 7000)
+    
+    return () => clearTimeout(timer)
   }, [budgetPercentage])
 
   const getEmoji = () => {
@@ -57,10 +65,13 @@ const FinancialPet = ({ budgetPercentage, delay = 0 }) => {
     }
   }
 
+  if (!isVisible) return null
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 0.98, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
       transition={{ duration: 0.5, delay }}
       className="fixed pet-container pointer-events-auto"
       style={{ zIndex: 120, bottom: '110px', right: '20px' }}

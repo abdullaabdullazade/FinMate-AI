@@ -4,7 +4,7 @@
  * Swipe to close, ESC key, backdrop click funksiyaları daxildir
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { HomeIcon, ChatIcon, CameraIcon, VaultIcon, MapIcon, ProfileIcon, SettingsIcon, LogoutIcon, CloseIcon } from '../icons/Icons'
@@ -18,9 +18,25 @@ const HamburgerMenu = ({ user }) => {
   const touchStartXRef = useRef(0)
   const touchEndXRef = useRef(0)
 
+  // Menu-nu bağlamaq üçün funksiya - base.html strukturuna uyğun
+  const closeMenu = useCallback(() => {
+    const menuPanel = document.getElementById('menu-panel')
+    const menuBackdrop = document.getElementById('menu-backdrop')
+    const hamburgerBtn = document.getElementById('hamburger-btn')
+    if (menuPanel && menuBackdrop && hamburgerBtn) {
+      menuPanel.classList.remove('active')
+      menuBackdrop.classList.remove('active')
+      hamburgerBtn.classList.remove('active')
+      document.body.classList.remove('menu-open')
+      menuPanel.setAttribute('aria-hidden', 'true')
+      hamburgerBtn.setAttribute('aria-expanded', 'false')
+      setIsOpen(false)
+    }
+  }, [])
+
   // Location dəyişəndə menu-nu bağla
   useEffect(() => {
-    setIsOpen(false)
+    closeMenu()
   }, [location.pathname])
 
   // Menu açıq olduqda body scroll-u blokla
@@ -44,7 +60,7 @@ const HamburgerMenu = ({ user }) => {
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false)
+        closeMenu()
       }
     }
     document.addEventListener('keydown', handleEsc)
@@ -55,7 +71,7 @@ const HamburgerMenu = ({ user }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024 && isOpen) {
-        setIsOpen(false)
+        closeMenu()
       }
     }
     window.addEventListener('resize', handleResize)
@@ -71,7 +87,7 @@ const HamburgerMenu = ({ user }) => {
     touchEndXRef.current = e.changedTouches[0].screenX
     const swipeDistance = touchStartXRef.current - touchEndXRef.current
     if (swipeDistance < -100) {
-      setIsOpen(false)
+      closeMenu()
     }
   }
 
@@ -94,41 +110,51 @@ const HamburgerMenu = ({ user }) => {
 
   const userInitial = user?.username?.[0]?.toUpperCase() || 'D'
 
+  // Hamburger button state-ini izlə (Header-dəki button-dan) - base.html strukturuna uyğun
+  useEffect(() => {
+    const menuPanel = document.getElementById('menu-panel')
+    
+    const updateMenuState = () => {
+      if (menuPanel) {
+        const isActive = menuPanel.classList.contains('active')
+        setIsOpen(isActive)
+      }
+    }
+
+    // Menu state-ini izləmək üçün MutationObserver
+    if (menuPanel) {
+      const observer = new MutationObserver(updateMenuState)
+      observer.observe(menuPanel, {
+        attributes: true,
+        attributeFilter: ['class']
+      })
+
+      return () => {
+        observer.disconnect()
+      }
+    }
+  }, [])
+
   return (
     <>
-      {/* Hamburger Button */}
-      <button
-        id="hamburger-btn"
-        className={`hamburger-btn-navbar lg:hidden ${isOpen ? 'active' : ''}`}
-        aria-label="Menu"
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className={`hamburger-icon ${isOpen ? 'active' : ''}`}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </button>
-
-      {/* Menu Backdrop */}
+      {/* Menu Backdrop - base.html strukturuna uyğun */}
       <div
         ref={backdropRef}
         id="menu-backdrop"
-        className={`menu-backdrop ${isOpen ? 'active' : ''}`}
-        onClick={() => setIsOpen(false)}
+        className="menu-backdrop"
+        onClick={closeMenu}
       ></div>
 
-      {/* Sliding Menu Panel */}
+      {/* Sliding Menu Panel - base.html strukturuna uyğun */}
       <nav
         ref={menuPanelRef}
         id="menu-panel"
-        className={`menu-panel ${isOpen ? 'active' : ''}`}
-        aria-hidden={!isOpen}
+        className="menu-panel"
+        aria-hidden="true"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Menu Header */}
+        {/* Menu Header - base.html-dən TAM KOPYALANMIŞ */}
         <div className="menu-header">
           <div className="menu-header-content">
             <div className="menu-avatar">
@@ -140,11 +166,12 @@ const HamburgerMenu = ({ user }) => {
               </span>
               <span className="menu-subtitle">Your Personal CFO</span>
             </div>
+            {/* Close Button - base.html-dən */}
             <button
               id="menu-close-btn"
               className="menu-close-btn"
               aria-label="Close Menu"
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
             >
               <CloseIcon className="w-6 h-6" />
             </button>
@@ -162,7 +189,7 @@ const HamburgerMenu = ({ user }) => {
                 key={item.path}
                 to={item.path}
                 className={`menu-item ${isActive ? 'active' : ''}`}
-                onClick={() => setTimeout(() => setIsOpen(false), 150)}
+                onClick={() => setTimeout(closeMenu, 150)}
               >
                 <div className="menu-item-icon">
                   <Icon />
@@ -184,7 +211,7 @@ const HamburgerMenu = ({ user }) => {
                 key={item.path}
                 to={item.path}
                 className={`menu-item ${isActive ? 'active' : ''}`}
-                onClick={() => setTimeout(() => setIsOpen(false), 150)}
+                onClick={() => setTimeout(closeMenu, 150)}
               >
                 <div className="menu-item-icon">
                   {Icon ? <Icon /> : <span className="text-2xl">{item.emoji}</span>}
@@ -206,7 +233,7 @@ const HamburgerMenu = ({ user }) => {
                 key={item.path}
                 to={item.path}
                 className={`menu-item ${isActive ? 'active' : ''}`}
-                onClick={() => setTimeout(() => setIsOpen(false), 150)}
+                onClick={() => setTimeout(closeMenu, 150)}
               >
                 <div className="menu-item-icon">
                   <Icon />
@@ -218,7 +245,7 @@ const HamburgerMenu = ({ user }) => {
           <button
             onClick={() => {
               logout()
-              setIsOpen(false)
+              closeMenu()
             }}
             className="menu-item logout"
           >

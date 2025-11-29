@@ -7,15 +7,18 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
+import '../../styles/components/dashboard/time-machine.css'
 
 const TimeMachine = ({
   currentBalance,
   monthlySavings,
   currency = '₼',
   delay = 0.1,
+  incognitoMode = false,
 }) => {
   const [months, setMonths] = useState(0)
   const [projectedBalance, setProjectedBalance] = useState(currentBalance)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     const projected = currentBalance + monthlySavings * months
@@ -65,8 +68,28 @@ const TimeMachine = ({
             max="12"
             value={months}
             step="1"
-            onChange={(e) => setMonths(parseInt(e.target.value))}
+            onChange={(e) => {
+              const newValue = parseInt(e.target.value)
+              setMonths(newValue)
+            }}
+            onInput={(e) => {
+              // Real-time update for smooth dragging
+              const newValue = parseInt(e.target.value)
+              setMonths(newValue)
+            }}
+            onMouseDown={() => setIsDragging(true)}
+            onMouseUp={() => setIsDragging(false)}
+            onMouseLeave={() => setIsDragging(false)}
+            onTouchStart={() => setIsDragging(true)}
+            onTouchEnd={() => setIsDragging(false)}
+            onTouchCancel={() => setIsDragging(false)}
             className="w-full h-2 sm:h-3 bg-white/20 rounded-lg appearance-none cursor-pointer accent-purple-500"
+            style={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+              WebkitAppearance: 'none',
+              appearance: 'none',
+              background: 'transparent',
+            }}
           />
           <div className="flex justify-between text-xs text-white/40 mt-2">
             <span>İndi</span>
@@ -80,22 +103,30 @@ const TimeMachine = ({
           </p>
           <p
             id="projected-balance"
-            className={`text-2xl sm:text-4xl font-bold transition-colors duration-300 incognito-hidden ${
-              projectedBalance < 0 ? 'text-red-400' : 'text-green-400'
-            }`}
+            className={`text-2xl sm:text-4xl font-bold transition-colors duration-300 ${
+              incognitoMode ? 'incognito-hidden' : ''
+            } ${projectedBalance < 0 ? 'text-red-400' : 'text-green-400'}`}
           >
-            <CountUp
-              end={projectedBalance}
-              duration={0.5}
-              decimals={2}
-              separator=","
-            />{' '}
-            <span id="projected-balance-currency">{currency}</span>
+            {incognitoMode ? (
+              '****'
+            ) : (
+              <>
+                <CountUp
+                  end={projectedBalance}
+                  duration={0.5}
+                  decimals={2}
+                  separator=","
+                />{' '}
+                <span id="projected-balance-currency">{currency}</span>
+              </>
+            )}
           </p>
           <p className="text-xs text-white/40 mt-1">
             Aylıq qənaət:{' '}
-            <span id="monthly-savings" className="incognito-hidden">
-              <CountUp end={monthlySavings} duration={1} decimals={2} separator="," />
+            <span id="monthly-savings" className={incognitoMode ? 'incognito-hidden' : ''}>
+              {incognitoMode ? '****' : (
+                <CountUp end={monthlySavings} duration={1} decimals={2} separator="," />
+              )}
             </span>{' '}
             <span id="monthly-savings-currency">{currency}</span>
           </p>

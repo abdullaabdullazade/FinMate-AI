@@ -60,33 +60,73 @@ const BudgetOverview = ({
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - HTML-dəki kimi bir-bir */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
-        <StatCard
-          label="Ümumi xərc"
-          value={incognitoMode ? 0 : totalSpending}
-          currency={currency}
-          delay={0.1}
-        />
-        <StatCard
-          label="Aylıq büdcə"
-          value={incognitoMode ? 0 : monthlyBudget}
-          currency={currency}
-          delay={0.15}
-        />
-        <StatCard
-          label="Qalıq"
-          value={incognitoMode ? 0 : remainingBudget}
-          currency={currency}
-          color={remainingBudget < 0 ? 'text-red-400' : 'text-green-400'}
-          delay={0.2}
-        />
+        {/* Total Spending */}
+        <div>
+          <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
+          <div className="flex items-end gap-1 sm:gap-2">
+            <span
+              id="stat-total"
+              className={`text-2xl sm:text-4xl font-bold text-white ${incognitoMode ? 'incognito-hidden' : ''}`}
+              data-value={totalSpending}
+              data-initial={totalSpending.toFixed(2)}
+            >
+              {incognitoMode ? '****' : totalSpending.toFixed(2)}
+            </span>
+            <span id="stat-total-currency" className="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">
+              {currency}
+            </span>
+          </div>
+        </div>
+
+        {/* Budget */}
+        <div>
+          <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Aylıq büdcə</p>
+          <div className="flex items-end gap-1 sm:gap-2">
+            <span
+              id="stat-budget"
+              className={`text-2xl sm:text-4xl font-bold text-white ${incognitoMode ? 'incognito-hidden' : ''}`}
+              data-value={monthlyBudget}
+              data-initial={monthlyBudget.toFixed(2)}
+            >
+              {incognitoMode ? '****' : monthlyBudget.toFixed(2)}
+            </span>
+            <span id="stat-budget-currency" className="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">
+              {currency}
+            </span>
+          </div>
+        </div>
+
+        {/* Remaining */}
+        <div>
+          <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Qalıq</p>
+          <div className="flex items-end gap-1 sm:gap-2">
+            <span
+              id="stat-remaining"
+              className={`text-2xl sm:text-4xl font-bold ${
+                remainingBudget < 0 ? 'text-red-400' : 'text-green-400'
+              } ${incognitoMode ? 'incognito-hidden' : ''}`}
+              data-value={remainingBudget}
+              data-initial={remainingBudget.toFixed(2)}
+            >
+              {incognitoMode ? '****' : remainingBudget.toFixed(2)}
+            </span>
+            <span id="stat-remaining-currency" className="text-sm sm:text-lg text-white/70 mb-0.5 sm:mb-1">
+              {currency}
+            </span>
+          </div>
+        </div>
+
+        {/* Eco Score */}
         <div>
           <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
           <div className="flex items-end gap-1 sm:gap-2">
             <span className="eco-leaf text-lg sm:text-2xl">{ecoScore?.icon || '🌍'}</span>
-            <span className={`text-2xl sm:text-4xl font-bold text-white ${incognitoMode ? 'hidden' : ''}`}>
-              {ecoScore?.value || 0}
+            <span
+              className={`text-2xl sm:text-4xl font-bold text-white ${incognitoMode ? 'incognito-hidden' : ''}`}
+            >
+              {incognitoMode ? '****' : ecoScore?.value || 0}
             </span>
             <span className="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
           </div>

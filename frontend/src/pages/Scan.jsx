@@ -16,6 +16,7 @@ import UploadButtons from '../components/scan/UploadButtons'
 import ScanInstructions from '../components/scan/ScanInstructions'
 import ScanResult from '../components/scan/ScanResult'
 import ScanError from '../components/scan/ScanError'
+import VoiceCommandButton from '../components/scan/VoiceCommandButton'
 
 const Scan = () => {
   const navigate = useNavigate()
@@ -121,8 +122,13 @@ const Scan = () => {
           coins: data.coins,
           milestone_reached: data.milestone_reached,
           daily_limit_alert: data.daily_limit_alert,
+          expense_id: data.expense_id || data.receipt_data?.expense_id || null
         })
         setShowInitialState(false)
+
+        // Dispatch event for dashboard refresh
+        window.dispatchEvent(new CustomEvent('scanCompleted'))
+        window.dispatchEvent(new CustomEvent('expenseUpdated'))
 
         // Voice notification
         if (typeof window.queueVoiceNotification === 'function') {
@@ -256,11 +262,19 @@ const Scan = () => {
 
       {/* Success Result */}
       {scanResult && !showInitialState && (
-        <ScanResult scanResult={scanResult} onReset={resetScan} onGoToDashboard={goToDashboard} />
+        <ScanResult 
+          scanResult={scanResult} 
+          onReset={resetScan} 
+          onGoToDashboard={goToDashboard}
+          expenseId={scanResult.expense_id}
+        />
       )}
 
       {/* Error Result */}
       {error && !showInitialState && <ScanError error={error} onReset={resetScan} />}
+
+      {/* Voice Command Button */}
+      <VoiceCommandButton />
     </div>
   )
 }

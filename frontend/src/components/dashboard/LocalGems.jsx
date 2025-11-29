@@ -29,17 +29,14 @@ const LocalGems = ({ localGems, currency = '₼', incognitoMode = false }) => {
 
       <div className="space-y-3 sm:space-y-4">
         {localGems.map((gem, index) => (
-          <div
-            key={index}
-            className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 hover:bg-white/10 transition-all"
-          >
+          <div key={index} className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 hover:bg-white/10 transition-all">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-lg sm:text-xl">📍</span>
                   <h4 className="text-sm sm:text-base font-bold text-white truncate">{gem.merchant}</h4>
-                  <span className={`text-xs sm:text-sm text-white/70 ${incognitoMode ? 'hidden' : ''}`}>
-                    • {gem.amount?.toFixed(2)} {currency}
+                  <span className="text-xs sm:text-sm text-white/70">
+                    • {incognitoMode ? '****' : gem.amount.toFixed(2)} {currency}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-white/60">{gem.category}</p>
@@ -47,7 +44,7 @@ const LocalGems = ({ localGems, currency = '₼', incognitoMode = false }) => {
             </div>
 
             <div className="mt-2 sm:mt-3 space-y-2">
-              {gem.alternatives?.map((alt, altIndex) => (
+              {gem.alternatives && gem.alternatives.map((alt, altIndex) => (
                 <div key={altIndex} className="flex items-start gap-2 bg-white/5 rounded-lg p-2 sm:p-2.5">
                   <span className="text-base sm:text-lg flex-shrink-0">
                     {alt.is_tip ? '💡' : '✨'}
@@ -56,11 +53,14 @@ const LocalGems = ({ localGems, currency = '₼', incognitoMode = false }) => {
                     {alt.price && alt.savings ? (
                       <>
                         <p className="text-xs sm:text-sm font-medium text-white">
-                          <strong>{alt.name}</strong> - {alt.price.toFixed(2)} {currency}
+                          <strong>{alt.name}</strong> - {incognitoMode ? '****' : alt.price.toFixed(2)} {currency}
                         </p>
-                        <p className={`text-xs text-green-400 mt-0.5 ${incognitoMode ? 'hidden' : ''}`}>
-                          💰 {alt.savings.toFixed(2)} {currency} qənaət (
-                          {gem.amount > 0 ? Math.round((alt.savings / gem.amount) * 100) : 0}%)
+                        <p className="text-xs text-green-400 mt-0.5">
+                          💰 {incognitoMode ? '****' : alt.savings.toFixed(2)} {currency} qənaət (
+                          {gem.amount > 0
+                            ? ((alt.savings / gem.amount) * 100).toFixed(0)
+                            : 0}
+                          %)
                         </p>
                       </>
                     ) : alt.special_offer ? (

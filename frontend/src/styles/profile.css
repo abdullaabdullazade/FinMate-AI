@@ -1,0 +1,33 @@
+/**
+ * Profile Page Styles
+ * profile.css-dən köçürülmüşdür - React üçün adapt edilmişdir
+ * Səliqəli struktur - kiçik fayllara bölünmüşdür
+ */
+
+/* Import Profile Sub-Styles */
+@import './components/profile/buttons-icons.css';
+@import './components/profile/level-card.css';
+@import './components/profile/charts.css';
+
+/* Profile Page Responsive */
+@media (max-width: 640px) {
+    .glass-card {
+        padding: 1rem !important;
+    }
+
+    .grid.grid-cols-2 {
+        gap: 0.75rem !important;
+    }
+
+    .grid.grid-cols-1.lg\\:grid-cols-2 {
+        gap: 1rem !important;
+    }
+
+    h3.text-lg {
+        font-size: 1rem !important;
+    }
+
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+}

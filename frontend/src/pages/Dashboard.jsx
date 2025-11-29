@@ -1,31 +1,30 @@
 /**
  * Dashboard Page Component
- * HTML-dəki bütün struktur və dizaynı qoruyaraq tam yazılmışdır
+ * HTML/CSS-dən tam köçürülmüş - Bütün komponentlər səliqəli şəkildə bölünmüşdür
  * Deep Purple Glassmorphism dizaynı
  */
 
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { dashboardAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'sonner'
-import StatCard from '../components/dashboard/StatCard'
-import TransactionRow from '../components/dashboard/TransactionRow'
-import CategoryCard from '../components/dashboard/CategoryCard'
-import TimeMachine from '../components/dashboard/TimeMachine'
-import FinancialPet from '../components/dashboard/FinancialPet'
-import WelcomeBanner from '../components/dashboard/WelcomeBanner'
+
+// Dashboard Components
 import BudgetWarning from '../components/dashboard/BudgetWarning'
-import XPProgress from '../components/dashboard/XPProgress'
-import CategoryChart from '../components/dashboard/CategoryChart'
-import EcoImpact from '../components/dashboard/EcoImpact'
-import LocalGems from '../components/dashboard/LocalGems'
+import WelcomeBanner from '../components/dashboard/WelcomeBanner'
 import SalaryIncrease from '../components/dashboard/SalaryIncrease'
+import XPProgress from '../components/dashboard/XPProgress'
 import DailyLimitAlert from '../components/dashboard/DailyLimitAlert'
 import BudgetOverview from '../components/dashboard/BudgetOverview'
+import TimeMachine from '../components/dashboard/TimeMachine'
+import EcoImpact from '../components/dashboard/EcoImpact'
 import CategoryBreakdown from '../components/dashboard/CategoryBreakdown'
+import LocalGems from '../components/dashboard/LocalGems'
 import RecentTransactions from '../components/dashboard/RecentTransactions'
+import FinancialPet from '../components/dashboard/FinancialPet'
+import EditTransactionModal from '../components/dashboard/EditTransactionModal'
+import IncomeModal from '../components/dashboard/IncomeModal'
+import FraudAlertModal from '../components/dashboard/FraudAlertModal'
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -33,27 +32,60 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [incognitoMode, setIncognitoMode] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingExpense, setEditingExpense] = useState(null)
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false)
+  const [fraudModalOpen, setFraudModalOpen] = useState(false)
 
   /**
    * Dashboard məlumatlarını yüklə
    */
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const response = await dashboardAPI.getDashboardData()
+      setDashboardData(response.data)
+      setError(null)
+    } catch (err) {
+      console.error('Dashboard data fetch error:', err)
+      setError('Məlumat yüklənərkən xəta baş verdi')
+      toast.error('Məlumat yüklənərkən xəta baş verdi')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true)
-        const response = await dashboardAPI.getDashboardData()
-        setDashboardData(response.data)
-        setError(null)
-      } catch (err) {
-        console.error('Dashboard data fetch error:', err)
-        setError('Məlumat yüklənərkən xəta baş verdi')
-        toast.error('Məlumat yüklənərkən xəta baş verdi')
-      } finally {
-        setLoading(false)
-      }
+    fetchDashboardData()
+
+    // Event listeners for refresh
+    const handleExpenseUpdate = () => {
+      console.log('🔄 Expense updated, refreshing dashboard...')
+      fetchDashboardData()
     }
 
-    fetchDashboardData()
+    const handleIncomeUpdate = () => {
+      console.log('💰 Income updated, refreshing dashboard...')
+      fetchDashboardData()
+    }
+
+    const handleScanComplete = () => {
+      console.log('📸 Scan completed, refreshing dashboard...')
+      fetchDashboardData()
+    }
+
+    // Listen for custom events
+    window.addEventListener('expenseUpdated', handleExpenseUpdate)
+    window.addEventListener('incomeUpdated', handleIncomeUpdate)
+    window.addEventListener('scanCompleted', handleScanComplete)
+    window.addEventListener('expensesUpdated', handleExpenseUpdate) // For HTMX compatibility
+
+    return () => {
+      window.removeEventListener('expenseUpdated', handleExpenseUpdate)
+      window.removeEventListener('incomeUpdated', handleIncomeUpdate)
+      window.removeEventListener('scanCompleted', handleScanComplete)
+      window.removeEventListener('expensesUpdated', handleExpenseUpdate)
+    }
   }, [])
 
   // Incognito mode toggle
@@ -69,9 +101,13 @@ const Dashboard = () => {
     return 'Axşamın xeyir'
   }
 
-  // Get current month name
+  // Get current month name - "11 noyabr 2025" formatında
   const getCurrentMonth = () => {
-    return new Date().toLocaleDateString('az-AZ', { month: 'long', year: 'numeric' })
+    const now = new Date()
+    const day = now.getDate()
+    const month = now.toLocaleDateString('az-AZ', { month: 'long' })
+    const year = now.getFullYear()
+    return `${day} ${month} ${year}`
   }
 
   // Loading state
@@ -132,20 +168,38 @@ const Dashboard = () => {
 
   // Handle edit transaction
   const handleEdit = (expense) => {
-    toast.info('Edit funksiyası tezliklə əlavə olunacaq')
-    // TODO: Implement edit modal
+    setEditingExpense(expense)
+    setEditModalOpen(true)
+  }
+
+  // Handle edit save
+  const handleEditSave = async () => {
+    // Refresh data after edit
+    await fetchDashboardData()
   }
 
   // Handle delete transaction
   const handleDelete = async (expenseId) => {
     if (window.confirm('Bu əməliyyatı silmək istədiyinizə əminsiniz?')) {
       try {
-        // TODO: Implement delete API call
-        toast.success('Əməliyyat silindi')
-        // Refresh data
-        const response = await dashboardAPI.getDashboardData()
-        setDashboardData(response.data)
+        const response = await fetch(`/api/expenses/${expenseId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+
+        if (response.ok) {
+          toast.success('Əməliyyat silindi')
+          // Refresh data
+          await fetchDashboardData()
+        } else {
+          toast.error('Xəta baş verdi')
+        }
       } catch (err) {
+        console.error('Delete error:', err)
         toast.error('Xəta baş verdi')
       }
     }
@@ -153,14 +207,20 @@ const Dashboard = () => {
 
   // Handle income modal
   const handleIncomeClick = () => {
-    toast.info('Gəlir əlavə etmə funksiyası tezliklə əlavə olunacaq')
-    // TODO: Implement income modal
+    setIncomeModalOpen(true)
+  }
+
+  // Handle income success
+  const handleIncomeSuccess = async () => {
+    // Refresh data after income added
+    await fetchDashboardData()
+    // Dispatch event for other components
+    window.dispatchEvent(new CustomEvent('incomeUpdated'))
   }
 
   // Handle fraud alert
   const handleFraudClick = () => {
-    toast.info('Fraud alert funksiyası tezliklə əlavə olunacaq')
-    // TODO: Implement fraud alert modal
+    setFraudModalOpen(true)
   }
 
   return (
@@ -213,7 +273,33 @@ const Dashboard = () => {
         currency={currency}
         incognitoMode={incognitoMode}
         onToggleIncognito={toggleIncognito}
-        onSpeak={() => toast.info('Səsləndirmə funksiyası tezliklə əlavə olunacaq')}
+        onSpeak={async () => {
+          try {
+            // Convert numbers to Azerbaijani words (manat/qəpik format)
+            let totalSpendingText = totalSpending.toFixed(2) + ' ' + currency
+            let monthlyBudgetText = monthlyBudget.toFixed(2) + ' ' + currency
+            let remainingBudgetText = remainingBudget.toFixed(2) + ' ' + currency
+            
+            if (typeof window.numberToAzerbaijani === 'function') {
+              totalSpendingText = window.numberToAzerbaijani(totalSpending)
+              monthlyBudgetText = window.numberToAzerbaijani(monthlyBudget)
+              remainingBudgetText = window.numberToAzerbaijani(remainingBudget)
+            }
+            
+            const message = `Bu ay ${totalSpendingText} xərclədiniz. Aylıq büdcəniz ${monthlyBudgetText}. Qalıq ${remainingBudgetText}. Büdcə istifadəsi ${budgetPercentage.toFixed(1)} faiz.`
+            
+            if (typeof window.queueVoiceNotification === 'function') {
+              window.queueVoiceNotification(message, 1, 'az')
+            } else {
+              // Fallback: use TTS API directly
+              const { voiceAPI } = await import('../services/api')
+              await voiceAPI.textToSpeech(message, 'az')
+            }
+          } catch (error) {
+            console.error('Speak error:', error)
+            toast.error('Səsləndirmə xətası')
+          }
+        }}
       />
 
       {/* Financial Time Machine */}
@@ -221,6 +307,7 @@ const Dashboard = () => {
         currentBalance={totalAvailable}
         monthlySavings={monthlySavings}
         currency={currency}
+        incognitoMode={incognitoMode}
       />
 
       {/* Eco Impact Score */}
@@ -232,35 +319,11 @@ const Dashboard = () => {
       />
 
       {/* Category Breakdown */}
-      {Object.keys(categoryData).length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="glass-card p-4 sm:p-6 slide-up"
-          style={{ gridColumn: 'span 12' }}
-        >
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h3 className="text-lg sm:text-xl font-bold text-white">Kateqoriyalar üzrə</h3>
-            <span className="text-xs sm:text-sm text-white/60">
-              {Object.keys(categoryData).length} kateqoriya
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {Object.entries(categoryData).map(([category, amount], index) => (
-              <CategoryCard
-                key={category}
-                category={category}
-                amount={amount}
-                totalSpending={totalSpending}
-                currency={currency}
-                delay={index * 0.05}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
+      <CategoryBreakdown
+        categoryData={categoryData}
+        totalSpending={totalSpending}
+        currency={currency}
+      />
 
       {/* Local Gems Discovery */}
       <LocalGems
@@ -270,44 +333,49 @@ const Dashboard = () => {
       />
 
       {/* Recent Transactions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-        className="glass-card p-4 sm:p-6 slide-up"
-        style={{ gridColumn: 'span 12' }}
-      >
-        <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Son əməliyyatlar</h3>
-        <div className="space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
-          {!recents || recents.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-2xl">
-              <div className="text-4xl mb-3">💳</div>
-              <p className="text-white/60 text-sm">Hələ əməliyyat yoxdur</p>
-              <Link
-                to="/scan"
-                className="inline-block mt-4 text-sm text-blue-300 hover:text-blue-200 font-medium"
-              >
-                İlk çekini skan et →
-              </Link>
-            </div>
-          ) : (
-            recents.map((expense, index) => (
-              <TransactionRow
-                key={expense.id || index}
-                expense={expense}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                currency={currency}
-              />
-            ))
-          )}
-        </div>
-      </motion.div>
+      <RecentTransactions
+        transactions={recents}
+        currency={currency}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       {/* Financial Pet Widget */}
       {budgetPercentage > 0 && (
         <FinancialPet budgetPercentage={budgetPercentage} />
       )}
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false)
+          setEditingExpense(null)
+        }}
+        expense={editingExpense}
+        onSave={handleEditSave}
+        currency={currency}
+      />
+
+      {/* Income Modal */}
+      <IncomeModal
+        isOpen={incomeModalOpen}
+        onClose={() => setIncomeModalOpen(false)}
+        currency={currency}
+        onSuccess={handleIncomeSuccess}
+      />
+
+      {/* Fraud Alert Modal */}
+      <FraudAlertModal
+        isOpen={fraudModalOpen}
+        onClose={() => setFraudModalOpen(false)}
+        onConfirm={() => {
+          setFraudModalOpen(false)
+        }}
+        onBlock={() => {
+          // Fraud blocked - could trigger additional actions
+        }}
+      />
     </div>
   )
 }

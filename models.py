@@ -23,6 +23,7 @@ class User(Base):
     # User preferences
     preferred_language = Column(String, default="az")  # az, en, ru
     voice_enabled = Column(Boolean, default=True)
+    voice_mode = Column(Boolean, default=False)  # TTS mode - text-to-speech enabled
     daily_budget_limit = Column(Float, nullable=True)
     currency = Column(String, default="AZN")  # Display/Base currency
     personality_mode = Column(String, default="normal")  # normal, mom, strict

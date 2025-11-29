@@ -4,10 +4,43 @@
  * Mobile responsive və səliqəli
  */
 
-import React from 'react'
+import React, { useState } from 'react'
 import { toast } from 'react-toastify'
+import DeleteReceiptModal from './DeleteReceiptModal'
 
-const ScanResult = ({ scanResult, onReset, onGoToDashboard }) => {
+const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleDelete = async () => {
+    if (!expenseId) {
+      toast.error('Qəbz ID tapılmadı')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/expenses/${expenseId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+
+      if (response.ok) {
+        toast.success('✅ Qəbz uğurla silindi')
+        // Refresh dashboard
+        window.dispatchEvent(new CustomEvent('expenseUpdated'))
+        setShowDeleteModal(false)
+        onReset()
+      } else {
+        toast.error('Xəta baş verdi')
+      }
+    } catch (error) {
+      console.error('Delete receipt error:', error)
+      toast.error('Əlaqə xətası')
+    }
+  }
   return (
     <div id="scanResult" className="w-full animate-fade-in">
       <div className="glass-card w-full max-w-2xl mx-auto relative slide-up flex flex-col">
@@ -173,10 +206,18 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard }) => {
           </button>
           <button
             onClick={onGoToDashboard}
-            className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-3 sm:py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-500/25 text-sm sm:text-base"
+            className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center py-3 sm:py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-500/25 text-sm sm:text-base mb-3"
           >
             Lövhəyə qayıt
           </button>
+          {expenseId && (
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="block w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-center py-3 sm:py-3.5 rounded-xl font-bold transition text-sm sm:text-base mb-3"
+            >
+              🗑️ Qəbzi Sil
+            </button>
+          )}
           <button
             onClick={onReset}
             className="block w-full text-white/50 text-xs sm:text-sm text-center mt-3 sm:mt-4 hover:text-white transition"
@@ -185,6 +226,17 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard }) => {
           </button>
         </div>
       </div>
+
+      {/* Delete Receipt Modal */}
+      <DeleteReceiptModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        receiptInfo={{
+          merchant: scanResult.receipt_data.merchant,
+          total: scanResult.receipt_data.total
+        }}
+      />
     </div>
   )
 }

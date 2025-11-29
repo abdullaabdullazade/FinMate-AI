@@ -1,10 +1,25 @@
 /**
  * Authentication Pages Styles (Login & Signup)
- * auth.css-dən köçürülmüşdür
+ * auth.css-dən TAM KOPYALANMIŞ - bir-bir eyni
  */
 
-/* Animated background particles */
-body::before {
+/* Font family - React app üçün */
+#root > div:has(.min-h-screen.flex.items-center) *,
+body:has(.min-h-screen.flex.items-center) * {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Background - React app üçün */
+#root > div:has(.min-h-screen.flex.items-center),
+body:has(.min-h-screen.flex.items-center) {
+  background: linear-gradient(135deg, #0a0e27 0%, #141b3d 50%, #1a1f4d 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated background particles - React app üçün */
+.min-h-screen.flex.items-center::before {
   content: '';
   position: fixed;
   top: 0;

@@ -86,8 +86,13 @@ const EditDreamModal = ({ isOpen, onClose, dream, onSubmit }) => {
     >
       <div className="flex items-start sm:items-center justify-center min-h-screen px-3 sm:px-4 py-4 sm:py-8">
         <div 
-          className="glass-card p-4 sm:p-6 w-full max-w-md transform transition-transform duration-300 my-auto"
-          style={{ transform: isOpen ? 'scale(1)' : 'scale(0.95)' }}
+          className="glass-card p-4 sm:p-6 w-full max-w-md transform transition-transform duration-300 my-auto mx-4 max-h-[90vh] overflow-y-auto"
+          style={{
+            transform: isOpen ? 'scale(1)' : 'scale(0.95)',
+            background: 'var(--glass-bg)',
+            borderColor: 'var(--glass-border)',
+            boxShadow: '0 25px 50px -12px var(--glass-shadow)'
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-4 sm:mb-6">

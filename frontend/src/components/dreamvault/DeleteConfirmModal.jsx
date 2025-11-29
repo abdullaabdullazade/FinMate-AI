@@ -15,8 +15,13 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, dreamTitle }) => {
       onClick={onClose}
     >
       <div 
-        className="glass-card p-6 sm:p-8 max-w-md w-full rounded-3xl relative transform transition-transform duration-300"
-        style={{ transform: isOpen ? 'scale(1)' : 'scale(0.95)' }}
+        className="glass-card p-4 sm:p-6 md:p-8 max-w-md w-full rounded-3xl relative transform transition-transform duration-300 mx-4 max-h-[90vh] overflow-y-auto"
+        style={{
+          transform: isOpen ? 'scale(1)' : 'scale(0.95)',
+          background: 'var(--glass-bg)',
+          borderColor: 'var(--glass-border)',
+          boxShadow: '0 25px 50px -12px var(--glass-shadow)'
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-center mb-6">

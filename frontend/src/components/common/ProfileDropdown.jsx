@@ -26,6 +26,28 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
     }
   }, [show, onToggle])
 
+  // Hamburger menu açıq olduqda profil dropdown-u bağla
+  useEffect(() => {
+    const menuPanel = document.getElementById('menu-panel')
+    const checkMenuState = () => {
+      if (menuPanel && menuPanel.classList.contains('active') && show) {
+        onToggle() // Profil dropdown-u bağla
+      }
+    }
+
+    const observer = new MutationObserver(checkMenuState)
+    if (menuPanel) {
+      observer.observe(menuPanel, {
+        attributes: true,
+        attributeFilter: ['class']
+      })
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [show, onToggle])
+
   if (!user) return null
 
   const userInitial = user.username?.[0]?.toUpperCase() || 'D'
@@ -36,7 +58,14 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
         type="button"
         id="profile-dropdown-btn"
         className="relative focus:outline-none"
-        onClick={onToggle}
+        onClick={(e) => {
+          // Hamburger menu açıq olduqda profil dropdown-u açma
+          const menuPanel = document.getElementById('menu-panel')
+          if (menuPanel && menuPanel.classList.contains('active')) {
+            return // Hamburger menu açıq olduqda profil dropdown-u açma
+          }
+          onToggle()
+        }}
       >
         <div
           id="user-avatar"
@@ -52,7 +81,7 @@ const ProfileDropdown = ({ user, show, onToggle, onLogout }) => {
         <div
           ref={dropdownRef}
           id="profile-dropdown"
-          className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-50"
+          className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden shadow-xl z-[60]"
         >
           <Link
             to="/profile"

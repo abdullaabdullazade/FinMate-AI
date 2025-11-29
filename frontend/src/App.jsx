@@ -23,6 +23,7 @@ import Heatmap from './pages/Heatmap'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
+import NetworkStatus from './components/common/NetworkStatus'
 
 function App() {
   return (
@@ -49,6 +50,9 @@ function App() {
           }}
         />
 
+        {/* Network Status Monitor */}
+        <NetworkStatus />
+
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
@@ -64,10 +68,9 @@ function App() {
             <Route path="dream-vault" element={<DreamVault />} />
             <Route path="rewards" element={<Rewards />} />
             <Route path="heatmap" element={<Heatmap />} />
+            {/* 404 - BaseLayout içində */}
+            <Route path="*" element={<NotFound />} />
           </Route>
-
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
         </PremiumModalProvider>
       </AuthProvider>
