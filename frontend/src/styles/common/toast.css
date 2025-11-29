@@ -98,11 +98,17 @@
 .Toastify__close-button {
   color: rgba(232, 234, 246, 0.7) !important;
   opacity: 0.7 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 10001 !important;
+  position: relative !important;
 }
 
 .Toastify__close-button:hover {
   opacity: 1 !important;
   color: #e8eaf6 !important;
+  transform: rotate(90deg) scale(1.1) !important;
+  transition: all 0.2s ease !important;
 }
 
 /* Light theme support */

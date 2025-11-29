@@ -100,14 +100,17 @@ const AlertBell = () => {
                     {alert.message}
                   </div>
                   <button
-                    onClick={() => removeAlert(alert.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-white/50 hover:text-white flex-shrink-0 p-1"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      removeAlert(alert.id)
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-white/50 hover:text-white flex-shrink-0 p-1 cursor-pointer z-10"
                     aria-label="Bağla"
                     title="Ləğv et"
+                    type="button"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    <CloseIcon className="w-4 h-4" />
                   </button>
                 </li>
               ))

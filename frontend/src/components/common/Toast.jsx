@@ -134,9 +134,14 @@ const Toast = ({ id, message, type, onRemove }) => {
       <span className="text-xl flex-shrink-0">{icons[type] || icons.info}</span>
       <span className="font-medium text-sm sm:text-base flex-1">{message}</span>
       <button
-        className="toast-close-btn p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
+        className="toast-close-btn p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0 cursor-pointer z-10"
         aria-label="Close"
-        onClick={handleRemove}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          handleRemove()
+        }}
+        type="button"
       >
         <CloseIcon className="w-4 h-4" />
       </button>

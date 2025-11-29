@@ -36,7 +36,8 @@ function App() {
           autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}
-          closeOnClick
+          closeOnClick={true}
+          closeButton={true}
           rtl={false}
           pauseOnFocusLoss
           draggable

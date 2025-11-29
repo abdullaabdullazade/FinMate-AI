@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for day
   const [monthFilter, setMonthFilter] = useState(null) // Format: 'YYYY-MM' for month
   const [yearFilter, setYearFilter] = useState(null) // Format: 'YYYY' for year
+  const [yearFilterInput, setYearFilterInput] = useState('') // Temporary input value for year
   const [startDateFilter, setStartDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range start
   const [endDateFilter, setEndDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range end
   const [onboardingOpen, setOnboardingOpen] = useState(false)
@@ -103,6 +104,20 @@ const Dashboard = () => {
       setLoading(false)
     }
   }
+
+  // Debounce year filter - yalnız tam 4 rəqəmli il olduqda refresh et
+  useEffect(() => {
+    if (yearFilterInput && yearFilterInput.length === 4) {
+      const year = parseInt(yearFilterInput)
+      if (year >= 2020 && year <= 2030) {
+        setYearFilter(yearFilterInput)
+      } else {
+        setYearFilter(null)
+      }
+    } else if (yearFilterInput.length === 0) {
+      setYearFilter(null)
+    }
+  }, [yearFilterInput])
 
   useEffect(() => {
     fetchDashboardData()
@@ -367,6 +382,7 @@ const Dashboard = () => {
                 setDateFilter(null)
                 setMonthFilter(null)
                 setYearFilter(null)
+                setYearFilterInput('')
                 setStartDateFilter(null)
                 setEndDateFilter(null)
               }}
@@ -424,9 +440,30 @@ const Dashboard = () => {
                 type="number"
                 min="2020"
                 max="2030"
-                value={yearFilter || ''}
+                value={yearFilterInput}
                 onChange={(e) => {
-                  setYearFilter(e.target.value || null)
+                  const value = e.target.value
+                  // Yalnız rəqəmlərə icazə ver
+                  if (value === '' || /^\d+$/.test(value)) {
+                    setYearFilterInput(value)
+                  }
+                }}
+                onBlur={(e) => {
+                  // Focus itdikdə yoxla - tam 4 rəqəmli il olduqda tətbiq et
+                  const value = e.target.value
+                  if (value.length === 4) {
+                    const year = parseInt(value)
+                    if (year >= 2020 && year <= 2030) {
+                      setYearFilter(value)
+                    } else {
+                      setYearFilterInput('')
+                      setYearFilter(null)
+                    }
+                  } else if (value.length > 0 && value.length < 4) {
+                    // Yarımçıq yazılıbsa, təmizlə
+                    setYearFilterInput('')
+                    setYearFilter(null)
+                  }
                 }}
                 placeholder="İl (məs: 2025)"
                 className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
@@ -482,6 +519,7 @@ const Dashboard = () => {
                   setDateFilter(null)
                   setMonthFilter(null)
                   setYearFilter(null)
+                  setYearFilterInput('')
                   setStartDateFilter(null)
                   setEndDateFilter(null)
                 }}
