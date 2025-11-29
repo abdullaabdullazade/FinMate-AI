@@ -134,11 +134,31 @@
   }
 }
 
-/* User Stats - Mobile hide or smaller */
+/* User Stats - Mobile compact display */
 @media (max-width: 640px) {
-  /* User Stats komponentini mobil üçün gizlət */
+  /* User Stats komponentini mobil üçün kiçik və kompakt göstər */
   #user-stats-container {
-    display: none !important;
+    display: flex !important;
+    gap: 0.25rem !important;
+  }
+  
+  /* XP və Coin badge-ləri mobil üçün kiçildir */
+  #user-stats-container > div {
+    padding: 0.25rem 0.5rem !important;
+    gap: 0.25rem !important;
+    min-width: auto !important;
+  }
+  
+  /* Emoji və icon-lar mobil üçün kiçildir */
+  #user-stats-container span.text-base {
+    font-size: 0.75rem !important;
+    line-height: 1;
+  }
+  
+  /* XP və Coin rəqəmləri mobil üçün kiçildir */
+  #user-stats-container span.text-xs {
+    font-size: 0.625rem !important;
+    line-height: 1;
   }
 }
 

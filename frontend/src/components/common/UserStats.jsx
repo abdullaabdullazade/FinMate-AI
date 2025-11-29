@@ -130,16 +130,16 @@ const UserStats = ({ user: userProp }) => {
   // Always render if we have any data (user or stats)
   // Don't hide completely, just show 0 if no data
   return (
-    <div className={`${alwaysShow ? 'flex' : 'flex'} items-center gap-2`} id="user-stats-container">
-      {/* XP Badge - user_stats.html sətir 6-11 */}
-      <div className="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
-        <span className="text-base">{getLevelEmoji(levelTitle)}</span>
-        <span className="text-xs font-bold text-white/80">{xpPoints}</span>
+    <div className={`${alwaysShow ? 'flex' : 'flex'} items-center gap-1 sm:gap-2`} id="user-stats-container">
+      {/* XP Badge - user_stats.html sətir 6-11 - Mobile compact */}
+      <div className="flex items-center gap-1 sm:gap-1.5 glass-card px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+        <span className="text-sm sm:text-base leading-none">{getLevelEmoji(levelTitle)}</span>
+        <span className="text-[10px] sm:text-xs font-bold text-white/80 leading-none">{xpPoints}</span>
       </div>
-      {/* Coin Badge - user_stats.html sətir 12-16 */}
-      <div className="flex items-center gap-1.5 glass-card px-2.5 py-1 rounded-full">
-        <span className="text-base">🪙</span>
-        <span className="text-xs font-bold text-yellow-400">{coins}</span>
+      {/* Coin Badge - user_stats.html sətir 12-16 - Mobile compact */}
+      <div className="flex items-center gap-1 sm:gap-1.5 glass-card px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+        <span className="text-sm sm:text-base leading-none">🪙</span>
+        <span className="text-[10px] sm:text-xs font-bold text-yellow-400 leading-none">{coins}</span>
       </div>
     </div>
   )
