@@ -495,14 +495,23 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
             if key in daily_limit_alert:
                 daily_limit_alert[key] = sanitize_float(daily_limit_alert[key])
     
-    # Sanitize eco_breakdown (it's a dict with float values)
+    # Sanitize eco_breakdown (it's a dict with nested dicts containing co2, icon, level)
     sanitized_eco_breakdown = {}
     if eco_breakdown:
-        for k, v in eco_breakdown.items():
-            if isinstance(v, (int, float)):
-                sanitized_eco_breakdown[k] = sanitize_float(v)
+        for category, impact_data in eco_breakdown.items():
+            if isinstance(impact_data, dict):
+                sanitized_eco_breakdown[category] = {
+                    "co2": sanitize_float(impact_data.get("co2", 0)),
+                    "icon": impact_data.get("icon", "💻"),
+                    "level": impact_data.get("level", "Aşağı təsir")
+                }
             else:
-                sanitized_eco_breakdown[k] = v
+                # Fallback: if it's just a number, convert to dict format
+                sanitized_eco_breakdown[category] = {
+                    "co2": sanitize_float(impact_data),
+                    "icon": "💻",
+                    "level": "Aşağı təsir"
+                }
     
     return JSONResponse({
         "context": {
@@ -515,7 +524,10 @@ async def get_dashboard_data(request: Request, db: Session = Depends(get_db)):
             "category_data": sanitized_category_data,
             "remaining_budget": sanitize_float(remaining_budget),
             "total_available": sanitize_float(total_available_azn),
-            "eco_score": sanitize_float(eco_score) if eco_score else 0.0,
+            "eco_score": {
+                "value": sanitize_float(eco_score.get("value", 0)) if isinstance(eco_score, dict) else sanitize_float(eco_score) if eco_score else 0.0,
+                "icon": eco_score.get("icon", "🌍") if isinstance(eco_score, dict) else "🌍"
+            },
             "eco_breakdown": sanitized_eco_breakdown if sanitized_eco_breakdown else eco_breakdown,
             "eco_tip": eco_tip,
             "level_info": {
