@@ -1,26 +1,26 @@
 /**
  * Base Styles
- * Global base styles for body, html, and common elements
+ * Templates-dən TAM KOPYALANMIŞ - static/css/base.css
  */
 
 /* Disable transitions during page load */
 .preload * {
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -ms-transition: none !important;
-  -o-transition: none !important;
-  transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }
 
 * {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 /* Smooth theme transition - but NOT on initial load */
@@ -28,135 +28,300 @@ body:not(.no-transition),
 body:not(.no-transition) .glass,
 body:not(.no-transition) .glass-card,
 body:not(.no-transition) .bottom-nav {
-  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Smooth theme background transition */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 20%, var(--content-bg-start) 45%, var(--content-bg-middle) 70%, var(--content-bg-end) 100%);
-  opacity: 0.95; /* Yumşaq parıldama üçün */
-  min-height: 100vh;
-  padding-bottom: 80px;
-  color: var(--text-primary);
-  transition: background 0.8s ease-in-out;
-  overflow-x: hidden;
+    transition: background 0.8s ease-in-out;
 }
 
-/* Ensure dark mode is applied by default */
-html:not([data-theme="light"]) {
-  color-scheme: dark;
+body {
+    /* Bu qradient o "Wow" effektini verən qradientdir */
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    min-height: 100vh;
+    padding-bottom: 80px;
+    color: var(--text-primary);
 }
 
-html[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-html[data-theme="light"] {
-  color-scheme: light;
-}
-
-/* Force dark mode background for all pages - Yumşaq parıldayan rənglərlə */
-[data-theme="dark"] body,
-body:not([data-theme="light"]) {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 20%, var(--content-bg-start) 45%, var(--content-bg-middle) 70%, var(--content-bg-end) 100%) !important;
-  background-attachment: fixed;
-  opacity: 0.95; /* Yumşaq parıldama üçün */
-}
-
-/* Ensure all text is visible in dark mode */
-[data-theme="dark"] * {
-  color: inherit;
-}
-
-/* Fix any white backgrounds in dark mode */
-[data-theme="dark"] .bg-white {
-  background: var(--glass-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] .text-black {
-  color: var(--text-primary) !important;
-}
-
-/* Desktop padding for sidebar */
 @media (min-width: 1024px) {
-  body {
-    padding-left: 256px;
-    padding-bottom: 0;
-  }
+    body {
+        padding-left: 256px;
+        padding-bottom: 0;
+    }
 }
 
-/* Custom Scrollbar - ORIGINAL from base.css */
+/* Premium Glassmorphism Effect - WOW Factor */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1.5px solid var(--glass-border);
+    box-shadow: 
+        0 8px 32px 0 var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 2px 8px rgba(0, 0, 0, 0.05) inset,
+        0 0 40px var(--glass-glow);
+    position: relative;
+}
+
+.glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    pointer-events: none;
+}
+
+/* Readability Mode - Controlled font increase */
+.readability-mode {
+    font-size: 115%;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+}
+
+.readability-mode h1,
+.readability-mode h2,
+.readability-mode h3 {
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5em;
+}
+
+/* Premium Glass Card - Premium WOW Effect */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border-radius: 24px;
+    border: 1.5px solid var(--glass-border);
+    box-shadow: 
+        0 8px 32px 0 var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+        0 2px 12px rgba(0, 0, 0, 0.06) inset,
+        0 0 50px var(--glass-glow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.7),
+        transparent
+    );
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 16px 48px 0 var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+        0 4px 16px rgba(0, 0, 0, 0.08) inset,
+        0 0 60px var(--accent-glow);
+    border-color: var(--accent-primary);
+}
+
+.glass-card:hover::before {
+    opacity: 1;
+}
+
+/* Premium Bottom Nav */
+.bottom-nav {
+    background: var(--glass-bg);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border-top: 1.5px solid var(--nav-border);
+    box-shadow: 
+        0 -4px 24px 0 var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 0 30px var(--glass-glow);
+    position: relative;
+}
+
+.bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    pointer-events: none;
+}
+
+/* Floating Scan Button - Theme Aware */
+.scan-btn {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.scan-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Midnight theme - scan button: white border, black center */
+body.theme-midnight .scan-btn {
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 20%, #000000 50%, #000000 80%, #ffffff 100%);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+}
+
+body.theme-midnight .scan-btn:hover {
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
+}
+
+/* Animations */
+.slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+    /* Prevent layout shifts on mobile */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Reduce animation on mobile to prevent UI jumps */
+@media (max-width: 640px) {
+    .slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+    }
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton-bg);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Active nav item - Theme Aware */
+.nav-item.active {
+    color: var(--accent-primary);
+}
+
+/* Nav item icon indicator */
+.nav-item.active .relative span {
+    opacity: 1 !important;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--glass-bg);
+    background: var(--glass-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--accent-primary);
-  border-radius: 4px;
-  opacity: 0.6;
+    background: var(--accent-primary);
+    border-radius: 4px;
+    opacity: 0.6;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
-/* Focus States */
-*:focus {
-  outline: none;
+/* Markdown content styling */
+.markdown-content strong {
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
-*:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Number Input Styling */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  appearance: none;
-  margin: 0;
-}
-
-input[type=number] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-/* Text Utilities */
-.text-gradient {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Light Mode Text Adjustments */
+/* Light mode text adjustments */
 [data-theme="light"] .text-white {
-  color: var(--text-primary) !important;
+    color: var(--text-primary) !important;
 }
 
 [data-theme="light"] .text-white\/70,
 [data-theme="light"] .text-white\/60 {
-  color: var(--text-secondary) !important;
+    color: var(--text-secondary) !important;
 }
 
-/* Markdown Content Styling */
-.markdown-content strong {
-  font-weight: 700;
-  color: var(--text-primary);
+/* Readability Mode - High Contrast */
+body.readability-mode {
+    /* Enhance text visibility */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.95);
+}
+
+body.readability-mode .text-white,
+body.readability-mode .text-white\/70,
+body.readability-mode .text-white\/60,
+body.readability-mode .text-white\/50 {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+body.readability-mode h1,
+body.readability-mode h2,
+body.readability-mode h3,
+body.readability-mode h4 {
+    font-weight: 700 !important;
+}
+
+body.readability-mode .glass-card {
+    border-width: 2px;
+}
+
+/* Remove spinner arrows from number inputs globally */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }

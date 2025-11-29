@@ -3,11 +3,12 @@
  * Profile page - Financial Personality Card
  */
 
-/* Default Theme - Persona Card uses CSS Variables from theme */
+/* Default Theme - Persona Card */
+/* Templates-dən KOPYALANMIŞ - static/css/dashboard.css */
 .persona-card {
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, var(--accent-secondary) 100%);
-    border: 3px solid var(--glass-border);
-    box-shadow: 0 20px 60px var(--glass-shadow);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    border: 3px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     transition: all 0.6s ease-in-out;
 }
 

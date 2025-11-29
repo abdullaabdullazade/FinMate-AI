@@ -1,77 +1,87 @@
 /**
- * CSS Variables - Color System
- * Professional Color System - Eye-Friendly
+ * CSS Variables - Premium Glassmorphism Color System
+ * WOW Effect üçün optimallaşdırılmış - Light & Dark Mode
+ * Premium User Experience
  */
 
+/* Default - Light Mode (Premium Glassmorphism) */
 :root {
-  /* Default Dark Mode - Qaranlıq rənglər */
-  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
-  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
-  /* Sağ tərəfdəki (main content) rənglər - Yumşaq parıldayan (gözü qamaşdırmayan) */
-  --content-bg-start: #5a5fb8;   /* Yumşaq Bənövşəyi-Mavi (sağ tərəf) */
-  --content-bg-middle: #6b5a8f;  /* Yumşaq Dərin Bənövşəyi (sağ tərəf orta) */
-  --content-bg-end: #7c6ba6;     /* Yumşaq Açıq Bənövşəyi (sağ tərəf son) */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: rgba(0, 0, 0, 0.5);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --skeleton-bg: rgba(255, 255, 255, 0.1);
-  --accent-primary: #ec4899;   /* Neon Pink */
-  --accent-secondary: #d81b60; /* Darker Pink */
+    /* Background - Soft açıq bənövşəyi gradient */
+    --bg-primary: #e8d5ff;   /* Açıq Bənövşəyi */
+    --bg-secondary: #f5e6ff; /* Açıq Bənövşəyi-Bej */
+    
+    /* Premium Glass Effect - Light Mode üçün WOW effekti */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(232, 213, 255, 0.8);
+    --glass-shadow: rgba(147, 51, 234, 0.12);
+    --glass-glow: rgba(147, 51, 234, 0.08);
+    
+    /* Text Colors - Yaxşı kontrast üçün qaranlıq rənglər */
+    --text-primary: #581c87;
+    --text-secondary: rgba(88, 28, 135, 0.8);
+    --text-muted: rgba(88, 28, 135, 0.6);
+    
+    /* Navigation */
+    --nav-border: rgba(232, 213, 255, 0.7);
+    --skeleton-bg: rgba(232, 213, 255, 0.4);
+    
+    /* Accent Colors - Premium bənövşəyi */
+    --accent-primary: #9333ea;   /* Dərin bənövşəyi */
+    --accent-secondary: #a855f7;  /* Orta bənövşəyi */
+    --accent-glow: rgba(147, 51, 234, 0.3);
 }
 
+/* Dark Mode - Premium Glassmorphism */
 [data-theme="dark"] {
-  /* Dark Mode - Qaranlıq rənglər */
-  --bg-primary: #0f0f1e;   /* Çox qaranlıq bənövşəyi */
-  --bg-secondary: #1a1a2e; /* Qaranlıq bənövşəyi */
-  /* Sağ tərəfdəki (main content) rənglər - Yumşaq parıldayan (gözü qamaşdırmayan) */
-  --content-bg-start: #5a5fb8;   /* Yumşaq Bənövşəyi-Mavi (sağ tərəf) */
-  --content-bg-middle: #6b5a8f;  /* Yumşaq Dərin Bənövşəyi (sağ tərəf orta) */
-  --content-bg-end: #7c6ba6;     /* Yumşaq Açıq Bənövşəyi (sağ tərəf son) */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: rgba(0, 0, 0, 0.5);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --skeleton-bg: rgba(255, 255, 255, 0.1);
-  --accent-primary: #ec4899;   /* Neon Pink */
-  --accent-secondary: #d81b60; /* Darker Pink */
+    /* Background - Parlaq bənövşəyi gradient */
+    --bg-primary: #667eea;   /* Parlaq Bənövşəyi-Mavi */
+    --bg-secondary: #764ba2; /* Dərin Bənövşəyi */
+    
+    /* Premium Glass Effect - Dark Mode */
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.25);
+    --glass-shadow: rgba(31, 38, 135, 0.4);
+    --glass-glow: rgba(139, 92, 246, 0.2);
+    
+    /* Text Colors - Ağ rənglər */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.85);
+    --text-muted: rgba(255, 255, 255, 0.65);
+    
+    /* Navigation */
+    --nav-border: rgba(255, 255, 255, 0.25);
+    --skeleton-bg: rgba(255, 255, 255, 0.18);
+    
+    /* Accent Colors - Neon Pink */
+    --accent-primary: #ec4899;
+    --accent-secondary: #d81b60;
+    --accent-glow: rgba(236, 72, 153, 0.4);
 }
 
+/* Light Mode - Explicit Premium */
 [data-theme="light"] {
-  /* Light Mode - Rich Purple/Magenta Professional */
-  --bg-primary: #5e35b1;
-  --bg-secondary: #7e57c2;
-  /* Sağ tərəfdəki (main content) rənglər - Light mode üçün */
-  --content-bg-start: #7c3aed;   /* Light mode sağ tərəf başlanğıc */
-  --content-bg-middle: #9333ea;  /* Light mode sağ tərəf orta */
-  --content-bg-end: #a855f7;      /* Light mode sağ tərəf son */
-  --glass-bg: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: rgba(94, 53, 177, 0.35);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.85);
-  --nav-border: rgba(255, 255, 255, 0.3);
-  --skeleton-bg: rgba(255, 255, 255, 0.15);
-  --accent-primary: #ec407a;
-  --accent-secondary: #d81b60;
+    /* Background - Soft açıq bənövşəyi gradient */
+    --bg-primary: #e8d5ff;
+    --bg-secondary: #f5e6ff;
+    
+    /* Premium Glass Effect - Maximum WOW */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(232, 213, 255, 0.85);
+    --glass-shadow: rgba(147, 51, 234, 0.15);
+    --glass-glow: rgba(147, 51, 234, 0.1);
+    
+    /* Text Colors - Optimal kontrast */
+    --text-primary: #581c87;
+    --text-secondary: rgba(88, 28, 135, 0.85);
+    --text-muted: rgba(88, 28, 135, 0.65);
+    
+    /* Navigation */
+    --nav-border: rgba(232, 213, 255, 0.75);
+    --skeleton-bg: rgba(232, 213, 255, 0.45);
+    
+    /* Accent Colors */
+    --accent-primary: #9333ea;
+    --accent-secondary: #a855f7;
+    --accent-glow: rgba(147, 51, 234, 0.35);
 }
 
-/* Force dark mode for all elements when dark theme is active */
-[data-theme="dark"] * {
-  color-scheme: dark;
-}
-
-/* Ensure body background uses CSS variables - Yumşaq parıldayan rənglərlə */
-[data-theme="dark"] body {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 20%, var(--content-bg-start) 45%, var(--content-bg-middle) 70%, var(--content-bg-end) 100%) !important;
-  background-attachment: fixed;
-  opacity: 0.95; /* Yumşaq parıldama üçün */
-}
-
-[data-theme="light"] body {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 25%, var(--content-bg-start) 50%, var(--content-bg-middle) 75%, var(--content-bg-end) 100%) !important;
-}

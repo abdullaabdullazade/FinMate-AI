@@ -12,7 +12,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--text-secondary, rgba(232, 234, 246, 0.75));
+    background: var(--text-secondary);
     animation: bounce 1.4s infinite;
 }
 

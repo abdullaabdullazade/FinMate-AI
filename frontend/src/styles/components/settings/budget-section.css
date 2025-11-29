@@ -28,7 +28,7 @@
 .budget-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-primary);
 }
 
 .budget-input-wrapper {
@@ -39,26 +39,28 @@
 
 .budget-input {
   width: 6rem;
-  background: rgba(0, 0, 0, 0.2);
-  color: rgb(74, 222, 128);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
   padding: 0.25rem 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
   transition: all 0.2s;
   outline: none;
 }
 
 .budget-input:focus {
-  border-color: rgb(34, 197, 94);
+  border-color: var(--accent-primary);
   ring: 1px;
-  ring-color: rgb(34, 197, 94);
+  ring-color: var(--accent-primary);
 }
 
 .budget-currency {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+  color: var(--text-secondary);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -66,7 +68,9 @@
 .budget-slider-container {
   position: relative;
   height: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 9999px;
 }
 
@@ -84,7 +88,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(to right, rgb(74, 222, 128), rgb(16, 185, 129));
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
   border-radius: 9999px;
   transition: all 0.15s;
 }
@@ -94,9 +98,12 @@
   top: 50%;
   width: 1.5rem;
   height: 1.5rem;
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
   border-radius: 9999px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 6px -1px var(--glass-shadow);
   transform: translateX(-50%) translateY(-50%);
   transition: all 0.15s;
   pointer-events: none;
@@ -107,17 +114,17 @@
   justify-content: space-between;
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .daily-limit-group {
-  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 0.75rem;
   padding: 1rem;
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--glass-border);
   transition: none;
 }
 
@@ -130,7 +137,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -140,23 +147,25 @@
 
 .daily-limit-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  color: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-primary);
   padding: 0.75rem 2.5rem 0.75rem 1rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
   transition: all 0.2s;
   outline: none;
 }
 
 .daily-limit-input:focus {
-  border-color: rgb(34, 197, 94);
+  border-color: var(--accent-primary);
   ring: 1px;
-  ring-color: rgb(34, 197, 94);
+  ring-color: var(--accent-primary);
 }
 
 .daily-limit-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
 }
 
 .daily-limit-currency {
@@ -164,12 +173,12 @@
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
 }
 
 .daily-limit-hint {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
   margin-top: 0.5rem;
   display: flex;
   align-items: center;

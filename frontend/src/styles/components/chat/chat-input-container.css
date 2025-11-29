@@ -3,10 +3,10 @@
  */
 
 .chat-input-container {
-    background: var(--glass-bg, rgba(20, 27, 61, 0.7));
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
+    border-top: 1px solid var(--glass-border);
     display: flex;
     justify-content: center;
     align-items: center;

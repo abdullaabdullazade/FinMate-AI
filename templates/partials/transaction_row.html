@@ -40,11 +40,11 @@
             </div>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-            <span class="text-white font-bold text-sm sm:text-base incognito-hidden">{{ "%.2f"|format(expense.amount) }}
+            <span class="text-white font-bold text-sm sm:text-base incognito-hidden">{{ "%.2f"|format(expense.amount if expense.amount is not none else 0) }}
                 ₼</span>
 
             <button
-                onclick="event.stopPropagation(); window.openEditModal({{ expense.id }}, '{{ expense.merchant }}', {{ expense.amount }}, '{{ expense.category }}')"
+                onclick="event.stopPropagation(); window.openEditModal({{ expense.id }}, '{{ expense.merchant }}', {{ expense.amount if expense.amount is not none else 0 }}, '{{ expense.category }}')"
                 class="transition-opacity text-blue-400 hover:text-blue-300 p-1.5 sm:p-2 rounded-lg hover:bg-blue-500/10 flex-shrink-0"
                 title="Düzəliş et">
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@
                 {% for item in expense.items %}
                 <li class="flex justify-between text-white/70 py-1 border-b border-white/5 last:border-0">
                     <span class="flex-1">{{ loop.index }}. {{ item.name }}</span>
-                    <span class="font-medium text-white">{{ "%.2f"|format(item.price) }} ₼</span>
+                    <span class="font-medium text-white">{{ "%.2f"|format(item.price if item.price is not none else 0) }} ₼</span>
                 </li>
                 {% endfor %}
             </ul>

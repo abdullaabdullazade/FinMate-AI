@@ -12,20 +12,35 @@
     padding: 0.875rem 1rem !important;
 }
 
-/* AI Message Bubbles - Theme Aware */
+/* Premium AI Message Bubbles - Theme Aware */
 .message-bubble.glass {
-    background: var(--glass-bg, rgba(20, 27, 61, 0.7));
-    border: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
-    color: var(--text-primary, #e8eaf6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--glass-bg);
+    border: 1.5px solid var(--glass-border);
+    color: var(--text-primary);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    box-shadow: 
+        0 4px 20px var(--glass-shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 2px 8px rgba(0, 0, 0, 0.05) inset,
+        0 0 30px var(--glass-glow);
+    position: relative;
 }
 
-/* Light Mode AI Messages */
-[data-theme="light"] .message-bubble.glass {
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: var(--text-primary, #ffffff);
+.message-bubble.glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    pointer-events: none;
 }
 
 /* Premium Themes - AI Message Bubbles */
@@ -68,11 +83,11 @@ body.theme-royal .message-bubble.glass {
 /* User Message Bubbles - Theme Aware */
 .message-bubble.bg-gradient-to-br {
     /* Keep purple-pink gradient but make it theme-aware */
-    background: linear-gradient(135deg, var(--accent-primary, #5c6bc0) 0%, var(--accent-secondary, #3f51b5) 100%) !important;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
 }
 
 [data-theme="light"] .message-bubble.bg-gradient-to-br {
-    background: linear-gradient(135deg, var(--accent-primary, #ec407a) 0%, var(--accent-secondary, #d81b60) 100%) !important;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
 }
 
 /* Premium Themes - User Messages */

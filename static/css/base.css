@@ -9,24 +9,24 @@
     transition: none !important;
 }
 
-/* Professional Color System - Eye-Friendly */
+/* Professional Color System - Açıq Bənövşəyi Glass */
 :root {
-    /* Orijinal Parlaq FinMate Rəngləri */
-    --bg-primary: #667eea;   /* Parlaq Bənövşəyi-Mavi */
-    --bg-secondary: #764ba2; /* Dərin Bənövşəyi */
+    /* Açıq Bənövşəyi Glass Rəngləri */
+    --bg-primary: #e8d5ff;   /* Açıq Bənövşəyi */
+    --bg-secondary: #f5e6ff; /* Açıq Bənövşəyi-Bej */
     
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-shadow: rgba(31, 38, 135, 0.37);
+    --glass-bg: rgba(255, 240, 250, 0.25);
+    --glass-border: rgba(255, 220, 240, 0.35);
+    --glass-shadow: rgba(232, 213, 255, 0.4);
     
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-primary: #6b21a8;
+    --text-secondary: rgba(107, 33, 168, 0.8);
     
-    --nav-border: rgba(255, 255, 255, 0.2);
-    --skeleton-bg: rgba(255, 255, 255, 0.15);
+    --nav-border: rgba(255, 220, 240, 0.3);
+    --skeleton-bg: rgba(255, 240, 250, 0.2);
     
-    --accent-primary: #ec4899;   /* Neon Pink */
-    --accent-secondary: #d81b60; /* Dark Pink */
+    --accent-primary: #d8b4fe;   /* Açıq Bənövşəyi */
+    --accent-secondary: #e9d5ff; /* Daha Açıq Bənövşəyi */
 }
 
 /* Əgər "Dark Mode" varsa, onu da uyğunlaşdıraq */

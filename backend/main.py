@@ -8,14 +8,6 @@ from fastapi.responses import JSONResponse
 # Load environment variables
 load_dotenv()
 
-# Import all route modules (they register routes with app)
-from routes import (
-    auth, stats, dashboard, chat, scan, profile, 
-    expenses, dreams, settings, rewards, heatmap, 
-    notifications, export
-)
-
-# ==================== STARTUP & EVENT HANDLERS ====================
 
 @app.on_event("startup")
 async def startup_event():

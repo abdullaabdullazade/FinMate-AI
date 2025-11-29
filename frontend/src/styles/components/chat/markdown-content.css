@@ -5,7 +5,7 @@
 .markdown-content strong,
 .message-bubble strong {
     font-weight: 700;
-    color: var(--text-primary, #e8eaf6);
+    color: var(--text-primary);
 }
 
 .message-bubble em,
@@ -15,18 +15,24 @@
 
 .markdown-content code,
 .message-bubble code {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
-    color: var(--text-primary, #e8eaf6);
+    color: var(--text-primary);
 }
 
 [data-theme="light"] .markdown-content code,
 [data-theme="light"] .message-bubble code {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-primary, #ffffff);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
 }
 
 /* Premium Themes - Code blocks */
@@ -68,7 +74,7 @@ body.theme-royal .message-bubble code {
 
 /* Bullet points and lists */
 .chat-bullet {
-    color: var(--accent-primary, #a855f7);
+    color: var(--accent-primary);
     font-weight: bold;
     margin-right: 4px;
 }
