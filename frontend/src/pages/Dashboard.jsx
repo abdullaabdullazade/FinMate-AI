@@ -219,14 +219,14 @@ const Dashboard = () => {
           <div className="flex gap-3 justify-center">
           <button
               onClick={() => fetchDashboardData()}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:scale-105 transition"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium transition"
           >
             Yenidən yoxla
           </button>
             {isNetworkError && (
               <button
                 onClick={() => window.location.reload()}
-                className="px-6 py-3 bg-white/10 border border-white/20 rounded-xl text-white font-medium hover:bg-white/20 transition"
+                className="px-6 py-3 bg-white/10 border border-white/20 rounded-xl text-white font-medium transition"
               >
                 Səhifəni yenilə
               </button>
@@ -248,7 +248,7 @@ const Dashboard = () => {
   const budgetPercentage = monthlyBudget > 0 ? Math.min((totalSpending / monthlyBudget) * 100, 100) : 0
   const currency = context?.currency || '₼'
   const categoryData = context?.category_data || {}
-  const ecoScore = context?.eco_score || { icon: '🌍', value: 0 } // Still used in BudgetOverview
+  // EcoScore removed - no longer used
   const levelInfo = context?.level_info || null
   const xpPoints = context?.xp_points || 0
   const salaryIncreaseInfo = context?.salary_increase_info || null
@@ -474,7 +474,7 @@ const Dashboard = () => {
                   setStartDateFilter(null)
                   setEndDateFilter(null)
                 }}
-                className="px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm transition"
+                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm transition"
               >
                 Təmizlə
               </button>
@@ -556,7 +556,6 @@ const Dashboard = () => {
         monthlyBudget={monthlyBudget}
         remainingBudget={remainingBudget}
         budgetPercentage={budgetPercentage}
-        ecoScore={ecoScore}
         currency={currency}
         incognitoMode={incognitoMode}
         onToggleIncognito={toggleIncognito}

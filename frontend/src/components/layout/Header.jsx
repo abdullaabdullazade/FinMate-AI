@@ -71,7 +71,7 @@ const Header = ({ user }) => {
   return (
     <>
       {/* Top Bar - base.html-dən TAM KOPYALANMIŞ (sətir 184-301) */}
-      <div className="glass fixed top-0 left-0 right-0 z-50 px-2 sm:px-4 py-2 sm:py-3">
+      <div className="glass fixed top-0 left-0 right-0 z-40 px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between max-w-md mx-auto w-full">
           {/* Left Side - Hamburger + Logo - base.html strukturuna TAM UYĞUN */}
           <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-shrink">
@@ -81,41 +81,52 @@ const Header = ({ user }) => {
               className="hamburger-btn-navbar lg:hidden flex-shrink-0" 
               aria-label="Menu"
               aria-expanded="false"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                
                 const menuPanel = document.getElementById('menu-panel')
                 const menuBackdrop = document.getElementById('menu-backdrop')
                 const hamburgerBtn = document.getElementById('hamburger-btn')
                 const profileDropdown = document.getElementById('profile-dropdown')
                 
-                if (menuPanel && menuBackdrop && hamburgerBtn) {
-                  const isOpen = menuPanel.classList.contains('active')
-                  if (isOpen) {
-                    // Menu-nu bağla
-                    menuPanel.classList.remove('active')
-                    menuBackdrop.classList.remove('active')
-                    hamburgerBtn.classList.remove('active')
-                    document.body.classList.remove('menu-open')
-                    menuPanel.setAttribute('aria-hidden', 'true')
-                    hamburgerBtn.setAttribute('aria-expanded', 'false')
-                  } else {
-                    // Menu-nu aç - profil dropdown-u bağla
-                    if (profileDropdown) {
-                      profileDropdown.classList.add('hidden')
-                    }
-                    setShowProfileDropdown(false)
-                    setShowAlertPanel(false)
-                    
-                    menuPanel.classList.add('active')
-                    menuBackdrop.classList.add('active')
-                    hamburgerBtn.classList.add('active')
-                    document.body.classList.add('menu-open')
-                    menuPanel.setAttribute('aria-hidden', 'false')
-                    hamburgerBtn.setAttribute('aria-expanded', 'true')
-                    setTimeout(() => {
-                      const closeBtn = document.getElementById('menu-close-btn')
-                      if (closeBtn) closeBtn.focus()
-                    }, 100)
+                if (!menuPanel || !menuBackdrop || !hamburgerBtn) {
+                  console.warn('Hamburger menu elements not found')
+                  return
+                }
+                
+                const isOpen = menuPanel.classList.contains('active')
+                
+                if (isOpen) {
+                  // Menu-nu bağla
+                  menuPanel.classList.remove('active')
+                  menuBackdrop.classList.remove('active')
+                  hamburgerBtn.classList.remove('active')
+                  document.body.classList.remove('menu-open')
+                  menuPanel.setAttribute('aria-hidden', 'true')
+                  hamburgerBtn.setAttribute('aria-expanded', 'false')
+                } else {
+                  // Menu-nu aç - profil dropdown-u bağla
+                  if (profileDropdown) {
+                    profileDropdown.classList.add('hidden')
                   }
+                  setShowProfileDropdown(false)
+                  setShowAlertPanel(false)
+                  
+                  menuPanel.classList.add('active')
+                  menuBackdrop.classList.add('active')
+                  hamburgerBtn.classList.add('active')
+                  document.body.classList.add('menu-open')
+                  menuPanel.setAttribute('aria-hidden', 'false')
+                  hamburgerBtn.setAttribute('aria-expanded', 'true')
+                  
+                  // Force reflow to ensure animation
+                  menuPanel.offsetHeight
+                  
+                  setTimeout(() => {
+                    const closeBtn = document.getElementById('menu-close-btn')
+                    if (closeBtn) closeBtn.focus()
+                  }, 100)
                 }
               }}
             >

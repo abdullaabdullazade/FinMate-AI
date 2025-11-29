@@ -10,12 +10,13 @@ import '../../styles/components/chat/send-button.css'
 
 const ChatInput = ({ inputMessage, setInputMessage, handleSendMessage, loading, inputRef }) => {
   return (
-    <div className="chat-input-container fixed left-0 right-0 px-4 sm:px-6 transition-all duration-300 z-50" style={{ bottom: '30px' }}>
-      <div className="max-w-4xl mx-auto">
+    <div className="chat-input-container fixed left-0 right-0 px-4 sm:px-6 transition-all duration-300 z-50" style={{ bottom: '16px' }}>
+      <div className="w-full max-w-4xl mx-auto">
         <form
           onSubmit={handleSendMessage}
-          className="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
+          className="glass-card p-3 sm:p-4 flex items-center gap-3 sm:gap-4 mx-auto"
           id="chat-form"
+          style={{ maxWidth: '100%' }}
         >
           <input
             ref={inputRef}

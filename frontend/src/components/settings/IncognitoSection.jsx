@@ -39,7 +39,7 @@ const IncognitoSection = ({ isPremium, incognitoMode, onIncognitoModeChange }) =
   }
 
   return (
-    <div className="settings-section incognito-section slide-up" style={{ animationDelay: '0.35s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.35s' }}>
       <div className="section-header">
         <div className="section-icon incognito-icon">
           🕵️‍♂️

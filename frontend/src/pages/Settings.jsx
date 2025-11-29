@@ -228,26 +228,30 @@ const Settings = () => {
   }
 
   return (
-    <div className="settings-page">
-      {/* Header */}
-      <div className="settings-header">
-        <div className="settings-header-content">
-          <h1 className="settings-title">Tənzimləmələr</h1>
-          <p className="settings-subtitle">Şəxsi seçimlərinizi və büdcənizi idarə edin</p>
+    <div className="px-2 sm:px-4 pb-24 sm:pb-32">
+      {/* Header - Dashboard kimi */}
+      <div className="glass-card p-4 sm:p-6 mb-6 slide-up">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Tənzimləmələr</h1>
+            <p className="text-white/70 text-sm sm:text-base">Şəxsi seçimlərinizi və büdcənizi idarə edin</p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm transition"
+          >
+            <div className="flex items-center gap-2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              <span>Geri</span>
+            </div>
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/')}
-          className="settings-back-button"
-        >
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-          </svg>
-          <span>Geri</span>
-        </button>
       </div>
 
-      {/* Settings Form */}
-      <form onSubmit={handleSubmit} className="settings-form">
+      {/* Settings Form - Dashboard kimi */}
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Budget Section */}
         <BudgetSection
           monthlyBudget={formData.monthly_budget}
@@ -333,12 +337,12 @@ const Settings = () => {
           levelTitle={user?.level_title}
         />
 
-        {/* Submit Button */}
-        <div className="slide-up" style={{ animationDelay: '0.5s' }}>
+        {/* Submit Button - Dashboard kimi */}
+        <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.5s' }}>
           <button
             type="submit"
             disabled={saving}
-            className="settings-submit-button"
+            className="w-full bg-gradient-to-r from-[#ec4899] to-[#d81b60] text-white font-bold py-3 rounded-xl transition shadow-lg border border-white/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={(e) => {
               // Ensure form submission
               const form = e.currentTarget.closest('form')
@@ -351,7 +355,7 @@ const Settings = () => {
           >
             <span>{saving ? 'Saxlanılır...' : 'Yadda Saxla'}</span>
             {!saving && (
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
               </svg>
             )}

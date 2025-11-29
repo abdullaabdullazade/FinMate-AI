@@ -2,6 +2,21 @@
  * Transaction Row Styles
  */
 
+/* Hover effekti yoxdur - statik rənglər */
+.transaction-header {
+  transition: none;
+}
+
+/* Bütün hover effektlərini deaktiv et */
+.transaction-header:hover,
+.transaction-header:hover *,
+.transaction-header:hover .merchant-logo {
+  background-color: transparent !important;
+  transform: none !important;
+  color: inherit !important;
+  border-color: inherit !important;
+}
+
 .merchant-logo {
   width: 48px;
   height: 48px;
@@ -14,6 +29,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: none;
 }
 
 .money-icon-display {

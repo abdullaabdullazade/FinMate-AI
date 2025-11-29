@@ -54,7 +54,7 @@
 }
 
 .settings-subtitle {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   margin-top: 0.25rem;
   font-size: 0.875rem;
 }
@@ -72,11 +72,14 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  transition: all 0.2s;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  color: var(--text-primary, #ffffff);
+  transition: none;
   font-size: 0.875rem;
   text-decoration: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 @media (min-width: 640px) {
@@ -86,10 +89,11 @@
   }
 }
 
-.settings-back-button:hover {
+/* Hover effekti deaktiv edildi - statik rənglər */
+/* .settings-back-button:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
-}
+} */
 
 .settings-back-button svg {
   width: 1rem;
@@ -104,9 +108,10 @@
   }
 }
 
-.settings-back-button:hover svg {
+/* Hover effekti deaktiv edildi */
+/* .settings-back-button:hover svg {
   transform: translateX(-0.25rem);
-}
+} */
 
 .settings-form {
   display: flex;
@@ -116,15 +121,15 @@
 
 .settings-submit-button {
   width: 100%;
-  background: linear-gradient(to right, rgb(99, 102, 241), rgb(168, 85, 247));
-  color: white;
+  background: linear-gradient(to right, var(--accent-primary, #ec4899), var(--accent-secondary, #d81b60));
+  color: var(--text-primary, #ffffff);
   padding: 1rem;
   border-radius: 1rem;
   font-weight: bold;
   font-size: 1.125rem;
-  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
-  transition: all 0.2s;
-  border: none;
+  box-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.3);
+  transition: none;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -132,11 +137,12 @@
   gap: 0.5rem;
 }
 
-.settings-submit-button:hover {
+/* Hover effekti deaktiv edildi - statik rənglər */
+/* .settings-submit-button:hover {
   background: linear-gradient(to right, rgb(79, 70, 229), rgb(147, 51, 234));
   box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.5);
   transform: scale(1.02);
-}
+} */
 
 .settings-submit-button:active {
   transform: scale(0.98);

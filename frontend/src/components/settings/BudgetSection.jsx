@@ -146,7 +146,7 @@ const BudgetSection = ({
   const percentage = Math.min((budgetValue / sliderMax) * 100, 100)
 
   return (
-    <div className="settings-section budget-section slide-up" style={{ animationDelay: '0.1s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.1s' }}>
       <div className="section-header">
         <div className="section-icon budget-icon">
           💰

@@ -25,7 +25,7 @@ const AIPersonaSection = ({
   }
 
   return (
-    <div className="settings-section ai-persona-section slide-up" style={{ animationDelay: '0.25s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.25s' }}>
       <div className="section-header">
         <div className="section-icon ai-persona-icon">
           🤖

@@ -29,7 +29,7 @@ const LocalGems = ({ localGems, currency = '₼', incognitoMode = false }) => {
 
       <div className="space-y-3 sm:space-y-4">
         {localGems.map((gem, index) => (
-          <div key={index} className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 hover:bg-white/10 transition-all">
+          <div key={index} className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

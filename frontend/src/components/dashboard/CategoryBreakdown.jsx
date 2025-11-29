@@ -66,7 +66,7 @@ const CategoryBreakdown = ({ categoryData, totalSpending, currency = '₼' }) =>
         >
           <button
             onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-xl text-white font-medium transition-all duration-300 shadow-lg hover:shadow-purple-500/20"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl text-white font-medium transition-all duration-300 shadow-lg"
           >
             <span>{showAll ? 'Daha az göstər' : `Daha çox göstər (+${categories.length - initialCount})`}</span>
             {showAll ? (

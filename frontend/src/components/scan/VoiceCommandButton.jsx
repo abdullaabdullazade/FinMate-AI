@@ -6,11 +6,9 @@
 import React, { useState, useEffect } from 'react'
 import { Mic, X, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { usePremiumModal } from '../../contexts/PremiumModalContext'
 import VoiceConfirmationModal from './VoiceConfirmationModal'
 
 const VoiceCommandButton = () => {
-  const { openModal: openPremiumModal } = usePremiumModal()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -102,15 +100,9 @@ const VoiceCommandButton = () => {
           setIsModalOpen(false)
           setShowConfirmation(true)
         } else {
-          // Check if premium is required
-          if (data.requires_premium) {
-            openPremiumModal()
-            toast.error('AI tokenlarınız bitib. Premium alın', { autoClose: 5000 })
-          } else {
-            setResult({ type: 'error', message: data.error || 'Xəta baş verdi' })
-            setStatus('Xəta baş verdi')
-            toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
-          }
+          setResult({ type: 'error', message: data.error || 'Xəta baş verdi' })
+          setStatus('Xəta baş verdi')
+        toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })
       }
     } catch (error) {
       console.error('Server xətası:', error)
@@ -148,7 +140,7 @@ const VoiceCommandButton = () => {
       {/* Floating Voice Button */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass-card bg-gradient-to-br from-blue-500 to-cyan-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:bottom-20 md:right-8 group"
+        className="fixed bottom-24 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 glass-card bg-gradient-to-br from-purple-500 to-pink-500 backdrop-blur-xl border-2 border-white/30 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 md:bottom-20 md:right-8 group"
         style={{
           background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
           borderColor: 'var(--glass-border)',
@@ -215,7 +207,7 @@ const VoiceCommandButton = () => {
             {/* Header */}
             <div className="text-center mb-4 sm:mb-6">
               <div
-                className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 mb-3 sm:mb-4 shadow-lg"
+                className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-3 sm:mb-4 shadow-lg"
                 style={{
                   background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))'
                 }}
@@ -232,7 +224,7 @@ const VoiceCommandButton = () => {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 border border-white/20 rounded-xl text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 border border-white/20 rounded-xl text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 style={{
                   background: 'rgba(255, 255, 255, 0.05)',
                   borderColor: 'var(--glass-border)',
@@ -256,7 +248,7 @@ const VoiceCommandButton = () => {
                   className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center transition-all ${
                     isRecording
                       ? 'bg-gradient-to-br from-red-500 to-red-600 animate-pulse'
-                      : 'bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-110'
+                      : 'bg-gradient-to-br from-purple-500 to-pink-500 hover:scale-110'
                   }`}
                   style={
                     !isRecording
@@ -272,7 +264,7 @@ const VoiceCommandButton = () => {
               )}
 
               {isProcessing && (
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/20 border-t-blue-500"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/20 border-t-purple-500"></div>
               )}
             </div>
 

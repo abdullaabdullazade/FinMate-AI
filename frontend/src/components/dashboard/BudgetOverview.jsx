@@ -16,7 +16,6 @@ const BudgetOverview = ({
   monthlyBudget,
   remainingBudget,
   budgetPercentage,
-  ecoScore,
   currency = '₼',
   incognitoMode = false,
   onToggleIncognito,
@@ -39,7 +38,7 @@ const BudgetOverview = ({
             Bu ay
             <button
               onClick={onToggleIncognito}
-              className="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 text-white/70 hover:text-white flex-shrink-0 cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-lg transition-all duration-200 text-white/70 flex-shrink-0 cursor-pointer"
               title="Xərc məbləğlərini göstər/gizlət"
             >
               <Eye className="w-4 h-5 sm:w-5 sm:h-5" />
@@ -50,7 +49,7 @@ const BudgetOverview = ({
           <button
             type="button"
             onClick={onSpeak}
-            className="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/80 to-cyan-500/80 text-white border border-white/20 hover:brightness-110 shadow-lg shadow-blue-500/30"
+            className="btn btn-sm hidden md:inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/80 to-cyan-500/80 text-white border border-white/20 shadow-lg shadow-blue-500/30"
             aria-label="Dashboard məlumatını səsləndir"
           >
             <Volume2 className="w-4 h-4" />
@@ -61,7 +60,7 @@ const BudgetOverview = ({
       </div>
 
       {/* Stats Grid - HTML-dəki kimi bir-bir */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+      <div className="grid grid-cols-3 gap-3 sm:gap-6">
         {/* Total Spending */}
         <div>
           <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Ümumi xərc</p>
@@ -118,19 +117,6 @@ const BudgetOverview = ({
           </div>
         </div>
 
-        {/* Eco Score */}
-        <div>
-          <p className="text-xs sm:text-sm text-white/70 mb-1 sm:mb-2">Eko İmpakt</p>
-          <div className="flex items-end gap-1 sm:gap-2">
-            <span className="eco-leaf text-lg sm:text-2xl">{ecoScore?.icon || '🌍'}</span>
-            <span
-              className={`text-2xl sm:text-4xl font-bold text-white ${incognitoMode ? 'incognito-hidden' : ''}`}
-            >
-              {incognitoMode ? '****' : ecoScore?.value || 0}
-            </span>
-            <span className="text-xs sm:text-lg text-white/70 mb-0.5 sm:mb-1">kg CO₂</span>
-          </div>
-        </div>
       </div>
 
       {/* Progress Bar */}

@@ -196,9 +196,9 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-gradient-to-br from-purple-600/95 via-violet-600/95 to-fuchsia-600/95 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/20 relative overflow-hidden">
-              {/* Animated Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-fuchsia-500/20 animate-pulse"></div>
+            <div className="glass-card p-6 relative overflow-hidden">
+              {/* Animated Background - Dashboard rəngləri ilə */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#5a5fb8]/20 via-[#6b5a8f]/20 to-[#7c6ba6]/20 animate-pulse"></div>
               
               <div className="relative z-10">
                 {/* AI Robot Avatar - Danışan animasiya ilə */}
@@ -215,7 +215,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                         repeat: isSpeaking ? Infinity : 0,
                         ease: 'easeInOut',
                       }}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30 border-2 border-white/30 flex items-center justify-center relative overflow-hidden"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#ec4899]/30 via-[#d81b60]/30 to-[#ec4899]/30 border border-white/20 flex items-center justify-center relative overflow-hidden"
                     >
                       {/* Robot Face */}
                       <div className="relative z-10">
@@ -257,7 +257,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                         />
                       </div>
                       {/* Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/40 to-purple-400/40 blur-xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/40 to-[#d81b60]/40 blur-xl"></div>
                     </motion.div>
                     {/* Speaking Indicator */}
                     {isSpeaking && (
@@ -280,7 +280,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <span className="text-2xl">{currentStepData.emoji}</span>
+                        <span className="text-2xl flex-shrink-0" style={{ lineHeight: '1', display: 'inline-block' }}>{currentStepData.emoji}</span>
                         <span>{currentStepData.title}</span>
                       </h3>
                       <button
@@ -303,7 +303,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.3 }}
-                    className="h-full bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"
+                    className="h-full bg-gradient-to-r from-[#ec4899] to-[#d81b60] rounded-full"
                   />
                 </div>
               </div>
@@ -377,7 +377,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
 
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#ec4899] to-[#d81b60] text-white rounded-xl font-medium transition shadow-lg"
                 >
                   <span>{currentStep === steps.length - 1 ? 'Bitir' : 'Növbəti'}</span>
                   {currentStep < steps.length - 1 && <ArrowRight className="w-4 h-4" />}

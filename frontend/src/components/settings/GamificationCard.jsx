@@ -8,7 +8,7 @@ import '../../styles/components/settings/gamification-card.css'
 
 const GamificationCard = ({ loginStreak, levelTitle }) => {
   return (
-    <div className="gamification-card slide-up" style={{ animationDelay: '0.3s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.3s' }}>
       <div className="gamification-background"></div>
       <div className="gamification-pattern"></div>
       

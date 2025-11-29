@@ -7,6 +7,9 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--glass-border, rgba(100, 116, 207, 0.15));
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Premium Themes - Input Container */

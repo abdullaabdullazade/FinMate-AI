@@ -21,7 +21,7 @@
   box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.3),
               0 0 0 1px rgba(255, 255, 255, 0.1) inset,
               0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: none;
   position: relative;
   overflow: hidden;
 }
@@ -43,7 +43,8 @@
   transition: opacity 0.4s;
 }
 
-.glass-card:hover {
+/* Hover effekti deaktiv edildi - statik rənglər */
+/* .glass-card:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 16px 48px 0 rgba(139, 92, 246, 0.4),
               0 0 0 1px rgba(255, 255, 255, 0.2) inset,
@@ -54,7 +55,7 @@
 
 .glass-card:hover::before {
   opacity: 1;
-}
+} */
 
 /* Enhanced glass effect with purple glow */
 .glass-card-enhanced {
@@ -71,16 +72,17 @@
   box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.35),
               0 0 0 1px rgba(255, 255, 255, 0.15) inset,
               0 2px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: none;
 }
 
-.glass-card-enhanced:hover {
+/* Hover effekti deaktiv edildi - statik rənglər */
+/* .glass-card-enhanced:hover {
   transform: translateY(-10px) scale(1.03);
   box-shadow: 0 20px 60px 0 rgba(139, 92, 246, 0.45),
               0 0 0 1px rgba(255, 255, 255, 0.25) inset,
               0 4px 20px rgba(0, 0, 0, 0.2);
   border-color: rgba(255, 255, 255, 0.4);
-}
+} */
 
 /* Shimmer effect for loading states */
 @keyframes shimmer {

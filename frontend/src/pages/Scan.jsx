@@ -7,7 +7,6 @@
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
-import { usePremiumModal } from '../contexts/PremiumModalContext'
 import 'react-toastify/dist/ReactToastify.css'
 import { scanAPI } from '../services/api'
 
@@ -23,7 +22,6 @@ import ManualExpenseModal from '../components/scan/ManualExpenseModal'
 
 const Scan = () => {
   const navigate = useNavigate()
-  const { openModal: openPremiumModal } = usePremiumModal()
   const [scanning, setScanning] = useState(false)
   const [scanResult, setScanResult] = useState(null)
   const [showInitialState, setShowInitialState] = useState(true)
@@ -142,21 +140,12 @@ const Scan = () => {
           }, 1500)
         }
       } else {
-        // Check if premium is required
-        if (data.receipt_data?.requires_premium) {
-          openPremiumModal()
-          toast.error('AI tokenlarınız bitib. Premium alın', {
-            position: 'top-right',
-            autoClose: 5000,
-          })
-        } else {
-          setError(data.receipt_data || { error: 'Naməlum xəta' })
-          setShowInitialState(false)
-          toast.error(data.receipt_data?.error || 'Qəbzi oxumaq alınmadı', {
-            position: 'top-right',
-            autoClose: 5000,
-          })
-        }
+        setError(data.receipt_data || { error: 'Naməlum xəta' })
+        setShowInitialState(false)
+        toast.error(data.receipt_data?.error || 'Qəbzi oxumaq alınmadı', {
+          position: 'top-right',
+          autoClose: 5000,
+        })
       }
     } catch (error) {
       console.error('Upload Error:', error)

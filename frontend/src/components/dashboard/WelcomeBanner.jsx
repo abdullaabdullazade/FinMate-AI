@@ -27,29 +27,14 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className="glass-card p-4 sm:p-6 slide-up border-2 border-white/20 relative overflow-hidden"
+      className="glass-card p-4 sm:p-6 slide-up"
       style={{ gridColumn: 'span 12' }}
     >
-      {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-cyan-500/15 to-teal-500/15 animate-gradient"></div>
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl"></div>
-
-      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-        <motion.div
-          animate={{
-            rotate: [0, 14, -8, 10, -4, 6, -2, 0],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="text-4xl sm:text-6xl"
-          style={{ transformOrigin: '70% 70%' }}
-        >
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        {/* Icon - düzgün görünsün */}
+        <div className="text-4xl sm:text-6xl flex-shrink-0" style={{ lineHeight: '1' }}>
           👋
-        </motion.div>
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-xl sm:text-2xl font-bold text-white">
@@ -65,7 +50,7 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null
               </div>
             )}
           </div>
-          <p className="text-white/80 text-base sm:text-lg mb-2">Maliyyə azadlığına xoş gəldin</p>
+          <p className="text-white/70 text-base sm:text-lg mb-2">Maliyyə azadlığına xoş gəldin</p>
           
           {/* XP Progress - Kompakt */}
           {levelInfo && (
@@ -90,28 +75,28 @@ const WelcomeBanner = ({ username, onIncomeClick, onFraudClick, levelInfo = null
         <div className="flex items-center gap-3 flex-wrap">
           <Link
             to="/chat"
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-[#ec4899] to-[#d81b60] rounded-xl text-white font-medium transition shadow-lg flex items-center gap-2"
           >
             <MessageCircle className="w-4 h-4" />
             <span>AI Məsləhəti</span>
           </Link>
           <Link
             to="/scan"
-            className="px-6 py-3 bg-white/10 rounded-xl text-white font-medium hover:bg-white/20 transition border border-white/20 flex items-center gap-2"
+            className="px-6 py-3 bg-white/10 rounded-xl text-white font-medium transition border border-white/20 flex items-center gap-2"
           >
             <Camera className="w-4 h-4" />
             <span>Çek Skan</span>
           </Link>
           <button
             onClick={onIncomeClick}
-            className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg border border-white/20 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-[#ec4899] to-[#d81b60] rounded-xl text-white font-medium transition shadow-lg border border-white/20 flex items-center gap-2"
           >
             <DollarSign className="w-4 h-4" />
             <span>Gəlir</span>
           </button>
           <button
             onClick={onFraudClick}
-            className="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium hover:scale-105 transition shadow-lg shadow-red-500/50 border-2 border-red-400 animate-pulse flex items-center gap-2"
+            className="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl text-white font-medium transition shadow-lg shadow-red-500/50 border border-red-400 animate-pulse flex items-center gap-2"
           >
             <AlertTriangle className="w-4 h-4" />
             <span>Fraud</span>

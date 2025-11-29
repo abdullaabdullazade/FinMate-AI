@@ -97,11 +97,11 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="py-2 sm:py-3 border-b border-white/10 rounded-lg transition group"
+      className="py-2 sm:py-3 border-b border-white/10 rounded-lg group"
       id={`expense-${expense.id}`}
     >
       <div
-        className={`flex items-center justify-between hover:bg-white/5 px-2 py-2 rounded-lg transition ${
+        className={`flex items-center justify-between px-2 py-2 rounded-lg ${
           hasItems && !isIncome ? 'cursor-pointer' : ''
         } transaction-header`}
         onClick={hasItems && !isIncome ? handleToggle : undefined}
@@ -127,7 +127,7 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
                 </span>
               )}
               {hasItems && (
-                <span className="text-xs bg-blue-500/30 text-blue-200 px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0">
+                <span className="text-xs bg-purple-500/30 text-purple-200 px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0">
                   {expense.items.length} məhsul
                 </span>
               )}
@@ -151,7 +151,7 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
                   e.stopPropagation()
                   onEdit(expense)
                 }}
-                className="transition-opacity text-blue-400 hover:text-blue-300 p-1.5 sm:p-2 rounded-lg hover:bg-blue-500/10 flex-shrink-0"
+                className="text-blue-400 p-1.5 sm:p-2 rounded-lg flex-shrink-0"
                 title="Düzəliş et"
               >
                 <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -162,7 +162,7 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
                   e.stopPropagation()
                   onDelete(expense.id)
                 }}
-                className="transition-opacity text-red-400 hover:text-red-300 p-1.5 sm:p-2 rounded-lg hover:bg-red-500/10 flex-shrink-0"
+                className="text-red-400 p-1.5 sm:p-2 rounded-lg flex-shrink-0"
                 title="Sil"
               >
                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -28,7 +28,7 @@
 .budget-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary, #ffffff);
 }
 
 .budget-input-wrapper {
@@ -58,7 +58,7 @@
 }
 
 .budget-currency {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -112,22 +112,25 @@
 }
 
 .daily-limit-group {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 0.75rem;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: border-color 0.2s;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  transition: none;
 }
 
-.daily-limit-group:hover {
+/* Hover effekti deaktiv edildi */
+/* .daily-limit-group:hover {
   border-color: rgba(255, 255, 255, 0.2);
-}
+} */
 
 .daily-limit-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary, #ffffff);
   margin-bottom: 0.5rem;
 }
 

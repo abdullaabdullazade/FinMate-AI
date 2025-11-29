@@ -159,7 +159,7 @@ const CategoryPieChart = ({ categoryData, currency = 'AZN', incognitoMode = fals
                 return (
                   <div
                     key={category}
-                    className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-200 mb-2 group"
+                    className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white/5 border border-white/10 transition-all duration-200 mb-2 group"
                   >
                     <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                       <div
@@ -169,7 +169,7 @@ const CategoryPieChart = ({ categoryData, currency = 'AZN', incognitoMode = fals
                       <span className="text-white font-semibold text-sm sm:text-base truncate">{category}</span>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
-                      <div className={`text-sm sm:text-base font-bold ${incognitoMode ? 'incognito-hidden' : 'text-white'} group-hover:scale-105 transition-transform`}>
+                      <div className={`text-sm sm:text-base font-bold ${incognitoMode ? 'incognito-hidden' : 'text-white'} transition-transform`}>
                         {incognitoMode ? '****' : `${amount.toFixed(2)} ${currency}`}
                       </div>
                       <div className="text-xs text-white/60 mt-0.5">{percentage}%</div>

@@ -40,7 +40,8 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 20%, var(--content-bg-start) 45%, var(--content-bg-middle) 70%, var(--content-bg-end) 100%);
+  opacity: 0.95; /* Yumşaq parıldama üçün */
   min-height: 100vh;
   padding-bottom: 80px;
   color: var(--text-primary);
@@ -61,11 +62,12 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 
-/* Force dark mode background for all pages */
+/* Force dark mode background for all pages - Yumşaq parıldayan rənglərlə */
 [data-theme="dark"] body,
 body:not([data-theme="light"]) {
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%) !important;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 20%, var(--content-bg-start) 45%, var(--content-bg-middle) 70%, var(--content-bg-end) 100%) !important;
   background-attachment: fixed;
+  opacity: 0.95; /* Yumşaq parıldama üçün */
 }
 
 /* Ensure all text is visible in dark mode */

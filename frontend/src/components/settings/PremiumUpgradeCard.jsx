@@ -9,7 +9,7 @@ import '../../styles/components/settings/premium-upgrade-card.css'
 const PremiumUpgradeCard = ({ onUpgradeClick }) => {
   return (
     <div 
-      className="premium-upgrade-card slide-up" 
+      className="glass-card p-4 sm:p-6 slide-up cursor-pointer" 
       style={{ animationDelay: '0.25s' }}
       onClick={onUpgradeClick}
     >

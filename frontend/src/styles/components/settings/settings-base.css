@@ -4,12 +4,13 @@
  */
 
 .settings-section {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 1rem;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  transition: none;
 }
 
 @media (min-width: 640px) {
@@ -97,7 +98,7 @@
 .section-title {
   font-size: 1.125rem;
   font-weight: bold;
-  color: white;
+  color: var(--text-primary, #ffffff);
 }
 
 @media (min-width: 640px) {
@@ -108,7 +109,7 @@
 
 .section-subtitle {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
 }
 
 @media (min-width: 640px) {

@@ -91,13 +91,15 @@
         inset 0 0 80px rgba(236, 72, 153, 0.08);
     /* Vibrant gradient border */
     border-right: 2px solid rgba(192, 132, 252, 0.4);
-    z-index: 55;
+    z-index: 9999;
     /* Dramatic entry animation */
     transform: translateX(-110%) scale(0.9);
     opacity: 0;
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow-y: auto;
     overflow-x: hidden;
+    pointer-events: none;
+    will-change: transform, opacity;
 }
 
 /* Light Mode Menu Panel */
@@ -165,6 +167,7 @@
 .menu-panel.active {
     transform: translateX(0) scale(1);
     opacity: 1;
+    pointer-events: all;
 }
 
 /* Custom Scrollbar */
@@ -486,7 +489,7 @@
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 50;
+    z-index: 9998;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -504,11 +507,10 @@
 
 /* Hide menu on desktop (keep sidebar) */
 @media (min-width: 1024px) {
-
-    .hamburger-btn,
+    .hamburger-btn-navbar,
     .menu-panel,
     .menu-backdrop {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -563,13 +565,7 @@ body.menu-open .toast-container {
     z-index: 100 !important;
 }
 
-.menu-panel {
-    z-index: 55;
-}
-
-.menu-backdrop {
-    z-index: 50;
-}
+/* Z-index already set in main .menu-panel definition above */
 
 /* Hamburger menu açıq olduqda profil dropdown və alert panel gizlət */
 body.menu-open #profile-dropdown {

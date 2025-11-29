@@ -97,7 +97,7 @@ const QuickActionsSection = ({ isPremium, loginStreak, levelTitle }) => {
   return (
     <>
       {/* Heatmap Card */}
-      <div className="settings-section quick-actions-section slide-up" style={{ animationDelay: '0.35s' }}>
+      <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.35s' }}>
         <div className="section-header">
           <div className="section-icon quick-actions-icon">
             🗺️

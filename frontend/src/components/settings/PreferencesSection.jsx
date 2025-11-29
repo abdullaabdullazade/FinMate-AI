@@ -15,7 +15,7 @@ const PreferencesSection = ({
   onReadabilityModeChange
 }) => {
   return (
-    <div className="settings-section preferences-section slide-up" style={{ animationDelay: '0.2s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.2s' }}>
       <div className="section-header">
         <div className="section-icon preferences-icon">
           ⚙️

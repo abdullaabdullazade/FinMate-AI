@@ -31,7 +31,7 @@ const RecentTransactions = ({ transactions, currency = '₼', onEdit, onDelete }
               <p className="text-white/60 text-sm">Hələ əməliyyat yoxdur</p>
               <Link
                 to="/scan"
-                className="inline-block mt-4 text-sm text-blue-300 hover:text-blue-200 font-medium"
+                className="inline-block mt-4 text-sm text-blue-300 font-medium"
               >
                 İlk çekini skan et →
               </Link>

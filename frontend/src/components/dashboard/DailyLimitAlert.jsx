@@ -14,10 +14,10 @@ const DailyLimitAlert = ({ dailyLimitAlert, currency = '₼', incognitoMode = fa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className={`glass-card p-4 sm:p-6 slide-up border ${
+      className={`glass-card p-4 sm:p-6 slide-up border-2 ${
         dailyLimitAlert.exceeded
-          ? 'border-orange-400/40 bg-orange-500/10'
-          : 'border-amber-400/40 bg-amber-500/10'
+          ? 'border-red-500 bg-red-500/20'
+          : 'border-yellow-500 bg-yellow-500/20'
       }`}
       style={{ gridColumn: 'span 12' }}
     >
@@ -27,14 +27,14 @@ const DailyLimitAlert = ({ dailyLimitAlert, currency = '₼', incognitoMode = fa
         </div>
         <div className="flex-1 min-w-0">
           <h3 className={`text-lg sm:text-2xl font-bold mb-1 ${
-            dailyLimitAlert.exceeded ? 'text-orange-300' : 'text-amber-300'
+            dailyLimitAlert.exceeded ? 'text-red-200' : 'text-yellow-200'
           }`}>
             {dailyLimitAlert.exceeded
               ? 'Gündəlik Limit Keçildi!'
               : 'Gündəlik Limitə Yaxınlaşırsınız'}
           </h3>
           <p className={`text-sm sm:text-base ${
-            dailyLimitAlert.exceeded ? 'text-orange-200/90' : 'text-amber-200/90'
+            dailyLimitAlert.exceeded ? 'text-red-100' : 'text-yellow-100'
           }`}>
             Bu gün <strong className={incognitoMode ? 'hidden' : ''}>
               {dailyLimitAlert.today_spending?.toFixed(2)} {currency}

@@ -68,7 +68,7 @@ const PremiumThemesSection = ({ isPremium, currentTheme, onThemeChange }) => {
   }
 
   return (
-    <div className="settings-section premium-themes-section slide-up" style={{ animationDelay: '0.3s' }}>
+    <div className="glass-card p-4 sm:p-6 slide-up" style={{ animationDelay: '0.3s' }}>
       <div className="section-header">
         <div className="section-icon premium-themes-icon">
           🎨
