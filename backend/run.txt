@@ -1,2 +1,2 @@
 docker build -t finmateai_api .
-docker run -p 8300:8300 finmateai_api
+docker run -p 8200:8200 finmateai_api
