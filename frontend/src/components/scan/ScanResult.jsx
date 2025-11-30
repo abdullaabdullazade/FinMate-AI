@@ -92,7 +92,7 @@ const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {
                 <p className="text-white/70 text-xs">Toplam: {scanResult.coins} coin</p>
               </div>
             </div>
-            <span className="text-lg sm:text-xl font-bold text-yellow-400">+1 🪙</span>
+            <span className="text-lg sm:text-xl font-bold text-yellow-400">+{scanResult.xp_result?.coins_awarded || 1} 🪙</span>
           </div>
         )}
 

@@ -240,7 +240,7 @@ const Rewards = () => {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/10 pl-4">
-          <p className="text-white/50 text-xs">💡 Qəbz məbləğinə görə coin: 10 manata 1 coin (minimum 1 coin)</p>
+          <p className="text-white/50 text-xs">💡 Qəbz məbləğinə görə coin: 0-49 AZN = 1 coin, 50-99 AZN = 5 coin, 100-500 AZN = 10 coin, 500-999 AZN = 15 coin</p>
         </div>
       </motion.div>
 

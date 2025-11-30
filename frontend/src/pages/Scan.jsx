@@ -96,9 +96,10 @@ const Scan = () => {
             })
           }, 500)
         }
-        if (data.coins !== undefined) {
+        if (data.coins !== undefined && data.xp_result?.coins_awarded !== undefined) {
+          const coinsAwarded = data.xp_result.coins_awarded
           setTimeout(() => {
-            toast.success(`+1 🪙 Coin qazandınız! Toplam: ${data.coins} coin`, {
+            toast.success(`+${coinsAwarded} 🪙 Coin qazandınız! Toplam: ${data.coins} coin`, {
               position: 'top-right',
               autoClose: 5000,
               className: 'coin-toast-success',

@@ -101,7 +101,7 @@
                     <p class="text-white/70 text-xs">Toplam: {{ coins }} coin</p>
                 </div>
             </div>
-            <span class="text-xl font-bold text-yellow-400">+1 🪙</span>
+            <span class="text-xl font-bold text-yellow-400">+{{ xp_result.coins_awarded|default(1) }} 🪙</span>
         </div>
 
         <!-- Milestone Celebration -->

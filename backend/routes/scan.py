@@ -201,7 +201,11 @@ async def scan_receipt(
             scan_xp = gamification.award_xp(user, "scan_receipt", db)
             
             # Award FinMate Coins based on receipt amount
-            # 100 manata 10 coin, 1 manata 1 coin (minimum 1 coin)
+            # Yeni coin sistemi:
+            # 0-49 AZN: 1 coin
+            # 50-99 AZN: 5 coin
+            # 100-500 AZN: 10 coin
+            # 500-999 AZN: 15 coin
             if user.coins is None:
                 user.coins = 0
             
@@ -212,15 +216,19 @@ async def scan_receipt(
             except (ValueError, TypeError):
                 total_amount = 0
             
-            # Coin calculation: Premium users get more coins
-            # Normal users: 10 AZN = 1 coin (minimum 1 coin)
-            # Premium users: 5 AZN = 1 coin (minimum 2 coins) - 2x multiplier
-            if user.is_premium:
-                # Premium: every 5 AZN = 1 coin, minimum 2 coins
-                coins_to_award = max(2, int(total_amount / 5))
+            # Coin calculation based on amount ranges
+            if total_amount < 50:
+                coins_to_award = 1
+            elif total_amount < 100:
+                coins_to_award = 5
+            elif total_amount < 500:
+                coins_to_award = 10
+            elif total_amount < 1000:
+                coins_to_award = 15
             else:
-                # Normal: every 10 AZN = 1 coin, minimum 1 coin
-                coins_to_award = max(1, int(total_amount / 10))
+                # 1000+ AZN üçün hər 500 AZN-ə 15 coin əlavə et
+                coins_to_award = 15 + (int((total_amount - 1000) / 500) * 15)
+            
             user.coins += coins_to_award
             milestone_reached = None
             
