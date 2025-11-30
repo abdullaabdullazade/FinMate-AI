@@ -14,12 +14,12 @@ venv/
 ENV/
 .venv
 
-# Environment variables (ignore actual .env, but track .env.example in backend/ and frontend/)
-.env
+# Environment variables - .env files are tracked for production deployment
+# Note: .env files are included in git for production server setup
+# .env.local files are still ignored (local development overrides)
 .env.local
 .env.*.local
-# Track .env.example in backend/ and frontend/, but ignore root .env.example
-!.env.example
+# Track .env.example in backend/ and frontend/
 backend/.env.example
 frontend/.env.example
 
