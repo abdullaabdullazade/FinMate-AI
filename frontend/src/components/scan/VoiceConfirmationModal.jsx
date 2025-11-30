@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { X, Mic } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '../../utils/toast'
 
 const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData, onConfirm }) => {
   const [formData, setFormData] = useState({
@@ -50,10 +50,18 @@ const VoiceConfirmationModal = ({ isOpen, onClose, transcribedText, expenseData,
 
       const data = await response.json()
       if (data.success) {
-        toast.success('✅ Səsli əmr uğurla təsdiqləndi!', { autoClose: 5000 })
+        // Coin mükafatı varsa göstər
+        if (data.coins_awarded && data.coins_awarded > 0) {
+          toast.success(
+            `✅ Xərc əlavə edildi! 🪙 ${data.coins_awarded} coin qazandınız! (Cəmi: ${data.total_coins || 0} coin)`,
+            { autoClose: 6000 }
+          )
+        } else {
+          toast.success('✅ Xərc uğurla əlavə edildi!', { autoClose: 5000 })
+        }
         onConfirm && onConfirm(data)
         onClose()
-        // Refresh dashboard
+        // Refresh dashboard - amma səhifə yenilənməsin
         window.dispatchEvent(new CustomEvent('expenseUpdated'))
       } else {
         toast.error(data.error || 'Xəta baş verdi', { autoClose: 5000 })

@@ -149,6 +149,20 @@ async def confirm_voice_expense(
         # Always award 15 XP for voice commands
         xp_awarded = 15
         
+        # Award FinMate Coins for voice expense
+        # Base: 10 coins, plus bonus based on amount
+        coins_to_award = 10
+        if amount >= 50:
+            # Bonus coins for larger expenses
+            coins_to_award += int((amount - 50) / 50) * 5  # 5 coins per 50 AZN above 50
+            coins_to_award = min(coins_to_award, 50)  # Max 50 coins
+        
+        if user.coins is None:
+            user.coins = 0
+        user.coins += coins_to_award
+        db.commit()
+        db.refresh(user)
+        
         # Send real-time notification via WebSocket - AI bildirişi
         try:
             from routes.websocket import send_notification_to_user
@@ -223,7 +237,9 @@ async def confirm_voice_expense(
                 "category": category,
                 "date": expense.date.isoformat() if expense.date else None
             },
-            "xp_result": sanitized_xp_result
+            "xp_result": sanitized_xp_result,
+            "coins_awarded": coins_to_award,
+            "total_coins": user.coins
         })
         
     except Exception as e:
