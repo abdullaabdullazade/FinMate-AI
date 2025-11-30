@@ -1,12 +1,27 @@
 """Main FastAPI application - Clean and organized structure"""
 from dotenv import load_dotenv
+load_dotenv()
+
 from config import app
 from database import init_db, seed_demo_data
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-# Load environment variables
-load_dotenv()
+# Import all routes to register them with the app
+# Routes use @app decorators, so they need to be imported AFTER config.app is created
+import routes.stats
+import routes.settings
+import routes.rewards
+import routes.profile
+import routes.dashboard
+import routes.chat
+import routes.scan
+import routes.expenses
+import routes.dreams
+import routes.auth
+import routes.heatmap
+import routes.notifications
+import routes.export
 
 
 @app.on_event("startup")
@@ -32,4 +47,3 @@ async def custom_404_handler(request: Request, exc):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8200, reload=True)
-

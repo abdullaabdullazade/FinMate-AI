@@ -89,7 +89,7 @@ const WelcomeBanner = ({ username, onIncomeClick, levelInfo = null, xpPoints = 0
           </Link>
           <button
             onClick={onIncomeClick}
-            className="px-6 py-3 bg-gradient-to-r from-[#ec4899] to-[#d81b60] rounded-xl text-white font-medium transition shadow-lg border border-white/20 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-medium transition shadow-lg border border-green-400/30 flex items-center gap-2 hover:from-green-600 hover:to-emerald-700"
           >
             <DollarSign className="w-4 h-4" />
             <span>Gəlir</span>

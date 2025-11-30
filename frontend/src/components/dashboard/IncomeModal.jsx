@@ -294,11 +294,10 @@ const IncomeModal = ({ isOpen, onClose, currency = 'AZN', onSuccess }) => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="relative w-full font-bold py-4 rounded-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative w-full font-bold py-4 rounded-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 style={{
-                  background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                   color: '#ffffff',
-                  boxShadow: '0 4px 15px var(--glass-shadow)'
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
                 }}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
