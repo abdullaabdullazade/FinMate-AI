@@ -2,6 +2,8 @@
 
 A futuristic Personal Finance PWA powered by Google Gemini AI, combining visual dashboards with a context-aware AI chatbot.
 
+🌐 **Live Demo**: [http://185.207.251.177:3000/](http://185.207.251.177:3000/)
+
 ![FinMate AI](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green)
 ![React](https://img.shields.io/badge/React-18-blue)
@@ -152,7 +154,11 @@ Frontend will run on `http://localhost:3000`
 
 ### 5. Open in Browser
 
+**Local Development:**
 Navigate to: **http://localhost:3000**
+
+**Live Production:**
+🌐 **[http://185.207.251.177:3000/](http://185.207.251.177:3000/)**
 
 ## 📱 How to Use
 
@@ -209,23 +215,70 @@ npm run build
 # Serve dist/ folder with nginx or similar
 ```
 
+## 🚀 Production Deployment
+
+### Production Server
+
+**Live Application**: [http://185.207.251.177:3000/](http://185.207.251.177:3000/)
+
+**Backend API**: `http://185.207.251.177:8200` (or configured port)
+
+### Production Setup
+
+1. **Backend Configuration**:
+   - Ensure `.env` file has production API keys
+   - Update CORS settings in `backend/config.py` to include production frontend URL
+   - Run backend on port 8200 (or configured port)
+
+2. **Frontend Configuration**:
+   - Build frontend: `cd frontend && npm run build`
+   - Set production API URL in `frontend/.env`:
+     ```env
+     VITE_API_URL=http://185.207.251.177:8200
+     ```
+   - Serve `dist/` folder (e.g., with nginx, serve, or similar)
+
+3. **Environment Files**:
+   - Copy `backend/.env.example` to `backend/.env` and fill in your API keys
+   - Copy `frontend/.env.example` to `frontend/.env` and set production API URL
+
 ## 🔧 Configuration
 
 ### Backend Environment Variables
 
-Create `backend/.env`:
+Create `backend/.env` by copying the example file:
 
+```bash
+cd backend
+cp .env.example .env
+# Edit .env and add your API keys
+```
+
+Required variables (see `backend/.env.example`):
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here  # Required
 OPENAI_API_KEY=your_openai_api_key_here  # Optional
+GROQ_API_KEY=your_groq_api_key_here      # Optional
 ```
 
 ### Frontend Environment Variables
 
-Create `frontend/.env` (optional):
+Create `frontend/.env` (optional) by copying the example file:
 
+```bash
+cd frontend
+cp .env.example .env
+# Edit .env if your backend runs on different URL
+```
+
+Default configuration (see `frontend/.env.example`):
 ```env
-VITE_API_URL=http://localhost:8200
+VITE_API_URL=http://localhost:8200  # Optional, default is localhost:8200
+```
+
+For production deployment, set:
+```env
+VITE_API_URL=http://185.207.251.177:8200
 ```
 
 ### CORS Settings
@@ -234,6 +287,7 @@ Backend CORS is configured in `backend/config.py`. Default allowed origins:
 - `http://localhost:3000` (React dev server)
 - `http://localhost:5173` (Vite dev server)
 - `http://localhost:8200` (Backend port)
+- `http://185.207.251.177:3000` (Production frontend)
 
 To add new origins, edit `backend/config.py`.
 
