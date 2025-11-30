@@ -62,9 +62,15 @@
 /* Mobile */
 @media (max-width: 640px) {
     .chat-container {
-        height: calc(100vh - 240px);
-        min-height: 400px;
+        height: calc(100vh - 280px);
+        min-height: 350px;
         padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Banner olduqda spacing */
+    .chat-container:has(+ .daily-limit-banner) {
+        margin-top: 3.5rem;
     }
 }
 

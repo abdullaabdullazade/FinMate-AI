@@ -36,7 +36,7 @@ const Chat = () => {
 
   return (
     <>
-      {/* Daily Message Limit Banner - Super gözəl və kreativ */}
+      {/* Daily Message Limit Banner - Super gözəl və kreativ - Mobile optimized */}
       {showDailyLimit && (
         <DailyLimitBanner
           dailyMessages={dailyMessages}
