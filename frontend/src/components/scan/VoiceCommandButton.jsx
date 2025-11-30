@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Mic, X, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '../../utils/toast'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePremiumModal } from '../../contexts/PremiumModalContext'
 import VoiceConfirmationModal from './VoiceConfirmationModal'
@@ -37,26 +37,37 @@ const VoiceCommandButton = () => {
     }
   }, [stream, mediaRecorder])
 
-  const startRecording = async () => {
+  const startRecording = async (e) => {
+    // Event propagation dayandır
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     // Premium yoxlaması - səsli əmr premium funksiyadır
-    if (!user?.is_premium) {
+    const isPremium = user?.is_premium === true || user?.is_premium === 1 || user?.is_premium === "true"
+    if (!isPremium) {
       toast.error('Səsli əmr funksiyası Premium üçündür', { autoClose: 5000 })
       openModal()
       return
     }
 
     // Voice enabled yoxlaması - səsli əmrlər bağlı olsa mikrofon açılmamalıdır
-    if (!user?.voice_enabled) {
+    const isVoiceEnabled = user?.voice_enabled === true || user?.voice_enabled === 1 || user?.voice_enabled === "true"
+    if (!isVoiceEnabled) {
       toast.error('Səsli əmrlər bağlıdır. Zəhmət olmasa Ayarlar səhifəsindən aktivləşdirin', { autoClose: 5000 })
       return
     }
 
     if (isRecording) {
-      stopRecording()
+      stopRecording(e)
       return
     }
 
     try {
+      console.log('🎤 Mikrofon açılır...')
+      setStatus('Mikrofon açılır...')
+      
       const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
       setStream(mediaStream)
 
@@ -84,15 +95,38 @@ const VoiceCommandButton = () => {
       setAudioChunks(chunks)
       setIsRecording(true)
       setStatus('Dinləyirəm... Danışın 🎙️')
+      console.log('✅ Qeydiyyat başladı')
     } catch (error) {
-      console.error('Mikrofon xətası:', error)
+      console.error('❌ Mikrofon xətası:', error)
       toast.error('Mikrofona icazə verilmədi', { autoClose: 5000 })
       setStatus('Hazıram')
+      
+      // Xəta mesajları
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        toast.error('Mikrofon icazəsi verilmədi. Zəhmət olmasa brauzer ayarlarından icazə verin.', { autoClose: 7000 })
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        toast.error('Mikrofon tapılmadı. Zəhmət olmasa mikrofonun bağlı olduğunu yoxlayın.', { autoClose: 7000 })
+      } else {
+        toast.error(`Mikrofon xətası: ${error.message || 'Naməlum xəta'}`, { autoClose: 7000 })
+      }
     }
   }
 
-  const stopRecording = () => {
+  const stopRecording = (e) => {
+    // Event propagation dayandır
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     if (mediaRecorder && mediaRecorder.state === 'recording') {
+      console.log('🛑 Qeydiyyat dayandırılır...')
+      mediaRecorder.stop()
+      setIsRecording(false)
+      setIsProcessing(true)
+      setStatus('AI Analiz edir... 🧠')
+    } else if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      // Əgər recording deyilsə, amma inactive da deyilsə, dayandır
       mediaRecorder.stop()
       setIsRecording(false)
       setIsProcessing(true)
@@ -153,9 +187,24 @@ const VoiceCommandButton = () => {
   }
 
   // Voice enabled yoxlaması - əgər bağlı olsa düyməni disabled et
-  const isVoiceEnabled = user?.voice_enabled === true
-  const isPremium = user?.is_premium === true
+  // Boolean dəyərləri düzgün yoxla (true/false, 1/0, "true"/"false" və s.)
+  const isVoiceEnabled = user?.voice_enabled === true || user?.voice_enabled === 1 || user?.voice_enabled === "true"
+  const isPremium = user?.is_premium === true || user?.is_premium === 1 || user?.is_premium === "true"
   const canUseVoice = isPremium && isVoiceEnabled
+  
+  // Debug log - yalnız user dəyişdikdə
+  useEffect(() => {
+    if (user && process.env.NODE_ENV === 'development') {
+      console.log('🎤 VoiceCommandButton Debug:', {
+        isPremium,
+        isVoiceEnabled,
+        canUseVoice,
+        user_voice_enabled: user.voice_enabled,
+        user_is_premium: user.is_premium,
+        user_type: typeof user.voice_enabled
+      })
+    }
+  }, [user, isPremium, isVoiceEnabled, canUseVoice])
 
   return (
     <>
@@ -268,8 +317,21 @@ const VoiceCommandButton = () => {
             <div className="flex flex-col items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
               {!isProcessing && (
                 <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center transition-all ${
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (isRecording) {
+                      stopRecording(e)
+                    } else {
+                      startRecording(e)
+                    }
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  type="button"
+                  className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                     isRecording
                       ? 'bg-gradient-to-br from-red-500 to-red-600 animate-pulse'
                       : 'bg-gradient-to-br from-purple-500 to-pink-500 hover:scale-110'

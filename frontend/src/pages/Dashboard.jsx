@@ -28,6 +28,7 @@ import DeleteTransactionModal from '../components/dashboard/DeleteTransactionMod
 import IncomeModal from '../components/dashboard/IncomeModal'
 import OnboardingTour from '../components/dashboard/OnboardingTour'
 import SalarySetupModal from '../components/dashboard/SalarySetupModal'
+import VoiceCommandButton from '../components/scan/VoiceCommandButton'
 
 const Dashboard = () => {
   const { user } = useAuth()

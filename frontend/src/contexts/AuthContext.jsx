@@ -122,6 +122,29 @@ export const AuthProvider = ({ children }) => {
     })
   }, [])
 
+  /**
+   * Settings və ya user məlumatları yeniləndikdə user context-i yenilə
+   */
+  useEffect(() => {
+    const handleSettingsUpdate = () => {
+      console.log('🔄 Settings updated, refreshing user data...')
+      refreshUser()
+    }
+
+    const handleUserUpdate = () => {
+      console.log('🔄 User updated, refreshing user data...')
+      refreshUser()
+    }
+
+    window.addEventListener('settingsUpdated', handleSettingsUpdate)
+    window.addEventListener('userUpdated', handleUserUpdate)
+
+    return () => {
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate)
+      window.removeEventListener('userUpdated', handleUserUpdate)
+    }
+  }, [])
+
   const value = {
     user,
     loading,

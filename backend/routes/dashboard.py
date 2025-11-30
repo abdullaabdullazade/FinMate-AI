@@ -7,6 +7,7 @@ from models import  Expense
 from config import app
 from utils.auth import get_current_user
 from datetime import datetime
+from math import isinf, isnan
 
 @app.get("/")
 async def dashboard(request: Request, db: Session = Depends(get_db)):
@@ -18,7 +19,6 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     })
 
 
-from math import isinf, isnan
 
 def clean_floats(obj):
     """Convert inf / -inf / NaN to safe JSON values"""
