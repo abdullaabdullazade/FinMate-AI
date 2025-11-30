@@ -14,11 +14,14 @@ venv/
 ENV/
 .venv
 
-# Environment variables (ignore actual .env, but track .env.example)
+# Environment variables (ignore actual .env, but track .env.example in backend/ and frontend/)
 .env
 .env.local
 .env.*.local
-!*.env.example
+# Track .env.example in backend/ and frontend/, but ignore root .env.example
+!.env.example
+backend/.env.example
+frontend/.env.example
 
 # IDE
 .vscode/
