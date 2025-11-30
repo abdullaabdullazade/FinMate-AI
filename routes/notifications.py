@@ -121,6 +121,104 @@ async def get_notifications(request: Request, db: Session = Depends(get_db)):
             "message": f"{next_milestone} XP-yə çatmağa {remaining} XP qalıb!"
         })
     
+    # Maaşın yarısını ayın ilk 10 günündə xərcləmə xəbərdarlığı
+    if user.monthly_income and user.monthly_income > 0:
+        current_day = now.day
+        salary_half = user.monthly_income / 2
+        
+        # Ayın ilk 10 günündə maaşın yarısını xərcləyibsə
+        if current_day <= 10 and total_spending >= salary_half:
+            remaining_days = 30 - current_day
+            daily_allowance = (user.monthly_income - total_spending) / remaining_days if remaining_days > 0 else 0
+            notifications.append({
+                "icon": "🚨",
+                "color": "red-500",
+                "message": f"Diqqət! Ayın ilk 10 günündə maaşının yarısını ({total_spending:.0f} AZN) xərcləmisən. Qənaət etməsən ac qalacaqsan! Gündəlik limit: {daily_allowance:.0f} AZN"
+            })
+        # Ayın ilk 10 günündə maaşın 40%-ni xərcləyibsə
+        elif current_day <= 10 and total_spending >= user.monthly_income * 0.4:
+            notifications.append({
+                "icon": "⚠️",
+                "color": "amber-500",
+                "message": f"Diqqət! Ayın ilk 10 günündə maaşının 40%-ni ({total_spending:.0f} AZN) xərcləmisən. Qənaət etməyə başla!"
+            })
+    
+    # Ayın ilk yarısında maaşın 70%-ni xərcləmə xəbərdarlığı
+    if user.monthly_income and user.monthly_income > 0:
+        current_day = now.day
+        if current_day <= 15 and total_spending >= user.monthly_income * 0.7:
+            notifications.append({
+                "icon": "🔥",
+                "color": "red-500",
+                "message": f"Təhlükə! Ayın ilk yarısında maaşının 70%-ni ({total_spending:.0f} AZN) xərcləmisən. Dərhal qənaət etməyə başla!"
+            })
+    
+    # Həftəlik xərcləmə analizi
+    week_start = now - timedelta(days=now.weekday())
+    week_expenses = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.date >= week_start,
+        Expense.date <= now
+    ).all()
+    week_total = sum(exp.amount for exp in week_expenses)
+    
+    if user.monthly_income and user.monthly_income > 0:
+        weekly_budget = user.monthly_income / 4  # Həftəlik büdcə (aylıq maaşın 1/4-i)
+        if week_total > weekly_budget * 1.2:  # Həftəlik büdcənin 120%-dən çox
+            notifications.append({
+                "icon": "📊",
+                "color": "amber-500",
+                "message": f"Bu həftə həftəlik büdcənizi ({weekly_budget:.0f} AZN) 20% artıq keçmisiniz. Cari: {week_total:.0f} AZN"
+            })
+    
+    # Kategoriya əsaslı xəbərdarlıqlar - ən çox xərclənən kateqoriya
+    if expenses:
+        category_totals = {}
+        for exp in expenses:
+            category = exp.category or exp.category_name or "Digər"
+            category_totals[category] = category_totals.get(category, 0) + exp.amount
+        
+        if category_totals:
+            top_category = max(category_totals.items(), key=lambda x: x[1])
+            top_category_name, top_category_amount = top_category
+            top_category_percentage = (top_category_amount / total_spending * 100) if total_spending > 0 else 0
+            
+            # Əgər bir kateqoriyaya 50%-dən çox xərcləyibsə
+            if top_category_percentage > 50:
+                notifications.append({
+                    "icon": "🎯",
+                    "color": "blue-500",
+                    "message": f"'{top_category_name}' kateqoriyasına xərclərinizin {top_category_percentage:.0f}%-ni ({top_category_amount:.0f} AZN) xərcləmisiniz. Diversifikasiya edin!"
+                })
+    
+    # Qənaət təklifləri - əgər xərcləmə normaldırsa
+    if user.monthly_income and user.monthly_income > 0:
+        savings_potential = user.monthly_income - total_spending
+        if savings_potential > user.monthly_income * 0.2 and now.day >= 20:  # Ayın sonuna yaxın və 20%+ qənaət var
+            notifications.append({
+                "icon": "💰",
+                "color": "green-500",
+                "message": f"Əla! Bu ay {savings_potential:.0f} AZN qənaət edə bilərsən. Arzu qutusuna əlavə et!"
+            })
+    
+    # Günün sonu xəbərdarlığı - əgər gün ərzində çox xərcləyibsə
+    today = date_type.today()
+    today_expenses = db.query(Expense).filter(
+        Expense.user_id == user.id,
+        Expense.date >= today,
+        Expense.date < today + timedelta(days=1)
+    ).all()
+    today_total = sum(exp.amount for exp in today_expenses)
+    
+    if user.monthly_income and user.monthly_income > 0:
+        daily_budget = user.monthly_income / 30  # Gündəlik büdcə
+        if today_total > daily_budget * 1.5:  # Gündəlik büdcənin 150%-dən çox
+            notifications.append({
+                "icon": "🌙",
+                "color": "amber-500",
+                "message": f"Bu gün gündəlik büdcənizi ({daily_budget:.0f} AZN) 50% artıq keçmisiniz. Sabah daha diqqətli olun!"
+            })
+    
     # Positive message if no notifications
     if not notifications:
         notifications.append({

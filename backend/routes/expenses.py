@@ -10,6 +10,7 @@ from database import get_db
 from models import  Expense, Income
 from config import app
 from utils.auth import get_current_user
+from utils.ai_notifications import generate_ai_notification
 
 from gamification import gamification
 from forecast_service import forecast_service
@@ -148,6 +149,32 @@ async def confirm_voice_expense(
         # Always award 15 XP for voice commands
         xp_awarded = 15
         
+        # Send real-time notification via WebSocket - AI bildirişi
+        try:
+            from routes.websocket import send_notification_to_user
+            
+            # AI bildirişi yarat
+            ai_notification = await generate_ai_notification(
+                db=db,
+                user=user,
+                action_type="voice_expense",
+                action_data={
+                    "merchant": merchant,
+                    "amount": amount,
+                    "category": category
+                }
+            )
+            
+            # AI bildirişini göndər
+            await send_notification_to_user(user.id, {
+                "type": "new_notification",
+                "notification": ai_notification
+            })
+        except Exception as ws_error:
+            print(f"WebSocket notification error: {ws_error}")
+            import traceback
+            traceback.print_exc()
+        
         # Sanitize xp_result to handle inf values
         def sanitize_float(value):
             """Convert inf/nan to None, ensure value is float"""
@@ -275,6 +302,8 @@ async def text_to_speech(
 
 
 
+
+# Import WebSocket notification function (circular import-u qarşısını almaq üçün lazy import)
 
 @app.post("/api/expense")
 async def add_manual_expense(
@@ -404,6 +433,33 @@ async def add_manual_expense(
         if daily_limit_alert:
             response_data["daily_limit_alert"] = daily_limit_alert
         
+        # Send real-time notification via WebSocket - AI bildirişi
+        try:
+            from routes.websocket import send_notification_to_user
+            
+            # AI bildirişi yarat
+            ai_notification = await generate_ai_notification(
+                db=db,
+                user=user,
+                action_type="manual_expense",
+                action_data={
+                    "merchant": merchant.strip(),
+                    "amount": amount,
+                    "category": category if category else "Digər"
+                }
+            )
+            
+            # AI bildirişini göndər
+            await send_notification_to_user(user.id, {
+                "type": "new_notification",
+                "notification": ai_notification
+            })
+        except Exception as ws_error:
+            print(f"WebSocket notification error: {ws_error}")
+            import traceback
+            traceback.print_exc()
+            # Don't fail the request if WebSocket fails
+        
         return JSONResponse(response_data)
         
     except HTTPException:
@@ -441,6 +497,19 @@ async def delete_expense(request: Request, expense_id: int, db: Session = Depend
             
         db.delete(expense)
         db.commit()
+        
+        # Send real-time notification via WebSocket
+        try:
+            from routes.websocket import send_notification_to_user, generate_notifications_for_user
+            notifications = await generate_notifications_for_user(user, db)
+            await send_notification_to_user(user.id, {
+                "type": "notifications",
+                "notifications": notifications,
+                "count": len(notifications),
+                "trigger": "expense_deleted"
+            })
+        except Exception as ws_error:
+            print(f"WebSocket notification error: {ws_error}")
         
         # Return response with HX-Refresh header to reload page and recalculate totals
         return Response(
@@ -529,6 +598,32 @@ async def add_income(
         print(f"   Date: {income_date}")
         print(f"   Is recurring: {is_recurring}")
         print(f"   User's monthly_income updated to: {user.monthly_income}")
+        
+        # Send real-time notification via WebSocket - AI bildirişi
+        try:
+            from routes.websocket import send_notification_to_user
+            
+            # AI bildirişi yarat
+            ai_notification = await generate_ai_notification(
+                db=db,
+                user=user,
+                action_type="income",
+                action_data={
+                    "merchant": source,
+                    "amount": amount,
+                    "category": "Gəlir"
+                }
+            )
+            
+            # AI bildirişini göndər
+            await send_notification_to_user(user.id, {
+                "type": "new_notification",
+                "notification": ai_notification
+            })
+        except Exception as ws_error:
+            print(f"WebSocket notification error: {ws_error}")
+            import traceback
+            traceback.print_exc()
         
         # Trigger stats update
         return JSONResponse({

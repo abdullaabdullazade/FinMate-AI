@@ -62,6 +62,7 @@ export { settingsAPI } from './settings'
 export { voiceAPI } from './voice'
 export { forecastAPI } from './forecast'
 export { exportAPI } from './export'
+export { notificationsAPI } from './notifications'
 
 // Export default olaraq da api instance
 export default api

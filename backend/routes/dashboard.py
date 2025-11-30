@@ -6,7 +6,7 @@ from database import get_db
 from models import  Expense
 from config import app
 from utils.auth import get_current_user
-
+from datetime import datetime
 
 @app.get("/")
 async def dashboard(request: Request, db: Session = Depends(get_db)):

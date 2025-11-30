@@ -9,7 +9,7 @@ from models import Expense, Dream, Income
 from config import app
 from utils.auth import get_current_user
 from gamification import gamification
-
+from datetime import datetime
 
 @app.get("/api/dreams")
 async def get_dreams_api(request: Request, db: Session = Depends(get_db)):

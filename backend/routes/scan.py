@@ -7,6 +7,7 @@ from database import get_db
 from models import  Expense
 from config import app
 from utils.auth import get_current_user
+from utils.ai_notifications import generate_ai_notification
 from ai_service import ai_service
 from gamification import gamification
 
@@ -249,6 +250,66 @@ async def scan_receipt(
             
             db.commit()
             db.refresh(user)
+
+            # Send real-time notification via WebSocket - Coin qazandı
+            try:
+                from routes.websocket import send_notification_to_user
+                # Coin bildirişi göndər
+                await send_notification_to_user(user.id, {
+                    "type": "new_notification",
+                    "notification": {
+                        "icon": "🪙",
+                        "color": "yellow-500",
+                        "message": f"Təbriklər! Qəbz scan etdiyinizə görə {coins_to_award} coin qazandınız! 💰 Cari balans: {user.coins} coin"
+                    }
+                })
+            except Exception as ws_error:
+                print(f"WebSocket notification error: {ws_error}")
+            
+            # AI ilə xərcləmə analizi və bildiriş yarat
+            scan_amount = float(receipt_data.get("total", 0.0) or 0.0)
+            scan_merchant = receipt_data.get("merchant") or "Unknown"
+            scan_category = receipt_data.get("suggested_category") or "Other"
+            
+            try:
+                from routes.websocket import send_notification_to_user
+                
+                # AI bildirişi yarat
+                ai_notification = await generate_ai_notification(
+                    db=db,
+                    user=user,
+                    action_type="scan",
+                    action_data={
+                        "merchant": scan_merchant,
+                        "amount": scan_amount,
+                        "category": scan_category
+                    }
+                )
+                
+                # AI bildirişini göndər
+                await send_notification_to_user(user.id, {
+                    "type": "new_notification",
+                    "notification": ai_notification
+                })
+            except Exception as ai_error:
+                print(f"AI notification error: {ai_error}")
+                import traceback
+                traceback.print_exc()
+                # Fallback bildiriş göndər
+                try:
+                    from routes.websocket import send_notification_to_user
+                    await send_notification_to_user(user.id, {
+                        "type": "new_notification",
+                        "notification": {
+                            "icon": "📊",
+                            "color": "blue-500",
+                            "message": f"Qəbz scan edildi: {scan_merchant} - {scan_amount:.2f} AZN"
+                        }
+                    })
+                except Exception as fallback_error:
+                    print(f"Fallback notification error: {fallback_error}")
+                    import traceback
+                    traceback.print_exc()
 
             # Return JSON for React frontend
             return JSONResponse({

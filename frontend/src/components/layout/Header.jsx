@@ -9,6 +9,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useAuth } from '../../contexts/AuthContext'
 import ThemeToggle from '../common/ThemeToggle'
+import AlertBell from '../common/AlertBell'
 import UserStats from '../common/UserStats'
 import ProfileDropdown from '../common/ProfileDropdown'
 import LogoutConfirmModal from '../common/LogoutConfirmModal'
@@ -264,6 +265,9 @@ const Header = ({ user }) => {
 
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Alert Bell - Real API ilə işləyir */}
+            <AlertBell />
 
             {/* User Stats */}
             <UserStats user={user} />

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 from database import get_db
-from models import User, Expense
+from models import Expense
 from config import app
 from utils.auth import get_current_user
 from utils.calculations import pseudo_coords_for_merchant

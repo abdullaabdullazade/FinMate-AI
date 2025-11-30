@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import asyncio
 from config import app
 from database import init_db, seed_demo_data
 from fastapi import Request
@@ -21,7 +22,11 @@ import routes.dreams
 import routes.auth
 import routes.heatmap
 import routes.notifications
+import routes.websocket
 import routes.export
+
+# Import random notifications scheduler
+from routes.random_notifications import start_random_notifications
 
 
 @app.on_event("startup")
@@ -29,6 +34,8 @@ async def startup_event():
     """Initialize database on startup"""
     init_db()
     seed_demo_data()
+    # Start random notifications scheduler (background task)
+    start_random_notifications()
 
 @app.options("/{full_path:path}")
 async def options_handler(full_path: str):
