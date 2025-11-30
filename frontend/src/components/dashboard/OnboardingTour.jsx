@@ -13,7 +13,20 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [mouthOpen, setMouthOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const audioRef = useRef(null)
+
+  // Mobil və desktop ayrımı
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768) // 768px-dən kiçik = mobil
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
@@ -186,7 +199,7 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9998]"
             style={{
               top: 0,
               left: 0,
@@ -200,180 +213,213 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             onClick={handleSkip}
           />
 
-          {/* Tour Card - Fixed Position (bir yerə dayanır) */}
+          {/* Tour Card - Mobil və Desktop üçün ayrı dizayn */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed z-[9999] w-full max-w-md mx-4"
+            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+            className="fixed z-[9999]"
             style={{
-              // Həmişə mərkəzdə olsun - bir yerə dayansın
               top: '50%',
               left: '50%',
+              right: 'auto',
+              bottom: 'auto',
               transform: 'translate(-50%, -50%)',
+              width: isMobile ? '92%' : '520px',
+              maxWidth: isMobile ? '92%' : '520px',
+              maxHeight: isMobile ? '85vh' : '600px',
+              margin: '0',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="glass-card p-6 relative overflow-hidden">
-              {/* Animated Background - Dashboard rəngləri ilə */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#5a5fb8]/20 via-[#6b5a8f]/20 to-[#7c6ba6]/20 animate-pulse"></div>
-              
+            <div 
+              className="glass-card relative overflow-hidden border border-white/20 shadow-2xl backdrop-blur-xl" 
+              style={{ 
+                padding: isMobile ? '0.75rem' : '1.5rem',
+                borderRadius: isMobile ? '0.875rem' : '1.25rem',
+                maxHeight: isMobile ? '85vh' : '600px', 
+                overflowY: 'auto',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
+              }}
+            >
               <div className="relative z-10">
-                {/* AI Robot Avatar - Danışan animasiya ilə */}
-                <div className="flex items-start gap-4 mb-4">
-                  {/* Robot Avatar */}
-                  <div className="flex-shrink-0 relative">
-                    <motion.div
-                      animate={{
-                        scale: 1, // Səsləndirmə deaktiv olduğu üçün animasiya yoxdur
-                        rotate: 0,
-                      }}
-                      transition={{
-                        duration: 0.5,
-                        repeat: 0,
-                        ease: 'easeInOut',
-                      }}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#ec4899]/30 via-[#d81b60]/30 to-[#ec4899]/30 border border-white/20 flex items-center justify-center relative overflow-hidden"
-                    >
-                      {/* Robot Face */}
-                      <div className="relative z-10">
-                        {/* Eyes - Static (səsləndirmə deaktiv) */}
-                        <div className="flex items-center justify-center gap-2 mb-1">
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        </div>
-                        {/* Mouth - Static (səsləndirmə deaktiv) */}
-                        <div className="mx-auto bg-white rounded-full" style={{ height: '2px', width: '8px', borderRadius: '2px' }} />
-                      </div>
-                      {/* Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/40 to-[#d81b60]/40 blur-xl"></div>
-                    </motion.div>
-                    {/* Speaking Indicator - DEACTIVATED */}
-                    {false && isSpeaking && (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-lg"
-                      >
-                        <motion.div
-                          animate={{ scale: [1, 1.5, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                          className="w-full h-full bg-green-400 rounded-full"
-                        />
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* Text Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <span className="text-2xl flex-shrink-0" style={{ lineHeight: '1', display: 'inline-block' }}>{currentStepData.emoji}</span>
-                        <span>{currentStepData.title}</span>
-                      </h3>
-                      <button
-                        onClick={handleSkip}
-                        className="text-white/70 hover:text-white transition-colors p-1 flex-shrink-0"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-white/70 mb-1">
-                      Addım {currentStep + 1} / {steps.length}
-                    </p>
-                  </div>
-                </div>
-
-              {/* Progress Bar */}
-              <div className="mb-4">
-                <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.3 }}
-                    className="h-full bg-gradient-to-r from-[#ec4899] to-[#d81b60] rounded-full"
-                  />
-                </div>
-              </div>
-
-                {/* Speech Bubble - AI danışır */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="relative mb-6"
+                {/* Header - Mobil və Desktop üçün ayrı */}
+                <div 
+                  className="flex items-center justify-between border-b border-white/10"
+                  style={{
+                    marginBottom: isMobile ? '0.75rem' : '1rem',
+                    paddingBottom: isMobile ? '0.75rem' : '1rem',
+                  }}
                 >
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl rounded-tl-none p-4 border border-white/20 shadow-lg">
-                    <p className="text-white/95 leading-relaxed text-sm sm:text-base">
+                  {/* Left side - Avatar & Title */}
+                  <div 
+                    className="flex items-center flex-1 min-w-0"
+                    style={{ gap: isMobile ? '0.5rem' : '0.75rem' }}
+                  >
+                    {/* Robot Avatar - Mobil və Desktop üçün ayrı ölçülər */}
+                    <div className="flex-shrink-0">
+                      <div 
+                        className="rounded-lg bg-gradient-to-br from-purple-500/50 to-pink-500/50 border border-white/30 flex items-center justify-center shadow-md"
+                        style={{
+                          width: isMobile ? '2rem' : '3rem',
+                          height: isMobile ? '2rem' : '3rem',
+                        }}
+                      >
+                        <div className="flex flex-col items-center" style={{ gap: isMobile ? '0.125rem' : '0.25rem' }}>
+                          <div className="flex" style={{ gap: isMobile ? '0.125rem' : '0.25rem' }}>
+                            <div 
+                              className="bg-white rounded-full"
+                              style={{ width: isMobile ? '0.25rem' : '0.375rem', height: isMobile ? '0.25rem' : '0.375rem' }}
+                            />
+                            <div 
+                              className="bg-white rounded-full"
+                              style={{ width: isMobile ? '0.25rem' : '0.375rem', height: isMobile ? '0.25rem' : '0.375rem' }}
+                            />
+                          </div>
+                          <div 
+                            className="bg-white rounded-full"
+                            style={{ 
+                              width: isMobile ? '0.5rem' : '0.75rem', 
+                              height: isMobile ? '0.125rem' : '0.1875rem' 
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Title & Step */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center" style={{ gap: isMobile ? '0.375rem' : '0.5rem' }}>
+                        <span 
+                          className="flex-shrink-0"
+                          style={{ fontSize: isMobile ? '1rem' : '1.5rem' }}
+                        >
+                          {currentStepData.emoji}
+                        </span>
+                        <h3 
+                          className="font-bold text-white truncate"
+                          style={{ fontSize: isMobile ? '0.875rem' : '1.25rem' }}
+                        >
+                          {currentStepData.title}
+                        </h3>
+                      </div>
+                      <p 
+                        className="text-white/50"
+                        style={{ 
+                          fontSize: isMobile ? '0.625rem' : '0.75rem',
+                          marginTop: isMobile ? '0.125rem' : '0.25rem'
+                        }}
+                      >
+                        Addım {currentStep + 1} / {steps.length}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Close Button - Mobil və Desktop üçün ayrı */}
+                  <button
+                    onClick={handleSkip}
+                    className="text-white/50 hover:text-white transition-colors hover:bg-white/10 rounded-lg flex-shrink-0"
+                    style={{
+                      padding: isMobile ? '0.375rem' : '0.5rem',
+                    }}
+                    aria-label="Bağla"
+                  >
+                    <X style={{ width: isMobile ? '1rem' : '1.25rem', height: isMobile ? '1rem' : '1.25rem' }} />
+                  </button>
+                </div>
+
+                {/* Progress Bar - Mobil və Desktop üçün ayrı */}
+                <div style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
+                  <div 
+                    className="w-full bg-white/10 rounded-full overflow-hidden"
+                    style={{ height: isMobile ? '0.25rem' : '0.375rem' }}
+                  >
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.3 }}
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Content - Mobil və Desktop üçün ayrı */}
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}
+                >
+                  <div 
+                    className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10"
+                    style={{
+                      padding: isMobile ? '0.75rem' : '1rem',
+                    }}
+                  >
+                    <p 
+                      className="text-white/90 leading-relaxed"
+                      style={{ 
+                        fontSize: isMobile ? '0.75rem' : '0.9375rem',
+                        lineHeight: isMobile ? '1.5' : '1.6'
+                      }}
+                    >
                       {currentStepData.description}
                     </p>
-                    {/* Speech bubble tail */}
-                    <div className="absolute -left-2 top-0 w-0 h-0 border-t-[12px] border-t-transparent border-r-[12px] border-r-white/10"></div>
                   </div>
-                  
-                  {/* Typing indicator when speaking - DEACTIVATED */}
-                  {false && isSpeaking && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-1 mt-2 text-white/60 text-xs"
-                    >
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                      >
-                        ●
-                      </motion.span>
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-                      >
-                        ●
-                      </motion.span>
-                      <motion.span
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-                      >
-                        ●
-                      </motion.span>
-                      <span className="ml-2">AI danışır...</span>
-                    </motion.div>
-                  )}
                 </motion.div>
+              </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-between gap-3">
+              {/* Actions - Mobil və Desktop üçün ayrı */}
+              <div 
+                className="flex items-center justify-between border-t border-white/10"
+                style={{
+                  paddingTop: isMobile ? '0.75rem' : '1rem',
+                  gap: isMobile ? '0.5rem' : '0.75rem',
+                }}
+              >
                 <button
                   onClick={handlePrevious}
                   disabled={currentStep === 0}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${
+                  className={`flex items-center justify-center rounded-lg font-medium transition-all ${
                     currentStep === 0
-                      ? 'bg-white/10 text-white/30 cursor-not-allowed'
-                      : 'bg-white/20 text-white hover:bg-white/30'
+                      ? 'bg-white/5 text-white/20 cursor-not-allowed'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20 active:scale-95'
                   }`}
+                  style={{
+                    width: isMobile ? '2.25rem' : '2.75rem',
+                    height: isMobile ? '2.25rem' : '2.75rem',
+                  }}
+                  aria-label="Geri"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Geri</span>
+                  <ArrowLeft style={{ width: isMobile ? '1rem' : '1.25rem', height: isMobile ? '1rem' : '1.25rem' }} />
                 </button>
 
                 <button
                   onClick={handleSkip}
-                  className="px-4 py-2 text-white/70 hover:text-white transition-colors text-sm"
+                  className="flex-1 text-white/60 hover:text-white/80 transition-colors rounded-lg hover:bg-white/5"
+                  style={{
+                    padding: isMobile ? '0.5rem 0.75rem' : '0.625rem 1rem',
+                    fontSize: isMobile ? '0.75rem' : '0.875rem',
+                  }}
                 >
                   Keç
                 </button>
 
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#ec4899] to-[#d81b60] text-white rounded-xl font-medium transition shadow-lg"
+                  className="flex items-center bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl active:scale-95"
+                  style={{
+                    padding: isMobile ? '0.5rem 0.75rem' : '0.625rem 1.25rem',
+                    fontSize: isMobile ? '0.75rem' : '0.875rem',
+                    gap: isMobile ? '0.375rem' : '0.5rem',
+                  }}
                 >
                   <span>{currentStep === steps.length - 1 ? 'Bitir' : 'Növbəti'}</span>
-                  {currentStep < steps.length - 1 && <ArrowRight className="w-4 h-4" />}
+                  {currentStep < steps.length - 1 && (
+                    <ArrowRight style={{ width: isMobile ? '0.875rem' : '1rem', height: isMobile ? '0.875rem' : '1rem' }} />
+                  )}
                 </button>
               </div>
-            </div>
             </div>
 
             {/* Arrow Pointer - DEACTIVATED (bir yerə dayansın) */}

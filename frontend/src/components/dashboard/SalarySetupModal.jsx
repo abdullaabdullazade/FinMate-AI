@@ -27,11 +27,23 @@ const SalarySetupModal = ({ isOpen, onClose, onSalarySet }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!salary || parseFloat(salary) <= 0) {
+    const salaryValue = parseFloat(salary)
+    
+    if (!salary || isNaN(salaryValue) || salaryValue <= 0) {
       toast.error('Zəhmət olmasa düzgün maaş məbləği daxil edin', {
         position: 'top-right',
         autoClose: 5000,
       })
+      return
+    }
+    
+    // Minimum 50 AZN validasiyası
+    if (salaryValue < 50) {
+      toast.error('Minimum büdcə 50 AZN-dir. Zəhmət olmasa yenidən yazın.', {
+        position: 'top-right',
+        autoClose: 5000,
+      })
+      setSalary('') // Input-u təmizlə
       return
     }
 
@@ -175,7 +187,7 @@ const SalarySetupModal = ({ isOpen, onClose, onSalarySet }) => {
                   value={salary}
                   onChange={(e) => setSalary(e.target.value)}
                   required
-                  min="1"
+                  min="50"
                   step="0.01"
                   placeholder="Məs: 1000"
                   className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-4 text-center text-2xl font-bold text-white focus:outline-none focus:border-[#ec4899]/50 transition-colors placeholder-white/20"
@@ -186,7 +198,7 @@ const SalarySetupModal = ({ isOpen, onClose, onSalarySet }) => {
                 </span>
               </div>
               <p className="text-white/50 text-xs text-center mt-2">
-                Bu məlumat yalnız büdcə hesablamaları üçün istifadə olunur
+                Minimum büdcə: 50 AZN • Bu məlumat yalnız büdcə hesablamaları üçün istifadə olunur
               </p>
             </div>
 

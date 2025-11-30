@@ -163,20 +163,17 @@ const Dashboard = () => {
     }
   }, [loading, user])
 
-  // Show onboarding tour - yalnız bir dəfə, hesabdan çıxıb girəndə yenidən göstər
+  // Show onboarding tour - sayt açılan kimi avtomatik göstər
   useEffect(() => {
-    if (!loading && dashboardData && user && user.monthly_income) {
+    if (!loading && dashboardData && user) {
       // İstifadəçi adı ilə onboarding completed key yarat
       const onboardingKey = `onboarding_completed_${user.username}`
       const onboardingCompleted = localStorage.getItem(onboardingKey)
       
-      // Əgər onboarding tamamlanmayıbsa, göstər
+      // Əgər onboarding tamamlanmayıbsa, dərhal göstər (delay yoxdur)
       if (!onboardingCompleted) {
-        // Notification-lar göstərildikdən sonra onboarding tour göstər
-        // Delay to let notifications show first
-        setTimeout(() => {
-          setOnboardingOpen(true)
-        }, 3000) // 3 saniyə gözlə ki, notification-lar görünsün
+        // Sayt açılan kimi avtomatik göstər
+        setOnboardingOpen(true)
       }
     }
   }, [loading, dashboardData, user])
