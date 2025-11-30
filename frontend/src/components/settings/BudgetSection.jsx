@@ -12,16 +12,19 @@ const BudgetSection = ({
   onBudgetChange, 
   onDailyLimitChange 
 }) => {
-  const [budgetValue, setBudgetValue] = useState(monthlyBudget ?? 0)
+  const [budgetValue, setBudgetValue] = useState(monthlyBudget ?? 50)
   const [dailyLimit, setDailyLimit] = useState(dailyBudgetLimit || '')
-  const [sliderMax, setSliderMax] = useState(Math.max(100000, monthlyBudget || 0))
+  const [sliderMax, setSliderMax] = useState(Math.max(100000, monthlyBudget || 50))
   const sliderRef = useRef(null)
   const progressRef = useRef(null)
   const thumbRef = useRef(null)
 
   useEffect(() => {
-    setBudgetValue(monthlyBudget ?? 0)
-    setSliderMax(Math.max(100000, monthlyBudget || 0))
+    // Minimum 50 AZN
+    const budget = monthlyBudget ?? 50
+    const validBudget = budget < 50 ? 50 : budget
+    setBudgetValue(validBudget)
+    setSliderMax(Math.max(100000, validBudget))
   }, [monthlyBudget])
 
   useEffect(() => {
@@ -56,7 +59,11 @@ const BudgetSection = ({
         onBudgetChange(numVal)
       }
     } else {
-      updateProgress(0)
+      // Boş olduqda minimum 50-yə set et
+      const minValue = 50
+      setBudgetValue(minValue)
+      updateProgress(minValue)
+      onBudgetChange(minValue)
     }
   }
 
@@ -66,12 +73,12 @@ const BudgetSection = ({
   const handleInputBlur = (e) => {
     let numVal = parseFloat(e.target.value) || 0
     
-    // Minimum 0 ola bilər - istifadəçi qabaqcadan seçməlidir
-    if (isNaN(numVal) || numVal < 0) {
-      numVal = 0
-      setBudgetValue(0)
-      updateProgress(0)
-      onBudgetChange(0)
+    // Minimum 50 AZN olmalıdır
+    if (isNaN(numVal) || numVal < 50) {
+      numVal = 50
+      setBudgetValue(50)
+      updateProgress(50)
+      onBudgetChange(50)
     } else {
       setBudgetValue(numVal)
       updateProgress(numVal)
@@ -171,9 +178,9 @@ const BudgetSection = ({
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 step="0.01"
-                min="0"
+                min="50"
                 className="budget-input"
-                placeholder="0"
+                placeholder="50"
                 required
               />
               <span className="budget-currency">AZN</span>
@@ -186,7 +193,7 @@ const BudgetSection = ({
               ref={sliderRef}
               type="range"
               id="monthly-budget-slider"
-              min="0"
+              min="50"
               max={sliderMax}
               step="50"
               value={budgetValue}
@@ -206,7 +213,7 @@ const BudgetSection = ({
           </div>
           
           <div className="budget-slider-labels">
-            <span>0 AZN</span>
+            <span>50 AZN</span>
             <span>{Math.round(sliderMax).toLocaleString()} AZN</span>
           </div>
         </div>

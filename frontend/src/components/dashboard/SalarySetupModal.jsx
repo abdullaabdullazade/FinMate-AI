@@ -160,14 +160,14 @@ const SalarySetupModal = ({ isOpen, onClose, onSalarySet }) => {
             Maliyyə hədəflərinə çatmaq üçün ilk addımı atın
           </p>
           <p className="text-white/60 text-center text-xs mb-6">
-            İlk dəfə giriş edirsiniz - maaşınızı təyin edin
+            İlk dəfə giriş edirsiniz - büdcənizi təyin edin
           </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-white/80 text-sm font-medium mb-3 text-center">
-                Aylıq maaşınız nə qədərdir?
+                Aylıq büdcəniz nə qədərdir?
               </label>
               <div className="relative">
                 <input

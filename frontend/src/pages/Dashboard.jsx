@@ -4,7 +4,7 @@
  * Deep Purple Glassmorphism dizaynı
  */
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { dashboardAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from '../utils/toast'
@@ -53,8 +53,9 @@ const Dashboard = () => {
 
   /**
    * Dashboard məlumatlarını yüklə
+   * useCallback ilə wrap edirik ki, filter dəyişdikdə dinamik işləsin
    */
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -108,7 +109,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filterType, dateFilter, monthFilter, yearFilter, startDateFilter, endDateFilter])
 
   // Debounce year filter - yalnız tam 4 rəqəmli il olduqda refresh et
   // Yalnız tam 4 rəqəmli il olduqda və ya boş olduqda refresh et
@@ -127,9 +128,16 @@ const Dashboard = () => {
     // Yarımçıq yazılıbsa (1-3 rəqəm), refresh etmə - yalnız input dəyərini saxla
   }, [yearFilterInput])
 
+  // Yalnız filter "none" olduqda refresh et - filter dəyəri seçildikdə refresh etmə
+  // Filter dəyəri seçildikdə refresh etmə - yalnız "Tətbiq et" düyməsinə basdıqda refresh edəcək
   useEffect(() => {
-    fetchDashboardData()
-  }, [filterType, dateFilter, monthFilter, yearFilter, startDateFilter, endDateFilter]) // Re-fetch when any filter changes
+    // Yalnız filter "none" olduqda refresh et (filter silindikdə)
+    if (filterType === 'none') {
+      fetchDashboardData()
+    }
+    // Filter type dəyişdikdə amma "none" deyilsə, refresh etmə
+    // Filter dəyəri seçildikdə refresh etmə - yalnız "Tətbiq et" düyməsinə basdıqda refresh edəcək
+  }, [filterType, fetchDashboardData]) // Yalnız filterType dəyişdikdə refresh et (yalnız "none" olduqda)
 
   // Check if user needs to set salary (first time login) - yalnız bir dəfə
   useEffect(() => {
@@ -166,20 +174,38 @@ const Dashboard = () => {
   }, [loading, dashboardData, user])
 
   useEffect(() => {
-    // Event listeners for refresh
+    // Event listeners - yalnız filter aktiv deyilsə refresh et
+    // Filter aktiv olduqda refresh etmə - dinamik işləsin
     const handleExpenseUpdate = () => {
-      console.log('🔄 Expense updated, refreshing dashboard...')
-      fetchDashboardData()
+      console.log('🔄 Expense updated')
+      // Yalnız filter aktiv deyilsə refresh et
+      // Filter aktiv olduqda refresh etmə - istifadəçi filter-i dəyişdikdə refresh edəcək
+      if (filterType === 'none') {
+        fetchDashboardData()
+      } else {
+        // Filter aktivdir - refresh etmə, yalnız filter dəyişdikdə refresh edəcək
+        console.log('⏸️ Filter aktivdir, refresh edilmir. Filter dəyişdikdə avtomatik refresh ediləcək.')
+      }
     }
 
     const handleIncomeUpdate = () => {
-      console.log('💰 Income updated, refreshing dashboard...')
-      fetchDashboardData()
+      console.log('💰 Income updated')
+      // Yalnız filter aktiv deyilsə refresh et
+      if (filterType === 'none') {
+        fetchDashboardData()
+      } else {
+        console.log('⏸️ Filter aktivdir, refresh edilmir. Filter dəyişdikdə avtomatik refresh ediləcək.')
+      }
     }
 
     const handleScanComplete = () => {
-      console.log('📸 Scan completed, refreshing dashboard...')
-      fetchDashboardData()
+      console.log('📸 Scan completed')
+      // Yalnız filter aktiv deyilsə refresh et
+      if (filterType === 'none') {
+        fetchDashboardData()
+      } else {
+        console.log('⏸️ Filter aktivdir, refresh edilmir. Filter dəyişdikdə avtomatik refresh ediləcək.')
+      }
     }
 
     // Onboarding tour bitdikdən sonra notification-ları göstər
@@ -202,7 +228,7 @@ const Dashboard = () => {
       window.removeEventListener('expensesUpdated', handleExpenseUpdate)
       window.removeEventListener('onboardingCompleted', handleOnboardingCompleted)
     }
-  }, [])
+  }, [filterType, fetchDashboardData]) // filterType dəyişdikdə event listener-ları yenilə
 
   // Incognito mode toggle
   const toggleIncognito = () => {
@@ -407,6 +433,7 @@ const Dashboard = () => {
           setEndDateFilter={setEndDateFilter}
           dashboardData={dashboardData}
           currency={currency}
+          onApplyFilter={fetchDashboardData}
         />
       )}
 

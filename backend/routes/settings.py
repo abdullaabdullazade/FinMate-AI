@@ -139,9 +139,9 @@ async def update_settings(request: Request, db: Session = Depends(get_db)):
                 )
                 budget_val = float(budget_str)
 
-                if budget_val < 100:
+                if budget_val < 50:
                     return JSONResponse(
-                        {"success": False, "error": "Büdcə minimum 100 AZN olmalıdır"},
+                        {"success": False, "error": "Büdcə minimum 50 AZN olmalıdır"},
                         status_code=400,
                     )
 
@@ -297,9 +297,9 @@ async def set_budget(
 
     try:
         # Validate amount
-        if monthly_budget < 100:
+        if monthly_budget < 50:
             return JSONResponse(
-                {"success": False, "error": "Büdcə minimum 100 AZN olmalıdır"},
+                {"success": False, "error": "Büdcə minimum 50 AZN olmalıdır"},
                 status_code=400,
             )
 

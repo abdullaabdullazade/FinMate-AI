@@ -23,7 +23,8 @@ const DateFilter = ({
   endDateFilter,
   setEndDateFilter,
   dashboardData,
-  currency
+  currency,
+  onApplyFilter
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -307,6 +308,30 @@ const DateFilter = ({
                   />
                 </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Apply Filter Button - Yalnız filter aktiv olduqda və dəyər seçildikdə göstər */}
+        <AnimatePresence>
+          {hasActiveFilter && filterType !== 'none' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-4"
+            >
+              <button
+                onClick={() => {
+                  if (onApplyFilter) {
+                    onApplyFilter()
+                  }
+                }}
+                className={`w-full py-3 px-4 rounded-xl bg-gradient-to-r ${currentFilter?.color || 'from-gray-500 to-gray-600'} text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98]`}
+                type="button"
+              >
+                🔍 Filteri tətbiq et
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
