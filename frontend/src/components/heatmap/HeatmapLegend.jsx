@@ -1,9 +1,7 @@
 /**
  * Heatmap Legend Component
- * HTML/CSS-dən bir-bir köçürülmüş versiya
  */
 
-import React from 'react'
 
 const HeatmapLegend = ({ totalMerchants }) => {
   return (

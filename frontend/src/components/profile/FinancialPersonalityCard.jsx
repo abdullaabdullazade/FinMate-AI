@@ -1,6 +1,5 @@
 /**
  * Financial Personality Card Component
- * profile.html-dəki personality-card strukturunu təkrarlayır
  */
 
 import React from 'react'

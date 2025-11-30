@@ -1,6 +1,5 @@
 /**
  * Chat Message Component
- * Single message bubble - chat.html-dəki struktur
  */
 
 import React, { useMemo, useState } from 'react'

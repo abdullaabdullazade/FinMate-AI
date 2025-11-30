@@ -1,6 +1,6 @@
 /**
  * Category Breakdown Component
- * HTML-dən köçürülmüş - Kateqoriyalar üzrə xərc kartı
+ *  Kateqoriyalar üzrə xərc kartı
  * "Daha çox göstər" funksiyası ilə
  */
 

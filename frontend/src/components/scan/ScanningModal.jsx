@@ -1,6 +1,5 @@
 /**
  * Scanning Modal Component
- * Loading state for receipt scanning - scan.html-dəki kimi
  * Mobile responsive və səliqəli
  */
 

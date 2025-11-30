@@ -1,7 +1,6 @@
 /**
  * Login Page Component
- * login.html-dən TAM KOPYALANMIŞ - bir-bir eyni
- */
+ğ */
 
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'

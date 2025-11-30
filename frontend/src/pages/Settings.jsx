@@ -1,7 +1,6 @@
 /**
  * Settings Page Component
  * Tam funksionallıqla settings səhifəsi
- * HTML/CSS/JS-dən React-ə köçürülmüş versiya
  */
 
 import React, { useState, useEffect } from 'react'
@@ -50,6 +49,24 @@ const Settings = () => {
 
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // Scroll performansı üçün - scroll zamanı animasiyaları dayandır
+  useEffect(() => {
+    let scrollTimeout
+    const handleScroll = () => {
+      document.body.classList.add('scrolling')
+      clearTimeout(scrollTimeout)
+      scrollTimeout = setTimeout(() => {
+        document.body.classList.remove('scrolling')
+      }, 150)
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollTimeout)
+    }
+  }, [])
 
   // Load settings on mount
   useEffect(() => {
@@ -228,7 +245,11 @@ const Settings = () => {
   }
 
   return (
-    <div className="px-2 sm:px-4 pb-24 sm:pb-32">
+    <div className="px-2 sm:px-4 pb-24 sm:pb-32" style={{ 
+      willChange: 'scroll-position',
+      WebkitOverflowScrolling: 'touch',
+      transform: 'translateZ(0)' // GPU acceleration
+    }}>
       {/* Header - Dashboard kimi */}
       <div className="glass-card p-4 sm:p-6 mb-6 slide-up">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

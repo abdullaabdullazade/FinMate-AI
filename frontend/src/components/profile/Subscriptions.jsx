@@ -1,6 +1,5 @@
 /**
  * Subscriptions Component
- * profile.html-dəki subscriptions strukturunu təkrarlayır
  */
 
 import React from 'react'

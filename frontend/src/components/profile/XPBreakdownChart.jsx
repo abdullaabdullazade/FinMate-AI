@@ -1,6 +1,5 @@
 /**
  * XP Breakdown Chart Component
- * profile.js-dəki Chart.js doughnut chart-ı təkrarlayır
  */
 
 import React, { useEffect, useRef } from 'react'

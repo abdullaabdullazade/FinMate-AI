@@ -1,7 +1,6 @@
 /**
  * 404 Not Found Page Component
- * templates/404.html-dən bir-bir köçürülmüş
- * CSS və animasiyalar daxildir
+ğ * CSS və animasiyalar daxildir
  */
 
 import React, { useEffect } from 'react'

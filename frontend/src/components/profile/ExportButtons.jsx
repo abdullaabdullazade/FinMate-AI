@@ -1,6 +1,5 @@
 /**
  * Export Buttons Component
- * profile.html-dəki export buttons strukturunu təkrarlayır
  */
 
 import React from 'react'

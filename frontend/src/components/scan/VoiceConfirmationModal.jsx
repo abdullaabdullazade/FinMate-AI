@@ -1,6 +1,5 @@
 /**
  * Voice Confirmation Modal Component
- * HTML template-dən köçürülmüş - theme-ə uyğun
  */
 
 import React, { useState, useEffect } from 'react'

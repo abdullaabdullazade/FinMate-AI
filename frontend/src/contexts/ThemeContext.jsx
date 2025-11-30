@@ -1,14 +1,13 @@
 /**
  * Theme Context
- * theme.js-dən köçürülmüşdür
  * Dark/Light theme və Premium theme idarəsi
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 
 const ThemeContext = createContext(null)
 
-export const useTheme = () => {
+export function useTheme() {
   const context = useContext(ThemeContext)
   if (!context) {
     throw new Error('useTheme must be used within ThemeProvider')
@@ -16,7 +15,7 @@ export const useTheme = () => {
   return context
 }
 
-export const ThemeProvider = ({ children }) => {
+export function ThemeProvider({ children }) {
   // Apply theme before render to prevent flash
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -105,13 +104,13 @@ export const ThemeProvider = ({ children }) => {
     return () => clearTimeout(timer)
   }, [premiumTheme, theme])
 
-  const value = {
+  const value = useMemo(() => ({
     theme,
     premiumTheme,
     toggleTheme,
     applyPremiumTheme,
     isDark: theme === 'dark',
-  }
+  }), [theme, premiumTheme])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

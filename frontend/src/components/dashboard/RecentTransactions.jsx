@@ -1,6 +1,6 @@
 /**
  * Recent Transactions Component
- * HTML-dən köçürülmüş - Son əməliyyatlar kartı
+ *  Son əməliyyatlar kartı
  */
 
 import React, { useState, createContext } from 'react'

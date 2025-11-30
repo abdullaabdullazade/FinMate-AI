@@ -1,6 +1,5 @@
 /**
  * Recent XP History Component
- * profile.html-dəki recent XP history strukturunu təkrarlayır
  */
 
 import React from 'react'

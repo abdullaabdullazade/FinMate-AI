@@ -1,6 +1,5 @@
 /**
  * Rewards Page Component
- * rewards.html-ə bir-bir uyğun
  * Gamification rewards və achievements - Professional dizayn ilə
  */
 

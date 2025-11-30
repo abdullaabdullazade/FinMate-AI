@@ -1,6 +1,6 @@
 /**
  * Local Gems Component
- * HTML-dən köçürülmüş - Ucuz Alternativlər kartı
+ *  Ucuz Alternativlər kartı
  */
 
 import React from 'react'

@@ -1,6 +1,5 @@
 /**
  * Transaction Row Component
- * transaction_row.html-dən köçürülmüşdür
  * framer-motion ilə animasiya
  */
 
@@ -160,10 +159,11 @@ const TransactionRow = ({ expense, onEdit, onDelete, currency = '₼' }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  onDelete(expense.id)
+                  onDelete(expense) // Bütün expense obyektini ötür
                 }}
-                className="text-red-400 p-1.5 sm:p-2 rounded-lg flex-shrink-0"
+                className="text-red-400 hover:text-red-300 p-1.5 sm:p-2 rounded-lg flex-shrink-0 transition-colors"
                 title="Sil"
+                type="button"
               >
                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>

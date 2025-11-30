@@ -1,6 +1,5 @@
 /**
  * Scan Result Component
- * Displays scanned receipt results - receipt_result.html-dəki struktur
  * Mobile responsive və səliqəli
  */
 

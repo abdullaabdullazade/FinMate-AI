@@ -1,12 +1,9 @@
 /**
- * Budget Overview Component
  * HTML-dən köçürülmüş - Büdcə icmalı kartı
  */
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { Eye, Volume2 } from 'lucide-react'
-import StatCard from './StatCard'
 
 const BudgetOverview = ({
   greeting,

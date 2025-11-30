@@ -1,6 +1,5 @@
 /**
  * Typing Indicator Component
- * Shows typing animation - chat.js-dəki kimi
  */
 
 import React from 'react'

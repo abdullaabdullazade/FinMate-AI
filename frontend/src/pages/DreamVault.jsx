@@ -1,7 +1,6 @@
 /**
  * Dream Vault Page Component
  * Tam funksionallıqla Dream Vault səhifəsi
- * HTML/CSS/JS-dən React-ə köçürülmüş versiya
  */
 
 import React, { useState, useEffect } from 'react'

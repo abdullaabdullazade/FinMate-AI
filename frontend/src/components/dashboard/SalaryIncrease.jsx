@@ -1,6 +1,6 @@
 /**
  * Salary Increase Celebration Component
- * HTML-dən köçürülmüş - Maaş artımı təbrik kartı
+ *  Maaş artımı təbrik kartı
  */
 
 import React from 'react'

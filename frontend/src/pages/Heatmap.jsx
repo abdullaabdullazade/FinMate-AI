@@ -1,6 +1,5 @@
 /**
  * Heatmap Page Component
- * HTML/CSS/JS-dən bir-bir köçürülmüş versiya
  */
 
 import React, { useState, useEffect } from 'react'

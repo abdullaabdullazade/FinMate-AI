@@ -1,6 +1,6 @@
 /**
  * Daily Limit Alert Component
- * HTML-dən köçürülmüş - Gündəlik limit xəbərdarlığı
+ *  Gündəlik limit xəbərdarlığı
  */
 
 import React from 'react'

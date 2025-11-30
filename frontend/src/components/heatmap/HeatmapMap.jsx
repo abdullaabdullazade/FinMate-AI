@@ -1,9 +1,9 @@
 /**
  * Heatmap Map Component
- * HTML/CSS/JS-dən bir-bir köçürülmüş versiya - Leaflet istifadə edir
+ * 
  */
 
-import React, { useEffect, useRef } from 'react'
+import  { useEffect, useRef } from 'react'
 import '../../styles/components/heatmap/heatmap.css'
 
 const HeatmapMap = ({ points }) => {

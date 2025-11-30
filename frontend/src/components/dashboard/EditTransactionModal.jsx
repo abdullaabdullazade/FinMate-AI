@@ -1,5 +1,5 @@
 /**
- * Edit Transaction Modal Component
+ * Edit Transaction Mo
  * HTML-dən köçürülmüş - Əməliyyat düzəliş modalı
  */
 

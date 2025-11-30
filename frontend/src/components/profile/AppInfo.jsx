@@ -1,6 +1,5 @@
 /**
  * App Info Component
- * profile.html-dəki app info strukturunu təkrarlayır
  */
 
 import React from 'react'

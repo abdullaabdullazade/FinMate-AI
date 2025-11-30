@@ -1,6 +1,5 @@
 /**
  * Settings Header Component
- * settings.html-dən - Header və Geri button
  */
 
 import React from 'react'

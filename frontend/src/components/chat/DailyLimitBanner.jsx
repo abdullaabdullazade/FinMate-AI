@@ -1,6 +1,5 @@
 /**
  * Daily Limit Banner Component
- * Super gözəl və kreativ limit banner-ı - TELEFON ÜÇÜN TAM UYĞUN
  */
 
 import React from 'react'

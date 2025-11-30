@@ -1,6 +1,5 @@
 /**
  * Scan Error Component
- * Displays error messages - receipt_result.html-dəki struktur
  * Mobile responsive
  */
 

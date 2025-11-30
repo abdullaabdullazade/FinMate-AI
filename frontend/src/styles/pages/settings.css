@@ -8,6 +8,11 @@
   max-width: 48rem;
   margin: 0 auto;
   padding: 1rem 0.5rem;
+  /* Scroll performansı üçün optimallaşdırma */
+  will-change: scroll-position;
+  contain: layout style paint;
+  transform: translateZ(0); /* GPU acceleration */
+  -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
 }
 
 @media (min-width: 640px) {
@@ -130,6 +135,9 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  /* Scroll performansı üçün optimallaşdırma */
+  will-change: auto;
+  contain: layout;
 }
 
 /* LIQUID SUBMIT BUTTON - Maye Təsdiq Düyməsi */
@@ -148,7 +156,7 @@
     0 0 0 1px rgba(255, 255, 255, 0.15) inset,
     0 2px 12px rgba(0, 0, 0, 0.06) inset,
     0 0 40px var(--glass-glow);
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   border: 1.5px solid var(--glass-border);
   cursor: pointer;
   display: flex;
@@ -158,9 +166,12 @@
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
+  /* Scroll performansı üçün optimallaşdırma */
+  will-change: transform;
+  contain: layout style paint;
 }
 
-/* Liquid Wave Effect */
+/* Liquid Wave Effect - Scroll zamanı deaktiv */
 .settings-submit-button::before {
   content: '';
   position: absolute;
@@ -176,6 +187,14 @@
   animation: liquid-button-wave 6s ease-in-out infinite;
   pointer-events: none;
   border-radius: 50%;
+  /* Scroll performansı üçün - scroll zamanı animasiya dayandır */
+  animation-play-state: running;
+}
+
+/* Scroll zamanı animasiyaları dayandır */
+body.scrolling .settings-submit-button::before,
+body.scrolling .settings-submit-button::after {
+  animation-play-state: paused;
 }
 
 .settings-submit-button::after {

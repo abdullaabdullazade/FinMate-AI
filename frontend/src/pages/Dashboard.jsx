@@ -24,6 +24,7 @@ import LocalGems from '../components/dashboard/LocalGems'
 import RecentTransactions from '../components/dashboard/RecentTransactions'
 import FinancialPet from '../components/dashboard/FinancialPet'
 import EditTransactionModal from '../components/dashboard/EditTransactionModal'
+import DeleteTransactionModal from '../components/dashboard/DeleteTransactionModal'
 import IncomeModal from '../components/dashboard/IncomeModal'
 import OnboardingTour from '../components/dashboard/OnboardingTour'
 import SalarySetupModal from '../components/dashboard/SalarySetupModal'
@@ -36,6 +37,8 @@ const Dashboard = () => {
   const [incognitoMode, setIncognitoMode] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deletingExpense, setDeletingExpense] = useState(null)
   const [incomeModalOpen, setIncomeModalOpen] = useState(false)
   const [filterType, setFilterType] = useState('none') // 'none', 'day', 'month', 'year', 'range'
   const [dateFilter, setDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for day
@@ -305,30 +308,42 @@ const Dashboard = () => {
     await fetchDashboardData()
   }
 
-  // Handle delete transaction
-  const handleDelete = async (expenseId) => {
-    if (window.confirm('Bu əməliyyatı silmək istədiyinizə əminsiniz?')) {
-      try {
-        const response = await fetch(`/api/expenses/${expenseId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
+  // Handle delete transaction - modal aç
+  const handleDelete = (expense) => {
+    // Expense obyekti gəlir (TransactionRow-dan)
+    // Income-lar silinə bilməz
+    if (expense && expense.type !== 'income') {
+      setDeletingExpense(expense)
+      setDeleteModalOpen(true)
+    } else if (expense && expense.type === 'income') {
+      toast.error('Gəlir əməliyyatları silinə bilməz', { autoClose: 5000 })
+    }
+  }
 
-        if (response.ok) {
-          toast.success('Əməliyyat silindi', { autoClose: 5000 })
-          // Refresh data
-          await fetchDashboardData()
-        } else {
-          toast.error('Xəta baş verdi', { autoClose: 5000 })
+  // Delete transaction confirm
+  const handleDeleteConfirm = async (expenseId) => {
+    try {
+      const response = await fetch(`/api/expenses/${expenseId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         }
-      } catch (err) {
-        console.error('Delete error:', err)
-        toast.error('Xəta baş verdi', { autoClose: 5000 })
+      })
+
+      if (response.ok) {
+        // Refresh data
+        await fetchDashboardData()
+        // Dispatch event for other components
+        window.dispatchEvent(new CustomEvent('expenseUpdated'))
+      } else {
+        const errorText = await response.text()
+        throw new Error(errorText || 'Xəta baş verdi')
       }
+    } catch (err) {
+      console.error('Delete error:', err)
+      throw err
     }
   }
 
@@ -526,6 +541,18 @@ const Dashboard = () => {
         }}
         expense={editingExpense}
         onSave={handleEditSave}
+        currency={currency}
+      />
+
+      {/* Delete Transaction Modal */}
+      <DeleteTransactionModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false)
+          setDeletingExpense(null)
+        }}
+        transaction={deletingExpense}
+        onConfirm={handleDeleteConfirm}
         currency={currency}
       />
 

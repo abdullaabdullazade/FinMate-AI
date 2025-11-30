@@ -1,7 +1,5 @@
 /**
  * Profile Page Component
- * profile.html, profile.css və profile.js-ə bir-bir uyğun
- * Bütün komponentlər kiçik fayllara bölünüb - spaghetti kod yoxdur
  */
 
 import React, { useState, useEffect } from 'react'

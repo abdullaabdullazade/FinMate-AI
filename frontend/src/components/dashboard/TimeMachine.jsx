@@ -4,7 +4,7 @@
  * framer-motion ilə animasiya
  */
 
-import React, { useState, useEffect } from 'react'
+import  { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import '../../styles/components/dashboard/time-machine.css'

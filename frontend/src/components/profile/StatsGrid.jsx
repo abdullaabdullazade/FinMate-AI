@@ -1,6 +1,5 @@
 /**
  * Stats Grid Component
- * profile.html-dəki stats grid strukturunu təkrarlayır
  */
 
 import React from 'react'

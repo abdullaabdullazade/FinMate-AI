@@ -1,6 +1,5 @@
 /**
  * Level Card Component
- * profile.html-dəki level-card strukturunu təkrarlayır
  */
 
 import React, { useEffect, useRef } from 'react'

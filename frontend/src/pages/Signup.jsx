@@ -1,6 +1,5 @@
 /**
  * Signup Page Component
- * signup.html-dən TAM KOPYALANMIŞ - bir-bir eyni
  */
 
 import React, { useState, useEffect } from 'react'

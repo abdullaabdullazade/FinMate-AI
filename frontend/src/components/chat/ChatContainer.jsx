@@ -1,6 +1,5 @@
 /**
  * Chat Container Component
- * Messages container - chat.html-dəki struktur
  * Resizeable chat area
  */
 

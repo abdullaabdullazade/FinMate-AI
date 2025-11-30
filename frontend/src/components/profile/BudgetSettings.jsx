@@ -1,6 +1,5 @@
 /**
  * Budget Settings Component
- * profile.html-dəki budget settings strukturunu təkrarlayır
  */
 
 import React from 'react'

@@ -1,6 +1,5 @@
 /**
  * Chat Hook
- * Chat məntiqini idarə edir - chat.js-dəki funksiyalar
  */
 
 import { useState, useEffect, useRef } from 'react'

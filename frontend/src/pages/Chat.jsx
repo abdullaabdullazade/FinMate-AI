@@ -1,6 +1,5 @@
 /**
  * Chat Page Component
- * chat.html, chat.css və chat.js-ə bir-bir uyğun
  * Səliqəli strukturlaşdırılmış
  */
 
