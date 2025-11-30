@@ -61,7 +61,7 @@ const ToastContainer = ({ toasts, removeToast }) => {
   )
 }
 
-const ToastItem = ({ toast, onClose }) => {
+const ToastItem = React.forwardRef(({ toast, onClose }, ref) => {
   const progressRef = useRef(null)
   const [progress, setProgress] = useState(100)
   const timerRef = useRef(null)
@@ -130,6 +130,7 @@ const ToastItem = ({ toast, onClose }) => {
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, x: 400, scale: 0.8 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 400, scale: 0.8 }}
@@ -166,7 +167,7 @@ const ToastItem = ({ toast, onClose }) => {
       </div>
     </motion.div>
   )
-}
+})
 
 // Global function for backward compatibility
 if (typeof window !== 'undefined') {

@@ -213,11 +213,11 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             onClick={handleSkip}
           />
 
-          {/* Tour Card - Mobil və Desktop üçün ayrı dizayn */}
+          {/* Tour Card - Mobil və Desktop üçün tam mərkəzləşdirilmiş dizayn */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            initial={{ opacity: 0, scale: 0.96, x: '-50%', y: '-50%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.96, x: '-50%', y: '-50%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
             className="fixed z-[9999]"
             style={{
@@ -225,11 +225,11 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
               left: '50%',
               right: 'auto',
               bottom: 'auto',
-              transform: 'translate(-50%, -50%)',
               width: isMobile ? '92%' : '520px',
               maxWidth: isMobile ? '92%' : '520px',
               maxHeight: isMobile ? '85vh' : '600px',
               margin: '0',
+              position: 'fixed',
             }}
             onClick={(e) => e.stopPropagation()}
           >
