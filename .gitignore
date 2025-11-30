@@ -49,3 +49,45 @@ backend/static/uploads/
 *.temp
 *.backup
 
+# Köhnə root faylları - yalnız backend/ və frontend/ qalır
+# Köhnə Python faylları
+main.py
+main2.py
+main_clean.py
+main_new.py
+main_old.py
+main.py.backup
+a.py
+ai_service.py
+config.py
+database.py
+forecast_service.py
+gamification.py
+local_gems.py
+models.py
+pdf_generator.py
+voice_service.py
+proxies.txt
+run.txt
+test_income.py
+repro_budget.py
+repro_budget_v2.py
+requirements.txt
+
+# Köhnə folderlər
+routes/
+templates/
+static/
+utils/
+__pycache__/
+
+# Köhnə dokumentasiya (README.md istisna olmaqla)
+BACKEND_INTEGRATION.md
+COLOR_SYSTEM.md
+REACT_MIGRATION.md
+REFACTORING_SUMMARY.md
+
+# Köhnə fayllar
+service-worker.js
+server.log
+
