@@ -16,3 +16,5 @@ matplotlib
 pydub
 python-dateutil
 itsdangerous
+websockets
+openpyxl
