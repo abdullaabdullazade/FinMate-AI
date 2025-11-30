@@ -132,12 +132,12 @@ const UserStats = ({ user: userProp }) => {
   return (
     <div className={`${alwaysShow ? 'flex' : 'flex'} items-center gap-0.5 sm:gap-1`} id="user-stats-container">
       {/* XP Badge - user_stats.html sətir 6-11 - Mobile compact */}
-      <div className="flex items-center gap-0.5 sm:gap-1 glass-card px-1 sm:px-1.5 py-0.5 rounded-full">
+      <div className="flex items-center gap-0.5 sm:gap-1 glass-card px-1 sm:px-1.5 py-0.5 rounded-full no-hover-effect">
         <span className="text-xs sm:text-sm leading-none">{getLevelEmoji(levelTitle)}</span>
         <span className="text-[9px] sm:text-[10px] font-bold text-white/80 leading-none">{xpPoints}</span>
       </div>
       {/* Coin Badge - user_stats.html sətir 12-16 - Mobile compact */}
-      <div className="flex items-center gap-0.5 sm:gap-1 glass-card px-1 sm:px-1.5 py-0.5 rounded-full">
+      <div className="flex items-center gap-0.5 sm:gap-1 glass-card px-1 sm:px-1.5 py-0.5 rounded-full no-hover-effect">
         <span className="text-xs sm:text-sm leading-none">🪙</span>
         <span className="text-[9px] sm:text-[10px] font-bold text-yellow-400 leading-none">{coins}</span>
       </div>

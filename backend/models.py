@@ -13,7 +13,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=True)  # Hashed password (nullable for demo user)
     monthly_income = Column(Float, nullable=True)  # Monthly salary/income
-    monthly_budget = Column(Float, default=1000.0)
+    monthly_budget = Column(Float, default=0.0)
     
     # Gamification fields
     xp_points = Column(Integer, default=0)

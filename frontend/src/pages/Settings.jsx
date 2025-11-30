@@ -34,7 +34,7 @@ const Settings = () => {
   
   // Form state
   const [formData, setFormData] = useState({
-    monthly_budget: user?.monthly_budget || 1000,
+    monthly_budget: user?.monthly_budget ?? 0,
     daily_budget_limit: user?.daily_budget_limit || null,
     voice_enabled: user?.voice_enabled || false,
     voice_mode: false, // TTS mode - stored in localStorage
@@ -90,7 +90,7 @@ const Settings = () => {
           const voiceModeFromBackend = userData.voice_mode !== undefined ? userData.voice_mode : (localStorage.getItem('voice-mode') === 'enabled')
           
           setFormData({
-            monthly_budget: userData.monthly_budget || 1000,
+            monthly_budget: userData.monthly_budget ?? 0,
             daily_budget_limit: userData.daily_budget_limit || null,
             voice_enabled: userData.voice_enabled || false,
             voice_mode: voiceModeFromBackend,
@@ -142,7 +142,7 @@ const Settings = () => {
       // FormData yaradırıq (backend FormData gözləyir)
       const formDataToSend = new FormData()
       
-      formDataToSend.append('monthly_budget', String(formData.monthly_budget || 1000))
+      formDataToSend.append('monthly_budget', String(formData.monthly_budget ?? 0))
       
       if (formData.daily_budget_limit !== null && formData.daily_budget_limit !== '') {
         formDataToSend.append('daily_budget_limit', String(formData.daily_budget_limit))

@@ -85,3 +85,22 @@
         z-index: 10001 !important;
     }
 }
+
+/* Navbar stats üçün hover effektini deaktiv et - qəpiklər və analitika qalxıb-düşməsin */
+#user-stats-container .glass-card,
+#user-stats-container .glass-card:hover,
+.glass-card.no-hover-effect,
+.glass-card.no-hover-effect:hover {
+    transform: none !important;
+    box-shadow: inherit !important;
+    border-color: inherit !important;
+    border-radius: inherit !important;
+}
+
+#user-stats-container .glass-card:hover::before,
+#user-stats-container .glass-card:hover::after,
+.glass-card.no-hover-effect:hover::before,
+.glass-card.no-hover-effect:hover::after {
+    animation: none !important;
+    opacity: inherit !important;
+}

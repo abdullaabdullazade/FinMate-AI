@@ -111,7 +111,7 @@ async def signup(
     new_user = User(
         username=username,
         password_hash=password_hash,
-        monthly_budget=1000.0
+        monthly_budget=0.0
     )
     db.add(new_user)
     db.commit()
