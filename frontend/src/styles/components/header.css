@@ -92,9 +92,13 @@
 .glass-card.no-hover-effect,
 .glass-card.no-hover-effect:hover {
     transform: none !important;
-    box-shadow: inherit !important;
-    border-color: inherit !important;
-    border-radius: inherit !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 9999px !important; /* Oval şəklində */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 #user-stats-container .glass-card:hover::before,
