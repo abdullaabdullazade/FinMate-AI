@@ -48,9 +48,11 @@ export const useToast = () => {
 }
 
 const ToastContainer = ({ toasts, removeToast }) => {
+  if (toasts.length === 0) return null
+  
   return (
-    <div className="fixed top-20 sm:top-24 right-2 sm:right-4 z-[10000] flex flex-col gap-2 pointer-events-none max-w-sm w-full sm:w-auto">
-      <AnimatePresence>
+    <div className="fixed top-16 sm:top-20 right-2 sm:right-4 z-[10000] flex flex-col gap-2 pointer-events-none max-w-[calc(100vw-1rem)] sm:max-w-sm w-full sm:w-auto">
+      <AnimatePresence mode="popLayout">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
         ))}
@@ -132,7 +134,7 @@ const ToastItem = ({ toast, onClose }) => {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 400, scale: 0.8 }}
       transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-      className={`pointer-events-auto ${config.bg} backdrop-blur-xl border-2 rounded-2xl shadow-2xl overflow-hidden min-w-[280px] sm:min-w-[320px]`}
+      className={`pointer-events-auto ${config.bg} backdrop-blur-xl border-2 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden w-full sm:min-w-[280px] sm:max-w-[320px]`}
     >
       <div className="p-3 sm:p-4">
         <div className="flex items-start gap-3">

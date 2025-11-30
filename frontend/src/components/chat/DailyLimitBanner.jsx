@@ -53,7 +53,7 @@ const DailyLimitBanner = ({ dailyMessages, dailyLimit, isLimitReached, user }) =
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-      className={`fixed top-16 sm:top-20 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-full max-w-md mx-4 ${colors.bg} backdrop-blur-2xl rounded-2xl sm:rounded-3xl border-2 ${colors.border} shadow-2xl ${colors.glow} overflow-hidden`}
+      className={`fixed top-14 sm:top-20 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-1rem)] sm:w-full max-w-md mx-2 sm:mx-4 ${colors.bg} backdrop-blur-2xl rounded-xl sm:rounded-3xl border-2 ${colors.border} shadow-2xl ${colors.glow} overflow-hidden`}
       style={{
         background: 'var(--glass-bg)',
         borderColor: 'var(--glass-border)',
@@ -64,37 +64,38 @@ const DailyLimitBanner = ({ dailyMessages, dailyLimit, isLimitReached, user }) =
         <div className={`absolute inset-0 bg-gradient-to-br ${colors.progress} blur-3xl animate-pulse`} />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 p-3 sm:p-4 md:p-5">
+      {/* Content - Mobile First Design */}
+      <div className="relative z-10 p-2.5 sm:p-3 md:p-4">
         {/* Header - Mobile optimized */}
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0">
             <motion.div
               animate={isLimitReached ? { rotate: [0, -10, 10, -10, 0] } : {}}
               transition={{ duration: 0.5, repeat: isLimitReached ? Infinity : 0, repeatDelay: 2 }}
+              className="flex-shrink-0"
             >
               {isLimitReached ? (
-                <AlertCircle className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon}`} />
+                <AlertCircle className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${colors.icon}`} />
               ) : remainingMessages <= 3 ? (
-                <Zap className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon}`} />
+                <Zap className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${colors.icon}`} />
               ) : (
-                <Sparkles className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon}`} />
+                <Sparkles className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${colors.icon}`} />
               )}
             </motion.div>
-            <h3 className={`text-xs sm:text-sm font-bold ${colors.text}`}>
+            <h3 className={`text-[11px] sm:text-xs md:text-sm font-bold ${colors.text} truncate`}>
               Gündəlik mesaj limiti
             </h3>
           </div>
-          <div className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full ${colors.bg} border ${colors.border} backdrop-blur-sm`}>
-            <span className={`text-[10px] sm:text-xs font-bold ${colors.text}`}>
+          <div className={`px-1.5 sm:px-2 py-0.5 rounded-full ${colors.bg} border ${colors.border} backdrop-blur-sm flex-shrink-0 ml-1.5`}>
+            <span className={`text-[9px] sm:text-[10px] md:text-xs font-bold ${colors.text}`}>
               {dailyMessages}/{dailyLimit}
             </span>
           </div>
         </div>
 
         {/* Progress Bar - Mobile optimized */}
-        <div className="mb-3 sm:mb-4">
-          <div className="relative w-full h-2 sm:h-3 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+        <div className="mb-2 sm:mb-3">
+          <div className="relative w-full h-1.5 sm:h-2 md:h-3 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
             {/* Animated gradient progress */}
             <motion.div
               initial={{ width: 0 }}
@@ -119,19 +120,19 @@ const DailyLimitBanner = ({ dailyMessages, dailyLimit, isLimitReached, user }) =
         </div>
 
         {/* Status Message - Mobile optimized */}
-        <div className="text-center mb-3 sm:mb-4">
+        <div className="text-center mb-2 sm:mb-3">
           {isLimitReached ? (
             <motion.p
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
-              className={`${colors.text} font-bold text-sm sm:text-base mb-1 flex items-center justify-center gap-1.5 sm:gap-2`}
+              className={`${colors.text} font-bold text-xs sm:text-sm md:text-base mb-0.5 flex items-center justify-center gap-1 sm:gap-1.5`}
             >
-              <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Limit doldu!</span>
+              <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+              <span className="truncate">Limit doldu!</span>
             </motion.p>
           ) : (
-            <p className={`${colors.text} text-xs sm:text-sm font-medium`}>
-              Qalan: <span className="font-bold text-white text-sm sm:text-base">{remainingMessages}</span> mesaj
+            <p className={`${colors.text} text-[10px] sm:text-xs md:text-sm font-medium`}>
+              Qalan: <span className="font-bold text-white text-xs sm:text-sm md:text-base">{remainingMessages}</span> mesaj
             </p>
           )}
         </div>
@@ -161,13 +162,13 @@ const DailyLimitBanner = ({ dailyMessages, dailyLimit, isLimitReached, user }) =
             />
             
             {/* Button Content - Mobile optimized */}
-            <div className="relative z-10 px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 md:py-3.5 flex items-center justify-center gap-1.5 sm:gap-2 md:gap-2.5 text-white font-bold text-xs sm:text-sm md:text-base rounded-xl sm:rounded-2xl">
-              <Crown className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
-              <span className="truncate">Premium AI - Limitsiz</span>
+            <div className="relative z-10 px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 text-white font-bold text-[10px] sm:text-xs md:text-sm rounded-lg sm:rounded-xl md:rounded-2xl">
+              <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
+              <span className="truncate text-[10px] sm:text-xs md:text-sm">Premium AI</span>
               <motion.span
-                animate={{ x: [0, 5, 0] }}
+                animate={{ x: [0, 3, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="hidden sm:inline-block"
+                className="hidden sm:inline-block text-xs"
               >
                 🚀
               </motion.span>
@@ -177,8 +178,8 @@ const DailyLimitBanner = ({ dailyMessages, dailyLimit, isLimitReached, user }) =
 
         {/* Premium Features Hint - Mobile optimized */}
         {!user?.is_premium && !isLimitReached && (
-          <p className="text-white/60 text-[10px] sm:text-xs text-center mt-2 sm:mt-3 leading-tight">
-            Premium ilə limitsiz mesaj, səsli funksiyalar və daha çox özəllik
+          <p className="text-white/60 text-[9px] sm:text-[10px] md:text-xs text-center mt-1.5 sm:mt-2 leading-tight px-1">
+            Premium ilə limitsiz mesaj və səsli funksiyalar
           </p>
         )}
       </div>

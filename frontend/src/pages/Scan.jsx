@@ -7,7 +7,6 @@
 import React, { useState } from 'react'
 import { toast } from '../utils/toast'
 import { useNavigate } from 'react-router-dom'
-import 'react-toastify/dist/ReactToastify.css'
 import { scanAPI } from '../services/api'
 
 // Components
