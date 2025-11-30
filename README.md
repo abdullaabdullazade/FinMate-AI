@@ -93,8 +93,8 @@ smartspeed/
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd smartspeed
+git clone https://github.com/abdullaabdullazade/FinMate-AI
+cd FinMate-AI
 ```
 
 ### 2. Backend Setup
@@ -115,6 +115,7 @@ pip install -r requirements.txt
 
 # Create .env file
 echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env
+echo "GROQ_API_KEY=your_gemini_api_key_here" > .env
 
 # Database will be auto-created on first run
 ```
