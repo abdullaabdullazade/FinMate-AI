@@ -5,8 +5,15 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { chatAPI } from '../services/api'
-import { toast } from 'react-toastify'
+import { toast } from '../utils/toast'
 import { useAuth } from '../contexts/AuthContext'
+
+// Premium modal açmaq üçün helper
+const openPremiumModal = () => {
+  if (typeof window.openPremiumModal === 'function') {
+    window.openPremiumModal()
+  }
+}
 
 export const useChat = () => {
   const { user } = useAuth()
@@ -165,7 +172,12 @@ export const useChat = () => {
           toast.error(response.data.error, {
             position: 'top-right',
             autoClose: 5000,
+            onClick: () => openPremiumModal(), // Toast-a klik edəndə premium modal aç
           })
+          // Premium modal aç
+          setTimeout(() => {
+            openPremiumModal()
+          }, 1000)
           // Remove the user message that was added
           setMessages((prev) => prev.slice(0, -1))
           // Update daily message count

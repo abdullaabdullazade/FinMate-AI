@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { dashboardAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
-import { toast } from 'sonner'
+import { toast } from '../utils/toast'
 
 // Dashboard Components
 import BudgetWarning from '../components/dashboard/BudgetWarning'
@@ -424,8 +424,13 @@ const Dashboard = () => {
           // Premium yoxlaması - səsləndirmə yalnız premium üçün
           if (!user?.is_premium) {
             toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır.', {
-              duration: 5000,
               position: 'top-center',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              closeButton: true,
             })
             return
           }

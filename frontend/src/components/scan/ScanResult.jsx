@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import DeleteReceiptModal from './DeleteReceiptModal'
 
 const ScanResult = ({ scanResult, onReset, onGoToDashboard, expenseId }) => {

@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import { dreamVaultAPI } from '../../services/api'
 
 const AddSavingsModal = ({ dream, isOpen, onClose, onSuccess }) => {

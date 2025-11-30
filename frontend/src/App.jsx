@@ -4,13 +4,12 @@
  * Sonner toast provider daxildir
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { PremiumModalProvider } from './contexts/PremiumModalContext'
+import { ToastProvider, useToast } from './components/common/CustomToast'
 import BaseLayout from './components/layout/BaseLayout'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
@@ -24,52 +23,26 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
 import NetworkStatus from './components/common/NetworkStatus'
+import { setToastProvider } from './utils/toast'
 
-function App() {
+const AppContent = () => {
+  const toastContext = useToast()
+  const { showToast } = toastContext
+
+  useEffect(() => {
+    // Global toast provider setup
+    const provider = { showToast, removeToast: toastContext.removeToast }
+    if (window.setToastProvider) {
+      window.setToastProvider(provider)
+    }
+    // Set for toast utility
+    setToastProvider(provider)
+  }, [showToast, toastContext])
+
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <PremiumModalProvider>
-        {/* React Toastify - Global toast notifications with Glassmorphism */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={true}
-          closeButton={({ closeToast }) => (
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                closeToast()
-              }}
-              className="Toastify__close-button"
-              type="button"
-              aria-label="close"
-            >
-              ✕
-            </button>
-          )}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-          toastClassName="glass-toast"
-          bodyClassName="glass-toast-body"
-          progressClassName="glass-toast-progress"
-          limit={10}
-          enableMultiContainer={false}
-          style={{
-            zIndex: 10000,
-            top: '5rem',
-            right: '1rem',
-          }}
-        />
-
-        {/* Network Status Monitor */}
-        <NetworkStatus />
+    <>
+      {/* Network Status Monitor */}
+      <NetworkStatus />
 
         <Routes>
           {/* Public routes */}
@@ -90,6 +63,18 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <PremiumModalProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </PremiumModalProvider>
       </AuthProvider>
     </ThemeProvider>

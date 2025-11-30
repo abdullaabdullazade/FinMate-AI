@@ -37,13 +37,13 @@ async def send_chat_message(
             ChatMessage.timestamp >= today_start
         ).count()
         
-        # Limit: 30 mesaj (30 mesaj göndərə bilər)
-        DAILY_MESSAGE_LIMIT = 30
-        # Əgər 30 mesaj varsa, 31-ci mesajı blokla
-        if today_messages >= DAILY_MESSAGE_LIMIT:
+        # Limit: Pulsuz plan üçün 10 mesaj, Premium üçün limitsiz
+        DAILY_MESSAGE_LIMIT = 10 if not user.is_premium else float('inf')
+        # Əgər limitə çatıbsa, mesajı blokla
+        if not user.is_premium and today_messages >= DAILY_MESSAGE_LIMIT:
             return JSONResponse({
                 "success": False,
-                "error": f"Gündəlik mesaj limitinə çatdınız ({DAILY_MESSAGE_LIMIT} mesaj). Premium üzvlük alaraq limitsiz mesaj göndərə bilərsiniz.",
+                "error": f"Gündəlik mesaj limitinə çatdınız ({DAILY_MESSAGE_LIMIT} mesaj). Premium üzvlük alaraq limitsiz mesaj, səsli funksiyalar və daha çox özəllik əldə edin.",
                 "daily_messages": today_messages,
                 "daily_limit": DAILY_MESSAGE_LIMIT,
                 "is_premium": False
@@ -166,7 +166,7 @@ async def send_chat_message(
             ChatMessage.role == "user",
             ChatMessage.timestamp >= today_start
         ).count()
-        daily_limit = 30
+        daily_limit = 10  # Pulsuz plan üçün 10 mesaj/gün
     
     # Return JSON for React frontend - return raw AI response (frontend will handle markdown rendering)
     return JSONResponse({
@@ -177,7 +177,7 @@ async def send_chat_message(
         "xp_result": sanitized_xp_result,
         "is_premium": user.is_premium,
         "daily_messages": daily_messages,  # Gündəlik mesaj sayı (hər mesaj yazıldıqca artır)
-        "daily_limit": daily_limit  # Gündəlik limit (30 mesaj)
+        "daily_limit": daily_limit  # Gündəlik limit (10 mesaj - pulsuz plan)
     })
 
 

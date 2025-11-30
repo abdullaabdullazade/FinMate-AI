@@ -7,14 +7,26 @@
   position: fixed;
   inset: 0;
   z-index: 150;
-  background: var(--glass-shadow);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   animation: fadeIn 0.3s ease-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile optimizations for overlay */
+@media (max-width: 640px) {
+  .premium-modal-overlay {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
 }
 
 @keyframes fadeIn {
@@ -35,14 +47,157 @@
   padding: 1.5rem;
   max-width: 56rem;
   width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
   animation: slideIn 0.4s ease-out;
   box-shadow: 0 25px 50px -12px var(--glass-shadow);
+  margin: 1rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 640px) {
   .premium-modal-content {
     padding: 2rem;
+    margin: 2rem;
+  }
+}
+
+/* Mobile optimizations - TELEFON ÜÇÜN TAM UYĞUN */
+@media (max-width: 640px) {
+  .premium-modal-overlay {
+    padding: 0.5rem !important;
+    align-items: flex-start !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .premium-modal-content {
+    max-height: calc(100vh - 2rem) !important;
+    padding: 1rem !important;
+    margin: 0 !important;
+    border-radius: 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .premium-modal-close {
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 1.125rem !important;
+  }
+  
+  .premium-modal-header {
+    margin-bottom: 1rem !important;
+    padding-top: 0.5rem !important;
+  }
+  
+  .premium-modal-title {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .premium-modal-subtitle {
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .premium-modal-header .w-8 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+  
+  .premium-plans-grid {
+    gap: 0.75rem !important;
+    grid-template-columns: 1fr !important;
+  }
+  
+  .premium-plan-card {
+    padding: 0.875rem !important;
+    border-radius: 0.75rem !important;
+  }
+  
+  .plan-badge {
+    top: 0.375rem !important;
+    right: 0.375rem !important;
+    font-size: 0.625rem !important;
+    padding: 0.125rem 0.5rem !important;
+  }
+  
+  .plan-header {
+    margin-bottom: 0.5rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  
+  .plan-title {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .plan-title .w-5 {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  .plan-price {
+    font-size: 1.25rem !important;
+  }
+  
+  .plan-price-gradient {
+    font-size: 1.25rem !important;
+  }
+
+  .plan-price-period {
+    font-size: 0.75rem !important;
+  }
+  
+  .plan-description {
+    font-size: 0.6875rem !important;
+    margin-bottom: 0.625rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .plan-features {
+    gap: 0.375rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .plan-feature {
+    font-size: 0.6875rem !important;
+    gap: 0.375rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .feature-icon {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .feature-text {
+    font-size: 0.6875rem !important;
+  }
+  
+  .premium-activate-button {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+    border-radius: 0.5rem !important;
+    gap: 0.375rem !important;
+  }
+
+  .premium-activate-button .w-5 {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  .premium-modal-footer {
+    margin-top: 0.75rem !important;
+    font-size: 0.6875rem !important;
+    line-height: 1.3 !important;
   }
 }
 
@@ -111,6 +266,13 @@
 @media (min-width: 768px) {
   .premium-plans-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: Stack plans vertically */
+@media (max-width: 767px) {
+  .premium-plans-grid {
+    gap: 1rem;
   }
 }
 

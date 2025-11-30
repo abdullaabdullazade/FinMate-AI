@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from '../utils/toast'
 import { dreamVaultAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 

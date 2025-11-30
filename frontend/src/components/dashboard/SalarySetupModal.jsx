@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import { useAuth } from '../../contexts/AuthContext'
 
 const SalarySetupModal = ({ isOpen, onClose, onSalarySet }) => {

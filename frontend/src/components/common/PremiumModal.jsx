@@ -4,8 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from '../../utils/toast'
 import { useAuth } from '../../contexts/AuthContext'
+import { Sparkles, Crown, Zap, Volume2, Infinity, FileText, Headphones, X } from 'lucide-react'
 import '../../styles/components/common/premium-modal.css'
 
 const PremiumModal = ({ isOpen, onClose }) => {
@@ -42,6 +44,8 @@ const PremiumModal = ({ isOpen, onClose }) => {
           autoClose: 5000,
           hideProgressBar: false,
           className: 'premium-success-toast',
+          pauseOnHover: false,
+          pauseOnFocusLoss: false,
         })
         
         // Close modal
@@ -58,6 +62,8 @@ const PremiumModal = ({ isOpen, onClose }) => {
         toast.error(data.error || 'Xəta baş verdi', {
           position: 'top-center',
           autoClose: 5000,
+          pauseOnHover: false,
+          pauseOnFocusLoss: false,
         })
       }
     } catch (error) {
@@ -65,39 +71,63 @@ const PremiumModal = ({ isOpen, onClose }) => {
       toast.error('Əlaqə xətası. Zəhmət olmasa yenidən cəhd edin.', {
         position: 'top-center',
         autoClose: 5000,
+        pauseOnHover: false,
+        pauseOnFocusLoss: false,
       })
     } finally {
       setActivating(false)
     }
   }
 
-  if (!isOpen) return null
-
   return (
-    <div 
-      className="premium-modal-overlay"
-      onClick={onClose}
-    >
-      <div 
-        className="premium-modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button 
-          className="premium-modal-close"
+    <AnimatePresence>
+      {isOpen && (
+        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="premium-modal-overlay"
           onClick={onClose}
-          aria-label="Bağla"
         >
-          ✕
-        </button>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="premium-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.button
+              whileHover={{ rotate: 90, scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="premium-modal-close"
+              onClick={onClose}
+              aria-label="Bağla"
+            >
+              <X className="w-5 h-5" />
+            </motion.button>
 
-        <div className="premium-modal-header">
-          <h2 className="premium-modal-title">✨ FinMate Premium</h2>
-          <p className="premium-modal-subtitle">Pulunu maksimum səviyyədə idarə et</p>
-        </div>
+            <div className="premium-modal-header">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                className="inline-block mb-2"
+              >
+                <Crown className="w-8 h-8 text-yellow-400 mx-auto" />
+              </motion.div>
+              <h2 className="premium-modal-title">✨ FinMate Premium</h2>
+              <p className="premium-modal-subtitle">Pulunu maksimum səviyyədə idarə et</p>
+            </div>
 
         <div className="premium-plans-grid">
           {/* Free Plan */}
-          <div className="premium-plan-card free-plan">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="premium-plan-card free-plan"
+          >
             <div className="plan-header">
               <h3 className="plan-title">Free</h3>
               <span className="plan-price">0 ₼</span>
@@ -109,6 +139,10 @@ const PremiumModal = ({ isOpen, onClose }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Dashboard və Büdcə İzləmə
+              </li>
+              <li className="plan-feature">
+                <Zap className="feature-icon w-5 h-5" />
+                AI Chat (10 mesaj/gün)
               </li>
               <li className="plan-feature">
                 <svg className="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,13 +157,27 @@ const PremiumModal = ({ isOpen, onClose }) => {
                 Əməliyyat Tarixçəsi
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Premium Plan */}
-          <div className="premium-plan-card premium-plan">
-            <div className="plan-badge">POPULYAR</div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="premium-plan-card premium-plan"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="plan-badge"
+            >
+              ⭐ POPULYAR
+            </motion.div>
             <div className="plan-header">
-              <h3 className="plan-title">Pro</h3>
+              <h3 className="plan-title flex items-center gap-2">
+                <Crown className="w-5 h-5 text-yellow-400" />
+                Pro
+              </h3>
               <div className="plan-price-group">
                 <span className="plan-price-gradient">4.99</span>
                 <span className="plan-price-period">₼/ay</span>
@@ -138,39 +186,39 @@ const PremiumModal = ({ isOpen, onClose }) => {
             <p className="plan-description">Tam funksional paket</p>
             <ul className="plan-features">
               <li className="plan-feature">
-                <svg className="feature-icon premium-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <Infinity className="feature-icon premium-icon w-5 h-5" />
+                <span className="feature-text">Limitsiz AI Chat Mesajları</span>
+              </li>
+              <li className="plan-feature">
+                <Volume2 className="feature-icon premium-icon w-5 h-5" />
+                <span className="feature-text">Səsli Funksiyalar (TTS)</span>
+              </li>
+              <li className="plan-feature">
+                <Sparkles className="feature-icon premium-icon w-5 h-5" />
                 <span className="feature-text">Limitsiz Resept Scan</span>
               </li>
               <li className="plan-feature">
-                <svg className="feature-icon premium-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <Zap className="feature-icon premium-icon w-5 h-5" />
                 <span className="feature-text">AI Maliyyə Məsləhətçisi</span>
               </li>
               <li className="plan-feature">
-                <svg className="feature-icon premium-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <FileText className="feature-icon premium-icon w-5 h-5" />
                 <span className="feature-text">Excel/PDF Export</span>
               </li>
               <li className="plan-feature">
-                <svg className="feature-icon premium-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <Headphones className="feature-icon premium-icon w-5 h-5" />
                 <span className="feature-text">Prioritet Dəstək</span>
               </li>
               <li className="plan-feature">
-                <svg className="feature-icon premium-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+                <Crown className="feature-icon premium-icon w-5 h-5" />
                 <span className="feature-text">Reklamsız İstifadə</span>
               </li>
             </ul>
-            <button
+            <motion.button
               onClick={handleActivateTrial}
               disabled={activating || user?.is_premium}
+              whileHover={{ scale: user?.is_premium ? 1 : 1.05 }}
+              whileTap={{ scale: user?.is_premium ? 1 : 0.95 }}
               className="premium-activate-button"
             >
               {activating ? (
@@ -180,25 +228,38 @@ const PremiumModal = ({ isOpen, onClose }) => {
                 </>
               ) : user?.is_premium ? (
                 <>
+                  <Crown className="w-5 h-5" />
                   <span>✅ Premium Aktivdir</span>
                 </>
               ) : (
                 <>
+                  <Sparkles className="w-5 h-5" />
                   <span>14 Gün Pulsuz Başla</span>
-                  <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
+                  <motion.span
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    🚀
+                  </motion.span>
                 </>
               )}
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
 
-        <div className="premium-modal-footer">
-          💳 Təhlükəsiz ödəniş - 14 gün pulsuz sınaq
-        </div>
-      </div>
-    </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="premium-modal-footer"
+            >
+              💳 Təhlükəsiz ödəniş - 14 gün pulsuz sınaq
+            </motion.div>
+          </motion.div>
+        </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }
 

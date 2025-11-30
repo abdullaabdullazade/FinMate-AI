@@ -6,7 +6,7 @@
 import React, { useMemo, useState } from 'react'
 import { markdownToHtml } from '../../utils/markdown'
 import { useAuth } from '../../contexts/AuthContext'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import '../../styles/components/chat/message-bubbles.css'
 import '../../styles/components/chat/markdown-content.css'
 
@@ -18,8 +18,13 @@ const ChatMessage = ({ message }) => {
     // Premium yoxlaması - səsləndirmə yalnız premium üçün
     if (!user?.is_premium) {
       toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır.', {
-        duration: 3000,
         position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        closeButton: true,
       })
       return
     }

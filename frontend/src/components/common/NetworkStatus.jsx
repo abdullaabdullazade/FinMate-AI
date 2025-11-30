@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 
 const NetworkStatus = () => {
   const lastStatusRef = useRef(null) // null ilə başla ki ilk dəfə mütləq bildiriş göstərsin

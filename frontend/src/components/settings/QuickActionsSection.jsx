@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import '../../styles/components/settings/quick-actions-section.css'
 import { exportAPI } from '../../services/api'
 

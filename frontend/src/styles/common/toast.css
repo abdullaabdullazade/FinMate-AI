@@ -54,6 +54,135 @@
   height: 3px !important;
 }
 
+/* Ensure progress bar is visible and animates correctly */
+.Toastify__progress-bar {
+  height: 3px !important;
+  opacity: 1 !important;
+  background: linear-gradient(90deg, #5c6bc0 0%, #3f51b5 100%) !important;
+  transition: width 0.1s linear !important;
+}
+
+/* When progress reaches 0, force toast removal */
+.Toastify__progress-bar[style*="width: 0%"],
+.Toastify__progress-bar[style*="width:0%"] {
+  animation: forceToastClose 0.3s ease-out forwards !important;
+}
+
+@keyframes forceToastClose {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Force toast to disappear when progress completes */
+.Toastify__toast--rtl .Toastify__progress-bar {
+  animation: none !important;
+}
+
+/* Ensure toast is removed after autoClose */
+.Toastify__toast-container {
+  pointer-events: none !important;
+}
+
+.Toastify__toast {
+  pointer-events: auto !important;
+}
+
+/* Force removal after animation - MÜTLƏQ BAĞLANMALIDIR */
+.Toastify__toast--exit {
+  animation: toastExit 0.4s ease-out forwards !important;
+  pointer-events: none !important;
+}
+
+.Toastify__toast--exiting {
+  animation: toastExit 0.4s ease-out forwards !important;
+  pointer-events: none !important;
+}
+
+@keyframes toastExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 200px;
+    margin: 0.5rem;
+    padding: 20px 24px;
+  }
+  100% {
+    opacity: 0 !important;
+    transform: translateX(100%) !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+/* Ensure toast is removed when progress completes */
+.Toastify__toast--closing {
+  animation: toastExit 0.4s ease-out forwards !important;
+  pointer-events: none !important;
+}
+
+/* Force hide when progress bar completes */
+.Toastify__toast[aria-hidden="true"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: translateX(100%) !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .glass-toast {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+    max-width: calc(100vw - 2rem) !important;
+    margin: 0.5rem !important;
+  }
+  
+  .glass-toast-body {
+    font-size: 13px !important;
+  }
+  
+  .Toastify__toast-container {
+    width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
+    right: 0.5rem !important;
+    left: auto !important;
+    top: 4rem !important;
+  }
+  
+  .Toastify__close-button {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+  }
+}
+
+.Toastify__progress-bar--success {
+  background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%) !important;
+}
+
+.Toastify__progress-bar--error {
+  background: linear-gradient(90deg, #f44336 0%, #e53935 100%) !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: linear-gradient(90deg, #ff9800 0%, #f57c00 100%) !important;
+}
+
+.Toastify__progress-bar--info {
+  background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%) !important;
+}
+
 /* Toast success variant */
 .Toastify__toast--success {
   background: rgba(20, 27, 61, 0.85) !important;
@@ -165,4 +294,37 @@ button.Toastify__close-button * {
 
 [data-theme="light"] .glass-toast-body {
   color: #ffffff !important;
+}
+
+/* CRITICAL: Force toast removal when progress completes - MÜTLƏQ BAĞLANMALIDIR */
+.Toastify__toast-container .Toastify__toast {
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out, max-height 0.4s ease-out, margin 0.4s ease-out, padding 0.4s ease-out !important;
+}
+
+/* When toast is marked as hidden or removed, force hide it */
+.Toastify__toast[aria-hidden="true"],
+.Toastify__toast.toast-hidden,
+.Toastify__toast--removed {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: translateX(100%) !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Additional safety: Remove any toast that has completed its progress */
+.Toastify__toast:has(.Toastify__progress-bar[style*="width: 0%"]),
+.Toastify__toast:has(.Toastify__progress-bar[style*="width:0%"]) {
+  animation: toastExit 0.4s ease-out forwards !important;
+  pointer-events: none !important;
+}
+
+/* JavaScript fallback - if CSS :has() is not supported */
+.Toastify__toast.toast-completed {
+  animation: toastExit 0.4s ease-out forwards !important;
+  pointer-events: none !important;
 }

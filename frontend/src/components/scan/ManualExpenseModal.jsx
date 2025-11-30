@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react'
 import { X } from 'lucide-react'
-import { toast } from 'react-toastify'
+import { toast } from '../../utils/toast'
 import { useNavigate } from 'react-router-dom'
 
 const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currency = 'AZN' }) => {
