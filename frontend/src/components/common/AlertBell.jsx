@@ -96,6 +96,15 @@ const AlertBell = () => {
 
         ws.onmessage = (event) => {
           try {
+            // Ping/pong mesajlarını handle et
+            if (event.data === 'ping' || event.data === 'pong') {
+              // Ping mesajına pong cavabı göndər
+              if (event.data === 'ping' && ws.readyState === WebSocket.OPEN) {
+                ws.send('pong')
+              }
+              return
+            }
+            
             const data = JSON.parse(event.data)
             
             // Yeni tək bildiriş gəldi (scan, coin, və s.)

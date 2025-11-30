@@ -423,7 +423,7 @@ const Dashboard = () => {
         onSpeak={async () => {
           // Premium yoxlaması - səsləndirmə yalnız premium üçün
           if (!user?.is_premium) {
-            toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır.', {
+            toast.error('🔒 Səsləndirmə funksiyası yalnız Premium istifadəçilər üçün əlçatandır. Premium alın!', {
               position: 'top-center',
               autoClose: 5000,
               hideProgressBar: false,
@@ -431,7 +431,19 @@ const Dashboard = () => {
               pauseOnHover: true,
               draggable: true,
               closeButton: true,
+              onClick: () => {
+                // Toast-a klik edəndə Premium modal aç
+                if (typeof window.openPremiumModal === 'function') {
+                  window.openPremiumModal()
+                }
+              }
             })
+            // Premium modal aç
+            setTimeout(() => {
+              if (typeof window.openPremiumModal === 'function') {
+                window.openPremiumModal()
+              }
+            }, 1000)
             return
           }
 
