@@ -4,7 +4,7 @@
  * Deep Purple Glassmorphism dizaynı
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { dashboardAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'sonner'
@@ -18,6 +18,7 @@ import DailyLimitAlert from '../components/dashboard/DailyLimitAlert'
 import BudgetOverview from '../components/dashboard/BudgetOverview'
 import TimeMachine from '../components/dashboard/TimeMachine'
 import CategoryBreakdown from '../components/dashboard/CategoryBreakdown'
+import DateFilter from '../components/dashboard/DateFilter'
 import CategoryPieChart from '../components/dashboard/CategoryPieChart'
 import LocalGems from '../components/dashboard/LocalGems'
 import RecentTransactions from '../components/dashboard/RecentTransactions'
@@ -78,8 +79,8 @@ const Dashboard = () => {
       const response = await dashboardAPI.getDashboardData(filterParam, filterType, rangeStart, rangeEnd)
       
       if (response && response.data) {
-      setDashboardData(response.data)
-      setError(null)
+        setDashboardData(response.data)
+        setError(null)
       } else {
         throw new Error('Serverdən məlumat alına bilmədi')
       }
@@ -106,17 +107,20 @@ const Dashboard = () => {
   }
 
   // Debounce year filter - yalnız tam 4 rəqəmli il olduqda refresh et
+  // Yalnız tam 4 rəqəmli il olduqda və ya boş olduqda refresh et
   useEffect(() => {
-    if (yearFilterInput && yearFilterInput.length === 4) {
+    // Yalnız tam 4 rəqəmli il olduqda və ya boş olduqda refresh et
+    if (yearFilterInput.length === 0) {
+      setYearFilter(null)
+    } else if (yearFilterInput.length === 4) {
       const year = parseInt(yearFilterInput)
       if (year >= 2020 && year <= 2030) {
         setYearFilter(yearFilterInput)
       } else {
         setYearFilter(null)
       }
-    } else if (yearFilterInput.length === 0) {
-      setYearFilter(null)
     }
+    // Yarımçıq yazılıbsa (1-3 rəqəm), refresh etmə - yalnız input dəyərini saxla
   }, [yearFilterInput])
 
   useEffect(() => {
@@ -283,7 +287,8 @@ const Dashboard = () => {
   const levelInfo = context?.level_info || null
   const xpPoints = context?.xp_points || 0
   const salaryIncreaseInfo = context?.salary_increase_info || null
-  const dailyLimitAlert = context?.daily_limit_alert || null
+  // Get daily limit alert - check context first, then root level
+  const dailyLimitAlert = context?.daily_limit_alert || dashboardData?.daily_limit_alert || null
   const localGems = context?.local_gems || []
   const monthlySavings = monthlyBudget - totalSpending
   const totalAvailable = context?.total_available || remainingBudget
@@ -367,219 +372,26 @@ const Dashboard = () => {
         incognitoMode={incognitoMode}
       />
 
-      {/* Date Filter - Premium Only */}
+      {/* Date Filter - Premium Only - Beautiful New Design */}
       {user?.is_premium && (
-        <div className="glass-card p-4 sm:p-6 slide-up" style={{ gridColumn: 'span 12' }}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <h3 className="text-lg sm:text-xl font-bold text-white">Tarixə görə filter</h3>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-            {/* Filter Type Selector */}
-            <select
-              value={filterType}
-              onChange={(e) => {
-                setFilterType(e.target.value)
-                // Reset all filters when changing type
-                setDateFilter(null)
-                setMonthFilter(null)
-                setYearFilter(null)
-                setYearFilterInput('')
-                setStartDateFilter(null)
-                setEndDateFilter(null)
-              }}
-              className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'var(--glass-border)',
-                color: 'var(--text-primary)'
-              }}
-            >
-              <option value="none" className="bg-gray-900">Filter yoxdur</option>
-              <option value="day" className="bg-gray-900">Günə görə</option>
-              <option value="month" className="bg-gray-900">Aya görə</option>
-              <option value="year" className="bg-gray-900">İlə görə</option>
-              <option value="range" className="bg-gray-900">Aralığa görə</option>
-            </select>
-
-            {/* Day Filter */}
-            {filterType === 'day' && (
-              <input
-                type="date"
-                value={dateFilter || ''}
-                onChange={(e) => {
-                  setDateFilter(e.target.value || null)
-                }}
-                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderColor: 'var(--glass-border)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-            )}
-
-            {/* Month Filter */}
-            {filterType === 'month' && (
-              <input
-                type="month"
-                value={monthFilter || ''}
-                onChange={(e) => {
-                  setMonthFilter(e.target.value || null)
-                }}
-                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderColor: 'var(--glass-border)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-            )}
-
-            {/* Year Filter */}
-            {filterType === 'year' && (
-              <input
-                type="number"
-                min="2020"
-                max="2030"
-                value={yearFilterInput}
-                onChange={(e) => {
-                  const value = e.target.value
-                  // Yalnız rəqəmlərə icazə ver
-                  if (value === '' || /^\d+$/.test(value)) {
-                    setYearFilterInput(value)
-                  }
-                }}
-                onBlur={(e) => {
-                  // Focus itdikdə yoxla - tam 4 rəqəmli il olduqda tətbiq et
-                  const value = e.target.value
-                  if (value.length === 4) {
-                    const year = parseInt(value)
-                    if (year >= 2020 && year <= 2030) {
-                      setYearFilter(value)
-                    } else {
-                      setYearFilterInput('')
-                      setYearFilter(null)
-                    }
-                  } else if (value.length > 0 && value.length < 4) {
-                    // Yarımçıq yazılıbsa, təmizlə
-                    setYearFilterInput('')
-                    setYearFilter(null)
-                  }
-                }}
-                placeholder="İl (məs: 2025)"
-                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderColor: 'var(--glass-border)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-            )}
-
-            {/* Range Filter */}
-            {filterType === 'range' && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={startDateFilter || ''}
-                  onChange={(e) => {
-                    setStartDateFilter(e.target.value || null)
-                  }}
-                  placeholder="Başlanğıc tarix"
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'var(--glass-border)',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-                <span className="text-white/60">-</span>
-                <input
-                  type="date"
-                  value={endDateFilter || ''}
-                  onChange={(e) => {
-                    setEndDateFilter(e.target.value || null)
-                  }}
-                  placeholder="Son tarix"
-                  min={startDateFilter || undefined}
-                  className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'var(--glass-border)',
-                    color: 'var(--text-primary)'
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Clear Button */}
-            {filterType !== 'none' && (dateFilter || monthFilter || yearFilter || (startDateFilter && endDateFilter)) && (
-              <button
-                onClick={() => {
-                  setFilterType('none')
-                  setDateFilter(null)
-                  setMonthFilter(null)
-                  setYearFilter(null)
-                  setYearFilterInput('')
-                  setStartDateFilter(null)
-                  setEndDateFilter(null)
-                }}
-                className="px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white text-sm transition"
-              >
-                Təmizlə
-              </button>
-            )}
-          </div>
-          </div>
-          {/* Filter Info - Daha detallı məlumat */}
-          {filterType === 'day' && dateFilter && (
-            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-sm font-semibold text-white mb-1">
-                📅 Seçilmiş gün: {new Date(dateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
-              </p>
-              {dashboardData?.context && (
-                <p className="text-xs text-white/70">
-                  Bu gün ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
-                </p>
-              )}
-            </div>
-          )}
-          {filterType === 'month' && monthFilter && (
-            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-sm font-semibold text-white mb-1">
-                📆 Seçilmiş ay: {new Date(monthFilter + '-01').toLocaleDateString('az-AZ', { year: 'numeric', month: 'long' })}
-              </p>
-              {dashboardData?.context && (
-                <p className="text-xs text-white/70">
-                  Bu ay ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
-                </p>
-              )}
-            </div>
-          )}
-          {filterType === 'year' && yearFilter && (
-            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-sm font-semibold text-white mb-1">
-                📅 Seçilmiş il: {yearFilter}
-              </p>
-              {dashboardData?.context && (
-                <p className="text-xs text-white/70">
-                  Bu il ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
-                </p>
-              )}
-            </div>
-          )}
-          {filterType === 'range' && startDateFilter && endDateFilter && (
-            <div className="mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
-              <p className="text-sm font-semibold text-white mb-1">
-                📊 Seçilmiş aralıq: {new Date(startDateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })} - {new Date(endDateFilter).toLocaleDateString('az-AZ', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
-              {dashboardData?.context && (
-                <p className="text-xs text-white/70">
-                  Bu aralıqda ümumi xərc: <span className="font-bold text-white">{dashboardData.context.total_spend?.toFixed(2) || '0.00'} {currency}</span>
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        <DateFilter
+          filterType={filterType}
+          setFilterType={setFilterType}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          monthFilter={monthFilter}
+          setMonthFilter={setMonthFilter}
+          yearFilter={yearFilter}
+          setYearFilter={setYearFilter}
+          yearFilterInput={yearFilterInput}
+          setYearFilterInput={setYearFilterInput}
+          startDateFilter={startDateFilter}
+          setStartDateFilter={setStartDateFilter}
+          endDateFilter={endDateFilter}
+          setEndDateFilter={setEndDateFilter}
+          dashboardData={dashboardData}
+          currency={currency}
+        />
       )}
 
       {/* Category Pie Chart - Ən qabaqda */}

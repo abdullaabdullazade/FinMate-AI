@@ -37,7 +37,20 @@ function App() {
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick={true}
-          closeButton={true}
+          closeButton={({ closeToast }) => (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                closeToast()
+              }}
+              className="Toastify__close-button"
+              type="button"
+              aria-label="close"
+            >
+              ✕
+            </button>
+          )}
           rtl={false}
           pauseOnFocusLoss
           draggable

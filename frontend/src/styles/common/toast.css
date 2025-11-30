@@ -94,21 +94,66 @@
   background: linear-gradient(90deg, #2196f3 0%, #42a5f5 100%) !important;
 }
 
-/* Close button */
-.Toastify__close-button {
-  color: rgba(232, 234, 246, 0.7) !important;
-  opacity: 0.7 !important;
+/* Close button - FIXED - Mütləq işləməlidir */
+.Toastify__close-button,
+button.Toastify__close-button {
+  color: rgba(232, 234, 246, 0.9) !important;
+  opacity: 0.9 !important;
   cursor: pointer !important;
   pointer-events: auto !important;
   z-index: 10001 !important;
   position: relative !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
 }
 
-.Toastify__close-button:hover {
+.Toastify__close-button > svg,
+button.Toastify__close-button > svg {
+  width: 16px !important;
+  height: 16px !important;
+  pointer-events: none !important;
+}
+
+.Toastify__close-button:hover,
+button.Toastify__close-button:hover {
   opacity: 1 !important;
-  color: #e8eaf6 !important;
-  transform: rotate(90deg) scale(1.1) !important;
+  color: #ffffff !important;
+  transform: rotate(90deg) scale(1.15) !important;
   transition: all 0.2s ease !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 50% !important;
+}
+
+.Toastify__close-button:active,
+button.Toastify__close-button:active {
+  transform: rotate(90deg) scale(0.95) !important;
+  opacity: 0.9 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Ensure click events work */
+.Toastify__close-button *,
+button.Toastify__close-button * {
+  pointer-events: none !important;
 }
 
 /* Light theme support */

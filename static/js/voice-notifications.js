@@ -12,6 +12,7 @@
 
     let voiceQueue = [];
     let isProcessingVoice = false;
+    let currentAudio = null; // Track current playing audio
 
     /**
      * Add voice notification to queue with priority
@@ -42,11 +43,44 @@
     };
 
     /**
+     * Stop current voice playback and clear queue
+     */
+    window.stopVoicePlayback = function() {
+        console.log('🔇 Stopping voice playback...');
+        
+        // Clear queue
+        voiceQueue = [];
+        
+        // Stop current audio
+        if (currentAudio) {
+            if (currentAudio.pause) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            currentAudio = null;
+        }
+        
+        // Stop AudioManager if available
+        if (window.AudioManager && window.AudioManager.stop) {
+            window.AudioManager.stop();
+        }
+        
+        // Cancel speech synthesis
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
+        isProcessingVoice = false;
+        console.log('✅ Voice playback stopped');
+    };
+
+    /**
      * Process voice queue sequentially
      */
     async function processVoiceQueue() {
         if (voiceQueue.length === 0) {
             isProcessingVoice = false;
+            currentAudio = null;
             console.log('✅ Voice queue empty');
             return;
         }
@@ -173,7 +207,9 @@
             } else {
                 // Fallback to old method
                 const audio = new Audio(`data:audio/mp3;base64,${base64Audio}`);
+                currentAudio = audio; // Track current audio
                 audio.onended = () => {
+                    currentAudio = null;
                     // Notify voice recorder
                     if (typeof window.voiceRecorder !== 'undefined' && window.voiceRecorder) {
                         const voiceModal = document.getElementById('voice-modal');
@@ -186,8 +222,14 @@
                     }
                     resolve();
                 };
-                audio.onerror = () => reject();
-                audio.play().catch(err => reject(err));
+                audio.onerror = () => {
+                    currentAudio = null;
+                    reject();
+                };
+                audio.play().catch(err => {
+                    currentAudio = null;
+                    reject(err);
+                });
             }
         });
     }

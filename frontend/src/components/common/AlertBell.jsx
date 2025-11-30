@@ -105,10 +105,15 @@ const AlertBell = () => {
                       e.stopPropagation()
                       removeAlert(alert.id)
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-white/50 hover:text-white flex-shrink-0 p-1 cursor-pointer z-10"
-                    aria-label="Bağla"
-                    title="Ləğv et"
-                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                  className="opacity-70 hover:opacity-100 transition-opacity text-white/70 hover:text-white flex-shrink-0 p-1.5 cursor-pointer z-50 relative group-hover:bg-white/10 rounded-full"
+  style={{ pointerEvents: 'auto' }}
+  aria-label="Bağla"
+  title="Ləğv et"
+  type="button"
                   >
                     <CloseIcon className="w-4 h-4" />
                   </button>
