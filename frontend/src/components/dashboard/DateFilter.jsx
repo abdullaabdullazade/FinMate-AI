@@ -24,6 +24,7 @@ const DateFilter = ({
   setEndDateFilter,
   dashboardData,
   currency,
+  filterApplied,
   onApplyFilter
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -70,9 +71,13 @@ const DateFilter = ({
     return date.toLocaleDateString('az-AZ', { year: 'numeric', month: 'long' })
   }
 
-  const hasActiveFilter = filterType !== 'none' && (
+  // Filter dəyəri seçilibsə amma tətbiq edilməyibsə, "Tətbiq et" düyməsini göstər
+  const hasFilterValue = filterType !== 'none' && (
     dateFilter || monthFilter || yearFilter || (startDateFilter && endDateFilter)
   )
+  
+  // Filter tətbiq edilibsə, məlumatları göstər
+  const hasActiveFilter = filterApplied && hasFilterValue
 
   return (
     <motion.div
@@ -100,7 +105,7 @@ const DateFilter = ({
             </div>
           </div>
           
-          {hasActiveFilter && (
+          {(hasActiveFilter || hasFilterValue) && (
             <motion.button
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -314,7 +319,7 @@ const DateFilter = ({
 
         {/* Apply Filter Button - Yalnız filter aktiv olduqda və dəyər seçildikdə göstər */}
         <AnimatePresence>
-          {hasActiveFilter && filterType !== 'none' && (
+          {hasFilterValue && !filterApplied && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

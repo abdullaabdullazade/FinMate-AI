@@ -48,6 +48,7 @@ const Dashboard = () => {
   const [yearFilterInput, setYearFilterInput] = useState('') // Temporary input value for year
   const [startDateFilter, setStartDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range start
   const [endDateFilter, setEndDateFilter] = useState(null) // Format: 'YYYY-MM-DD' for range end
+  const [filterApplied, setFilterApplied] = useState(false) // Filter tətbiq edilib-edilmədiyini izlə
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [salaryModalOpen, setSalaryModalOpen] = useState(false)
 
@@ -55,7 +56,7 @@ const Dashboard = () => {
    * Dashboard məlumatlarını yüklə
    * useCallback ilə wrap edirik ki, filter dəyişdikdə dinamik işləsin
    */
-  const fetchDashboardData = useCallback(async () => {
+  const fetchDashboardData = useCallback(async (markAsApplied = false) => {
     try {
       setLoading(true)
       setError(null)
@@ -86,6 +87,10 @@ const Dashboard = () => {
       if (response && response.data) {
         setDashboardData(response.data)
         setError(null)
+        // Əgər "Tətbiq et" düyməsinə basılıbsa, filter tətbiq edildiyini qeyd et
+        if (markAsApplied) {
+          setFilterApplied(true)
+        }
       } else {
         throw new Error('Serverdən məlumat alına bilmədi')
       }
@@ -133,9 +138,12 @@ const Dashboard = () => {
   useEffect(() => {
     // Yalnız filter "none" olduqda refresh et (filter silindikdə)
     if (filterType === 'none') {
+      setFilterApplied(false) // Filter silindikdə, tətbiq edilməmiş kimi qeyd et
       fetchDashboardData()
+    } else {
+      // Filter type dəyişdikdə amma "none" deyilsə, filter tətbiq edilməmiş kimi qeyd et
+      setFilterApplied(false)
     }
-    // Filter type dəyişdikdə amma "none" deyilsə, refresh etmə
     // Filter dəyəri seçildikdə refresh etmə - yalnız "Tətbiq et" düyməsinə basdıqda refresh edəcək
   }, [filterType, fetchDashboardData]) // Yalnız filterType dəyişdikdə refresh et (yalnız "none" olduqda)
 
@@ -433,7 +441,8 @@ const Dashboard = () => {
           setEndDateFilter={setEndDateFilter}
           dashboardData={dashboardData}
           currency={currency}
-          onApplyFilter={fetchDashboardData}
+          filterApplied={filterApplied}
+          onApplyFilter={() => fetchDashboardData(true)}
         />
       )}
 
