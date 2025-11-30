@@ -19,6 +19,16 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
     if (isOpen) {
       setIsVisible(true)
       setCurrentStep(0)
+      // Body scroll-u blokla
+      document.body.style.overflow = 'hidden'
+    } else {
+      // Body scroll-u aktivləşdir
+      document.body.style.overflow = ''
+    }
+    
+    return () => {
+      // Cleanup - body scroll-u aktivləşdir
+      document.body.style.overflow = ''
     }
   }, [isOpen])
 
@@ -104,14 +114,14 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
     },
   ]
 
-  // Step dəyişdikdə səsləndir
-  useEffect(() => {
-    if (isVisible && currentStep < steps.length) {
-      const step = steps[currentStep]
-      const fullText = `${step.title}. ${step.description}`
-      speakText(fullText)
-    }
-  }, [currentStep, isVisible])
+  // Step dəyişdikdə səsləndirmə - DEACTIVATED (istifadəçi istəyi ilə)
+  // useEffect(() => {
+  //   if (isVisible && currentStep < steps.length) {
+  //     const step = steps[currentStep]
+  //     const fullText = `${step.title}. ${step.description}`
+  //     speakText(fullText)
+  //   }
+  // }, [currentStep, isVisible])
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -148,6 +158,8 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
     // Skip zamanı da qeyd et ki, bir daha göstərilməsin
     setIsVisible(false)
     setIsSpeaking(false)
+    // Body scroll-u aktivləşdir
+    document.body.style.overflow = ''
     setTimeout(() => {
       // İstifadəçi adı ilə onboarding completed key yarat və qeyd et
       if (username) {
@@ -169,16 +181,26 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
     <AnimatePresence>
       {isVisible && (
         <>
-          {/* Overlay */}
+          {/* Overlay - Tam ekranı örtür */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              position: 'fixed',
+              overflow: 'hidden'
+            }}
             onClick={handleSkip}
           />
 
-          {/* Tour Card */}
+          {/* Tour Card - Fixed Position (bir yerə dayanır) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -186,13 +208,10 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed z-[9999] w-full max-w-md mx-4"
             style={{
-              top: currentStepData.position === 'top' ? '20%' : 
-                   currentStepData.position === 'bottom' ? 'auto' : '50%',
-              bottom: currentStepData.position === 'bottom' ? '20%' : 'auto',
-              left: currentStepData.position === 'right' ? 'auto' : '50%',
-              right: currentStepData.position === 'right' ? '5%' : 'auto',
-              transform: currentStepData.position === 'center' ? 'translate(-50%, -50%)' : 
-                         currentStepData.position === 'right' ? 'none' : 'translateX(-50%)',
+              // Həmişə mərkəzdə olsun - bir yerə dayansın
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -207,60 +226,31 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                   <div className="flex-shrink-0 relative">
                     <motion.div
                       animate={{
-                        scale: isSpeaking ? [1, 1.1, 1] : 1,
-                        rotate: isSpeaking ? [0, 5, -5, 0] : 0,
+                        scale: 1, // Səsləndirmə deaktiv olduğu üçün animasiya yoxdur
+                        rotate: 0,
                       }}
                       transition={{
                         duration: 0.5,
-                        repeat: isSpeaking ? Infinity : 0,
+                        repeat: 0,
                         ease: 'easeInOut',
                       }}
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#ec4899]/30 via-[#d81b60]/30 to-[#ec4899]/30 border border-white/20 flex items-center justify-center relative overflow-hidden"
                     >
                       {/* Robot Face */}
                       <div className="relative z-10">
-                        {/* Eyes */}
+                        {/* Eyes - Static (səsləndirmə deaktiv) */}
                         <div className="flex items-center justify-center gap-2 mb-1">
-                          <motion.div
-                            animate={{
-                              scale: isSpeaking ? [1, 1.2, 1] : 1,
-                            }}
-                            transition={{
-                              duration: 0.3,
-                              repeat: isSpeaking ? Infinity : 0,
-                            }}
-                            className="w-2 h-2 bg-white rounded-full"
-                          />
-                          <motion.div
-                            animate={{
-                              scale: isSpeaking ? [1, 1.2, 1] : 1,
-                            }}
-                            transition={{
-                              duration: 0.3,
-                              repeat: isSpeaking ? Infinity : 0,
-                              delay: 0.15,
-                            }}
-                            className="w-2 h-2 bg-white rounded-full"
-                          />
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                          <div className="w-2 h-2 bg-white rounded-full" />
                         </div>
-                        {/* Mouth - Danışan animasiya */}
-                        <motion.div
-                          animate={{
-                            height: mouthOpen ? 8 : 2,
-                            width: mouthOpen ? 12 : 8,
-                            borderRadius: mouthOpen ? '50%' : '2px',
-                          }}
-                          transition={{
-                            duration: 0.2,
-                          }}
-                          className="mx-auto bg-white rounded-full"
-                        />
+                        {/* Mouth - Static (səsləndirmə deaktiv) */}
+                        <div className="mx-auto bg-white rounded-full" style={{ height: '2px', width: '8px', borderRadius: '2px' }} />
                       </div>
                       {/* Glow Effect */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#ec4899]/40 to-[#d81b60]/40 blur-xl"></div>
                     </motion.div>
-                    {/* Speaking Indicator */}
-                    {isSpeaking && (
+                    {/* Speaking Indicator - DEACTIVATED */}
+                    {false && isSpeaking && (
                       <motion.div
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -322,8 +312,8 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
                     <div className="absolute -left-2 top-0 w-0 h-0 border-t-[12px] border-t-transparent border-r-[12px] border-r-white/10"></div>
                   </div>
                   
-                  {/* Typing indicator when speaking */}
-                  {isSpeaking && (
+                  {/* Typing indicator when speaking - DEACTIVATED */}
+                  {false && isSpeaking && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -386,8 +376,8 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             </div>
             </div>
 
-            {/* Arrow Pointer */}
-            {currentStepData.highlight && (
+            {/* Arrow Pointer - DEACTIVATED (bir yerə dayansın) */}
+            {false && currentStepData.highlight && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -404,13 +394,22 @@ const OnboardingTour = ({ isOpen, onClose, onComplete, username }) => {
             )}
           </motion.div>
 
-          {/* Highlight Overlay for specific elements */}
+          {/* Highlight Overlay for specific elements - Tam ekranı örtür */}
           {currentStepData.highlight && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[9997] pointer-events-none"
+              style={{
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100vw',
+                height: '100vh',
+                position: 'fixed',
+              }}
             >
               {/* This would highlight specific elements - implementation depends on element IDs */}
             </motion.div>

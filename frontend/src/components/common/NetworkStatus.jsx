@@ -93,12 +93,11 @@ const NetworkStatus = () => {
       if (lastStatusRef.current === null) {
         // İlk dəfə - status-u set et
         lastStatusRef.current = isActuallyOnline
-        // İlk dəfə online-dursa, "Qoşulun" bildirişi göstər
-        if (isActuallyOnline) {
-          handleOnline()
+        // İlk dəfə offline-dursa, bildiriş göstər
+        if (!isActuallyOnline) {
+          handleOffline()
         }
-        // Yalnız offline-dursa bildiriş göstər
-        // Amma WiFi bağlı olsa belə, real internet yoxdursa bildiriş göstərmə
+        // İlk dəfə online-dursa, bildiriş göstərmə (çünki hələ internet olmamışdır)
         return
       }
       
@@ -107,8 +106,10 @@ const NetworkStatus = () => {
         lastStatusRef.current = isActuallyOnline
         
         if (isActuallyOnline) {
+          // İnternet gəldi - yalnız əgər əvvəllər offline idisə bildiriş göstər
           handleOnline()
         } else {
+          // İnternet getdi - bildiriş göstər
           handleOffline()
         }
       }
@@ -122,12 +123,11 @@ const NetworkStatus = () => {
           handleOffline()
         }
       } else {
-        // WiFi bağlı olsa belə, real internet yoxdursa bildiriş göstərmə
-        // Amma yalnız əgər əvvəllər online idisə
+        // WiFi bağlı olsa belə, real internet yoxdursa
         if (lastStatusRef.current === null) {
-          // İlk dəfə - status-u set et, amma bildiriş göstərmə
-          // Çünki WiFi bağlı ola bilər, amma real internet yoxdur
+          // İlk dəfə - status-u set et və offline bildirişi göstər
           lastStatusRef.current = false
+          handleOffline()
           return
         }
         
