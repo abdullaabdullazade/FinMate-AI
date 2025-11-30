@@ -564,8 +564,23 @@ async def add_income(
             return JSONResponse({"success": False, "error": "Məbləğ daxil edilməyib"}, status_code=400)
         
         try:
-            amount = float(amount_str)
-        except (ValueError, TypeError):
+            # Clean the value - handle different locale formats
+            # Handles: "50", "50.00", "50,00", "1,000.50", "1000,50" etc.
+            cleaned = str(amount_str).replace(" ", "").strip()
+            
+            # Handle comma as decimal separator (e.g., "50,50")
+            if "," in cleaned and "." not in cleaned:
+                # Only comma - treat as decimal separator (European/Azerbaijani format)
+                cleaned = cleaned.replace(",", ".")
+            elif "," in cleaned and "." in cleaned:
+                # Both comma and dot - comma is thousand separator (e.g., "1,000.50")
+                cleaned = cleaned.replace(",", "")
+            # If only dot, keep as is (e.g., "50.50" or "1000.50")
+            
+            amount = float(cleaned)
+            print(f"   Parsed amount: '{amount_str}' -> '{cleaned}' -> {amount}")
+        except (ValueError, TypeError) as e:
+            print(f"❌ Amount parsing error: '{amount_str}' -> Error: {e}")
             return JSONResponse({"success": False, "error": "Yanlış məbləğ formatı"}, status_code=400)
         
         if amount <= 0:
@@ -615,6 +630,13 @@ async def add_income(
         print(f"   Is recurring: {is_recurring}")
         print(f"   User's monthly_income updated to: {user.monthly_income}")
         
+        # Verify the amount was saved correctly
+        db.refresh(income)
+        if abs(income.amount - amount) > 0.01:  # Allow small floating point differences
+            print(f"⚠️ Warning: Amount mismatch! Expected: {amount}, Saved: {income.amount}")
+        else:
+            print(f"✅ Verified: Amount saved correctly in database: {income.amount}")
+        
         # Send real-time notification via WebSocket - AI bildirişi
         try:
             from routes.websocket import send_notification_to_user
@@ -644,7 +666,9 @@ async def add_income(
         # Trigger stats update
         return JSONResponse({
             "success": True, 
-            "message": f"Gəlir əlavə edildi: {amount:.2f} {user.currency or 'AZN'}"
+            "message": f"Gəlir əlavə edildi: {amount:.2f} {user.currency or 'AZN'}",
+            "amount": amount,  # Include amount in response for verification
+            "income_id": income.id
         }, headers={"HX-Trigger": "update-stats"})
     except Exception as e:
         print(f"❌ Add Income Error: {e}")

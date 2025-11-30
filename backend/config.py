@@ -4,9 +4,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Currency configuration - Only AZN supported
 CURRENCY_SYMBOLS = {"AZN": "₼"}
+
+# Session secret key - use environment variable or fallback to default (change in production!)
+SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY", "finmate-secret-key-change-in-production")
 
 # Initialize FastAPI app
 app = FastAPI(title="FinMate AI", description="Your Personal CFO Assistant")
@@ -30,7 +37,7 @@ app.add_middleware(
 )
 
 # Add session middleware
-app.add_middleware(SessionMiddleware, secret_key="finmate-secret-key-change-in-production")
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
 
 # Create static directory if doesn't exist
 os.makedirs("static/uploads", exist_ok=True)
