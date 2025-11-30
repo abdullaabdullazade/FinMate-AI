@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from models import Base, User, Expense, ChatMessage, XPLog, Dream, Income
+from sqlalchemy.orm import sessionmaker
+from models import Base, User, Expense, ChatMessage
 from datetime import datetime, timedelta
-import random
 
 # SQLite Database Configuration
 DATABASE_URL = "sqlite:///./finmate.db"

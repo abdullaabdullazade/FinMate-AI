@@ -24,24 +24,15 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login", status_code=303)
     
     # Calculate stats
-    total_expenses = db.query(Expense).filter(Expense.user_id == user.id).count()
     total_spent_all_time = db.query(func.sum(Expense.amount)).filter(
         Expense.user_id == user.id
     ).scalar() or 0
-    total_spent_display = total_spent_all_time
     
     subscriptions = db.query(Expense).filter(
         Expense.user_id == user.id,
         Expense.is_subscription == True
     ).all()
-    
-    # Get gamification info
-    level_info = gamification.get_level_info(user.xp_points)
-    next_level = gamification.get_next_level_info(user.xp_points)
-    
-    # Get XP Logs
-    xp_logs = db.query(XPLog).filter(XPLog.user_id == user.id).order_by(XPLog.created_at.desc()).limit(20).all()
-    
+   
     # Calculate breakdown
     xp_breakdown = db.query(
         XPLog.action_type, 

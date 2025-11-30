@@ -4,10 +4,8 @@ from starlette.websockets import WebSocketDisconnect as StarletteWebSocketDiscon
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User, Expense
-from utils.auth import get_current_user
 from datetime import datetime, timedelta, date as date_type
 from typing import Dict, List
-import json
 
 # Active WebSocket connections
 active_connections: Dict[int, List[WebSocket]] = {}

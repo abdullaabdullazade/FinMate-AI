@@ -27,8 +27,6 @@ class VoiceService:
     # Voice names for different languages (Female voices)
     VOICE_MAP = {
         "az": "az-AZ-BanuNeural",      # Azerbaijani female voice
-        "en": "en-US-JennyNeural",     # English female voice
-        "ru": "ru-RU-SvetlanaNeural"   # Russian female voice
     }
     
     @staticmethod
@@ -42,7 +40,7 @@ class VoiceService:
         try:
             with open(audio_file_path, "rb") as audio_file:
                 # Map language codes to Whisper format
-                lang_map = {"az": "az", "en": "en", "ru": "ru"}
+                lang_map = {"az": "az"}
                 whisper_lang = lang_map.get(language, "az")
 
                 if groq_client:

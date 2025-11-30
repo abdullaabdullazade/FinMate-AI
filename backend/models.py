@@ -21,7 +21,7 @@ class User(Base):
     last_rewarded_month = Column(String, nullable=True)  # Format: "YYYY-MM"
     
     # User preferences
-    preferred_language = Column(String, default="az")  # az, en, ru
+    preferred_language = Column(String, default="az")  # az
     voice_enabled = Column(Boolean, default=True)
     voice_mode = Column(Boolean, default=False)  # TTS mode - text-to-speech enabled
     daily_budget_limit = Column(Float, nullable=True)
