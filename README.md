@@ -409,9 +409,14 @@ npm run build
 
 Contributions welcome! This is a hackathon project meant to showcase AI integration.
 
-## 📝 License
+## 📝 License & Copyright
 
-MIT License - feel free to use this for your hackathon or personal projects!
+**© 2025 FinMate AI. All Rights Reserved.**
+
+This project is proprietary software developed for the **National FinTech Hackathon**. 
+Unauthorized copying, modification, distribution, or use of this source code, via any medium, is strictly prohibited without the express written permission of the copyright holders.
+
+This software is currently under **Patent Application Review** by the Intellectual Property Agency of the Republic of Azerbaijan.
 
 ## 🏆 Hackathon Ready
 
