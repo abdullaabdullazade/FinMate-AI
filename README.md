@@ -2,7 +2,7 @@
 
 A futuristic Personal Finance PWA powered by Google Gemini AI, combining visual dashboards with a context-aware AI chatbot.
 
-🌐 **Live Demo**: [http://185.207.251.177:3000/](http://185.207.251.177:3000/)
+🌐 **Live Demo**: [https://finmate.abdulladev.site/](https://finmate.abdulladev.site/)
 
 ![FinMate AI](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green)
